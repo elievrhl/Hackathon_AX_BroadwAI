@@ -17,7 +17,22 @@ function picksTable(parent, picks, lookup) {
       judgment(p.matches_profile), judgment(p.evergreen), p.exploration ? p.exploration_reason : "—", p.reason]));
 }
 const labels = {catalog_ranked:"Classement du catalogue",shortlist:"Présélection diversifiée",candidate_prepare:"Préparation d’un article",candidate_skipped:"Article écarté",extract_requested:"Extraction demandée",extract_completed:"Texte extrait",extract_failed:"Échec d’extraction",summary_requested:"Résumé demandé",summary_completed:"Résumé reçu",summary_failed:"Échec du résumé",summary_cache_hit:"Fiche réutilisée",candidate_ready:"Article prêt pour le rédacteur",editor_requested:"Appel du rédacteur",editor_decision:"Décision du rédacteur",editor_failed:"Échec du rédacteur",validation:"Validation de la sélection",tool_requested:"Outil demandé",tool_result:"Résultat d’outil",cover_completed:"Couverture enregistrée"};
-function candidate(parent, c, selected, summaryState) {const card=n("details",undefined,"candidate-card"); card.append(n("summary",`${selected ? "✓ Retenu · " : ""}${c.title}`)); card.append(link("Article original ↗",c.url),n("p",`${c.source} · ${date(c.published_at)} · ${c.extraction_status}`,"small")); if(c.score !== undefined) card.append(n("p",`Score BM25 + fraîcheur : ${fmt(c.score)} · Intérêts : ${c.matched_interests?.join(", ") || "—"}`,"small")); if(summaryState)card.append(n("p",summaryState,"small")); if(c.reason) card.append(n("p",`Pourquoi : ${c.reason}`)); card.append(n("p",c.brief.summary,"prose")); const points=n("ul"); for(const p of c.brief.key_points) points.append(n("li",p)); card.append(points); for(const caveat of c.brief.caveats) card.append(n("p",caveat,"small")); parent.append(card);}
+labels.cited_sources = "Sources citées pertinentes";
+function candidate(parent, c, selected, summaryState) {
+  const card=n("details",undefined,"candidate-card");
+  card.append(n("summary",`${selected ? "✓ Retenu · " : ""}${c.title}`));
+  card.append(link("Article original ↗",c.url),n("p",`${c.source} · ${date(c.published_at)} · ${c.extraction_status}`,"small"));
+  if(c.score !== undefined) card.append(n("p",`Score BM25 + fraîcheur : ${fmt(c.score)} · Intérêts : ${c.matched_interests?.join(", ") || "—"}`,"small"));
+  if(summaryState) card.append(n("p",summaryState,"small"));
+  if(c.reason) card.append(n("p",`Pourquoi : ${c.reason}`));
+  card.append(n("p",c.brief.summary,"prose"));
+  const points=n("ul");
+  for(const p of c.brief.key_points) points.append(n("li",p));
+  card.append(points);
+  for(const caveat of c.brief.caveats) card.append(n("p",caveat,"small"));
+  appendCitedSources(card, c.brief.cited_sources);
+  parent.append(card);
+}
 async function showCover(id) {
   const seq=++state.sequence; state.selected=id; history.replaceState(null,"",`?id=${encodeURIComponent(id)}`); renderHistory(); $("cover-detail").replaceChildren(n("p","Chargement…","empty"));
   const c=await api(`/v1/covers/${encodeURIComponent(id)}`); if(seq!==state.sequence)return;
@@ -48,6 +63,20 @@ async function showCover(id) {
     });
   }
   const final=section(parent,`Couverture finale · ${c.items.length} articles`,true); for(const i of c.items)candidate(final,i,true);
+  const sourceEvents = events.filter(e => e.kind === "cited_sources");
+  const sourceCount = sourceEvents.reduce((count, event) => count + event.sources.length, 0);
+  const sources = section(parent, `Sources citées pertinentes · ${sourceCount} pistes`, sourceCount > 0);
+  if (!sourceEvents.length) sources.append(n("p", "Sources non enregistrées pour cet essai.", "muted"));
+  else if (!sourceCount) sources.append(n("p", "Aucune source citée jugée pertinente dans les fiches de cet essai.", "muted"));
+  else {
+    sources.append(n("p", "Pistes issues de toutes les fiches examinées, y compris celles des articles écartés. Une même source peut être citée par plusieurs articles.", "small"));
+    for (const event of sourceEvents) {
+      if (!event.sources.length) continue;
+      const origin = section(sources, event.title || event.article_id, true);
+      origin.append(link("Article à l’origine de ces pistes ↗", event.url));
+      appendCitedSources(origin, event.sources);
+    }
+  }
   const ranking=section(parent,"Articles présélectionnés et scores",Boolean(audit.version)); const stages=events.filter(e=>e.kind==="shortlist");
   if(!stages.length) ranking.append(n("p","Présélection et scores non enregistrés pour cette couverture.","muted"));
   stages.forEach((stage,index)=>{const d=section(ranking,`Passage ${index+1} · ${stage.shortlisted_ids.length} présélectionnés / ${stage.ranked_count} classés`,index===0); d.append(n("p","Score lexical relatif à ce corpus, pas une probabilité. La diversification peut retenir un article moins bien classé. Détail : intérêts pondérés + bonus de requête + fraîcheur.","small")); const ids=new Set(stage.shortlisted_ids); table(d,["Article","Score","Présélection","Détail"],stage.ranked.map(r=>[link(r.title,r.url),fmt(r.score),ids.has(r.article_id)?"Oui":"Non",jsonDetails("Composantes",r.score_details)])); if(stage.ranked_count>stage.ranked.length)d.append(n("p",`Affichage limité à ${stage.ranked.length} lignes enregistrées sur ${stage.ranked_count}.`,"small"));});

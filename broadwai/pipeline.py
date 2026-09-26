@@ -126,13 +126,29 @@ class CoverPipeline:
                     + "\n"
                     + json.dumps(provided_profile, ensure_ascii=False)
                 )
-                if not all(
-                    grounded(n.evidence, evidence_source, minimum=2)
+                valid_needs = [
+                    n for n in interpreted.needs if grounded(n.evidence, evidence_source, minimum=2)
+                ]
+                valid_constraints = [
+                    c
+                    for c in interpreted.constraints
+                    if grounded(c.evidence, evidence_source, minimum=2)
+                ]
+                rejected_intent = [
+                    n.model_dump()
                     for n in [*interpreted.needs, *interpreted.constraints]
-                ):
-                    raise ModelError("Besoin ou contrainte sans citation du profil")
-                needs = [n.model_dump() for n in interpreted.needs]
-                constraints = [c.model_dump() for c in interpreted.constraints]
+                    if not grounded(n.evidence, evidence_source, minimum=2)
+                ]
+                if rejected_intent:
+                    self.log("intent_items_rejected", items=rejected_intent)
+                if not valid_needs:
+                    raise ModelError("Aucun besoin avec citation du profil")
+                if rejected_intent:
+                    self.warnings.append(
+                        "Interprétation partielle : éléments sans citation du profil écartés"
+                    )
+                needs = [n.model_dump() for n in valid_needs]
+                constraints = [c.model_dump() for c in valid_constraints]
                 # Explicit notes take precedence over broad UI categories, regardless
                 # of a model accidentally copying their numeric interest weights.
                 note_needs = {
@@ -188,12 +204,18 @@ class CoverPipeline:
             allow_evergreen=bool(pick and pick.evergreen),
             kind=pick.temporal_kind if pick else None,
         ):
-            self.log(
-                "candidate_skipped",
-                article_id=article.id,
-                reason="Date incompatible avec une actualité ou une lecture de fond validée",
-            )
-            return False
+            # A title/excerpt classification is provisional. When full text is already
+            # available, let the grounded brief settle the temporal kind. Final date
+            # and validity checks below still reject stale news and uncertain content.
+            if article.extraction_status == "extracted" and article.text.strip():
+                self.log("temporal_review_requested", article_id=article.id)
+            else:
+                self.log(
+                    "candidate_skipped",
+                    article_id=article.id,
+                    reason="Date incompatible avec une actualité ou une lecture de fond validée",
+                )
+                return False
         self.log(
             "candidate_prepare",
             article_id=article.id,
@@ -274,6 +296,13 @@ class CoverPipeline:
                 brief = brief.model_copy(update={"caveats": list(dict.fromkeys(caveats))[:5]})
                 self.store.put_brief(article, self.model.summary_version, brief)
                 self.log("summary_completed", article_id=article.id, brief=brief.model_dump())
+        self.log(
+            "cited_sources",
+            article_id=article.id,
+            title=article.title,
+            url=article.url,
+            sources=[source.model_dump() for source in brief.cited_sources],
+        )
         checked_article = article.model_copy(
             update={"language": article.language or brief.language}
         )
@@ -602,6 +631,8 @@ class CoverPipeline:
                     headline=selection.headline,
                     role=selection.role,
                     reading_time_minutes=self.articles[selection.article_id].reading_time_minutes,
+                    image=self.articles[selection.article_id].image,
+                    image_checked=self.articles[selection.article_id].image_checked_at is not None,
                     selection_kind=(
                         "exploration" if self._is_exploration(selection.article_id) else "focused"
                     ),
@@ -921,6 +952,12 @@ class CoverPipeline:
                 s.section = self.picks[s.article_id].section
                 s.reason = self.picks[s.article_id].reason
         selections, _ = self._allocate(selections, request)
+        if (
+            not selections
+            and self.budget.model_calls
+            and all(call["status"] == "error" for call in self.budget.model_calls)
+        ):
+            raise ModelError("Aucun appel modèle n'a abouti ; aucune couverture enregistrée")
         for index, selection in enumerate(selections):
             if not self._is_exploration(selection.article_id):
                 selection.role = "lead" if index == 0 else "secondary" if index < 3 else "reading"

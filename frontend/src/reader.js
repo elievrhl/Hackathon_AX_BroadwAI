@@ -64,12 +64,20 @@ export function safeArticleUrl(value) {
   } catch { return null; }
 }
 
+export function articleImageUrl(item) {
+  // Always use the local image service, never a URL supplied by an external page.
+  if (!/^[a-zA-Z0-9_-]{1,100}$/.test(item.article_id || '')) return null;
+  if (item.image_checked && !item.image) return null;
+  return `/v1/articles/${encodeURIComponent(item.article_id)}/image?v=review-1`;
+}
+
 /** Keep the editor's order and section names; every item appears exactly once on the front page. */
 export function adaptCover(raw) {
   if (!raw?.id || !Array.isArray(raw.items)) throw new Error('Réponse de couverture invalide.');
   const items = raw.items.map(item => ({
     id: item.article_id, title: item.headline || item.title, originalTitle: item.title,
     url: safeArticleUrl(item.url), source: item.source, publishedAt: item.published_at,
+    imageUrl: articleImageUrl(item), imageAlt: item.image?.alt || '',
     section: item.selection_kind === 'exploration' ? 'Exploration' : item.section || 'À découvrir',
     reason: item.reason,
     exploration: item.selection_kind === 'exploration',

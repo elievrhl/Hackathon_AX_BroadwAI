@@ -28,7 +28,7 @@ export default function Newspaper({ profile, cover, saved, onSave, onOpen, onPre
       {cover && !items.length && <div className="empty-state"><h2>Aucun article retenu.</h2><p>Ajustez vos sujets ou enrichissez le catalogue depuis l’administration.</p></div>}
       {items.length > 0 && (filter === 'all' ? <>
         {cover.lead && <><div className="front-label"><span>L’ESSENTIEL DE VOTRE ÉDITION</span><span className="front-label-right">VOTRE SÉLECTION, EN PERSPECTIVE ↓</span></div>
-        <section className="front-grid" aria-label="Les grands titres">
+        <section className={`front-grid${cover.secondary.length ? ' has-secondary' : ''}${cover.briefs.length ? ' has-briefs' : ''}`} aria-label="Les grands titres">
           {cover.lead && card(cover.lead, 'lead')}
           {!!cover.secondary.length && <div className="secondary-column">{cover.secondary.map(article => card(article, 'secondary'))}</div>}
           {!!cover.briefs.length && <aside className="briefs-column"><div className="briefs-heading"><Clock3 size={16} /><h2>En bref</h2></div>{cover.briefs.map((article, index) => card(article, 'brief', index))}<div className="briefs-foot">L’essentiel, puis le temps<br />d’aller plus loin.</div></aside>}

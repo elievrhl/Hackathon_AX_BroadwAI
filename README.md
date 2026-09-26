@@ -7,6 +7,32 @@ affiche les vraies couvertures de l’API : profil local sans compte, générati
 15 à 20 articles, historique, rubriques, liens éditeurs, favoris et retours de lecture.
 La génération payante ne démarre que sur le bouton « Générer ma une ».
 
+La une affiche les visuels des articles : métadonnées Open Graph/Twitter en priorité,
+puis image structurée JSON-LD ou image principale du texte. Un lien sous le visuel
+renvoie vers l’éditeur. Les images indisponibles laissent une carte textuelle ; les
+brèves restent compactes. Les éditions déjà enregistrées sont illustrées à leur
+ouverture, sans régénérer les résumés.
+Le backend sert les images des articles sélectionnés via `/v1/articles/{id}/image`,
+avec contrôle des destinations publiques, de la taille et du format raster. Le cache
+en mémoire dure six heures (32 Mo/128 entrées au maximum), les échecs cinq minutes.
+
+Avant le premier affichage, **GPT-5.4 nano** contrôle la pertinence visuelle par rapport
+au titre et à 1 000 caractères de l'article. Seule une miniature JPEG sans métadonnées,
+limitée à **768 pixels et 100 Ko**, est transmise à OpenAI ; le visuel affiché conserve
+sa qualité d'origine. Réponse JSON minimale (`keep`, `reject`, `uncertain`), plafond de
+32 tokens, raisonnement désactivé, aucun outil ni relance automatique du SDK.
+Seul `keep` autorise l'image : les doutes, refus, erreurs, formats invalides et animations
+laissent la carte textuelle. Une erreur ne peut être réessayée qu'après 24 h.
+
+La table `image_reviews` conserve les verdicts et les coûts déclarés, partagés entre
+éditions et utilisateurs, même après redémarrage. La clé inclut l'article, son contexte,
+les pixels compressés, le modèle et la version du contrôle. Une réservation atomique
+évite les appels simultanés identiques. Sans clé API, les images non vérifiées sont masquées.
+`IMAGE_REVIEW_ENABLED=true` et `IMAGE_REVIEW_MODEL=gpt-5.4-nano` sont les défauts ;
+désactiver le contrôle rétablit l'affichage sans validation sémantique.
+Ce contrôle est facturé au premier chargement d'un nouveau visuel. Son coût figure dans
+`image_reviews`, séparément du coût de génération enregistré dans la couverture.
+
 ```powershell
 cd frontend
 pnpm install
@@ -95,7 +121,7 @@ Un article écarté ne repasse pas dans les filtres à chaque reformulation. Les
 contrôlées aussi en mode partiel : rubriques connues, besoin cité, preuve dans la fiche, titre français,
 rôle éditorial et absence de reprise du même événement sans angle distinct. Le lecteur respecte les
 rôles (sujet principal, secondaire, brève, lecture), avec compatibilité pour les éditions anciennes.
-Les fiches `brief-v3` comprennent validité et titre français ; les anciennes fiches ne sont pas
+Les fiches `brief-v6` comprennent validité et titre français ; les anciennes fiches ne sont pas
 réutilisées pour les nouvelles générations. Les anciennes éditions restent consultables.
 
 `examples/sources-economy.json` propose dix flux économiques supplémentaires ; huit ont été
@@ -351,6 +377,20 @@ reste possible si aucun contenu exploitable n'est disponible. Ce statut ne prouv
 
 ## Limites et budgets
 
+Les fiches de lecture se terminent par `cited_sources` : jusqu'à huit sources citées que le
+modèle juge pertinentes pour approfondir le sujet ou découvrir de futures lectures. Chaque piste
+contient un nom, un motif de pertinence, un passage du texte qui justifie l'attribution et une URL
+uniquement si elle est disponible dans le contenu fourni. Une simple mention ou un lien anecdotique
+ne suffit pas ; la liste reste vide si aucune source ne convient. Les liens du corps de l'article
+sont conservés lors des nouvelles extractions pour aider cette identification.
+Les citations sans passage justificatif sont écartées ; les URL non observées sont retirées.
+Ces pistes figurent à la fin des fiches dans `/admin` et dans la section « Sources citées pertinentes »
+de `/admin/covers`, avec leur article d'origine, y compris pour les fiches réutilisées depuis le cache.
+Elles sont enregistrées dans le journal sans déclencher de collecte ni d'ajout automatique de source.
+Le cache des résumés est versionné (`brief-v6`) ; les anciennes éditions restent consultables.
+Pour les articles déjà extraits sans liens, le modèle peut encore relever des sources nommées,
+mais la récupération des liens nécessite une nouvelle collecte du contenu HTML.
+
 - Une génération à la fois par processus API, délai global de 300 secondes. Pas encore de file de jobs.
 - Nombre de tours, résumés, recherches web et téléchargements borné dans `.env`.
 - `MAX_TOKEN_BUDGET` borne une **réservation estimée conservatrice** (octets UTF-8 du texte/schema +
@@ -400,6 +440,39 @@ Elle lit un flux réel et tente d'extraire un de ses articles ; son résultat d�
 Pour tester une collecte HTML sans base ni LLM :
 `uv run python -m scripts.smoke_website https://simonwillison.net/ --limit 2`.
 `--save-pages data/website-smoke` conserve le HTML téléchargé pour examiner les erreurs de détection.
+
+## Évaluation sur quatre profils nouveaux
+
+`examples/evaluation-profiles.json` contient quatre profils indépendants des anciens essais :
+cuisine, création de jeux indépendants, jardinage urbain en français, musique et prise de son.
+
+```powershell
+uv run python -m scripts.evaluate_covers --output data/evaluation/mon-essai
+# Une seule génération ciblée :
+uv run python -m scripts.evaluate_covers --only cuisine --output data/evaluation/cuisine
+```
+
+Cette commande effectue de vrais appels payants avec la configuration locale. Elle appelle
+directement la pipeline, persiste les éditions et fiches dans PostgreSQL et partage le catalogue
+et le cache. Lancer un seul évaluateur et éviter une génération simultanée dans le lecteur.
+Chaque dossier contient les requêtes, empreintes du code, métriques, résultats complets et
+diagnostics même en cas d'échec. Aucun réessai automatique ; un dossier existant n'est pas écrasé.
+La cible est de 18 articles, avec les budgets habituels. Un résultat partiel ou vide reste un
+échec de complétude, même si les quotas et langues sont respectés.
+
+Les vérifications automatiques portent sur les identifiants, langues, quotas et dates des
+actualités ; elles ne mesurent pas à elles seules la pertinence ou la fiabilité des articles.
+Les comparaisons successives ne sont pas des tests A/B isolés : catalogue et cache évoluent.
+
+Les corrections issues de ces essais conservent les besoins correctement cités lorsqu'un autre
+élément de l'interprétation est invalide. Une classification temporelle provisoire défavorable
+peut être réexaminée sur un texte intégral déjà disponible ; la fiche doit ensuite satisfaire
+les mêmes règles de validité et de date. Les variations normales d'une méthode relèvent des
+réserves, sans être automatiquement assimilées à une obsolescence. Le cache `brief-v6` évite de
+réutiliser les jugements des anciens prompts. Le modèle peut encore mal classer la temporalité.
+Les noms de langues et variantes régionales sont normalisés pour les filtres (français/fr-FR → fr,
+English/en-US → en). Si tous les appels modèles échouent sans aucun article disponible, l'API
+renvoie HTTP 502 plutôt que d'enregistrer une couverture vide comme succès technique.
 
 ## Fichiers principaux
 

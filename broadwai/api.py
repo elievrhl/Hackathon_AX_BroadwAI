@@ -3,11 +3,13 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 from broadwai.config import Settings
-from broadwai.llm import OpenAILanguageModel
+from broadwai.image_review import ImageReviewer
+from broadwai.images import ArticleImages
+from broadwai.llm import ModelError, OpenAILanguageModel
 from broadwai.models import Cover, CoverRequest, Feedback, IngestRequest
 from broadwai.network import PublicFetcher
 from broadwai.pipeline import CoverPipeline
@@ -44,9 +46,22 @@ def create_app(
         app.state.search = search or OpenAIWebSearch(llm, settings.web_search_enabled)
         app.state.cover_lock = asyncio.Lock()
         app.state.source_lock = asyncio.Lock()
+        app.state.images = ArticleImages(
+            repository,
+            PublicFetcher(settings.request_timeout, settings.max_download_bytes),
+            ImageReviewer(
+                repository, settings.openai_api_key.get_secret_value(), settings.image_review_model
+            )
+            if settings.image_review_enabled
+            and settings.openai_api_key
+            and settings.openai_api_key.get_secret_value()
+            else None,
+            require_review=settings.image_review_enabled,
+        )
         try:
             yield
         finally:
+            await app.state.images.close()
             if model is None and llm is not None:
                 await llm.close()
             if store is None:
@@ -98,6 +113,22 @@ def create_app(
     def articles(limit: int = Query(50, ge=1, le=200)):
         return [a.model_dump(exclude={"text", "excerpt"}) for a in app.state.store.articles(limit)]
 
+    @app.get("/v1/articles/{article_id}/image", include_in_schema=False)
+    async def get_article_image(article_id: str):
+        result = await app.state.images.get(article_id)
+        if result is None:
+            return Response(status_code=404, headers={"Cache-Control": "public, max-age=300"})
+        body, media_type = result
+        return Response(
+            body,
+            media_type=media_type,
+            headers={
+                "Cache-Control": "public, max-age=21600",
+                "X-Content-Type-Options": "nosniff",
+                "Cross-Origin-Resource-Policy": "same-origin",
+            },
+        )
+
     @app.post("/v1/covers", response_model=Cover)
     async def create_cover(request: CoverRequest):
         if app.state.model is None:
@@ -115,6 +146,10 @@ def create_app(
                 raise HTTPException(
                     504, "Délai de génération dépassé ; fiches déjà créées conservées"
                 ) from exc
+            except ModelError as exc:
+                raise HTTPException(
+                    502, "Les appels aux modèles ont échoué ; aucune couverture enregistrée"
+                ) from exc
 
     @app.get("/v1/covers")
     def list_covers(limit: int = Query(30, ge=1, le=100), offset: int = Query(0, ge=0)):
@@ -128,12 +163,18 @@ def create_app(
         # Older editions predate this metadata; enrich them from the local catalog.
         items = []
         for item in cover.items:
-            if item.reading_time_minutes is None:
-                article = app.state.store.get_article(item.article_id)
-                if article is not None:
-                    item = item.model_copy(
-                        update={"reading_time_minutes": article.reading_time_minutes}
-                    )
+            article = app.state.store.get_article(item.article_id)
+            if article is not None:
+                item = item.model_copy(
+                    update={
+                        "reading_time_minutes": item.reading_time_minutes
+                        or article.reading_time_minutes,
+                        "image": article.image
+                        if article.image_checked_at is not None
+                        else article.image or item.image,
+                        "image_checked": article.image_checked_at is not None or item.image_checked,
+                    }
+                )
             items.append(item)
         cover = cover.model_copy(update={"items": items})
         return cover

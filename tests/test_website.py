@@ -158,6 +158,23 @@ def test_metadata_excerpt_survives_unavailable_article_body():
     assert item.excerpt and not item.text
 
 
+def test_article_retains_content_links_without_navigation_and_invalid_urls():
+    item = website_article(
+        story(
+            text=TEXT + ' Selon <a href="/study?utm_source=ref">le rapport</a>, '
+            'les outils sont utiles. <a href="/study">Même étude</a> '
+            '<a href="http://127.0.0.1/private">Lien interne</a> '
+            '<a href="javascript:alert(1)">Action</a>'
+        ),
+        ROOT,
+    )
+    assert [link.model_dump() for link in item.content_links] == [
+        {"label": "le rapport", "url": "https://example.com/study"}
+    ]
+    assert "Selon le rapport" in item.text
+    assert item.content_hash != item.model_copy(update={"content_links": []}).content_hash
+
+
 @pytest.mark.parametrize(
     "download",
     [

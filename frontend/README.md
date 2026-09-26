@@ -54,6 +54,12 @@ arrondi à la minute supérieure, à partir du texte extrait de l’article. Si 
 extrait est disponible, la durée est indiquée comme indisponible. Les éditions
 enregistrées avant cet ajout sont enrichies depuis le catalogue lors de leur ouverture.
 
+Les visuels sont servis par le backend après un contrôle Nano de leur pertinence.
+Cette analyse est facturée une seule fois par article/contexte/image/version, puis
+conservée en PostgreSQL pour toutes les éditions. Les images rejetées, douteuses ou
+non vérifiables disparaissent au profit d'une carte textuelle. Le paramètre
+`?v=review-1` renouvelle le cache du navigateur pour les anciennes images non contrôlées.
+
 Les nouvelles éditions privilégient les actualités des dernières 24–72 heures (7 jours maximum)
 et acceptent les lectures de fond durables jusqu'à un an. Ces deux catégories sont visibles sur
 les cartes. Si les articles directement liés aux sujets ne suffisent pas, une rubrique

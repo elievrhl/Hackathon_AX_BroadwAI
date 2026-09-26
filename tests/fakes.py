@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from broadwai.llm import ModelError
 from broadwai.models import Article, Brief, Decision, EditorialPlan, utcnow
 
@@ -10,6 +12,7 @@ class MemoryStore:
         self.briefs = {}
         self.covers = {}
         self.feedback = set()
+        self.image_reviews = {}
 
     def put_article(self, article):
         previous = self.rows.get(article.id)
@@ -20,6 +23,40 @@ class MemoryStore:
 
     def get_article(self, article_id):
         return self.rows.get(article_id)
+
+    def set_article_image(self, article_id, image, checked_at):
+        if article_id in self.rows:
+            self.rows[article_id] = self.rows[article_id].model_copy(
+                update={"image": image, "image_checked_at": checked_at}
+            )
+
+    def article_has_cover(self, article_id):
+        return any(item.article_id == article_id for c in self.covers.values() for item in c.items)
+
+    def get_image_review(self, cache_key):
+        return self.image_reviews.get(cache_key)
+
+    def claim_image_review(self, cache_key, article_id, claim_id, metadata):
+        previous = self.image_reviews.get(cache_key)
+        if previous and (previous["status"] == "completed" or previous["retry_after"] > utcnow()):
+            return False
+        self.image_reviews[cache_key] = {
+            **metadata,
+            "article_id": article_id,
+            "claim_id": claim_id,
+            "status": "pending",
+            "retry_after": utcnow() + timedelta(minutes=10),
+        }
+        return True
+
+    def finish_image_review(self, cache_key, claim_id, payload):
+        previous = self.image_reviews[cache_key]
+        if previous["claim_id"] == claim_id:
+            previous.update(
+                payload,
+                status="error" if payload.get("error") else "completed",
+                retry_after=utcnow() + timedelta(hours=24) if payload.get("error") else None,
+            )
 
     def articles(self, limit=3000):
         return list(self.rows.values())[:limit]

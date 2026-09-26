@@ -115,6 +115,22 @@ function ArticleMeta({
     </span>
   </div>;
 }
+
+function ArticleVisual({ article, onOpen, priority = false }) {
+  const [failed, setFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  if (!article.imageUrl || failed) return null;
+  const picture = <img src={article.imageUrl} alt={article.imageAlt} loading={priority ? 'eager' : 'lazy'}
+    fetchPriority={priority ? 'high' : 'auto'} decoding="async" width="900" height="600"
+    onLoad={event => {
+      if (event.currentTarget.naturalWidth < 120 || event.currentTarget.naturalHeight < 90) setFailed(true);
+      else setLoaded(true);
+    }} onError={() => setFailed(true)} />;
+  return <figure className={`article-visual${loaded ? ' is-loaded' : ''}`}>
+    {onOpen ? <button className="article-image-button" onClick={() => onOpen(article)} aria-label={`Découvrir : ${article.title}`}>{picture}</button> : picture}
+    {loaded && <figcaption>Visuel de l’article · {article.url ? <a href={article.url} target="_blank" rel="noopener noreferrer">{article.source}</a> : article.source}</figcaption>}
+  </figure>;
+}
 export function ArticleCard({
   article,
   variant = '',
@@ -127,6 +143,7 @@ export function ArticleCard({
     {variant === 'brief' && <span className="brief-index">{String(index + 1).padStart(2, '0')}</span>}
     <div className="article-inner">
       <div className="article-topline"><span className={`eyebrow article-category ${article.exploration ? 'exploration-label' : ''}`}>{article.exploration ? `Exploration / ${article.kind}` : variant === 'lead' ? `${article.section} / ${article.kind}` : article.kind}</span><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`${saved ? 'Retirer des' : 'Ajouter aux'} favoris : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Retirer des favoris' : 'Garder pour plus tard'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
+      {variant !== 'brief' && <ArticleVisual key={article.imageUrl} article={article} onOpen={onOpen} priority={variant === 'lead'} />}
       <h3><button className="article-title" onClick={() => onOpen(article)}>{article.title}</button></h3>
       <ArticleMeta article={article} />
       {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
@@ -176,6 +193,7 @@ export function ArticleDetail({
     <div className="detail-kicker eyebrow">{article.section} <span>/</span> {article.kind}</div>
     <h2 id="article-title">{article.title}</h2>
     <ArticleMeta article={article} />
+    <ArticleVisual key={article.imageUrl} article={article} priority />
     {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
     <div className="publisher-action">{article.url && <a className="primary-button" href={article.url} target="_blank" rel="noopener noreferrer" onClick={onRead}>Lire chez {article.source} <ArrowUpRight size={17} /></a>}</div>
     <details className="article-brief"><summary>Voir la fiche de lecture</summary><p className="detail-summary">{article.summary}</p>

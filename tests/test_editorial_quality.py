@@ -7,7 +7,15 @@ from pydantic import ValidationError
 
 from broadwai.editorial import grounded
 from broadwai.llm import BudgetExceeded, OpenAILanguageModel, RunBudget
-from broadwai.models import EditorialIntent, ReadingValidity, Selection, utcnow
+from broadwai.models import (
+    Article,
+    Brief,
+    EditorialIntent,
+    Profile,
+    ReadingValidity,
+    Selection,
+    utcnow,
+)
 from broadwai.ranking import rank
 from tests.fakes import MemoryStore, ScriptedModel, article, decision, finalize_first
 from tests.test_editorial import PlannedModel, finalize_all, plan_for
@@ -28,6 +36,22 @@ def test_grounded_evidence_accepts_quote_wrappers_and_typography_but_not_invente
     assert grounded("« l'histoire des sciences »", "Passionné par l’histoire des sciences")
     assert grounded('"livres"', "livres, littérature", minimum=2)
     assert not grounded('"l’histoire de Singapour"', "l’histoire des sciences")
+
+
+@pytest.mark.parametrize("language", ["français", "French", "fr-FR", "fr_FR", "fra"])
+async def test_language_names_and_regional_codes_share_the_same_filter(language):
+    item = Article.model_validate({**article().model_dump(), "language": language})
+    profile = Profile.model_validate(
+        {**request().profile.model_dump(), "languages": [language, "fr"]}
+    )
+    brief = await ScriptedModel().summarize(item, RunBudget({"summary": 1}, 1000))
+    brief = Brief.model_validate({**brief.model_dump(), "language": language})
+    assert item.language == brief.language == "fr"
+    assert profile.languages == ["fr"]
+    assert len(rank([item], profile)) == 1
+    foreign = Article.model_validate({**item.model_dump(), "language": "English"})
+    assert foreign.language == "en"
+    assert rank([foreign], profile) == []
 
 
 def test_parallel_reservations_are_reconciled_once_even_out_of_order():
@@ -143,7 +167,8 @@ async def test_temporal_rejection_is_not_screened_again_and_is_visible_to_editor
     assert first["rejections"][0]["article_id"] == old.id
     assert second["added_ids"] == []
     assert model.screens == 1
-    assert model.summary_calls == 0
+    # Full text is evaluated once; the rejection prevents subsequent paid retries.
+    assert model.summary_calls == 1
 
 
 async def test_permuting_an_unsuccessful_query_does_not_spend_another_search():
@@ -187,7 +212,53 @@ async def test_invented_profile_constraint_is_rejected_before_ranking():
         request(notes="J'aime l'histoire des sciences")
     )
     assert cover.diagnostics["editorial_intent"]["constraints"] == []
+    assert cover.diagnostics["editorial_intent"]["needs"][0]["topic"] == "Histoire"
+    assert cover.diagnostics["events"][0]["kind"] == "intent_items_rejected"
     assert any("sans citation" in warning for warning in cover.warnings)
+
+
+@pytest.mark.parametrize(
+    "kind,status,accepted",
+    [
+        ("evergreen", "durable", True),
+        ("news", "time_sensitive", False),
+        ("research", "time_sensitive", False),
+        ("evergreen", "uncertain", False),
+    ],
+)
+async def test_full_text_can_correct_preview_temporality_without_relaxing_final_rules(
+    kind, status, accepted
+):
+    item = article(title="Une méthode pratique").model_copy(
+        update={
+            "published_at": utcnow() - timedelta(days=800),
+            "text": "Python systèmes distribués : une méthode pratique. " * 20,
+            "extraction_status": "extracted",
+        }
+    )
+    plan = plan_for([item])
+    plan.picks[0].temporal_kind = "news"
+
+    class Model(PlannedModel):
+        async def summarize(self, item, budget):
+            brief = await super().summarize(item, budget)
+            return brief.model_copy(
+                update={
+                    "validity": ReadingValidity(
+                        kind=kind,
+                        status=status,
+                        reason="Évaluation du texte intégral",
+                        evidence="Python systèmes distribués",
+                    )
+                }
+            )
+
+    cover = await pipeline(MemoryStore([item]), Model(plan, [finalize_all])).run(request())
+    assert bool(cover.items) is accepted
+    assert any(e["kind"] == "temporal_review_requested" for e in cover.diagnostics["events"])
+    if accepted:
+        assert cover.items[0].reading_kind == "evergreen"
+        assert cover.items[0].published_at == item.published_at
 
 
 async def test_specific_notes_stay_primary_when_model_prefers_broad_ui_interests():

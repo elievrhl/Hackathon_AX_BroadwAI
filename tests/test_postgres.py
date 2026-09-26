@@ -7,7 +7,7 @@ import pytest
 from psycopg import sql
 from psycopg.conninfo import make_conninfo
 
-from broadwai.models import Feedback
+from broadwai.models import ArticleImage, Feedback, utcnow
 from broadwai.store import Store
 from tests.fakes import ScriptedModel, article, finalize_first
 from tests.test_pipeline import pipeline, request
@@ -95,6 +95,60 @@ async def test_postgres_content_change_invalidates_brief(pg_store):
     assert pg_store.get_brief(updated, model.summary_version) is None
     await pipeline(pg_store, model).run(request())
     assert model.summary_calls == 2
+
+
+async def test_postgres_image_enrichment_preserves_text_and_cached_brief(pg_store):
+    item = article()
+    pg_store.put_article(item)
+    model = ScriptedModel([finalize_first])
+    await pipeline(pg_store, model).run(request())
+    cached = pg_store.get_brief(item, model.summary_version)
+    picture = ArticleImage(url="https://cdn.example/article.jpg", alt="Illustration originale")
+    checked_at = utcnow()
+    pg_store.set_article_image(item.id, picture, checked_at)
+    stored = pg_store.get_article(item.id)
+    assert stored.image == picture and stored.image_checked_at == checked_at
+    assert stored.text == item.text and stored.content_hash == item.content_hash
+    assert pg_store.get_brief(stored, model.summary_version) == cached
+
+
+def test_postgres_image_review_claim_and_persistent_verdict(pg_store):
+    from concurrent.futures import ThreadPoolExecutor
+
+    item = article()
+    pg_store.put_article(item)
+    assert not pg_store.article_has_cover(item.id)
+    metadata = {"model": "gpt-5.4-nano", "image_bytes": 30_000}
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        claims = list(
+            executor.map(
+                lambda claim: pg_store.claim_image_review("key", item.id, claim, metadata),
+                ["worker-a", "worker-b"],
+            )
+        )
+    assert sorted(claims) == [False, True]
+    winner = "worker-a" if claims[0] else "worker-b"
+    loser = "worker-b" if claims[0] else "worker-a"
+    pg_store.finish_image_review("key", loser, {"verdict": "keep"})
+    assert pg_store.get_image_review("key")["status"] == "pending"
+    pg_store.finish_image_review(
+        "key", winner, {"verdict": "reject", "usage": {"output_tokens": 7}}
+    )
+    assert pg_store.get_image_review("key")["verdict"] == "reject"
+    assert not pg_store.claim_image_review("key", item.id, "worker-c", metadata)
+    assert pg_store.get_article(item.id) == item
+    assert pg_store.claim_image_review("error-key", item.id, "worker-a", metadata)
+    pg_store.finish_image_review(
+        "error-key", "worker-a", {"verdict": "uncertain", "error": "Timeout"}
+    )
+    assert not pg_store.claim_image_review("error-key", item.id, "worker-b", metadata)
+    with pg_store.pool.connection() as db:
+        db.execute(
+            "UPDATE image_reviews SET retry_after=now() - interval '1 second' "
+            "WHERE cache_key='error-key'"
+        )
+    assert pg_store.claim_image_review("error-key", item.id, "worker-b", metadata)
+    assert pg_store.get_image_review("error-key")["previous_attempts"][0]["error"] == "Timeout"
 
 
 def test_postgres_sources_collection_and_article_browsing(pg_store):

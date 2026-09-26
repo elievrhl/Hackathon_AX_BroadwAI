@@ -1,5 +1,100 @@
 # Kiosque — contexte et passation aux agents
 
+## Nettoyage des visuels incertains — 27 septembre 2026
+
+À la demande de l'utilisateur, suppression des références d'images des 7 articles dont le
+dernier verdict est `uncertain` : 6 références retirées, celle de Fowler était déjà absente.
+Le cache mémoire a été vidé par redémarrage du serveur et le lecteur actualisé. Les 28
+verdicts Nano, dont 18 `keep`, restent enregistrés pour éviter de repayer les mêmes analyses.
+Textes, couvertures enregistrées et métadonnées des autres articles inchangés, vérifiés par
+empreintes avant/après. Les 7 routes image répondent 404 ; la couverture courante conserve
+ses 18 articles avec les 2 visuels concernés absents. Aucun nouvel appel modèle.
+Audit et sauvegarde des seules métadonnées retirées :
+`data/uncertain-image-cache-purge-20260926T222837Z.json`.
+
+## Correctif logo Martin Fowler — 27 septembre 2026
+
+Dans l'édition de 18 articles `f1fc111f9f8d42b78a6d949bfd0a812e`, l'article
+`d9fbb5d07fdb6b984bd11410` avait pour visuel `https://martinfowler.com/logo-sq.png`
+(144 x 144). Le site le déclare en Open Graph et l'article ne contient pas d'illustration.
+La carte l'agrandissait et le recadrait. À la vérification, Nano l'a classé `uncertain`.
+Le collecteur exclut désormais les chemins explicitement nommés logo/favicon/avatar,
+y compris dans les métadonnées. Le service réexamine les anciennes références de ce type
+pour trouver une vraie image ou enregistrer son absence, sans appeler Nano sur le logo.
+L'article reste affiché sans illustration ; texte et cache de résumé préservés.
+91 tests ciblés passent. Diagnostic : `data/fowler-image-diagnostic.json`.
+
+## Visuels des articles et contrôle Nano — 26 septembre 2026
+
+Le lecteur affiche les images éditeurs sur la une et les fiches de lecture, avec attribution
+et repli textuel si indisponibles. Extraction dans `images.py` : Open Graph/Twitter, JSON-LD
+correspondant à la page, puis image substantielle du corps. Les collectes enregistrent les
+métadonnées ; les anciennes éditions les découvrent à l'ouverture.
+`/v1/articles/{id}/image` sert les formats raster vérifiés via `PublicFetcher` et un cache
+borné (6 h, 32 Mo/128 entrées, échecs 5 min, 4 téléchargements concurrents).
+L'enrichissement JSONB est atomique et ne change pas l'empreinte de contenu ni le cache des fiches.
+
+Avant affichage, `image_review.py` compare les pixels au titre et aux 1 000 premiers caractères
+du texte avec `gpt-5.4-nano`. JPEG <=768 px et <=100 Ko avant encodage base64, métadonnées
+retirées, 32 tokens de sortie maximum, raisonnement `none`, réponse JSON limitée au verdict.
+La qualité du visuel affiché reste celle de l'original. Seul `keep` autorise l'affichage ;
+`reject`, `uncertain`, erreurs et animations restent masqués. Le texte alternatif n'est pas
+envoyé au modèle pour éviter qu'une légende erronée influence l'analyse des pixels.
+
+Cache persistant `image_reviews` : article, contexte envoyé, miniature, modèle, version.
+Réservation atomique entre workers, pas de retry SDK ; erreur réessayable après 24 h,
+réservation interrompue après 10 min. Les usages/coûts et tentatives précédentes sont conservés.
+Contrôle activé par défaut avec `IMAGE_REVIEW_ENABLED=true`, uniquement pour les articles
+présents dans une couverture. Sans clé, pas d'image non vérifiée. Sa facturation à la première
+consultation est indiquée dans le lecteur ; elle est séparée du coût de génération des éditions.
+L'URL frontend `?v=review-1` invalide les anciens caches navigateur sans contrôle sémantique.
+
+Test réel : 17 articles, 16 appels Nano, 10 `keep`, 1 `reject`, 5 `uncertain`, aucune erreur.
+L'image de sushi de `nellie.food` (`df75c9c550f8b2fa702c66b5`) est désormais rejetée
+automatiquement : sa référence est rétablie dans le catalogue pour utiliser le vrai contrôle.
+Coût estimé à partir de l'usage API : 0,003002 USD. Miniatures : 724 089 octets contre
+6 500 560 octets d'originaux, maximum 83 181 octets ; sorties <=16 tokens, aucun raisonnement.
+Audit : `data/image-review-audit.json`. Les 5 cas incertains sont des abstentions du modèle,
+pas une preuve que les photos sont fausses. Le test ne mesure pas un taux global de fiabilité.
+203 tests backend, 10 tests frontend et 2 tests PostgreSQL ciblés passent ; build Vite,
+Ruff et vérification du lock passent. Nouvelle dépendance : Pillow, verrouillée dans `uv.lock`.
+
+## Évaluation de quatre profils nouveaux — 26 septembre 2026
+
+Demande utilisateur : tester des profils nouveaux choisis librement, sans reprendre les anciens
+essais. Profils reproductibles dans `examples/evaluation-profiles.json` : cuisine, création de jeux
+indépendants, jardinage urbain (français uniquement), musique et prise de son.
+Commande payante : `python -m scripts.evaluate_covers --output data/evaluation/mon-essai` ;
+`--only cuisine` limite à un profil. Les éditions sont réellement persistées dans PostgreSQL.
+Le script conserve requêtes, empreintes du code, métriques et diagnostics, même sur expiration.
+
+Rapport local : `data/evaluation-profils-2026-09-26/RAPPORT.md`, traces `live/`, `improved/`, `final/`.
+Dernières éditions retenues :
+
+- Cuisine : `8b7c86763c7243d3b1a99387f4d4acac`, 5/18, partielle (brief-v6).
+- Jeux indépendants : `292257f2141846e4b98028294cf9064a`, 5/18, partielle, contre 1 initialement.
+- Jardinage : `4108cb5d8b624e8abd1d7f50d4f03723`, 1/18, partielle, contre 0 initialement.
+- Musique : `beecb45356b1477fbba22330ebca49df`, 6/18, secours pour citations finales invalides,
+  contre 1 initialement. Les trois dernières sont en brief-v5.
+
+Le catalogue s'est enrichi entre les passes : ce n'est pas un A/B isolé. Aucune édition complète
+de 18 articles. Les rejets temporels excessifs, citations recomposées et extractions web limitées
+restent les principales pertes ; ne pas présenter l'amélioration de quantité comme une validation
+globale de pertinence. Sous-total connu des essais et du diagnostic : 1,146855 USD, avec deux appels
+sans métrique complète. Le passage initial sans accès réseau est exclu de la comparaison ; ses
+quatre éditions vides et traces sont conservées dans `baseline/`. Une première cuisine a expiré.
+
+Corrections : conserver les besoins du profil correctement cités si un autre élément est invalide ;
+réexaminer sur texte intégral déjà disponible une temporalité mal évaluée sur titre/extrait ;
+préciser la distinction méthode durable/actualité/recherche et réserves/validité ; conserver les
+ArticleLink typés à l'extraction web ; normaliser langues et codes régionaux sur les trois modèles ;
+renvoyer HTTP 502 sans persistance si tous les appels modèles ont échoué et la sélection est vide.
+Les contrôles finaux d'âge et de validité restent actifs. Cache courant : **brief-v6**.
+161 tests backend passent sur le code final ; 7 tests PostgreSQL isolés ont aussi passé pendant
+la session. Ruff et format passent. Le backend a été relancé sur le port 8010 avec le code final ;
+les quatre éditions, le lecteur et l'inspecteur répondent HTTP 200. Les langues des éditions
+relues sont normalisées ; `api-readback.json` conserve cette vérification sans appel payant.
+
 ## Mise à jour : qualité éditoriale après audit des cinq dernières couvertures
 
 Cette section remplace les anciennes limites temporelles décrites plus bas. Les actualités

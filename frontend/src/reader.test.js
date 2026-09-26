@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { adaptCover, normalizeProfile, toCoverRequest, safeArticleUrl, DEFAULT_PROFILE } from './reader.js';
+import { adaptCover, normalizeProfile, toCoverRequest, safeArticleUrl, articleImageUrl, DEFAULT_PROFILE } from './reader.js';
 import { createCover, getCover, listCovers, sendFeedback, getHealth } from './api.js';
 
 function fixture(size) {
@@ -66,6 +66,17 @@ test('editor order, headings and every article survive layout, including small f
 test('publisher links reject executable and relative URLs', () => {
   for (const value of ['javascript:alert(1)', 'data:text/html,test', '/relative', '']) assert.equal(safeArticleUrl(value), null);
   assert.equal(safeArticleUrl('https://example.com/a'), 'https://example.com/a');
+});
+
+test('article images use the backend for legacy editions and skip known missing artwork', () => {
+  assert.equal(articleImageUrl({ article_id: 'old-edition-article' }), '/v1/articles/old-edition-article/image?v=review-1');
+  assert.equal(articleImageUrl({ article_id: 'checked', image_checked: true }), null);
+  for (const article_id of ['../private', '', 'bad/id']) assert.equal(articleImageUrl({ article_id }), null);
+  const raw = fixture(1);
+  raw.items[0].image = { url: 'https://publisher.example/photo.jpg', alt: 'La photo de l’article' };
+  raw.items[0].image_checked = true;
+  assert.equal(adaptCover(raw).lead.imageUrl, '/v1/articles/article-0/image?v=review-1');
+  assert.equal(adaptCover(raw).lead.imageAlt, 'La photo de l’article');
 });
 
 test('explicit editorial roles put a substantive reading in the lead without losing any articles', () => {

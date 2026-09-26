@@ -58,12 +58,72 @@ class Store:
             row = db.execute("SELECT payload FROM articles WHERE id=%s", (article_id,)).fetchone()
         return Article.model_validate(row[0]) if row else None
 
+    def set_article_image(self, article_id, image, checked_at):
+        # Patch only artwork; concurrent extraction must not lose text or new metadata.
+        with self.pool.connection() as db:
+            db.execute(
+                "UPDATE articles SET payload = payload || %s WHERE id = %s",
+                (
+                    Jsonb(
+                        {
+                            "image": image.model_dump() if image else None,
+                            "image_checked_at": checked_at.isoformat(),
+                        }
+                    ),
+                    article_id,
+                ),
+            )
+
     def articles(self, limit: int = 3000) -> list[Article]:
         with self.pool.connection() as db:
             rows = db.execute(
                 "SELECT payload FROM articles ORDER BY collected_at DESC, id LIMIT %s", (limit,)
             ).fetchall()
         return [Article.model_validate(row[0]) for row in rows]
+
+    def article_has_cover(self, article_id):
+        with self.pool.connection() as db:
+            return db.execute(
+                "SELECT EXISTS (SELECT 1 FROM covers WHERE payload @> %s)",
+                (Jsonb({"items": [{"article_id": article_id}]}),),
+            ).fetchone()[0]
+
+    def get_image_review(self, cache_key):
+        with self.pool.connection() as db:
+            row = db.execute(
+                "SELECT status, payload FROM image_reviews WHERE cache_key=%s", (cache_key,)
+            ).fetchone()
+        return {"status": row[0], **row[1]} if row else None
+
+    def claim_image_review(self, cache_key, article_id, claim_id, metadata):
+        # One paid attempt across workers. Interrupted calls wait 10 min; errors wait 24 h.
+        with self.pool.connection() as db:
+            row = db.execute(
+                """INSERT INTO image_reviews
+                   (cache_key, article_id, claim_id, status, payload, retry_after)
+                   VALUES (%s, %s, %s, 'pending', %s, now() + interval '10 minutes')
+                   ON CONFLICT(cache_key) DO UPDATE SET
+                     claim_id=excluded.claim_id, status='pending',
+                     payload=excluded.payload || jsonb_build_object('previous_attempts',
+                       COALESCE(image_reviews.payload->'previous_attempts', '[]'::jsonb) ||
+                       jsonb_build_array(image_reviews.payload - 'previous_attempts')),
+                     retry_after=excluded.retry_after, updated_at=now()
+                   WHERE image_reviews.status IN ('pending', 'error')
+                     AND image_reviews.retry_after <= now()
+                   RETURNING cache_key""",
+                (cache_key, article_id, claim_id, Jsonb(metadata)),
+            ).fetchone()
+        return row is not None
+
+    def finish_image_review(self, cache_key, claim_id, payload):
+        status = "error" if payload.get("error") else "completed"
+        with self.pool.connection() as db:
+            db.execute(
+                """UPDATE image_reviews SET status=%s, payload=payload || %s,
+                   retry_after=CASE WHEN %s='error' THEN now() + interval '24 hours' ELSE NULL END,
+                   updated_at=now() WHERE cache_key=%s AND claim_id=%s""",
+                (status, Jsonb(payload), status, cache_key, claim_id),
+            )
 
     def get_brief(self, article: Article, version: str) -> Brief | None:
         with self.pool.connection() as db:

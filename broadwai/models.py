@@ -1,4 +1,6 @@
 import hashlib
+import json
+import re
 from datetime import UTC, datetime
 from typing import Literal
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
@@ -9,6 +11,25 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 def utcnow() -> datetime:
     return datetime.now(UTC)
+
+
+def normalize_language(value: str | None) -> str | None:
+    if value is None:
+        return None
+    value = value.strip().casefold().replace("_", "-")
+    aliases = {
+        "français": "fr",
+        "francais": "fr",
+        "french": "fr",
+        "fra": "fr",
+        "fre": "fr",
+        "anglais": "en",
+        "english": "en",
+        "eng": "en",
+    }
+    if re.fullmatch(r"[a-z]{2,3}(?:-[a-z0-9]{2,8})*", value):
+        value = value.split("-", 1)[0]
+    return aliases.get(value, value)
 
 
 def canonical_url(url: str) -> str:
@@ -34,6 +55,21 @@ class Model(BaseModel):
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
 
+class ArticleLink(Model):
+    label: str = Field(max_length=500)
+    url: str = Field(max_length=2000)
+
+
+class ArticleImage(Model):
+    url: str = Field(max_length=2000)
+    alt: str = Field("", max_length=500)
+
+    @field_validator("url")
+    @classmethod
+    def absolute_url(cls, value):
+        return canonical_url(value)
+
+
 class Article(Model):
     id: str
     url: str
@@ -46,8 +82,16 @@ class Article(Model):
     language: str | None = None
     extraction_status: Literal["excerpt", "extracted"] = "excerpt"
     discovery: dict = Field(default_factory=dict)
+    content_links: list[ArticleLink] = Field(default_factory=list, max_length=40)
+    image: ArticleImage | None = None
+    image_checked_at: datetime | None = None
 
-    @field_validator("published_at", "collected_at")
+    @field_validator("language")
+    @classmethod
+    def normalized_language(cls, value):
+        return normalize_language(value)
+
+    @field_validator("published_at", "collected_at", "image_checked_at")
     @classmethod
     def aware_date(cls, value: datetime | None) -> datetime | None:
         if value and value.tzinfo is None:
@@ -57,6 +101,10 @@ class Article(Model):
     @property
     def content_hash(self) -> str:
         value = f"{self.title}\n{self.extraction_status}\n{self.text or self.excerpt}"
+        if self.content_links:
+            value += "\n" + json.dumps(
+                [link.model_dump() for link in self.content_links], sort_keys=True
+            )
         return hashlib.sha256(value.encode()).hexdigest()
 
     @property
@@ -92,6 +140,11 @@ class Profile(Model):
     level: Literal["beginner", "intermediate", "expert"] = "intermediate"
     notes: str = Field("", max_length=3000)
     seen_article_ids: list[str] = Field(default_factory=list, max_length=2000)
+
+    @field_validator("languages")
+    @classmethod
+    def normalized_languages(cls, values):
+        return list(dict.fromkeys(normalize_language(value) for value in values))
 
 
 class ReadingValidity(Model):
@@ -131,6 +184,21 @@ class EditorialIntent(Model):
     constraints: list[ReaderConstraint] = Field(default_factory=list, max_length=8)
 
 
+class CitedSource(Model):
+    name: str = Field(min_length=1, max_length=200)
+    url: str | None = Field(None, max_length=2000)
+    relevance: str = Field(
+        min_length=1,
+        max_length=300,
+        description="Apport concret au sujet et intérêt de cette source pour de futures lectures",
+    )
+    evidence: str = Field(
+        min_length=8,
+        max_length=300,
+        description="Passage contigu du texte fourni qui attribue une information à cette source",
+    )
+
+
 class Brief(Model):
     summary: str = Field(min_length=1, max_length=1800)
     key_points: list[str] = Field(min_length=1, max_length=5)
@@ -141,6 +209,12 @@ class Brief(Model):
     caveats: list[str] = Field(max_length=5)
     validity: ReadingValidity | None = None
     headline: str | None = Field(None, max_length=180)
+    cited_sources: list[CitedSource] = Field(default_factory=list, max_length=8)
+
+    @field_validator("language")
+    @classmethod
+    def normalized_language(cls, value):
+        return normalize_language(value)
 
 
 class Candidate(Model):
@@ -242,6 +316,8 @@ class CoverItem(Model):
     reading_time_minutes: int | None = Field(None, ge=1)
     selection_kind: Literal["focused", "exploration"] = "focused"
     exploration_reason: str | None = None
+    image: ArticleImage | None = None
+    image_checked: bool = False
 
 
 class Cover(Model):

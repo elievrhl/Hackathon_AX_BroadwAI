@@ -95,8 +95,10 @@ async def test_extract_article_body_without_navigation():
         async def get(self, url):
             return Download(
                 url,
-                f"<html><body><nav>Menu</nav><article><h1>Python</h1>"
-                f"<p>{text}</p></article></body></html>".encode(),
+                '<html><body><nav><a href="https://nav.example/">Menu</a></nav>'
+                f"<article><h1>Python</h1><p>{text} Selon "
+                '<a href="https://study.example/report">le rapport du laboratoire</a>, '
+                "ces systèmes sont plus fiables.</p></article></body></html>".encode(),
                 "text/html",
             )
 
@@ -106,6 +108,8 @@ async def test_extract_article_body_without_navigation():
     assert extracted.extraction_status == "extracted"
     assert "systèmes distribués" in extracted.text
     assert "Menu" not in extracted.text
+    assert [link.url for link in extracted.content_links] == ["https://study.example/report"]
+    assert "https://study.example" not in extracted.text
 
 
 async def test_extract_rejects_interstitial_and_preserves_excerpt():
@@ -125,6 +129,37 @@ async def test_extract_rejects_interstitial_and_preserves_excerpt():
         await Collector(store, Fetcher()).extract(article)
     assert store.get_article(article.id).extraction_status == "excerpt"
     assert store.get_article(article.id).excerpt == "Extrait RSS"
+
+
+async def test_web_discovery_preserves_typed_links_and_catalog_identity(monkeypatch):
+    from broadwai.models import ArticleLink
+
+    original = Article.create(
+        "https://example.com/original",
+        "Search result",
+        discovery={"provider": "openai_web_search", "query": "fermentation"},
+    )
+    extracted = Article.create(
+        "https://redirect.example/article",
+        "Extracted title",
+        text="A practical explanation of fermentation. " * 20,
+        extraction_status="extracted",
+        content_links=[ArticleLink(label="Study", url="https://study.example/paper")],
+    )
+    monkeypatch.setattr("broadwai.retrieval.website_article", lambda *_: extracted)
+
+    class Fetcher:
+        async def get(self, url):
+            return Download(url, b"<article>Content</article>", "text/html")
+
+    store = MemoryStore()
+    result = await Collector(store, Fetcher()).extract(original)
+    assert (result.id, result.url, result.source) == (original.id, original.url, original.source)
+    assert result.discovery == original.discovery
+    assert result.title == extracted.title
+    assert result.content_links[0].url == "https://study.example/paper"
+    assert result.content_hash == extracted.content_hash
+    result.model_dump(warnings="error")
 
 
 def mock_http(monkeypatch, responses):

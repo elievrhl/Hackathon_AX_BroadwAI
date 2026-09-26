@@ -1,10 +1,11 @@
+import json
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
 
 from broadwai.llm import BudgetExceeded, ModelError, OpenAILanguageModel, RunBudget
-from broadwai.models import Brief
+from broadwai.models import ArticleLink, Brief, CitedSource
 from tests.fakes import article
 
 
@@ -52,7 +53,7 @@ async def test_openai_adapter_structured_output_limits_and_usage():
         assert kwargs["model"] == "summary-test"
         assert kwargs["text_format"] is Brief
         assert kwargs["store"] is False
-        assert kwargs["max_output_tokens"] == 1400
+        assert kwargs["max_output_tokens"] == 2400
         assert budget.input_tokens == 120
         assert budget.output_tokens == 80
         call = budget.report()["model_calls"][0]
@@ -75,5 +76,116 @@ async def test_refused_or_incomplete_model_output_is_explicit_error():
     try:
         with pytest.raises(ModelError):
             await model.summarize(article(), RunBudget(limits={"summary": 1}, max_tokens=50000))
+    finally:
+        await model.close()
+
+
+async def test_summary_sources_are_grounded_deduplicated_and_urls_observed():
+    model = OpenAILanguageModel("test-key", "summary-test", "editor-test", 1000)
+    evidence = "Selon le rapport du Laboratoire, Python améliore les systèmes distribués."
+    item = article().model_copy(
+        update={
+            "text": evidence + " Voir https://science.example/report pour les résultats.",
+            "content_links": [
+                ArticleLink(label="Laboratoire", url="https://lab.example/study"),
+                ArticleLink(label="Texte hors de la portion fournie", url="https://later.example/"),
+            ],
+        }
+    )
+    citations = [
+        CitedSource(
+            name="Laboratoire",
+            url="https://lab.example/study",
+            evidence=evidence,
+            relevance="Étude originale sur les systèmes distribués.",
+        ),
+        CitedSource(
+            name="Même rapport",
+            url="https://lab.example/study",
+            evidence=evidence,
+            relevance="Doublon de l'étude.",
+        ),
+        CitedSource(
+            name="Source inventée",
+            url="https://invented.example/",
+            evidence="Citation inventée.",
+            relevance="Attribution inventée.",
+        ),
+        CitedSource(
+            name="Laboratoire sans lien",
+            url="https://invented.example/",
+            evidence=evidence,
+            relevance="Apport documenté, mais URL non observée.",
+        ),
+        CitedSource(
+            name="URL dans le texte",
+            url="https://science.example/report",
+            evidence="Voir https://science.example/report pour les résultats.",
+            relevance="Résultats complémentaires de l'étude.",
+        ),
+        CitedSource(
+            name="Racine déduite",
+            url="https://science.example",
+            evidence="Voir https://science.example/report pour les résultats.",
+            relevance="Domaine non fourni tel quel.",
+        ),
+        CitedSource(
+            name="Lien hors contexte",
+            url="https://later.example/",
+            evidence=evidence,
+            relevance="URL dont l'ancre est absente du texte transmis.",
+        ),
+        CitedSource(
+            name="Lien local",
+            url="http://127.0.0.1/",
+            evidence=evidence,
+            relevance="Ne doit pas conserver ce lien.",
+        ),
+    ]
+    brief = Brief(
+        summary="Résumé",
+        headline="Un titre",
+        key_points=["Un point"],
+        topics=[],
+        content_type="research",
+        level="expert",
+        language="fr",
+        caveats=[],
+        validity={
+            "kind": "research",
+            "status": "time_sensitive",
+            "reason": "Une étude",
+            "evidence": evidence,
+        },
+        cited_sources=citations,
+    )
+    model.client.responses.parse = AsyncMock(
+        return_value=SimpleNamespace(status="completed", output_parsed=brief, usage=None)
+    )
+    try:
+        result = await model.summarize(item, RunBudget(limits={"summary": 1}, max_tokens=50000))
+        assert [source.name for source in result.cited_sources] == [
+            "Laboratoire",
+            "Laboratoire sans lien",
+            "URL dans le texte",
+            "Racine déduite",
+            "Lien hors contexte",
+            "Lien local",
+        ]
+        assert [source.url for source in result.cited_sources] == [
+            "https://lab.example/study",
+            None,
+            "https://science.example/report",
+            None,
+            None,
+            None,
+        ]
+        data = json.loads(model.client.responses.parse.call_args.kwargs["input"])
+        assert data["article_url"] == item.url
+        assert data["content_links"] == [item.content_links[0].model_dump()]
+        assert model.summary_version.startswith("brief-v6:")
+        # Stored v3 briefs remain readable, but are not reused for v4 calls.
+        old = brief.model_dump(exclude={"cited_sources"})
+        assert Brief.model_validate(old).cited_sources == []
     finally:
         await model.close()

@@ -205,7 +205,7 @@ async def test_undated_web_result_is_not_presented_as_current_news():
     )
     model = ScriptedModel()
     cover = await pipeline(MemoryStore([item]), model).run(request())
-    assert cover.items == [] and model.summary_calls == 0
+    assert cover.items == [] and model.summary_calls == 1
 
 
 async def test_high_score_cannot_override_mismatch_with_explicit_profile_context():

@@ -740,6 +740,64 @@ input::placeholder,textarea::placeholder {
   position: relative;
   min-width: 0;
 }
+.article-visual {
+  margin: 0 0 16px;
+}
+.article-image-button {
+  display: block;
+  width: 100%;
+  background: #e7e3d9;
+  padding: 0;
+  overflow: hidden;
+}
+.article-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  background: #e7e3d9;
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.article-visual.is-loaded img {
+  opacity: 1;
+}
+.article-visual figcaption {
+  font-size: .6rem;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+}
+.article-visual figcaption a {
+  text-decoration-color: var(--line);
+  text-underline-offset: 2px;
+}
+.secondary .article-visual img,
+.section-article .article-visual img,
+.filtered-article .article-visual img {
+  aspect-ratio: 16 / 9;
+}
+.article-dialog .article-visual {
+  margin-top: 24px;
+}
+.article-dialog .article-visual img {
+  max-height: 420px;
+  object-fit: contain;
+}
+@media (min-width: 1101px) {
+  .front-grid:not(.has-briefs), .front-grid:not(.has-secondary) {
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  }
+}
+.front-grid:not(.has-secondary):not(.has-briefs) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.front-grid:not(.has-secondary):not(.has-briefs) > .lead {
+  max-width: 780px;
+  padding-right: 0;
+}
 .article-topline {
   display: flex;
   align-items: center;

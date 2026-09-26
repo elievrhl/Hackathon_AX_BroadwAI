@@ -7,9 +7,10 @@ from datetime import UTC, datetime
 from urllib.parse import urljoin
 
 import feedparser
-import trafilatura
 
-from broadwai.models import Article, IngestRequest
+from broadwai.extraction import extract_content
+from broadwai.images import article_image
+from broadwai.models import Article, IngestRequest, utcnow
 from broadwai.network import PublicFetcher, RetrievalError, validate_destination
 from broadwai.website import article_links, website_article
 
@@ -148,28 +149,31 @@ class Collector:
             # Search citations can point to old stories or section pages. Validate
             # article signals and read the publisher's date before editorial use.
             extracted = await asyncio.to_thread(website_article, download, article.url)
+            # model_copy does not validate updates: retain nested ArticleLink objects.
+            # model_dump here would turn them into dicts and break content_hash/summary.
             updated = article.model_copy(
-                update=extracted.model_dump(
-                    exclude={
+                update={
+                    name: getattr(extracted, name)
+                    for name in type(extracted).model_fields
+                    if name
+                    not in {
                         "id",
                         "url",
                         "source",
                         "collected_at",
                         "discovery",
                     }
-                )
+                }
             )
             return self.store.put_article(updated)
         if download.content_type not in {"text/html", "application/xhtml+xml", "text/plain"}:
             raise RetrievalError("Format d'article non pris en charge")
         if download.content_type == "text/plain":
             text = download.body.decode("utf-8", errors="replace")
+            content_links = []
         else:
-            text = await asyncio.to_thread(
-                trafilatura.extract,
-                download.body,
-                include_comments=False,
-                include_tables=True,
+            text, content_links = await asyncio.to_thread(
+                extract_content, download.body, download.url
             )
         if not text or len(text.strip()) < 100:
             raise RetrievalError("Texte insuffisant : extraction indisponible")
@@ -183,5 +187,15 @@ class Collector:
         if len(text) < 1500 and any(message in text.lower() for message in blocked_messages):
             raise RetrievalError("Page de blocage : texte de l'article indisponible")
         # Preserve catalogue identity across redirects; don't trust HTML canonical links.
-        updated = article.model_copy(update={"text": text, "extraction_status": "extracted"})
+        updated = article.model_copy(
+            update={
+                "text": text,
+                "content_links": content_links,
+                "extraction_status": "extracted",
+                "image": (article_image(download.body, download.url) or article.image)
+                if download.content_type != "text/plain"
+                else None,
+                "image_checked_at": utcnow(),
+            }
+        )
         return self.store.put_article(updated)

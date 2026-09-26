@@ -7,6 +7,8 @@ from urllib.parse import urljoin, urlsplit
 
 import trafilatura
 
+from broadwai.extraction import extract_content
+from broadwai.images import article_image
 from broadwai.models import Article, utcnow
 from broadwai.network import Download, RetrievalError, validate_destination
 
@@ -206,7 +208,7 @@ def website_article(download: Download, source_url: str) -> Article:
         raise RetrievalError("Titre d'article introuvable")
     if title.casefold() == (metadata.sitename or "").strip().casefold():
         raise RetrievalError("Page d'accueil ou d'archives : le titre est celui du site")
-    text = trafilatura.extract(tree, include_comments=False, include_tables=True) or ""
+    text, content_links = extract_content(tree, url)
     excerpt = (metadata.description or "").strip()
     # A paywall can leave usable metadata, but an interstitial is never article text.
     extracted = readable_text(text)
@@ -224,6 +226,9 @@ def website_article(download: Download, source_url: str) -> Article:
         title=title[:1000],
         excerpt=excerpt[:12000],
         text=text if extracted else "",
+        content_links=content_links if extracted else [],
+        image=article_image(tree, url),
+        image_checked_at=utcnow(),
         extraction_status="extracted" if extracted else "excerpt",
         published_at=published,
         language=language.replace("_", "-").split("-")[0].lower() if language else None,

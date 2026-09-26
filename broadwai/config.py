@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     openai_api_key: SecretStr | None = None
     summary_model: str = ""
     editor_model: str = ""
+    image_review_enabled: bool = True
+    image_review_model: str = "gpt-5.4-nano"
     web_search_enabled: bool = True
     max_discovered_articles: int = Field(20, ge=0, le=20)
     max_source_proposals: int = Field(2, ge=0, le=5)

@@ -203,7 +203,9 @@ async function showArticle(id) {
       card.append(node("span", brief.current_content ? "Contenu actuel" : "Ancienne version du contenu", "tag"), node("p", brief.version, "muted"), node("p", b.summary, "prose"));
       const points = node("ul"); for (const point of b.key_points) points.append(node("li", point)); card.append(points);
       card.append(node("p", `${b.topics.join(" · ")} · ${b.content_type} · ${b.level} · ${b.language}`, "muted"));
-      for (const caveat of b.caveats) card.append(node("p", caveat, "error")); section.append(card);
+      for (const caveat of b.caveats) card.append(node("p", caveat, "error"));
+      appendCitedSources(card, b.cited_sources);
+      section.append(card);
     }
     container.append(section); const raw = node("details"); raw.append(node("summary", "Voir toutes les données JSON"), node("pre", JSON.stringify(data, null, 2))); container.append(raw);
   } catch (error) { container.replaceChildren(node("h2", "Chargement impossible"), node("p", error.message, "error")); }
