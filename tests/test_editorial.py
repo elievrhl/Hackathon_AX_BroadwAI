@@ -31,6 +31,8 @@ def plan_for(items, scores=None):
                 "section": ["Économie", "Société", "Innovation"][i % 3],
                 "score": scores[i] if scores else 80,
                 "reason": "Un enjeu concret pour le lecteur",
+                "matches_profile": True,
+                "evergreen": False,
             }
             for i, a in enumerate(items)
         ],

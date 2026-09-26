@@ -122,11 +122,10 @@ class EditorialPick(Model):
     score: int = Field(ge=0, le=100)
     reason: str = Field(min_length=1, max_length=180)
     matches_profile: bool = Field(
-        True,
         description="Le sujet central respecte les intérêts ET le contexte explicite des notes",
     )
     evergreen: bool = Field(
-        False, description="Lecture de fond durable, pas une actualité ancienne ou non datée"
+        description="Lecture de fond durable, pas une actualité ancienne ou non datée"
     )
 
 

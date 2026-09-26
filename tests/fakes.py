@@ -109,6 +109,8 @@ class ScriptedModel:
                     "section": "Technique",
                     "score": 80,
                     "reason": "Correspond au profil de test",
+                    "matches_profile": True,
+                    "evergreen": False,
                 }
                 for c in state["candidates"][: state["selection_limit"]]
             ],
@@ -126,6 +128,8 @@ class ScriptedModel:
                     "section": (state["sections"] or ["Technique"])[0],
                     "score": 80,
                     "reason": "Correspond au profil de test",
+                    "matches_profile": True,
+                    "evergreen": False,
                 }
                 for c in state["candidates"][: state["selection_limit"]]
             ],
