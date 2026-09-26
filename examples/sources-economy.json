@@ -1,0 +1,12 @@
+[
+  {"name":"Franceinfo — économie","kind":"rss","url":"https://www.francetvinfo.fr/economie.rss"},
+  {"name":"RFI — économie","kind":"rss","url":"https://www.rfi.fr/fr/%C3%A9conomie/rss"},
+  {"name":"Le Monde — économie","kind":"rss","url":"https://www.lemonde.fr/economie/rss_full.xml"},
+  {"name":"Alternatives économiques","kind":"rss","url":"https://www.alternatives-economiques.fr/rss.xml"},
+  {"name":"La Tribune — économie","kind":"rss","url":"https://www.latribune.fr/rss/rubriques/economie.html"},
+  {"name":"BFM — économie","kind":"rss","url":"https://www.bfmtv.com/rss/economie/"},
+  {"name":"Le Figaro — économie","kind":"rss","url":"https://www.lefigaro.fr/rss/figaro_economie.xml"},
+  {"name":"CNBC — économie","kind":"rss","url":"https://www.cnbc.com/id/20910258/device/rss/rss.html"},
+  {"name":"NPR — économie","kind":"rss","url":"https://feeds.npr.org/1017/rss.xml"},
+  {"name":"The Conversation — économie","kind":"rss","url":"https://theconversation.com/fr/business/articles.atom"}
+]

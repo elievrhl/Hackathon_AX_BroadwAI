@@ -1,0 +1,5 @@
+{
+  "feed_urls": ["https://hnrss.org/newest"],
+  "hacker_news": true,
+  "limit_per_source": 20
+}

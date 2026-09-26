@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BroadwAI · Construction des couvertures</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css">
+  <link rel="stylesheet" href="/admin/assets/covers.css">
+  <script src="/admin/assets/covers.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/admin">BroadwAI</a><span class="badge">Inspection</span><a class="api-link" href="/admin">← Sources & articles</a></header>
+  <main>
+    <div class="page-heading"><div><p class="eyebrow">DU CATALOGUE À LA SÉLECTION</p><h1>Construction des couvertures</h1><p class="muted">Données enregistrées pendant la génération. La consultation ne fait aucun appel LLM.</p></div><button id="reload">Actualiser</button></div>
+    <p id="error" class="error" role="alert" hidden></p>
+    <div class="inspection-layout">
+      <aside class="panel"><div class="panel-heading"><h2>Historique</h2></div><div id="covers-list"></div><button id="more" hidden>Afficher davantage</button></aside>
+      <section id="cover-detail" class="panel" aria-live="polite"><p class="empty">Choisissez une couverture.</p></section>
+    </div>
+  </main>
+</body>
+</html>

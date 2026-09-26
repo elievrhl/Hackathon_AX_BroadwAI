@@ -1,0 +1,15 @@
+.venv/
+.env
+.env.*
+!.env.example
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.uv-cache/
+.python/
+data/
+*.egg-info/
+frontend/node_modules/
+frontend/dist/
+frontend/.pnpm-store/
+frontend/test-results/

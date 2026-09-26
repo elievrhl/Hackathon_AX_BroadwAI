@@ -1,0 +1,7 @@
+{
+  "website_urls": [
+    "https://simonwillison.net/",
+    "https://www.theguardian.com/international"
+  ],
+  "limit_per_source": 5
+}

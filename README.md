@@ -1,0 +1,385 @@
+# Kiosque — presse personnalisée
+
+## Interface lecteur — React connecté au backend
+
+Le projet s’appelle **Kiosque**. L’interface [`frontend/`](frontend/README.md)
+affiche les vraies couvertures de l’API : profil local sans compte, génération de
+15 à 20 articles, historique, rubriques, liens éditeurs, favoris et retours de lecture.
+La génération payante ne démarre que sur le bouton « Générer ma une ».
+
+```powershell
+cd frontend
+pnpm install
+pnpm dev
+```
+
+Prérequis : Node.js 22.12+ et pnpm 11. Ouvrir <http://127.0.0.1:5173/>.
+Le backend doit tourner sur le port 8010 avec PostgreSQL. Vite relaie les appels à
+l’API ; aucune clé n’est envoyée au navigateur. Après `pnpm build`, FastAPI peut
+aussi servir le lecteur sur <http://127.0.0.1:8010/reader/> (redémarrer le backend).
+
+## Backend agentique (package `broadwai`)
+
+Première implémentation de la collecte d'articles et de la création d'une couverture personnalisée.
+Python 3.12+, FastAPI, PostgreSQL, SDK OpenAI Responses. Aucun appel LLM payant au démarrage.
+
+Pour reprendre le travail avec un autre agent : [contexte et passation du projet](PROJECT_HANDOFF.md).
+
+## Un journal de 15 à 20 articles
+
+`POST /v1/covers` demande désormais **18 articles par défaut** (champ `size`, maximum 20).
+Le quota par source vaut trois par défaut (au moins six domaines pour 18 articles).
+Le profil se règle dans le frontend. Celui-ci présente la une par rubriques, avec des titres
+français cliquables et les sources. Les résumés restent repliés dans les fiches de lecture et
+consultables dans `/admin/covers`. L’inspecteur ouvre la couverture sélectionnée dans le
+frontend via `/reader/?cover={id}`.
+
+La préparation se déroule ainsi :
+
+1. Classement lexical puis pool diversifié de 96 titres/extraits maximum, avec une place pour
+   les articles récents que les mots-clés bilingues peuvent manquer.
+2. Un appel au rédacteur définit les rubriques et choisit les articles prometteurs. Son score
+   éditorial est une appréciation du modèle, pas une probabilité. Sous 70/100, pas de résumé.
+3. Extraction et fiches structurées du modèle économique, réutilisables entre utilisateurs ;
+   jusqu'à trois préparations simultanées. Le rédacteur reçoit le résumé et les réserves,
+   sans répéter les points clés ni transmettre tous les textes complets.
+4. L'agent évalue les fiches et les manques, puis choisit une recherche catalogue ou web,
+   une lecture approfondie, une proposition de source, ou la finalisation. Une recherche vide
+   appelle un changement de requête ; un domaine en échec répété est évité pendant ce run.
+5. Application des quotas aux choix du modèle, en conservant leur ordre éditorial et en traçant
+   les retraits ; validation des identifiants, du nombre et des doublons. Pour une
+   couverture complète de 15 à 20 articles : 3 à 5 rubriques, au moins deux articles chacune.
+   Une sélection courte est refusée s'il reste des moyens de chercher. Après épuisement,
+   le résultat reste explicitement partiel plutôt que de promettre un remplissage pertinent.
+
+Les défauts conservent 24 nouveaux résumés, 6 décisions, 2 passes de recherche web et ajoutent
+une planification et au plus 4 filtres de recherche sur le modèle économique. Le rédacteur utilise
+le raisonnement `low` sur GPT-5 ; le modèle de résumé conserve son réglage économique.
+Les téléchargements de présélection sont limités à 24, les imports web à 20 tentatives.
+Les actualités de plus de 45 jours et les actualités web sans date sont écartées. Les essais,
+analyses et autres lectures de fond peuvent remonter à 365 jours (`MAX_EVERGREEN_AGE_DAYS`),
+ou ne pas avoir de date, si le filtre éditorial les reconnaît explicitement comme durables.
+Le lecteur les distingue par « Lecture de fond » et affiche les dates absentes comme telles.
+Le contexte explicite des notes doit être respecté avant résumé, même pour un score élevé.
+Ces plafonds restent configurables. `usage.cost` estime le montant en USD à partir des tokens
+déclarés, du cache et des appels web, uniquement pour les modèles tarifés dans `pricing.py`.
+Ce n'est pas une facture ni un plafond monétaire garanti. Les tarifs standard mini/nano ont été
+vérifiés le 26 septembre 2026 ; hors taxes, éventuels suppléments et appels sans usage retourné.
+
+`examples/sources-economy.json` propose dix flux économiques supplémentaires ; huit ont été
+validés et collectés lors de l'essai local (les flux en erreur sont ignorés par le script).
+La diversification prépare désormais une fois les caractéristiques et actualise les similarités
+à chaque choix : mesurée à 346 ms avec le classement sur 548 articles, contre 134 secondes
+pour l'ancienne diversification. Pas d'appel LLM nécessaire à cette étape.
+
+## Démarrer
+
+Prérequis : [uv](https://docs.astral.sh/uv/) et Docker Compose (ou PostgreSQL existant).
+
+```powershell
+Copy-Item .env.example .env
+docker compose up -d postgres
+uv sync --python 3.12
+```
+
+Dans `.env`, renseigner `OPENAI_API_KEY`, `SUMMARY_MODEL` et `EDITOR_MODEL` avec des modèles
+disponibles sur votre compte et compatibles avec Responses / Structured Outputs. Utiliser un modèle
+économique pour les fiches et un modèle capable de décider des actions pour le rédacteur.
+`WEB_SEARCH_ENABLED=true` active la recherche web hébergée chez OpenAI avec la même clé API.
+Aucun Assistant, agent enregistré, base vectorielle ou fournisseur de recherche supplémentaire
+n'est nécessaire. Créer une clé API dans un projet OpenAI avec facturation active et accès aux
+modèles choisis. Ne pas publier `.env`.
+
+```powershell
+uv run uvicorn broadwai.api:app --host 127.0.0.1 --port 8000
+```
+
+API interactive : <http://127.0.0.1:8000/docs>. Le schéma PostgreSQL initial est créé au démarrage.
+`DATABASE_URL` permet d'utiliser une autre instance. Les identifiants de Compose sont réservés au
+développement local. Le volume `postgres_data` conserve les données entre les redémarrages.
+
+## Administration simple
+
+Ouvrir <http://127.0.0.1:8000/admin> (également accessible depuis `/`). Aucun build frontend requis.
+
+- Ajouter, modifier, mettre en pause ou supprimer des sites web, flux RSS/Atom ou Hacker News.
+- Déclencher la collecte d'une source ou de toutes les sources actives, avec la limite configurée.
+- Voir la dernière collecte, le nombre d'articles trouvés (y compris déjà connus) et les erreurs.
+- Rechercher les articles par titre/domaine, filtrer par source de collecte ou état d'extraction,
+  parcourir les pages, ouvrir les métadonnées, extraits, textes et fiches déjà générées.
+- Les données JSON complètes sont accessibles dans le détail de chaque article.
+
+Deux tables supplémentaires sont créées de façon additive au redémarrage : `sources` et
+`source_articles`. Un même article peut appartenir à plusieurs sources. Supprimer une source
+conserve les articles et retire seulement ses associations. Modifier une source conserve son
+historique d'articles. Les collectes directes via `/v1/ingest` ne sont pas rattachées rétroactivement.
+
+L'admin n'appelle pas de LLM et ne génère pas de fiches : elle affiche les données disponibles.
+
+### Blogs et journaux sans flux
+
+Dans `/admin`, choisir **Ajouter → Site web (blog ou journal)** et coller l'URL de la page
+d'accueil du blog ou d'une rubrique qui liste les articles. Enregistrer, puis cliquer sur **Collecter**.
+Les titres, dates et langues disponibles sont récupérés sur les pages d'articles, ainsi que leur
+texte accessible. Les articles rejoignent le même catalogue que ceux des flux et peuvent servir
+aux couvertures. Cette collecte ne consomme pas de crédits LLM.
+
+Exemple de source via `POST /v1/sources` :
+
+```json
+{
+  "name": "Mon blog",
+  "kind": "website",
+  "url": "https://exemple.com/blog/",
+  "limit_per_source": 20,
+  "enabled": true
+}
+```
+
+`POST /v1/ingest` accepte aussi `website_urls`, combinable avec `feed_urls` et `hacker_news`.
+Voir `examples/ingest-websites.json`. Les liens HTML et les listes structurées JSON-LD sont examinés,
+puis chaque page candidate est vérifiée avant import. Les liens restent sur le même domaine
+(avec ou sans `www`), les menus et liens utilitaires sont filtrés et les URL sont dédupliquées.
+Une collecte visite au plus deux fois la limite demandée, plafonnée à 50 pages candidates, avec
+cinq téléchargements simultanés au maximum et un délai de 100 secondes par site. Les erreurs
+figurent dans le rapport ; les résultats des lots déjà terminés sont conservés.
+
+Cette version lit le HTML fourni par le serveur : pas d'exécution JavaScript, de parcours récursif,
+de pagination ou de sitemap. La reconnaissance des articles reste heuristique. Une rubrique
+ciblée donne souvent de meilleurs résultats qu'une page d'accueil généraliste. Les pages bloquées
+sont signalées et les paywalls ne sont pas contournés ; un extrait disponible peut être conservé.
+Les schémas des sources et propositions sont mis à jour au redémarrage du backend, en conservant
+les sources et historiques existants.
+
+### Inspection des couvertures
+
+`/admin/covers` affiche l'historique et le déroulement enregistré de chaque couverture. Le lien
+« Couvertures & traces » est disponible dans l'admin. `GET /v1/covers?limit=30&offset=0` liste
+les couvertures ; `GET /v1/covers/{id}` contient la trace et le champ `diagnostics`.
+
+Pour les nouvelles générations, le journal conserve le profil/les limites utilisés, les scores
+BM25 et leurs composantes, la shortlist après diversification, les demandes d'extraction et de
+résumé, les fiches réutilisées/générées, les candidats, décisions, arguments/résultats d'outils,
+et les erreurs de validation. Les appels modèles comportent durée, modèle et usage retourné
+par le fournisseur, dont les tokens d'entrée mis en cache lorsqu'ils sont disponibles.
+Ces tokens sont déjà inclus dans le total entrant ; ils ne sont pas à additionner une seconde fois.
+Les scores sont relatifs au corpus, pas des probabilités de pertinence.
+
+Les trois premières couvertures ont une trace ancienne partielle : scores et shortlist n'étaient
+pas enregistrés. L'interface indique les données manquantes sans les reconstruire. Le journal
+est consultable après la génération terminée, pas en streaming ; il n'est pas conservé si une
+requête échoue avant l'enregistrement de la couverture. Les tableaux de classement conservent
+les 100 premiers candidats par passage ; les fiches finales présentées au rédacteur sont conservées.
+La consultation ne consomme pas de crédits LLM. Les justifications sont les explications publiques
+du rédacteur, pas son raisonnement interne. Les secrets de configuration ne sont jamais journalisés.
+Les sources proposées par le rédacteur apparaissent dans une section dédiée. « Approuver »
+ajoute la source validée aux sources actives, sans déclencher de collecte ; « Refuser » conserve
+la décision et empêche une proposition identique de réactiver cette source automatiquement.
+Une collecte admin à la fois par processus ; garder un seul worker pour cet usage local.
+Cette page utilise l'API locale existante sans authentification : elle n'est pas destinée à une
+exposition publique. L'absence de texte ou de fiche est indiquée explicitement.
+
+Routes associées : `GET/POST /v1/sources`, `PUT/DELETE /v1/sources/{id}`,
+`POST /v1/sources/collect`, `POST /v1/sources/{id}/collect`,
+`GET /v1/admin/articles` (pagination/filtres) et `GET /v1/admin/articles/{id}`.
+
+Le fichier `examples/sources.json` propose 35 flux sélectionnés : IA, développement, infrastructure,
+cybersécurité, sciences, économie et actualité générale, en français et en anglais.
+Pour ajouter ces sources et collecter jusqu'à 20 articles par nouvelle source via l'API :
+
+```powershell
+uv run python -m scripts.seed_sources --collect
+# Si le serveur tourne sur un autre port :
+uv run python -m scripts.seed_sources --base-url http://127.0.0.1:8010 --collect
+```
+
+Le script valide les nouveaux flux avant de les enregistrer, réutilise les sources déjà présentes
+sans modifier leurs paramètres et respecte leur mise en pause. `--only-new` permet de ne traiter
+que les nouvelles sources ; `--limit 10` change la limite des nouveaux ajouts. Certains flux publient
+moins d'articles que la limite demandée. Le rapport est écrit dans `data/sources-import-report.json`.
+
+`uv run python -m scripts.audit_catalog --extract-sample 6` vérifie un échantillon de textes provenant
+de domaines distincts et les conserve dans PostgreSQL. Aucun modèle n'est appelé.
+Les articles de presse peuvent rester limités à un extrait ; un flux valide ne garantit pas un
+accès au texte complet. Les paywalls ne sont pas contournés.
+
+## Premier parcours
+
+```powershell
+# Collecte de métadonnées et extraits ; pas de LLM.
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/v1/ingest `
+  -ContentType 'application/json' -InFile examples/ingest.json
+
+```
+
+Ouvrir ensuite Kiosque sur <http://127.0.0.1:5173/>, choisir ses sujets et son contexte,
+puis cliquer sur **Générer ma une**. Le frontend construit la requête à partir du profil local ;
+les thèmes utilisent des mots-clés français et anglais car BM25 ne traduit pas les intérêts.
+
+Pour un premier test réel, renseigner les trois variables LLM dans `.env`, redémarrer le serveur,
+puis vérifier que `/health` indique `llm_configured: true`. La recherche web peut être désactivée
+avec `WEB_SEARCH_ENABLED=false`.
+`POST /v1/covers` renvoie actuellement la couverture à la fin du traitement (maximum 300 secondes),
+avec sa trace. Le lecteur affiche le temps écoulé ; il n'y a pas encore de flux d'événements SSE.
+Les éditions déjà générées se consultent depuis son historique et leurs traces dans l'inspecteur.
+
+## Fonctionnement
+
+1. Pages web, RSS/Atom et API officielle Hacker News alimentent un catalogue commun. Les URL sont normalisées
+   (tracking retiré, paramètres métier conservés). Les réimportations sont idempotentes.
+2. Un classement lexical **BM25** combine les intérêts pondérés et la fraîcheur. Les langues connues,
+   exclusions et articles consommés sont filtrés. Diversification des titres et sources avant résumé.
+3. Les textes des candidats sont extraits avec Trafilatura. Un échec conserve seulement l'extrait
+   disponible et cette provenance est indiquée. Un titre seul ne produit pas de résumé.
+4. Le petit modèle génère une fiche structurée, indépendante du lecteur. PostgreSQL la met en cache
+   par article, hash du contenu et version de prompt/modèle. Une modification invalide son utilisation.
+5. Le rédacteur reçoit les fiches, pas les articles complets. À chaque tour, le LLM choisit une action
+   JSON validée : `search_catalog`, `search_web`, `read_article`, `propose_source` ou `finalize`.
+   Le backend exécute l'action, fournit son résultat au modèle, puis demande la décision suivante.
+6. La finalisation vérifie les identifiants, doublons proches, quotas de sources et taille maximale.
+   Un résultat invalide revient au modèle pour correction. La couverture garde les liens originaux,
+   fiches, justifications publiques, avertissements, actions et consommation de tokens.
+7. Les événements de feedback sont stockés séparément. `open`, `useful`, `already_known` et
+   `not_interested` retirent cet article des prochaines sélections. Une `impression` seule ne le fait pas.
+
+### Découverte d'articles et de sources
+
+La recherche utilise l'outil hébergé OpenAI `web_search`, via Responses et le modèle rédacteur.
+Chaque action demande `max_tool_calls=1` ; l'usage conserve le nombre effectivement retourné
+par le fournisseur. Les requêtes sont ouvertes : les restrictions positives `site:` et `domain:`
+proposées par l'agent sont retirées et la deuxième passe privilégie blogs, auteurs et revues
+indépendantes. Le profil complet accompagne la recherche, y compris le contexte des notes.
+Le backend examine les URL citées et celles de `web_search_call.action.sources`, avec au plus
+12 candidats par passe et deux par domaine. Il valide les destinations et extrait les pages,
+puis filtre leur pertinence avant de payer les résumés.
+La prose générée par la recherche n'est jamais utilisée comme texte original d'un article.
+Les articles importés portent une provenance (fournisseur, requête, date et justification), visible
+dans leurs données JSON. Les liens cités sont conservés dans la trace de couverture.
+
+`propose_source` accepte une URL déjà observée ou la racine d'un site observé. Le backend recherche
+un flux RSS/Atom déclaré dans la page et vérifie son contenu. À défaut de flux exploitable, il
+vérifie un échantillon des liens d'articles et propose la page comme source de type `website`.
+Les URL inventées par le modèle sont refusées. Une page sans flux ni article exploitable est rejetée.
+La justification, la page d'origine et la décision admin sont stockées dans `source_proposals`.
+Routes : `GET /v1/source-proposals`, `POST /v1/source-proposals/{id}/review` avec `{"approve":true}`
+ou `{"approve":false}`. Les approbations sont transactionnelles et idempotentes.
+
+Par couverture, les limites par défaut sont deux recherches, vingt tentatives d'import d'articles
+et deux propositions de sources. Les téléchargements de découverte ont leur propre quota : un
+par tentative d'import et au plus cinq par proposition de source (page, jusqu'à trois liens de flux,
+puis un à trois liens d'articles dans le quota restant).
+Les échecs consomment aussi ces quotas. Les tokens de recherche sont inclus dans `usage` et les
+appels hébergés sont comptés séparément ; leur facturation outil s'ajoute au coût des modèles.
+La réservation de tokens de recherche est estimée, pas un plafond de facture garanti.
+
+Le bouton **Générer ma une** du frontend lance un test réel, facturable, avec le profil local.
+Le rédacteur reste libre de ne pas proposer de source si aucune
+n'est exploitable. La recherche est exécutée chez OpenAI ; collecte RSS, extraction et stockage
+restent sur le serveur Python.
+Le champ de requête `discover_web: true` demande au moins une tentative de recherche avant
+finalisation quand l'outil est activé ; sa valeur par défaut est `false`. Un échec de recherche
+reste explicite dans la trace et n'empêche pas une couverture fondée sur le catalogue disponible.
+`discover_sources: true` demande aussi l'examen d'une source observée lorsque les articles sont
+suffisants et que les tours le permettent. Cette tâche est secondaire et peut être différée.
+Le frontend active `discover_web` et `discover_sources` pour enrichir les propositions de sources
+lors des générations. Une requête directe à l'API peut désactiver ces options.
+Les pages reconnues comme répertoires RSS sont
+conservées parmi les liens de découverte mais ne sont pas importées comme articles.
+
+Le véritable caractère agentique réside dans cette boucle de choix d'actions, pas dans le résumé.
+Les tests utilisent des décisions scriptées pour valider la mécanique ; elles ne sont jamais utilisées
+comme faux agent en production. Sans configuration LLM, la génération répond HTTP 503.
+
+## Endpoints
+
+| Méthode | Route | Usage |
+|---|---|---|
+| GET | `/health` | État, capacités configurées et volumes de données |
+| POST | `/v1/ingest` | Collecter des sites web, flux RSS/Atom et/ou Hacker News |
+| GET | `/v1/articles?limit=50` | Métadonnées du catalogue |
+| POST | `/v1/covers` | Créer et persister une couverture à partir d'un profil |
+| GET | `/v1/covers/{id}` | Relire une couverture et sa trace |
+| POST | `/v1/feedback` | Enregistrer un événement sur un article de la couverture |
+
+Exemple de feedback :
+
+```json
+{
+  "user_id": "identifiant-local-de-la-couverture",
+  "cover_id": "identifiant-retourné",
+  "article_id": "identifiant-d-un-article-de-la-couverture",
+  "kind": "useful"
+}
+```
+
+`status=complete` : le modèle a validé le nombre demandé ; `partial` : il en a retenu moins ;
+`fallback` : échec ou budget épuisé, sélection déterministe des fiches disponibles. Un fallback vide
+reste possible si aucun contenu exploitable n'est disponible. Ce statut ne prouve pas la qualité
+éditoriale : elle doit être évaluée auprès de lecteurs.
+
+## Limites et budgets
+
+- Une génération à la fois par processus API, délai global de 300 secondes. Pas encore de file de jobs.
+- Nombre de tours, résumés, recherches web et téléchargements borné dans `.env`.
+- `MAX_TOKEN_BUDGET` borne une **réservation estimée conservatrice** (octets UTF-8 du texte/schema +
+  sortie maximale) avant chaque appel. Ce n'est ni un prix en euros ni un décompte exact du fournisseur.
+  Les tokens réels retournés sont enregistrés dans `usage`. Les tentatives LLM ne sont pas réessayées
+  automatiquement. Un appel en échec peut quand même avoir été facturé par le fournisseur.
+- Les téléchargements refusent réseaux privés/locaux, ports non standard et identifiants d'URL.
+  La résolution DNS validée est celle utilisée pour la connexion ; chaque redirection est revalidée.
+  Taille décompressée et délais sont limités. Les paywalls ne sont pas contournés.
+- Les articles sont traités comme des données non fiables dans les prompts. Les outils n'offrent
+  aucun accès aux fichiers locaux ou à des actions arbitraires. Cela ne garantit pas l'immunité du LLM
+  aux manipulations éditoriales du contenu.
+- Les extraits et textes très longs sont signalés comme incomplets. Les résumés doivent encore être
+  évalués pour leur fidélité ; il n'y a pas de vérification factuelle automatique.
+- La récupération initiale reste lexicale ; la présélection LLM comprend les intérêts dans les deux
+  langues, sans garantie exhaustive sur le corpus. Le regroupement est basé sur les titres et le
+  jugement du rédacteur, pas une détection fiable des
+  événements. `pgvector`, embeddings et reranker sont des étapes suivantes à mesurer contre ce socle.
+- Le catalogue en mémoire est limité aux derniers `MAX_CATALOG_ARTICLES` collectés. À plus grande
+  échelle, déplacer la récupération des candidats vers des requêtes/index PostgreSQL.
+- Le cache est partagé et versionné ; pas encore de verrou distribué pour éviter deux résumés
+  simultanés du même article dans plusieurs processus. Les sources ne sont pas encore planifiées.
+- Le profil est fourni à chaque requête. La mémoire inférée et les préférences apprises ne sont pas
+  encore implémentées. Un article présenté n'est pas considéré comme lu sans événement explicite.
+- API de développement locale, **sans authentification** : `user_id` n'est pas une preuve d'identité.
+  Ajouter auth, quotas globaux et traitement des données personnelles avant une exposition publique.
+
+## Tests
+
+```powershell
+uv run ruff check .
+uv run ruff format --check .
+uv run pytest -q
+# Avec PostgreSQL démarré : tests réels du repository et du pipeline persistant.
+$env:TEST_DATABASE_URL = 'postgresql://broadwai:broadwai@localhost:5432/broadwai'
+uv run pytest tests/test_postgres.py -q
+```
+
+Les tests PostgreSQL créent puis suppriment leur propre schéma unique. Sans `TEST_DATABASE_URL`,
+ils sont marqués ignorés. La CI fournit un service PostgreSQL et exécute toute la suite sans clé LLM.
+Les autres tests n'ont besoin ni de réseau ni de crédits : recherche, appels LLM et collecte sont
+doublés aux frontières pour vérifier décisions, refus de finalisation, erreurs, budgets et cache.
+
+Vérification réseau facultative, sans base ni LLM : `uv run python -m scripts.smoke_retrieval`.
+Elle lit un flux réel et tente d'extraire un de ses articles ; son résultat dépend des sites.
+
+Pour tester une collecte HTML sans base ni LLM :
+`uv run python -m scripts.smoke_website https://simonwillison.net/ --limit 2`.
+`--save-pages data/website-smoke` conserve le HTML téléchargé pour examiner les erreurs de détection.
+
+## Fichiers principaux
+
+- `broadwai/pipeline.py` : orchestration et validation de la couverture.
+- `broadwai/retrieval.py`, `website.py`, `network.py` : collecte, extraction et accès réseau.
+- `broadwai/llm.py` : prompts, modèles structurés, budget et adaptateur OpenAI.
+- `broadwai/ranking.py` : présélection BM25 et diversification.
+- `broadwai/store.py`, `schema.sql` : persistance PostgreSQL.
+- `broadwai/api.py` : API et cycle de vie.
+
+Références d'intégration : [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs),
+[Hacker News API](https://github.com/HackerNews/API),
+[OpenAI Web Search](https://developers.openai.com/api/docs/guides/tools-web-search),
+[Trafilatura](https://trafilatura.readthedocs.io/en/latest/usage-python.html),
+[Psycopg](https://www.psycopg.org/psycopg3/docs/basic/usage.html).

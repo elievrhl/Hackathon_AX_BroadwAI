@@ -1,0 +1,31 @@
+[project]
+name = "broadwai"
+version = "0.1.0"
+description = "Collecte d'articles et couverture personnalisée par un agent rédacteur"
+requires-python = ">=3.12"
+dependencies = [
+  "aiohttp>=3.11,<4",
+  "fastapi>=0.115,<1",
+  "feedparser>=6.0,<7",
+  "httpx>=0.28,<1",
+  "openai>=2,<3",
+  "pydantic-settings>=2.7,<3",
+  "psycopg[binary,pool]>=3.2,<4",
+  "trafilatura>=2,<3",
+  "uvicorn>=0.34,<1",
+]
+
+[dependency-groups]
+dev = ["pytest>=8,<10", "pytest-asyncio>=0.25,<2", "ruff>=0.11,<1"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

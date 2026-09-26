@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BroadwAI · Administration</title>
+  <link rel="stylesheet" href="/admin/assets/admin.css">
+  <script src="/admin/assets/admin.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/admin"><span class="logo">B</span> BroadwAI</a>
+    <span class="badge">Administration locale</span><a href="/reader/">Lire Kiosque →</a><a class="api-link" href="/admin/covers">Couvertures & traces →</a><a href="/docs">API ↗</a>
+  </header>
+  <main>
+    <div class="page-heading"><div><p class="eyebrow">VOTRE CATALOGUE</p><h1>Sources & articles</h1>
+      <p class="muted">Choisissez vos sources, lancez une collecte et explorez les contenus récupérés.</p></div>
+      <button id="collect-all" class="primary">Collecter les sources actives</button></div>
+    <div id="notice" role="status" aria-live="polite" hidden></div>
+    <div class="stats"><div><strong id="stat-sources">—</strong><span>sources actives</span></div>
+      <div><strong id="stat-articles">—</strong><span>articles au catalogue</span></div>
+      <div><strong id="stat-briefs">—</strong><span>fiches en cache</span></div></div>
+    <section class="panel" aria-labelledby="proposals-heading">
+      <div class="panel-heading"><h2 id="proposals-heading">Sources proposées par le rédacteur</h2></div>
+      <p class="hint">Les flux ou un échantillon d’articles du site ont été vérifiés. Approuvez une source pour l’ajouter aux collectes futures.</p>
+      <div id="proposal-list"><p class="empty">Aucune proposition chargée.</p></div>
+    </section>
+    <div class="workspace">
+      <section class="panel sources-panel" aria-labelledby="sources-heading">
+        <div class="panel-heading"><h2 id="sources-heading">Sources</h2><button id="add-source">+ Ajouter</button></div>
+        <p class="hint">Sites web, RSS / Atom ou Hacker News. La collecte n’utilise pas de crédits LLM.</p>
+        <div id="source-list"><p class="empty">Chargement des sources…</p></div>
+      </section>
+      <section class="panel articles-panel" aria-labelledby="articles-heading">
+        <div class="panel-heading"><h2 id="articles-heading">Articles récupérés <span id="article-count" class="count"></span></h2>
+          <button id="refresh">Actualiser</button></div>
+        <form id="filters" class="filters" role="search">
+          <label class="search-field">Rechercher<input id="search" type="search" placeholder="Titre ou domaine…" maxlength="200"></label>
+          <label>Source<select id="source-filter"><option value="">Toutes les sources</option></select></label>
+          <label>Contenu<select id="status-filter"><option value="">Tous les contenus</option>
+            <option value="excerpt">Extrait uniquement</option><option value="extracted">Texte extrait</option></select></label>
+          <button type="submit">Filtrer</button>
+        </form>
+        <div id="article-list" aria-live="polite"><p class="empty">Chargement des articles…</p></div>
+        <div class="pagination"><span id="page-info" class="muted"></span><div>
+          <button id="previous">← Précédent</button><button id="next">Suivant →</button></div></div>
+      </section>
+    </div>
+    <footer>Les fiches sont générées lors de la préparation des couvertures. Cette page affiche les données déjà disponibles.</footer>
+  </main>
+  <dialog id="source-dialog" aria-labelledby="source-dialog-title">
+    <form id="source-form">
+      <div class="panel-heading"><h2 id="source-dialog-title">Ajouter une source</h2>
+        <button type="button" data-close="source-dialog" aria-label="Fermer">✕</button></div>
+      <label>Nom<input name="name" required maxlength="150" placeholder="Ex. Blog Python"></label>
+      <label>Type<select name="kind"><option value="website">Site web (blog ou journal)</option><option value="rss">Flux RSS / Atom</option><option value="hacker_news">Hacker News</option></select></label>
+      <label id="url-label"><span id="url-caption">URL du site ou de la rubrique</span><input name="url" type="url" required maxlength="2000" placeholder="https://exemple.com/blog"></label>
+      <p id="website-hint" class="hint">Collez la page qui liste les articles à suivre. Les pages nécessitant JavaScript ne sont pas prises en charge ; les accès réservés aux abonnés restent limités.</p>
+      <label>Articles maximum par collecte<input name="limit_per_source" type="number" min="1" max="50" value="20" required></label>
+      <label class="checkbox"><input name="enabled" type="checkbox" checked> Inclure dans les collectes groupées</label>
+      <p id="form-error" class="error" role="alert"></p>
+      <div class="dialog-actions"><button type="button" data-close="source-dialog">Annuler</button><button class="primary" type="submit">Enregistrer</button></div>
+    </form>
+  </dialog>
+  <dialog id="article-dialog" class="article-dialog" aria-labelledby="detail-title">
+    <div class="panel-heading"><p class="eyebrow">DÉTAIL DE L’ARTICLE</p><button data-close="article-dialog">Fermer ✕</button></div>
+    <div id="article-detail"></div>
+  </dialog>
+</body>
+</html>
