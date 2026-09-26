@@ -157,13 +157,16 @@ export default function App() {
     <a className="skip-link" href="#main">Aller au contenu</a>
     {profile ? <Newspaper profile={profile} cover={cover} saved={saved} onSave={toggleSaved} onOpen={setArticle} onPreferences={() => setPreferences(true)} busy={!!busy}>
       <section className="reader-controls" aria-label="Gestion de votre édition">
+        <details className="edition-management" open={cover ? undefined : true}>
+        <summary>Préparer ou retrouver une édition</summary>
         <div className="generation-row"><div><strong>{cover ? 'La prochaine édition vous attend.' : 'Composez votre première une.'}</strong><p>{profile.size} articles souhaités · recherche web et découverte de sources activées</p><p className="field-help">La génération utilise la clé API du serveur et consomme des crédits. La consultation des éditions enregistrées est gratuite.</p></div><button className="primary-button" disabled={!!busy || health?.llm_configured === false} onClick={generate}>{busy === 'generating' ? 'Préparation en cours…' : 'Générer ma une'}<ArrowRight size={18} /></button></div>
         <div className="history-row"><label htmlFor="edition-history">Éditions du serveur local</label><select id="edition-history" value={cover?.id || ''} disabled={!!busy} onChange={event => openCover(event.target.value)}><option value="" disabled>Choisir une édition déjà générée</option>{history.map(row => <option key={row.id} value={row.id}>{formatDate(row.created_at)} · {row.item_count} articles · {STATUS_LABELS[row.status] || row.status} · {row.title}</option>)}</select><button className="text-button" onClick={refreshHistory} disabled={!!busy}><RefreshCw size={15} /> Actualiser</button></div>
         {!history.length && !busy && <p className="field-help">Aucune édition enregistrée sur ce serveur pour le moment.</p>}
+        {cover && <a className="audit-link" href={`/admin/covers?id=${encodeURIComponent(cover.id)}`} target="_blank" rel="noreferrer">Voir la construction de cette édition : sélection, résumés, outils et coût ↗</a>}
+        </details>
         {health?.llm_configured === false && <p className="reader-error" role="alert">Le backend est accessible, mais sa clé API ou ses modèles ne sont pas configurés.</p>}
         {error && <p className="reader-error" role="alert">{error}</p>}
         {busy && <div className="generation-status" role="status"><span className="working-dot" /><span>{busy === 'generating' ? `Le rédacteur prépare votre édition… ${elapsed} s écoulées. Cela peut prendre plusieurs minutes. Vous pouvez continuer à lire l’édition affichée.` : 'Chargement des éditions…'}</span></div>}
-        {cover && <a className="audit-link" href={`/admin/covers?id=${encodeURIComponent(cover.id)}`} target="_blank" rel="noreferrer">Voir la construction de cette édition : sélection, résumés, outils et coût ↗</a>}
       </section>
     </Newspaper> : <Onboarding onComplete={saveProfile} onExplore={() => { saveProfile(DEFAULT_PROFILE); if (history.length) openCover(history[0].id); }} />}
     {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} />}

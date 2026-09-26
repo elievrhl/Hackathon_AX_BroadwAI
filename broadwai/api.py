@@ -125,6 +125,17 @@ def create_app(
         cover = app.state.store.get_cover(cover_id)
         if cover is None:
             raise HTTPException(404, "Couverture introuvable")
+        # Older editions predate this metadata; enrich them from the local catalog.
+        items = []
+        for item in cover.items:
+            if item.reading_time_minutes is None:
+                article = app.state.store.get_article(item.article_id)
+                if article is not None:
+                    item = item.model_copy(
+                        update={"reading_time_minutes": article.reading_time_minutes}
+                    )
+            items.append(item)
+        cover = cover.model_copy(update={"items": items})
         return cover
 
     @app.post("/v1/feedback", status_code=201)

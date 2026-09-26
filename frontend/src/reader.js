@@ -64,29 +64,43 @@ export function safeArticleUrl(value) {
   } catch { return null; }
 }
 
-const KINDS = { news: 'Actualité', analysis: 'Analyse', tutorial: 'Guide', opinion: 'Opinion', research: 'Recherche', other: 'À découvrir' };
-
 /** Keep the editor's order and section names; every item appears exactly once on the front page. */
 export function adaptCover(raw) {
   if (!raw?.id || !Array.isArray(raw.items)) throw new Error('Réponse de couverture invalide.');
   const items = raw.items.map(item => ({
     id: item.article_id, title: item.headline || item.title, originalTitle: item.title,
     url: safeArticleUrl(item.url), source: item.source, publishedAt: item.published_at,
-    section: item.section || 'À découvrir', reason: item.reason,
+    section: item.selection_kind === 'exploration' ? 'Exploration' : item.section || 'À découvrir',
+    reason: item.reason,
+    exploration: item.selection_kind === 'exploration',
+    explorationReason: item.exploration_reason || '',
     summary: item.brief?.summary || '', keyPoints: item.brief?.key_points || [],
     caveats: item.brief?.caveats || [], excerptOnly: item.extraction_status !== 'extracted',
-    kind: item.reading_kind === 'evergreen' ? 'Lecture de fond' : KINDS[item.brief?.content_type] || 'Article',
+    kind: item.reading_kind === 'evergreen' ? 'Lecture de fond'
+      : item.reading_kind === 'research' ? 'Recherche' : 'Actualité',
+    role: item.role,
     language: item.brief?.language,
+    readingTimeMinutes: Number.isInteger(item.reading_time_minutes) && item.reading_time_minutes > 0
+      ? item.reading_time_minutes : null,
   }));
+  const focused = items.filter(item => !item.exploration);
+  const exploration = items.filter(item => item.exploration);
+  const explicitLayout = focused.some(item => item.role);
+  const lead = explicitLayout ? focused.find(item => item.role === 'lead') || focused[0] : focused[0];
+  const secondary = explicitLayout
+    ? focused.filter(item => item !== lead && item.role === 'secondary').slice(0, 2) : focused.slice(1, 3);
+  const briefs = explicitLayout
+    ? focused.filter(item => item !== lead && item.role === 'brief').slice(0, 3) : focused.slice(3, 6);
+  const featured = new Set([lead, ...secondary, ...briefs]);
   const sections = [...new Set(items.map(item => item.section))].map((label, index) => ({
     id: `section-${index}`, label, articles: items.filter(item => item.section === label),
   }));
   return {
     id: raw.id, userId: raw.user_id, title: raw.title, createdAt: raw.created_at,
     status: raw.status, warnings: raw.warnings || [], items, sections,
-    lead: items[0], secondary: items.slice(1, 3), briefs: items.slice(3, 6),
+    lead, secondary, briefs, exploration,
     remainingSections: sections.map(section => ({
-      ...section, articles: section.articles.filter(item => items.indexOf(item) >= 6),
+      ...section, articles: section.articles.filter(item => !item.exploration && !featured.has(item)),
     })).filter(section => section.articles.length),
   };
 }

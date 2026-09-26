@@ -62,6 +62,7 @@ def rank(
     seen: set[str] | None = None,
     query: str | None = None,
     now: datetime | None = None,
+    needs: list[dict] | None = None,
 ) -> list[Ranked]:
     """BM25 baseline: no LLM call, training, or embedding download required."""
     articles = [a for a in articles if eligible(a, profile, seen or set())]
@@ -94,6 +95,12 @@ def rank(
             for interest in profile.interests
         ]
         relevance = sum(value for _, value in scores)
+        need_scores = {
+            need["id"]: (4 if need["priority"] == "primary" else 1) * bm25(tokens(need["query"]), i)
+            for need in (needs or [])
+        }
+        notes_score = bm25(tokens(profile.notes), i) if profile.notes else 0
+        relevance += sum(need_scores.values()) + 2 * notes_score
         query_score = 0
         if query:
             temporal = set(
@@ -121,6 +128,8 @@ def rank(
                     "query_bonus": 2 * query_score,
                     "freshness": freshness,
                     "age_days": age,
+                    "needs": need_scores,
+                    "notes": notes_score,
                 },
             )
         )

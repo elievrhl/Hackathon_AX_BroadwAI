@@ -1,5 +1,76 @@
 # Kiosque — contexte et passation aux agents
 
+## Mise à jour : qualité éditoriale après audit des cinq dernières couvertures
+
+Cette section remplace les anciennes limites temporelles décrites plus bas. Les actualités
+restent limitées à 7 jours, les résultats scientifiques datés à `MAX_RESEARCH_AGE_DAYS=365`.
+Les lectures de fond durables n'ont **aucun plafond d'âge**, même plusieurs décennies.
+`MAX_EVERGREEN_AGE_DAYS` est supprimé des réglages ; une ancienne valeur dans `.env` est ignorée.
+La fiche classe le contenu (`news`, `research`, `evergreen`, `event`) et sa validité, avec
+un passage du texte à l'appui. Les contenus jugés périmés ou incertains sont exclus. C'est un
+jugement sur le document, pas une vérification indépendante de l'état actuel des connaissances.
+Les dates d'origine sont conservées ; aucune ancienne actualité n'est rajeunie.
+
+Un appel initial extrait les besoins précis des notes, leurs priorités et niveaux, et les
+contraintes explicitement exprimées. Les citations sont contrôlées dans le profil. Le classement
+utilise maintenant ces besoins et les notes ; chaque choix doit citer le titre ou extrait,
+puis la fiche à la sélection finale. Plan, filtrage et rédaction ont des consignes distinctes,
+sans exemple géographique contaminant. Les requêtes ciblent un besoin à la fois et disposent
+d'une mémoire des rejets et recherches improductives. L'inspecteur montre ces informations.
+
+Le budget distingue consommation déclarée et réservations non réconciliées. À réception de
+l'usage fournisseur, la réservation est libérée une seule fois. `FINAL_TOKEN_RESERVE=30000`
+protège la rédaction ; les actions optionnelles s'arrêtent avant de l'entamer. Une proposition
+de source ne peut plus prendre la place d'une recherche quand l'édition est insuffisante.
+Le rédacteur donne des rôles de mise en page et une clé de sujet pour limiter les reprises,
+avec une exception motivée pour un angle complémentaire. Le secours garde les titres français
+des fiches et le classement éditorial. Le cache passe à `brief-v3` ; pas de migration SQL.
+L'exploration et les durées de lecture précédemment ajoutées sont conservées.
+
+Le lecteur respecte les rôles explicites et reste compatible avec les anciennes couvertures.
+La gestion des éditions est repliée lorsqu'une édition existe ; l'en-tête est réduit sur grand
+écran. Vérification visuelle sur l'ancienne édition sciences : premiers titres désormais visibles
+dès le premier écran. Les anciennes sélections ne sont pas réécrites.
+
+Audit local : `data/audit-couvertures-2026-09-26.md`. Les essais réels utilisent le catalogue
+PostgreSQL en lecture seule et une mémoire isolée pour les écritures. Ils ne créent ni éditions
+ni fiches dans la base utilisateur. Les premières tentatives ont révélé une requête nulle et
+des citations assemblées ou entourées de guillemets : correction, tests de régression et
+consignes imposant un passage court contigu dans la langue du texte. Les diagnostics conservent
+désormais l'intention produite et les évaluations de validité, même en cas de rejet.
+
+Validation finale : 147 tests backend sans base, 7 tests PostgreSQL isolés et 9 tests lecteur
+réussis ; Ruff, format, build Vite et `git diff --check` passent. Le 147e test couvre un cas réel :
+quatre brèves faisaient refuser toute la rédaction. Les rôles en surplus passent désormais en
+lecture, sans changer l'ordre ni supprimer d'article. Le secours priorise aussi les besoins des notes.
+Les deux derniers essais complets (avant ce dernier ajustement de mise en page) donnent seulement
+3/15 articles en histoire (partiel) et 7/18 en sciences (secours pour quatre brèves). Le rejeu
+des validations sur leurs fiches/métadonnées passe avec la correction, sans nouvel appel payant.
+**Aucun gain global de pertinence n'est démontré** : la recherche récupère encore trop peu de
+textes directement liés aux priorités, et le modèle reste irrégulier sur la validité et la profondeur.
+Rapport et traces : `data/editorial-validation-2026-09-26/RESULTATS.md` et `204512/`.
+Les deux dernières générations seules coûtent environ 0,289357 USD selon l'usage retourné ;
+les itérations de diagnostic sont en supplément et certaines n'ont pas de métrique complète.
+
+## Mise à jour : exploration et deux temporalités
+
+Les nouvelles couvertures préparent d'abord les articles directement pertinents. Le plan peut
+proposer des réserves `exploration=true`, avec `exploration_reason` obligatoire pour leur
+acceptation et le même seuil éditorial. Après une première découverte directe (si demandée),
+un manque ouvre les recherches aux thèmes connexes mais différents. Les réserves ne consomment
+des résumés que pour compléter la sélection. L'allocation garde les articles directs prioritaires
+et conserve quotas et dédoublonnage ; le secours porte aussi les marqueurs d'exploration.
+`CoverItem.selection_kind` vaut `focused` par défaut ou `exploration`, avec la raison du détour.
+Le lecteur place ces compléments dans une rubrique Exploration distincte, avec leur explication.
+Les budgets existants ne changent pas. Pas de nouvelle génération payante pour cette modification.
+
+Le plafond des actualités passe de 45 à 7 jours par défaut, avec priorité éditoriale aux dernières
+24–72 heures. Toute actualité sans date est exclue, y compris dans le catalogue. Les lectures
+de fond explicitement durables gardent le plafond de 365 jours, ou une date inconnue affichée
+comme telle. Le contenu classé `news` ne peut bénéficier de l'exception ni porter le badge
+« Lecture de fond ». L'âge est revérifié après extraction. Les anciens documents restent lisibles
+grâce aux valeurs par défaut ; leur sélection n'est pas réécrite.
+
 ## Mise à jour : découverte ouverte et lectures de fond
 
 La couverture culture `ec244a9f39d24d32a5eebdd9d63d1898` ne contient que 5/18 articles,

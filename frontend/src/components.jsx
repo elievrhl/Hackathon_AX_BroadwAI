@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope, Clock3 } from 'lucide-react';
 import { TOPICS, DEFAULT_PROFILE, formatDate } from './reader.js';
 const ICONS = {
   tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen,
@@ -103,7 +103,17 @@ export function Onboarding({
 function ArticleMeta({
   article
 }) {
-  return <div className="article-meta"><span>{article.source}</span><span className="meta-dot">·</span>{article.publishedAt ? <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time> : <span>Date non renseignée</span>}</div>;
+  return <div className="article-meta">
+    <span>{article.source}</span><span className="meta-dot" aria-hidden="true">·</span>
+    {article.publishedAt ? <time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time> : <span>Date non renseignée</span>}
+    <span className="meta-dot" aria-hidden="true">·</span>
+    <span className="reading-time" title={article.readingTimeMinutes
+      ? 'Temps de lecture estimé à 200 mots par minute.'
+      : 'Temps de lecture indisponible : le texte intégral n’a pas pu être récupéré.'}>
+      <Clock3 size={12} aria-hidden="true" />
+      {article.readingTimeMinutes ? `≈ ${article.readingTimeMinutes} min de lecture` : 'Durée indisponible'}
+    </span>
+  </div>;
 }
 export function ArticleCard({
   article,
@@ -116,9 +126,10 @@ export function ArticleCard({
   return <article className={`article-card ${variant}`} data-article-id={article.id}>
     {variant === 'brief' && <span className="brief-index">{String(index + 1).padStart(2, '0')}</span>}
     <div className="article-inner">
-      <div className="article-topline"><span className="eyebrow article-category">{variant === 'lead' ? `${article.section} / ${article.kind}` : article.kind}</span><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`${saved ? 'Retirer des' : 'Ajouter aux'} favoris : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Retirer des favoris' : 'Garder pour plus tard'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
+      <div className="article-topline"><span className={`eyebrow article-category ${article.exploration ? 'exploration-label' : ''}`}>{article.exploration ? `Exploration / ${article.kind}` : variant === 'lead' ? `${article.section} / ${article.kind}` : article.kind}</span><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`${saved ? 'Retirer des' : 'Ajouter aux'} favoris : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Retirer des favoris' : 'Garder pour plus tard'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
       <h3><button className="article-title" onClick={() => onOpen(article)}>{article.title}</button></h3>
       <ArticleMeta article={article} />
+      {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
       {variant === 'lead' && <div className="lead-bottom"><span className="eyebrow">DÉCOUVRIR L’ARTICLE</span><button className="round-button" onClick={() => onOpen(article)} aria-label={`Découvrir : ${article.title}`}><ArrowUpRight size={24} strokeWidth={1.4} /></button></div>}
     </div>
   </article>;
@@ -165,6 +176,7 @@ export function ArticleDetail({
     <div className="detail-kicker eyebrow">{article.section} <span>/</span> {article.kind}</div>
     <h2 id="article-title">{article.title}</h2>
     <ArticleMeta article={article} />
+    {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
     <div className="publisher-action">{article.url && <a className="primary-button" href={article.url} target="_blank" rel="noopener noreferrer" onClick={onRead}>Lire chez {article.source} <ArrowUpRight size={17} /></a>}</div>
     <details className="article-brief"><summary>Voir la fiche de lecture</summary><p className="detail-summary">{article.summary}</p>
       {!!article.keyPoints.length && <div className="detail-keypoints"><h3>L’essentiel</h3><ol>{article.keyPoints.map((point, index) => <li key={index}>{point}</li>)}</ol></div>}

@@ -59,6 +59,13 @@ class Article(Model):
         value = f"{self.title}\n{self.extraction_status}\n{self.text or self.excerpt}"
         return hashlib.sha256(value.encode()).hexdigest()
 
+    @property
+    def reading_time_minutes(self) -> int | None:
+        """Estimate from the extracted article at 200 words/minute, never from a brief."""
+        if self.extraction_status != "extracted" or not self.text.strip():
+            return None
+        return max(1, (len(self.text.split()) + 199) // 200)
+
     @classmethod
     def create(cls, url: str, title: str, **kwargs) -> "Article":
         url = canonical_url(url)
@@ -87,6 +94,43 @@ class Profile(Model):
     seen_article_ids: list[str] = Field(default_factory=list, max_length=2000)
 
 
+class ReadingValidity(Model):
+    kind: Literal["news", "research", "evergreen", "event"]
+    status: Literal["durable", "time_sensitive", "outdated", "uncertain"]
+    reason: str = Field(min_length=1, max_length=350)
+    evidence: str = Field(
+        min_length=8,
+        max_length=180,
+        description="Un passage contigu du texte original, sans traduction ni commentaire",
+    )
+
+
+class ReaderNeed(Model):
+    topic: str = Field(min_length=1, max_length=150)
+    query: str = Field(min_length=1, max_length=200)
+    priority: Literal["primary", "secondary"]
+    level: Literal["beginner", "intermediate", "expert"]
+    evidence: str = Field(
+        min_length=1,
+        max_length=150,
+        description="Un seul passage contigu copié du profil, sans reformulation ni concaténation",
+    )
+
+
+class ReaderConstraint(Model):
+    requirement: str = Field(min_length=1, max_length=250)
+    evidence: str = Field(
+        min_length=1,
+        max_length=150,
+        description="Un seul passage contigu copié du profil, sans reformulation ni concaténation",
+    )
+
+
+class EditorialIntent(Model):
+    needs: list[ReaderNeed] = Field(min_length=1, max_length=8)
+    constraints: list[ReaderConstraint] = Field(default_factory=list, max_length=8)
+
+
 class Brief(Model):
     summary: str = Field(min_length=1, max_length=1800)
     key_points: list[str] = Field(min_length=1, max_length=5)
@@ -95,6 +139,8 @@ class Brief(Model):
     level: Literal["beginner", "intermediate", "expert", "unknown"]
     language: str
     caveats: list[str] = Field(max_length=5)
+    validity: ReadingValidity | None = None
+    headline: str | None = Field(None, max_length=180)
 
 
 class Candidate(Model):
@@ -114,6 +160,11 @@ class Selection(Model):
     section: str = Field(min_length=1, max_length=100)
     reason: str = Field(min_length=1, max_length=500)
     headline: str | None = Field(None, max_length=180)
+    role: Literal["lead", "secondary", "brief", "reading"] | None = None
+    matched_need: str | None = None
+    evidence: str | None = Field(None, max_length=350)
+    story_key: str | None = Field(None, max_length=120)
+    distinct_angle: str | None = Field(None, max_length=200)
 
 
 class EditorialPick(Model):
@@ -122,18 +173,38 @@ class EditorialPick(Model):
     score: int = Field(ge=0, le=100)
     reason: str = Field(min_length=1, max_length=180)
     matches_profile: bool = Field(
-        description="Le sujet central respecte les intérêts ET le contexte explicite des notes",
+        description="Lien direct ou connexe avec les intérêts ET respect du contexte des notes",
     )
     evergreen: bool = Field(
         description="Lecture de fond durable, pas une actualité ancienne ou non datée"
     )
+    matched_need: str | None = Field(
+        None, description="Identifiant du besoin fourni par le serveur"
+    )
+    evidence: str | None = Field(
+        None, max_length=350, description="Citation exacte du titre/extrait"
+    )
+    temporal_kind: Literal["news", "research", "evergreen", "event"] | None = None
+    exploration: bool = Field(
+        False, description="Thème connexe mais différent, proposé uniquement pour compléter la une"
+    )
+    exploration_reason: str | None = Field(
+        None,
+        max_length=250,
+        description="Lien concret avec un intérêt du lecteur et nouvel angle apporté",
+    )
 
 
 class EditorialPlan(Model):
+    contract_version: int = 1
     sections: list[str] = Field(min_length=1, max_length=5)
     picks: list[EditorialPick] = Field(max_length=28)
     gaps: list[str] = Field(max_length=5)
     queries: list[str] = Field(max_length=2)
+
+
+class SearchScreen(Model):
+    picks: list[EditorialPick] = Field(max_length=28)
 
 
 class Decision(Model):
@@ -166,7 +237,11 @@ class CoverItem(Model):
     brief: Brief
     extraction_status: str
     headline: str | None = None
-    reading_kind: Literal["current", "evergreen"] = "current"
+    reading_kind: Literal["current", "evergreen", "research"] = "current"
+    role: Literal["lead", "secondary", "brief", "reading"] | None = None
+    reading_time_minutes: int | None = Field(None, ge=1)
+    selection_kind: Literal["focused", "exploration"] = "focused"
+    exploration_reason: str | None = None
 
 
 class Cover(Model):

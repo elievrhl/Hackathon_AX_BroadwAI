@@ -78,6 +78,24 @@ class ScriptedModel:
         self.states = []
         self.summary_calls = 0
 
+    async def interpret(self, state, budget):
+        from broadwai.models import EditorialIntent, ReaderNeed
+
+        budget.take("intent")
+        profile = state["profile"]
+        return EditorialIntent(
+            needs=[
+                ReaderNeed(
+                    topic=i["topic"],
+                    query=i["topic"],
+                    priority="primary",
+                    level=profile["level"],
+                    evidence=i["topic"],
+                )
+                for i in profile["interests"]
+            ]
+        )
+
     async def summarize(self, article, budget):
         budget.take("summary")
         self.summary_calls += 1
@@ -179,6 +197,7 @@ def article(index=1, *, title=None, source=None, extracted=True):
         else "",
         extraction_status="extracted" if extracted else "excerpt",
         language="fr",
+        published_at=utcnow(),
     )
 
 

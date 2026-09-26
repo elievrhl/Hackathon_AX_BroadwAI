@@ -10,6 +10,7 @@ function fixture(size) {
       article_id: `article-${i}`, title: `Original ${i}`, headline: i % 2 ? null : `Titre français ${i}`,
       url: `https://example.com/${i}`, source: 'example.com', section: ['Inflation', 'Entreprises', 'International'][i % 3],
       published_at: null, reason: 'Explication éditoriale', extraction_status: 'excerpt',
+      reading_time_minutes: i === 0 ? 5 : null,
       brief: { summary: 'Résumé', key_points: ['Un point'], content_type: 'analysis', caveats: ['Texte incomplet'] },
     })),
   };
@@ -51,10 +52,14 @@ test('editor order, headings and every article survive layout, including small f
       assert.equal(cover.lead.title, 'Titre français 0');
       assert.equal(cover.lead.reason, 'Explication éditoriale');
       assert.equal(cover.lead.excerptOnly, true);
+      assert.equal(cover.lead.readingTimeMinutes, 5);
       assert.deepEqual(cover.lead.caveats, ['Texte incomplet']);
       assert.equal(cover.sections[0].label, 'Inflation');
     }
-    if (size > 1) assert.equal(cover.items[1].title, 'Original 1');
+    if (size > 1) {
+      assert.equal(cover.items[1].title, 'Original 1');
+      assert.equal(cover.items[1].readingTimeMinutes, null);
+    }
   }
 });
 
@@ -63,12 +68,53 @@ test('publisher links reject executable and relative URLs', () => {
   assert.equal(safeArticleUrl('https://example.com/a'), 'https://example.com/a');
 });
 
+test('explicit editorial roles put a substantive reading in the lead without losing any articles', () => {
+  const raw = fixture(9);
+  raw.items.forEach(item => { item.role = 'reading'; });
+  raw.items[6].role = 'lead';
+  raw.items[6].reading_kind = 'evergreen';
+  raw.items[3].role = 'secondary';
+  raw.items[1].role = 'brief';
+  raw.items[7].reading_kind = 'research';
+  const cover = adaptCover(raw);
+  assert.equal(cover.lead.id, 'article-6');
+  assert.equal(cover.lead.kind, 'Lecture de fond');
+  assert.deepEqual(cover.secondary.map(item => item.id), ['article-3']);
+  assert.deepEqual(cover.briefs.map(item => item.id), ['article-1']);
+  assert.equal(cover.items[7].kind, 'Recherche');
+  const rendered = [cover.lead, ...cover.secondary, ...cover.briefs,
+    ...cover.remainingSections.flatMap(section => section.articles)];
+  assert.equal(rendered.length, raw.items.length);
+  assert.equal(new Set(rendered.map(item => item.id)).size, raw.items.length);
+});
+
 test('evergreen readings are identified without inventing a publication date', () => {
   const raw = fixture(1);
   raw.items[0].reading_kind = 'evergreen';
   const cover = adaptCover(raw);
   assert.equal(cover.lead.kind, 'Lecture de fond');
   assert.equal(cover.lead.publishedAt, null);
+});
+
+test('exploration stays separate from the headlines with every article and its explanation', () => {
+  for (const focusedCount of [0, 1, 6, 15]) {
+    const raw = fixture(focusedCount + 2);
+    raw.items.slice(focusedCount).forEach(item => {
+      item.selection_kind = 'exploration';
+      item.exploration_reason = 'De la programmation au design des outils de pensée.';
+      item.reading_kind = 'evergreen';
+    });
+    const cover = adaptCover(raw);
+    const rendered = [cover.lead, ...cover.secondary, ...cover.briefs,
+      ...cover.remainingSections.flatMap(section => section.articles), ...cover.exploration].filter(Boolean);
+    assert.equal(new Set(rendered.map(item => item.id)).size, raw.items.length);
+    assert.equal(rendered.length, raw.items.length);
+    assert.equal(cover.exploration.length, 2);
+    assert.ok(!cover.lead?.exploration);
+    assert.ok(cover.exploration.every(item => item.section === 'Exploration'
+      && item.explorationReason.includes('design') && item.kind === 'Lecture de fond'));
+    assert.equal(cover.sections.find(section => section.label === 'Exploration').articles.length, 2);
+  }
 });
 
 test('API round trip sends the actual payload and feedback and reads persisted editions', async t => {

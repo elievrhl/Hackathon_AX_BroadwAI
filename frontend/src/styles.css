@@ -808,6 +808,40 @@ input::placeholder,textarea::placeholder {
 .meta-dot {
   color: #999a8c;
 }
+.reading-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.reading-time svg {
+  flex-shrink: 0;
+}
+.exploration-section {
+  border-top: 1px solid var(--ink);
+  margin-top: 32px;
+  padding-top: 24px;
+}
+.exploration-label {
+  color: #586447;
+}
+.exploration-intro,.exploration-reason {
+  color: var(--muted);
+  font-family: var(--serif-body);
+  font-size: .875rem;
+  line-height: 1.6;
+}
+.exploration-intro {
+  margin: 12px 0 24px;
+}
+.exploration-reason {
+  margin-top: 12px;
+}
+.exploration-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 24px;
+}
 .lead {
   padding-right: 29px;
 }
@@ -2066,4 +2100,15 @@ dialog::backdrop {
     transition: none!important;
     animation: none!important;
   }
+}
+
+.edition-management > summary { cursor: pointer; font-size: 13px; font-weight: 600; padding: 4px 0; }
+.edition-management[open] > summary { margin-bottom: 18px; }
+
+@media (min-width: 900px) {
+  .has-edition .utility-bar { padding-top: 11px; }
+  .has-edition .masthead .wordmark { font-size: 5rem; }
+  .has-edition .masthead { padding-bottom: 12px; }
+  .has-edition .edition-intro { padding: 20px 0; }
+  .has-edition .reader-controls { padding: 12px 0; margin-bottom: 16px; }
 }

@@ -23,6 +23,13 @@ async def test_openai_adapter_structured_output_limits_and_usage():
     model = OpenAILanguageModel("test-key", "summary-test", "editor-test", 1000)
     brief = Brief(
         summary="Résumé factuel",
+        headline="Un titre français",
+        validity={
+            "kind": "evergreen",
+            "status": "durable",
+            "reason": "Méthode durable",
+            "evidence": "Python systèmes distribués",
+        },
         key_points=["Un point"],
         topics=["Python"],
         content_type="analysis",
@@ -45,7 +52,7 @@ async def test_openai_adapter_structured_output_limits_and_usage():
         assert kwargs["model"] == "summary-test"
         assert kwargs["text_format"] is Brief
         assert kwargs["store"] is False
-        assert kwargs["max_output_tokens"] == 900
+        assert kwargs["max_output_tokens"] == 1400
         assert budget.input_tokens == 120
         assert budget.output_tokens == 80
         call = budget.report()["model_calls"][0]

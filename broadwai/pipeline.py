@@ -1,4 +1,5 @@
 import asyncio
+import json
 from collections import Counter
 from copy import deepcopy
 from time import perf_counter
@@ -6,7 +7,14 @@ from urllib.parse import urlsplit
 
 from broadwai.config import Settings
 from broadwai.discovery import is_feed_directory, validate_source
-from broadwai.editorial import compact_candidate, coverage, preview, preview_pool
+from broadwai.editorial import (
+    compact_candidate,
+    coverage,
+    grounded,
+    preview,
+    preview_pool,
+    reading_kind,
+)
 from broadwai.llm import BudgetExceeded, LanguageModel, ModelError, RunBudget
 from broadwai.models import (
     Article,
@@ -20,7 +28,7 @@ from broadwai.models import (
     utcnow,
 )
 from broadwai.network import RetrievalError, validate_destination
-from broadwai.ranking import Ranked, diversify, eligible, rank, similarity
+from broadwai.ranking import Ranked, diversify, eligible, rank, similarity, tokens
 from broadwai.web_search import open_web_query
 
 
@@ -37,6 +45,7 @@ class CoverPipeline:
             limits={
                 "summary": settings.max_summary_calls,
                 "plan": 1,
+                "intent": 1,
                 "screen": 4,
                 "editor": settings.max_agent_steps,
                 "search_catalog": 2,
@@ -49,6 +58,7 @@ class CoverPipeline:
                 "source_fetch": settings.max_source_proposals * 5,
             },
             max_tokens=settings.max_token_budget,
+            final_reserve=min(settings.final_token_reserve, settings.max_token_budget // 3),
         )
         self.candidates: dict[str, Candidate] = {}
         self.articles: dict[str, Article] = {}
@@ -57,12 +67,28 @@ class CoverPipeline:
         self.discovered: dict[str, Article] = {}
         self.plan = None
         self.picks = {}
+        self.exploration_pool: dict[str, Ranked] = {}
+        self.exploration_active = False
         self.failed_domains: Counter = Counter()
         self.prepared_ids: set[str] = set()
+        self.rejected: dict[str, dict] = {}
+        self.catalog_index: dict[str, Article] = {}
+        self.intent = {"needs": [], "constraints": []}
+        self.search_history: list[dict] = []
+        self.force_finalize = False
         self.started = perf_counter()
         self.audit: dict = {"version": 1, "events": []}
 
     def log(self, kind, **data):
+        if kind == "candidate_skipped" and data.get("article_id"):
+            id_ = data["article_id"]
+            article = self.catalog_index.get(id_)
+            self.rejected[id_] = {
+                "article_id": id_,
+                "reason": data.get("reason"),
+                "title": article.title if article else None,
+                "url": article.url if article else None,
+            }
         self.audit["events"].append(
             {
                 "sequence": len(self.audit["events"]) + 1,
@@ -73,10 +99,95 @@ class CoverPipeline:
             }
         )
 
+    async def _interpret(self, request):
+        profile = request.profile
+        needs = [
+            {
+                "topic": i.topic,
+                "query": i.topic,
+                "priority": "primary" if n == 0 else "secondary",
+                "level": profile.level,
+                "evidence": i.topic,
+            }
+            for n, i in enumerate(profile.interests[:8])
+        ]
+        constraints = []
+        if profile.notes:
+            try:
+                provided_profile = profile.model_dump(exclude={"user_id", "seen_article_ids"})
+                interpreted = await self.model.interpret(
+                    {"profile": provided_profile},
+                    self.budget,
+                )
+                evidence_source = (
+                    profile.notes
+                    + "\n"
+                    + "\n".join(i.topic for i in profile.interests)
+                    + "\n"
+                    + json.dumps(provided_profile, ensure_ascii=False)
+                )
+                if not all(
+                    grounded(n.evidence, evidence_source, minimum=2)
+                    for n in [*interpreted.needs, *interpreted.constraints]
+                ):
+                    raise ModelError("Besoin ou contrainte sans citation du profil")
+                needs = [n.model_dump() for n in interpreted.needs]
+                constraints = [c.model_dump() for c in interpreted.constraints]
+                # Explicit notes take precedence over broad UI categories, regardless
+                # of a model accidentally copying their numeric interest weights.
+                note_needs = {
+                    n["topic"] for n in needs if grounded(n["evidence"], profile.notes, minimum=2)
+                }
+                if note_needs:
+                    for need in needs:
+                        need["priority"] = "primary" if need["topic"] in note_needs else "secondary"
+            except (ModelError, BudgetExceeded) as exc:
+                self.warnings.append(f"Interprétation du profil indisponible : {exc}")
+                needs.insert(
+                    0,
+                    {
+                        "topic": profile.notes[:150],
+                        "query": profile.notes[:200],
+                        "priority": "primary",
+                        "level": profile.level,
+                        "evidence": profile.notes[:300],
+                    },
+                )
+        self.intent = {
+            "needs": [{"id": f"need-{n + 1}", **need} for n, need in enumerate(needs[:8])],
+            "constraints": constraints,
+        }
+        self.audit["editorial_intent"] = self.intent
+
+    def _pick_error(self, pick, row, sections, strict=False):
+        if pick.score < self.settings.min_editorial_score:
+            return "Score éditorial insuffisant"
+        if not pick.matches_profile:
+            return "Sujet central hors profil"
+        if sections and pick.section not in sections and not pick.exploration:
+            return "Rubrique inconnue"
+        if pick.exploration and not (pick.exploration_reason or "").strip():
+            return "Lien d'exploration absent"
+        if strict:
+            if pick.matched_need not in {n["id"] for n in self.intent["needs"]}:
+                return "Besoin éditorial non identifié"
+            a = row.article
+            if not grounded(pick.evidence, a.title + "\n" + (a.excerpt or a.text)[:320]):
+                return "Lien au besoin sans preuve dans le titre ou l'extrait"
+            if not pick.temporal_kind:
+                return "Temporalité non évaluée"
+        return None
+
     async def _prepare(self, ranked: Ranked, request: CoverRequest, seen: set[str]) -> bool:
         article = ranked.article
+        self.catalog_index[article.id] = article
         pick = self.picks.get(article.id)
-        if self._dated_out(article, allow_evergreen=bool(pick and pick.evergreen)):
+        self.prepared_ids.add(article.id)
+        if self._dated_out(
+            article,
+            allow_evergreen=bool(pick and pick.evergreen),
+            kind=pick.temporal_kind if pick else None,
+        ):
             self.log(
                 "candidate_skipped",
                 article_id=article.id,
@@ -94,7 +205,6 @@ class CoverPipeline:
         if article.id in self.candidates or len(self.candidates) >= 40:
             self.log("candidate_skipped", article_id=article.id, reason="Déjà présent ou limite 40")
             return False
-        self.prepared_ids.add(article.id)
         brief = self.store.get_brief(article, self.model.summary_version)
         if brief:
             self.budget.cache_hits += 1
@@ -172,9 +282,32 @@ class CoverPipeline:
                 "candidate_skipped", article_id=article.id, reason="Exclu après lecture/langue"
             )
             return False
-        if self._dated_out(article) and brief.content_type == "news":
+        validity = brief.validity
+        if validity and (
+            validity.status in {"outdated", "uncertain"}
+            or (validity.kind == "evergreen" and validity.status != "durable")
+            or not grounded(
+                validity.evidence,
+                (article.text or article.excerpt)[: self.settings.max_article_chars],
+            )
+        ):
             self.log(
-                "candidate_skipped", article_id=article.id, reason="Actualité périmée ou non datée"
+                "candidate_skipped",
+                article_id=article.id,
+                reason="Validité du contenu insuffisante : " + validity.reason,
+            )
+            return False
+        if self._dated_out(
+            article,
+            allow_evergreen=bool(pick and pick.evergreen and brief.content_type != "news"),
+            kind=validity.kind if validity else None,
+        ):
+            self.log(
+                "candidate_skipped",
+                article_id=article.id,
+                reason="Actualité périmée ou non datée"
+                if brief.content_type == "news"
+                else "Date incompatible avec la lecture de fond",
             )
             return False
         self.articles[article.id] = article
@@ -192,16 +325,62 @@ class CoverPipeline:
         self.log("candidate_ready", article_id=article.id)
         return True
 
-    def _dated_out(self, article, *, allow_evergreen=False):
+    def _dated_out(self, article, *, allow_evergreen=False, kind=None):
+        durable = kind == "evergreen" if kind else allow_evergreen
         if article.published_at:
             age = (utcnow() - article.published_at).total_seconds() / 86400
             limit = (
-                self.settings.max_evergreen_age_days
-                if allow_evergreen
+                self.settings.max_research_age_days
+                if kind == "research"
                 else self.settings.max_article_age_days
             )
-            return age > limit or age < -1
-        return article.discovery.get("provider") == "openai_web_search" and not allow_evergreen
+            return age < -1 or (not durable and age > limit)
+        return not durable
+
+    def _is_exploration(self, article_id):
+        pick = self.picks.get(article_id)
+        return bool(pick and pick.exploration)
+
+    def _available_selections(self, *, focused_only=False):
+        return [
+            Selection(
+                article_id=id_,
+                section=self.picks[id_].section if id_ in self.picks else "À découvrir",
+                reason=self.picks[id_].reason if id_ in self.picks else "Selon vos intérêts",
+            )
+            for id_ in self.candidates
+            if not focused_only or not self._is_exploration(id_)
+        ]
+
+    def _focused_capacity(self, request):
+        selected, _ = self._allocate(self._available_selections(focused_only=True), request)
+        return len(selected)
+
+    async def _complete_with_exploration(self, request, seen):
+        if self.force_finalize or not self.budget.can_explore:
+            return
+        missing = request.size - self._focused_capacity(request)
+        if missing <= 0:
+            self.exploration_active = False
+            return
+        # Give direct discovery its first pass before opening adjacent themes.
+        if (
+            request.discover_web
+            and self.search.enabled
+            and self.settings.max_web_searches
+            and not self.budget.counts["search_web"]
+        ):
+            return
+        if not self.exploration_active:
+            self.log("exploration_opened", missing=missing)
+        self.exploration_active = True
+        # Fill only usable slots, accounting for shared sources and near duplicates.
+        for id_, row in self.exploration_pool.items():
+            selected, _ = self._allocate(self._available_selections(), request)
+            if len(selected) >= request.size:
+                break
+            if id_ not in self.prepared_ids:
+                await self._prepare(row, request, seen)
 
     async def _add_candidates(
         self,
@@ -238,6 +417,9 @@ class CoverPipeline:
         )
         cursor = 0
         while cursor < len(shortlist) and len(added) < limit:
+            if not self.budget.can_explore:
+                self.force_finalize = True
+                break
             batch = shortlist[cursor : cursor + min(3, limit - len(added))]
             cursor += len(batch)
             results = await asyncio.gather(*(self._prepare(r, request, seen) for r in batch))
@@ -248,14 +430,21 @@ class CoverPipeline:
 
     def _validate(self, selections: list[Selection], request: CoverRequest) -> list[str]:
         errors = []
-        if request.discover_web and self.search.enabled and not self.budget.counts["search_web"]:
+        if (
+            request.discover_web
+            and self.search.enabled
+            and not self.budget.counts["search_web"]
+            and not self.force_finalize
+        ):
             errors.append("Effectue search_web : une découverte web a été demandée")
         if not selections:
             return ["La sélection ne doit pas être vide"]
         if len(selections) > request.size:
             errors.append("Trop d'articles")
         can_research = (
-            self.budget.counts["editor"] < self.settings.max_agent_steps
+            not self.force_finalize
+            and self.budget.can_explore
+            and self.budget.counts["editor"] < self.settings.max_agent_steps
             and self.budget.counts["summary"] < self.settings.max_summary_calls
             and (
                 (
@@ -268,16 +457,56 @@ class CoverPipeline:
         if len(selections) < request.size and can_research:
             errors.append(
                 f"Seulement {len(selections)}/{request.size} articles : "
-                "cherche des remplacements pertinents avant de finaliser"
+                "cherche des remplacements pertinents ou des thèmes connexes en Exploration "
+                "avant de finaliser"
             )
-        sections = Counter(s.section for s in selections)
+        sections = Counter(s.section for s in selections if not self._is_exploration(s.article_id))
+        focused_count = sum(sections.values())
+        if self.plan and set(sections) - set(self.plan.sections):
+            errors.append("Utilise les rubriques prévues dans editorial_plan")
         if request.size >= 15 and len(selections) == request.size:
-            if not 3 <= len(sections) <= 5 or min(sections.values(), default=0) < 2:
+            if focused_count >= 15 and (
+                not 3 <= len(sections) <= 5 or min(sections.values(), default=0) < 2
+            ):
                 errors.append(
                     "Une une complète exige 3 à 5 rubriques avec au moins 2 articles chacune"
                 )
-            if self.plan and set(sections) - set(self.plan.sections):
-                errors.append("Utilise les rubriques prévues dans editorial_plan")
+        if self.plan and self.plan.contract_version >= 2:
+            needs = {n["id"] for n in self.intent["needs"]}
+            roles = Counter(s.role for s in selections if not self._is_exploration(s.article_id))
+            if focused_count and (
+                roles["lead"] != 1 or roles["secondary"] > 2 or roles["brief"] > 3
+            ):
+                errors.append(
+                    "Choisir un sujet principal, au plus deux secondaires et trois brèves"
+                )
+            stories = {}
+            for s in selections:
+                c = self.candidates.get(s.article_id)
+                if not c:
+                    continue
+                if s.matched_need not in needs:
+                    errors.append(f"{s.article_id}: besoin non justifié après lecture")
+                if not grounded(
+                    s.evidence,
+                    c.title
+                    + "\n"
+                    + c.brief.summary
+                    + "\n"
+                    + "\n".join(c.brief.key_points)
+                    + "\n"
+                    + (c.brief.validity.evidence if c.brief.validity else ""),
+                ):
+                    errors.append(f"{s.article_id}: preuve absente de la fiche")
+                if not s.headline or not s.role or not s.story_key:
+                    errors.append(f"{s.article_id}: titre français, rôle et sujet requis")
+                if s.story_key:
+                    key = " ".join(tokens(s.story_key))
+                    if key in stories and (
+                        not s.distinct_angle or s.distinct_angle == stories[key]
+                    ):
+                        errors.append(f"{s.article_id}: reprise du même sujet sans apport distinct")
+                    stories[key] = s.distinct_angle
         ids = [s.article_id for s in selections]
         if len(ids) != len(set(ids)):
             errors.append("Identifiants dupliqués")
@@ -297,16 +526,24 @@ class CoverPipeline:
 
     def _allocate(self, selections: list[Selection], request: CoverRequest):
         """Apply mechanical quotas once; the model supplies editorial order and judgments."""
+        has_exploration = any(self._is_exploration(s.article_id) for s in selections)
+        exploration_limit = (
+            max(0, request.size - self._focused_capacity(request)) if has_exploration else 0
+        )
         kept, removed = [], []
         counts = Counter()
         ids = set()
-        for s in selections:
+        exploration_count = 0
+        for s in sorted(selections, key=lambda s: self._is_exploration(s.article_id)):
             article = self.articles.get(s.article_id)
+            exploration = self._is_exploration(s.article_id)
             reason = None
             if article is None:
                 reason = "Identifiant inconnu"
             elif s.article_id in ids:
                 reason = "Doublon"
+            elif exploration and exploration_count >= exploration_limit:
+                reason = "Exploration réservée aux places manquantes"
             elif counts[article.source] >= request.max_per_source:
                 reason = "Quota de source"
             elif len(kept) >= request.size:
@@ -318,7 +555,37 @@ class CoverPipeline:
                 continue
             ids.add(s.article_id)
             counts[article.source] += 1
+            if exploration:
+                exploration_count += 1
+                s = s.model_copy(update={"section": "Exploration"})
             kept.append(s)
+        # Layout overflow must not discard an otherwise valid editorial selection.
+        focused = [s for s in kept if not self._is_exploration(s.article_id)]
+        if focused and all(s.role for s in focused):
+            lead_id = next(
+                (s.article_id for s in focused if s.role == "lead"), focused[0].article_id
+            )
+            role_counts = Counter()
+            adjusted = []
+            for index, selection in enumerate(kept):
+                role = selection.role
+                if selection.article_id == lead_id:
+                    role = "lead"
+                elif self._is_exploration(selection.article_id) or role == "lead":
+                    role = "reading"
+                elif (
+                    role in {"secondary", "brief"}
+                    and role_counts[role] >= {"secondary": 2, "brief": 3}[role]
+                ):
+                    role = "reading"
+                role_counts[role] += 1
+                if role != selection.role:
+                    kept[index] = selection.model_copy(update={"role": role})
+                    adjusted.append(
+                        {"article_id": selection.article_id, "from": selection.role, "to": role}
+                    )
+            if adjusted:
+                self.log("layout_roles_adjusted", changes=adjusted)
         return kept, removed
 
     def _finish(
@@ -333,18 +600,35 @@ class CoverPipeline:
                     section=selection.section,
                     reason=selection.reason,
                     headline=selection.headline,
-                    reading_kind=(
-                        "evergreen"
-                        if self.picks.get(selection.article_id)
-                        and self.picks[selection.article_id].evergreen
-                        else "current"
+                    role=selection.role,
+                    reading_time_minutes=self.articles[selection.article_id].reading_time_minutes,
+                    selection_kind=(
+                        "exploration" if self._is_exploration(selection.article_id) else "focused"
                     ),
+                    exploration_reason=(
+                        self.picks[selection.article_id].exploration_reason
+                        if self._is_exploration(selection.article_id)
+                        else None
+                    ),
+                    reading_kind=reading_kind(candidate, self.picks.get(selection.article_id)),
                 )
             )
         status = "fallback" if fallback else "complete" if len(items) == request.size else "partial"
         self.log("cover_completed", status=status, selected_ids=[s.article_id for s in selections])
         self.audit["candidates"] = [c.model_dump(mode="json") for c in self.candidates.values()]
         self.audit["duration_ms"] = round((perf_counter() - self.started) * 1000)
+        self.audit["search_history"] = self.search_history
+        self.audit["rejected"] = list(self.rejected.values())
+        self.audit["uncovered_needs"] = [
+            n
+            for n in self.intent["needs"]
+            if n["id"]
+            not in {
+                s.matched_need or self.picks[s.article_id].matched_need
+                for s in selections
+                if s.article_id in self.picks
+            }
+        ]
         if request.discover_sources and not self.budget.counts["source_proposal"]:
             self.warnings.append("Proposition de source différée : priorité à la couverture")
         if len(items) < request.size:
@@ -382,15 +666,19 @@ class CoverPipeline:
                 "editorial_pool_size",
                 "min_editorial_score",
                 "max_article_age_days",
-                "max_evergreen_age_days",
+                "max_research_age_days",
+                "final_token_reserve",
             )
         }
+        await self._interpret(request)
         seen = self.store.consumed_ids(request.profile.user_id)
         catalog = self.store.articles(self.settings.max_catalog_articles)
+        self.catalog_index.update({a.id: a for a in catalog})
         ranked = rank(
             [a for a in catalog if not self._dated_out(a, allow_evergreen=True)],
             request.profile,
             seen,
+            needs=self.intent["needs"],
         )
         self.log(
             "catalog_ranked",
@@ -413,7 +701,10 @@ class CoverPipeline:
                     "candidates": previews,
                     "today": utcnow().date().isoformat(),
                     "max_article_age_days": self.settings.max_article_age_days,
-                    "max_evergreen_age_days": self.settings.max_evergreen_age_days,
+                    "max_research_age_days": self.settings.max_research_age_days,
+                    "editorial_intent": self.intent,
+                    "min_editorial_score": self.settings.min_editorial_score,
+                    "exploration_allowed": True,
                 },
                 self.budget,
             )
@@ -422,15 +713,21 @@ class CoverPipeline:
             by_id = {r.article.id: r for r in pool}
             selected = []
             for pick in self.plan.picks:
-                if (
-                    pick.article_id in by_id
-                    and pick.article_id not in self.picks
-                    and pick.score >= self.settings.min_editorial_score
-                    and pick.matches_profile
-                    and pick.section in self.plan.sections
-                ):
+                if pick.article_id in by_id and pick.article_id not in self.picks:
+                    error = self._pick_error(
+                        pick,
+                        by_id[pick.article_id],
+                        self.plan.sections,
+                        self.plan.contract_version >= 2,
+                    )
+                    if error:
+                        self.log("candidate_skipped", article_id=pick.article_id, reason=error)
+                        continue
                     self.picks[pick.article_id] = pick
-                    selected.append(by_id[pick.article_id])
+                    if pick.exploration:
+                        self.exploration_pool[pick.article_id] = by_id[pick.article_id]
+                    else:
+                        selected.append(by_id[pick.article_id])
             await self._add_candidates(
                 selected, request, seen, selection_limit, editorial_order=True
             )
@@ -440,12 +737,28 @@ class CoverPipeline:
         observations: list[dict] = []
         attempted: set[tuple] = set()
         for step in range(1, self.settings.max_agent_steps + 1):
+            self.force_finalize = (
+                self.force_finalize
+                or not self.budget.can_explore
+                or step == self.settings.max_agent_steps
+            )
+            await self._complete_with_exploration(request, seen)
             state = {
                 "profile": request.profile.model_dump(exclude={"seen_article_ids"}),
                 "size": request.size,
                 "discover_web": request.discover_web,
                 "discover_sources": request.discover_sources,
                 "max_per_source": request.max_per_source,
+                "exploration_allowed": self.exploration_active,
+                "focused_capacity": self._focused_capacity(request),
+                "max_article_age_days": self.settings.max_article_age_days,
+                "max_research_age_days": self.settings.max_research_age_days,
+                "editorial_intent": self.intent,
+                "min_editorial_score": self.settings.min_editorial_score,
+                "force_finalize": self.force_finalize,
+                "budget_remaining_tokens": self.budget.remaining_tokens,
+                "search_history": self.search_history,
+                "rejected": list(self.rejected.values())[-30:],
                 "candidates": [
                     compact_candidate(c, self.picks.get(c.article_id))
                     for c in self.candidates.values()
@@ -483,7 +796,15 @@ class CoverPipeline:
                     observations=observations[-2:],
                     coverage=state["coverage"],
                 )
-                decision = await self.model.decide(state, self.budget)
+                try:
+                    decision = await self.model.decide(state, self.budget)
+                except BudgetExceeded:
+                    if self.force_finalize or not self.candidates:
+                        raise
+                    self.force_finalize = True
+                    state["force_finalize"] = True
+                    self.log("final_reserve_used", step=step)
+                    decision = await self.model.decide(state, self.budget)
                 self.log("editor_decision", step=step, decision=decision.model_dump(mode="json"))
             except (ModelError, BudgetExceeded) as exc:
                 self.log("editor_failed", step=step, error=str(exc))
@@ -524,7 +845,12 @@ class CoverPipeline:
                 if not errors:
                     return self._finish(decision.selections, request, decision.title)
             else:
-                key = (decision.action, decision.query, decision.article_id, decision.source_url)
+                key = (
+                    decision.action,
+                    tuple(sorted(set(tokens(decision.query or "")))),
+                    decision.article_id,
+                    decision.source_url,
+                )
                 if key in attempted:
                     outcome = {"error": "Action déjà tentée : choisis une autre action"}
                 else:
@@ -552,24 +878,41 @@ class CoverPipeline:
                         outcome=audit,
                     )
                 )
+                if decision.action in {"search_web", "search_catalog"}:
+                    self.search_history.append(
+                        {
+                            "action": decision.action,
+                            "query": decision.query,
+                            "added": len(outcome.get("added_ids", [])),
+                            "rejections": outcome.get("rejections", []),
+                            "error": outcome.get("error"),
+                        }
+                    )
             observations.append({"action": decision.action, **outcome})
 
         self.warnings.append(
             "Sélection de secours déterministe : l'agent n'a pas validé de couverture"
         )
-        fallback = diversify(
-            [
-                Ranked(self.articles[c.article_id], c.score, c.matched_interests)
-                for c in self.candidates.values()
-            ],
-            request.size,
-            request.max_per_source,
+        await self._complete_with_exploration(request, seen)
+        primary_needs = {n["id"] for n in self.intent["needs"] if n["priority"] == "primary"}
+        fallback = sorted(
+            self.candidates.values(),
+            key=lambda c: (
+                self._is_exploration(c.article_id),
+                not (
+                    c.article_id in self.picks
+                    and self.picks[c.article_id].matched_need in primary_needs
+                ),
+                -self.picks[c.article_id].score if c.article_id in self.picks else -c.score,
+            ),
         )
         selections = [
             Selection(
-                article_id=r.article.id,
+                article_id=r.article_id,
                 section="À découvrir",
                 reason="Sélection de secours selon vos intérêts et la diversité.",
+                headline=r.brief.headline,
+                role="reading",
             )
             for r in fallback
         ]
@@ -577,10 +920,19 @@ class CoverPipeline:
             if s.article_id in self.picks:
                 s.section = self.picks[s.article_id].section
                 s.reason = self.picks[s.article_id].reason
+        selections, _ = self._allocate(selections, request)
+        for index, selection in enumerate(selections):
+            if not self._is_exploration(selection.article_id):
+                selection.role = "lead" if index == 0 else "secondary" if index < 3 else "reading"
         return self._finish(selections, request, "Votre sélection", fallback=True)
 
     async def _act(self, decision: Decision, request: CoverRequest, seen: set[str]) -> dict:
+        if self.force_finalize:
+            raise ValueError("Budget réservé à la composition : finalise maintenant")
         if decision.action == "propose_source":
+            available, _ = self._allocate(self._available_selections(), request)
+            if self.plan and len(available) < request.size:
+                raise ValueError("Proposition de source différée : couverture encore incomplète")
             self.budget.take("source_proposal")
             url = validate_destination(decision.source_url or "")
             known = [a.url for a in self.discovered.values()] + [
@@ -606,6 +958,16 @@ class CoverPipeline:
         if decision.action in {"search_catalog", "search_web"}:
             if not decision.query or not 2 <= len(decision.query) <= 300:
                 raise ValueError("La requête doit contenir entre 2 et 300 caractères")
+            words = set(tokens(decision.query))
+            for previous in self.search_history:
+                prior = set(tokens(previous.get("query") or ""))
+                if (
+                    previous["action"] == decision.action
+                    and not previous["added"]
+                    and len(words & prior) / max(1, len(words | prior)) >= 0.8
+                ):
+                    raise ValueError("Recherche déjà infructueuse : cible un autre besoin ou angle")
+            rejected_before = set(self.rejected)
             if decision.action == "search_web":
                 if not self.search.enabled:
                     raise RetrievalError("Recherche web non configurée")
@@ -616,13 +978,17 @@ class CoverPipeline:
                     " ; éviter les sites " + ", ".join(avoid) if avoid else ""
                 )
                 strategy = "independent" if self.budget.counts["search_web"] > 1 else "open_web"
-                result_limit = min(12, max(5, request.size - len(self.candidates) + 2))
+                result_limit = min(12, max(5, (request.size - len(self.candidates)) * 2 + 2))
                 search_context = {
                     "profile": request.profile.model_dump(exclude={"user_id", "seen_article_ids"}),
                     "strategy": strategy,
                     "avoid_domains": avoid,
                     "max_article_age_days": self.settings.max_article_age_days,
-                    "max_evergreen_age_days": self.settings.max_evergreen_age_days,
+                    "max_research_age_days": self.settings.max_research_age_days,
+                    "editorial_intent": self.intent,
+                    "search_history": self.search_history,
+                    "rejected": list(self.rejected.values())[-30:],
+                    "exploration_allowed": self.exploration_active,
                 }
                 found = await self.search.search(
                     query,
@@ -638,12 +1004,25 @@ class CoverPipeline:
                     returned_count=len(found),
                 )
                 self.discovered.update({a.id: a for a in found})
+                self.catalog_index.update({a.id: a for a in found})
                 articles = []
                 import_errors = []
                 for candidate in found:
+                    if candidate.id in self.rejected or candidate.id in self.prepared_ids:
+                        continue
                     if is_feed_directory(candidate):
+                        self.log(
+                            "candidate_skipped",
+                            article_id=candidate.id,
+                            reason="Annuaire ou répertoire de sources",
+                        )
                         continue
                     if not eligible(candidate, request.profile, seen):
+                        self.log(
+                            "candidate_skipped",
+                            article_id=candidate.id,
+                            reason="Langue, exclusion ou article déjà lu",
+                        )
                         continue
                     if self.failed_domains[candidate.source] >= 2:
                         import_errors.append(
@@ -675,19 +1054,23 @@ class CoverPipeline:
                         if isinstance(exc, RetrievalError):
                             self.failed_domains[candidate.source] += 1
                         import_errors.append({"url": candidate.url, "error": str(exc)})
+                        self.log("candidate_skipped", article_id=candidate.id, reason=str(exc))
             else:
                 self.budget.take("search_catalog")
                 articles = self.store.articles(self.settings.max_catalog_articles)
             articles = [
                 a
                 for a in articles
-                if a.id not in self.prepared_ids and not self._dated_out(a, allow_evergreen=True)
+                if a.id not in self.prepared_ids
+                and a.id not in self.rejected
+                and not self._dated_out(a, allow_evergreen=True)
             ]
             ranked = rank(
                 articles,
                 request.profile,
                 seen,
                 query=decision.query if decision.action == "search_catalog" else None,
+                needs=self.intent["needs"],
             )
             pool = diversify(ranked, 20, 4)
             if pool:
@@ -707,7 +1090,10 @@ class CoverPipeline:
                             "sections": self.plan.sections if self.plan else [],
                             "today": utcnow().date().isoformat(),
                             "max_article_age_days": self.settings.max_article_age_days,
-                            "max_evergreen_age_days": self.settings.max_evergreen_age_days,
+                            "max_research_age_days": self.settings.max_research_age_days,
+                            "editorial_intent": self.intent,
+                            "min_editorial_score": self.settings.min_editorial_score,
+                            "exploration_allowed": self.exploration_active,
                         },
                         self.budget,
                     )
@@ -717,14 +1103,28 @@ class CoverPipeline:
                 by_id = {r.article.id: r for r in pool}
                 ranked = []
                 for pick in screened.picks:
-                    if (
-                        pick.article_id in by_id
-                        and pick.score >= self.settings.min_editorial_score
-                        and pick.matches_profile
-                        and (not self.plan or pick.section in self.plan.sections)
-                    ):
-                        ranked.append(by_id.pop(pick.article_id))
+                    if pick.article_id in by_id:
+                        row = by_id.pop(pick.article_id)
+                        error = self._pick_error(
+                            pick,
+                            row,
+                            self.plan.sections if self.plan else [],
+                            screened.contract_version >= 2,
+                        )
+                        if error:
+                            self.log("candidate_skipped", article_id=pick.article_id, reason=error)
+                            continue
+                        if pick.exploration:
+                            self.exploration_pool[pick.article_id] = row
+                        else:
+                            ranked.append(row)
                         self.picks[pick.article_id] = pick
+                for id_ in by_id:
+                    self.log(
+                        "candidate_skipped",
+                        article_id=id_,
+                        reason="Non retenu par le filtre éditorial",
+                    )
             ids = await self._add_candidates(
                 ranked,
                 request,
@@ -735,6 +1135,7 @@ class CoverPipeline:
             return {
                 "query": query if decision.action == "search_web" else decision.query,
                 "added_ids": ids,
+                "rejections": [r for id_, r in self.rejected.items() if id_ not in rejected_before],
                 **(
                     {
                         "import_errors": import_errors,

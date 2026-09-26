@@ -36,7 +36,8 @@ frontend via `/reader/?cover={id}`.
 
 La préparation se déroule ainsi :
 
-1. Classement lexical puis pool diversifié de 96 titres/extraits maximum, avec une place pour
+1. Interprétation des notes en besoins prioritaires, puis classement lexical tenant compte de
+   ces besoins et des notes. Pool diversifié de 96 titres/extraits maximum, avec une place pour
    les articles récents que les mots-clés bilingues peuvent manquer.
 2. Un appel au rédacteur définit les rubriques et choisit les articles prometteurs. Son score
    éditorial est une appréciation du modèle, pas une probabilité. Sous 70/100, pas de résumé.
@@ -48,23 +49,54 @@ La préparation se déroule ainsi :
    appelle un changement de requête ; un domaine en échec répété est évité pendant ce run.
 5. Application des quotas aux choix du modèle, en conservant leur ordre éditorial et en traçant
    les retraits ; validation des identifiants, du nombre et des doublons. Pour une
-   couverture complète de 15 à 20 articles : 3 à 5 rubriques, au moins deux articles chacune.
+   sélection d'au moins 15 articles directs : 3 à 5 rubriques, au moins deux articles chacune.
+   Si la sélection directe manque, une rubrique **Exploration** complète les places libres
+   avec des thèmes connexes mais différents et un lien explicite avec les intérêts.
    Une sélection courte est refusée s'il reste des moyens de chercher. Après épuisement,
    le résultat reste explicitement partiel plutôt que de promettre un remplissage pertinent.
 
 Les défauts conservent 24 nouveaux résumés, 6 décisions, 2 passes de recherche web et ajoutent
-une planification et au plus 4 filtres de recherche sur le modèle économique. Le rédacteur utilise
+une interprétation des notes si présentes, une planification et au plus 4 filtres de recherche.
+Les besoins interprétés doivent citer le profil, puis alimentent le classement avant le plan.
+Le filtre a un prompt autonome et un seuil cohérent avec `MIN_EDITORIAL_SCORE`. Le rédacteur utilise
 le raisonnement `low` sur GPT-5 ; le modèle de résumé conserve son réglage économique.
 Les téléchargements de présélection sont limités à 24, les imports web à 20 tentatives.
-Les actualités de plus de 45 jours et les actualités web sans date sont écartées. Les essais,
-analyses et autres lectures de fond peuvent remonter à 365 jours (`MAX_EVERGREEN_AGE_DAYS`),
-ou ne pas avoir de date, si le filtre éditorial les reconnaît explicitement comme durables.
-Le lecteur les distingue par « Lecture de fond » et affiche les dates absentes comme telles.
+Les actualités privilégient les dernières 24–72 heures ; celles de plus de 7 jours
+(`MAX_ARTICLE_AGE_DAYS`) ou sans date sont écartées, quelle que soit leur provenance. Les essais,
+analyses et autres lectures de fond n'ont **aucune limite d'âge**, y compris plusieurs décennies,
+si leur contenu reste valable. L'ancien réglage `MAX_EVERGREEN_AGE_DAYS` est ignoré.
+Une fiche évalue la temporalité et cite le texte : durable, sensible au temps, périmé ou incertain.
+Les contenus périmés ou dont la validité est incertaine sont écartés ; l'âge seul ne suffit pas.
+Cette évaluation éditoriale n'est pas une vérification externe exhaustive des faits.
+Les résultats scientifiques ont une fenêtre distincte (`MAX_RESEARCH_AGE_DAYS`, 365 par défaut).
+Le lecteur distingue « Lecture de fond », « Recherche » et « Actualité », sans inventer de date.
 Le contexte explicite des notes doit être respecté avant résumé, même pour un score élevé.
+Les réserves d'exploration sont proposées par le filtre éditorial, avec le même seuil de qualité.
+Elles sont préparées uniquement en cas de manque, après une première recherche directe si la
+découverte web est demandée. Les recherches suivantes peuvent élargir les thèmes, sans relâcher
+les exclusions, les langues, les contraintes des notes, les quotas ni les limites d'âge.
+Le lecteur affiche « Exploration » et la raison de ce détour. Les règles temporelles s'appliquent
+aussi à ces découvertes. Les budgets restent inchangés ; une édition peut rester partielle
+si aucun complément de qualité n'est trouvé.
 Ces plafonds restent configurables. `usage.cost` estime le montant en USD à partir des tokens
 déclarés, du cache et des appels web, uniquement pour les modèles tarifés dans `pricing.py`.
 Ce n'est pas une facture ni un plafond monétaire garanti. Les tarifs standard mini/nano ont été
 vérifiés le 26 septembre 2026 ; hors taxes, éventuels suppléments et appels sans usage retourné.
+
+Le budget réconcilie chaque réservation avec l'usage déclaré, même pour les appels simultanés.
+Sans usage retourné, il garde l'estimation par prudence. `FINAL_TOKEN_RESERVE` protège la rédaction
+finale : l'exploration s'arrête avant d'entamer cette enveloppe et une édition partielle peut être
+composée. Les propositions de sources sont différées si la couverture est encore incomplète.
+`usage.reserved_token_estimate` conserve le cumul historique ; `unsettled_token_reservations`
+désigne les réservations non réconciliées et `remaining_tokens` le budget réellement disponible.
+
+Les recherches ciblent un besoin à la fois et conservent l'historique et les motifs de rejet.
+Un article écarté ne repasse pas dans les filtres à chaque reformulation. Les finalisations sont
+contrôlées aussi en mode partiel : rubriques connues, besoin cité, preuve dans la fiche, titre français,
+rôle éditorial et absence de reprise du même événement sans angle distinct. Le lecteur respecte les
+rôles (sujet principal, secondaire, brève, lecture), avec compatibilité pour les éditions anciennes.
+Les fiches `brief-v3` comprennent validité et titre français ; les anciennes fiches ne sont pas
+réutilisées pour les nouvelles générations. Les anciennes éditions restent consultables.
 
 `examples/sources-economy.json` propose dix flux économiques supplémentaires ; huit ont été
 validés et collectés lors de l'essai local (les flux en erreur sont ignorés par le script).

@@ -24,7 +24,11 @@ async def test_journal_records_scores_summary_cache_and_exact_decisions():
     score = shortlist["ranked"][0]
     parts = score["score_details"]
     assert score["score"] == pytest.approx(
-        sum(parts["interests"].values()) + parts["query_bonus"] + parts["freshness"]
+        sum(parts["interests"].values())
+        + parts["query_bonus"]
+        + parts["freshness"]
+        + sum(parts["needs"].values())
+        + 2 * parts["notes"]
     )
     assert first.diagnostics["candidates"][0]["brief"] == first.items[0].brief.model_dump()
     assert "summary_cache_hit" in [e["kind"] for e in second.diagnostics["events"]]

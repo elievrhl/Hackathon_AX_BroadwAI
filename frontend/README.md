@@ -49,6 +49,18 @@ utiliser la même adresse pour retrouver son profil local.
 Un lien `/reader/?cover=<identifiant>` ouvre directement une édition, notamment depuis
 l’inspecteur. Le paramètre de l’URL est prioritaire sur la dernière édition du navigateur.
 
+Les cartes et fiches affichent le temps de lecture estimé à 200 mots par minute,
+arrondi à la minute supérieure, à partir du texte extrait de l’article. Si seul un
+extrait est disponible, la durée est indiquée comme indisponible. Les éditions
+enregistrées avant cet ajout sont enrichies depuis le catalogue lors de leur ouverture.
+
+Les nouvelles éditions privilégient les actualités des dernières 24–72 heures (7 jours maximum)
+et acceptent les lectures de fond durables jusqu'à un an. Ces deux catégories sont visibles sur
+les cartes. Si les articles directement liés aux sujets ne suffisent pas, une rubrique
+**Exploration** complète l'édition avec des thèmes connexes mais différents. Chaque découverte
+explique son lien avec les intérêts du lecteur ; elle reste accessible par les filtres et favoris.
+Les éditions déjà enregistrées conservent leur sélection.
+
 Les préférences permettent de choisir 15, 18 ou 20 articles et les langues français
 ou français/anglais. Le premier sujet reçoit davantage de poids. Enregistrer des
 préférences ne lance pas de génération. `discover_web` et `discover_sources` sont

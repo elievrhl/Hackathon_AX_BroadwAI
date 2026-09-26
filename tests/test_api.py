@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 
 from broadwai.api import create_app
 from broadwai.config import Settings
+from broadwai.models import Cover
 from tests.fakes import (
     FakeCollector,
     FakeSearch,
@@ -13,7 +14,8 @@ from tests.fakes import (
 
 
 def test_api_cover_feedback_and_readback():
-    store = MemoryStore([article()])
+    source = article().model_copy(update={"text": "Python " * 801})
+    store = MemoryStore([source])
     app = create_app(
         Settings(_env_file=None),
         store=store,
@@ -33,7 +35,35 @@ def test_api_cover_feedback_and_readback():
         assert response.status_code == 200
         cover = response.json()
         assert cover["status"] == "complete"
+        assert cover["items"][0]["reading_time_minutes"] == 5
         assert client.get(f"/v1/covers/{cover['id']}").json() == cover
+
+        # Saved editions without the new field get an estimate without regeneration.
+        legacy = Cover.model_validate(
+            {
+                **cover,
+                "items": [
+                    {key: value for key, value in item.items() if key != "reading_time_minutes"}
+                    for item in cover["items"]
+                ],
+            }
+        )
+        store.put_cover(legacy)
+        assert client.get(f"/v1/covers/{cover['id']}").json() == cover
+        assert legacy.items[0].reading_time_minutes is None
+
+        # Excerpts and unavailable articles must not yield a misleading full reading time.
+        store.put_article(source.model_copy(update={"extraction_status": "excerpt"}))
+        assert (
+            client.get(f"/v1/covers/{cover['id']}").json()["items"][0]["reading_time_minutes"]
+            is None
+        )
+        store.rows.clear()
+        assert (
+            client.get(f"/v1/covers/{cover['id']}").json()["items"][0]["reading_time_minutes"]
+            is None
+        )
+        store.put_article(source)
         payload = {
             "user_id": "alice",
             "cover_id": cover["id"],

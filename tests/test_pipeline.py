@@ -194,7 +194,7 @@ async def test_final_selection_constraints(bad_selection):
     selected = [items[0], items[0]] if bad_selection == "duplicate" else items
     invalid = decision(
         selections=[
-            {"article_id": a.id, "section": "Tech", "reason": "Pertinent"} for a in selected
+            {"article_id": a.id, "section": "Technique", "reason": "Pertinent"} for a in selected
         ]
     )
     req = request(size=1 if bad_selection == "too_many" else 2)

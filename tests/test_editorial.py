@@ -200,7 +200,9 @@ async def test_editor_cannot_finalize_when_known_capacity_is_insufficient():
 
 
 async def test_undated_web_result_is_not_presented_as_current_news():
-    item = article().model_copy(update={"discovery": {"provider": "openai_web_search"}})
+    item = article().model_copy(
+        update={"published_at": None, "discovery": {"provider": "openai_web_search"}}
+    )
     model = ScriptedModel()
     cover = await pipeline(MemoryStore([item]), model).run(request())
     assert cover.items == [] and model.summary_calls == 0
