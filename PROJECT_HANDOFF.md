@@ -38,6 +38,16 @@ Aucune nouvelle couverture payante n'a été générée pour cette correction.
 
 ## Interface lecteur et nom du projet
 
+Le choix initial et les préférences proposent maintenant 20 centres d'intérêt (contre 6),
+définis dans `frontend/src/reader.js`, chacun associé à des termes français et anglais.
+Les identifiants des six anciens sujets sont conservés pour les profils locaux existants.
+
+L'extension multimédia est reportée à la demande de l'utilisateur. À reprendre plus tard :
+newsletters publiques, projets à découvrir, podcasts Radio France (culture, sciences, économie,
+société), vidéos YouTube intégrées. Choix validé : 30 minutes maximum d'audio nouveau par
+couverture, cache partagé. La clé Gradium sera branchée plus tard. Aucun code multimédia
+partiel n'est activé ; prévoir conversion audio vers un format accepté et budget de transcription.
+
 Le nom produit retenu par l’utilisateur est **Kiosque**. Le package Python `broadwai`
 n’a pas été renommé. À la demande de l’utilisateur, `frontend/` (React 19 / Vite 7)
 est maintenant connecté à l’API. Aucun compte, e-mail ou mot de passe : profil et

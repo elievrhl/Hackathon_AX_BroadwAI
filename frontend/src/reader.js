@@ -5,6 +5,20 @@ export const TOPICS = [
   { id: 'science', label: 'Sciences', short: 'Sciences', query: 'sciences, recherche, science, research' },
   { id: 'climate', label: 'Climat & vivant', short: 'Climat', query: 'climat, biodiversité, climate, environment' },
   { id: 'culture', label: 'Culture & idées', short: 'Culture', query: 'culture, arts, ideas' },
+  { id: 'history', label: 'Histoire', short: 'Histoire', query: 'histoire, archéologie, patrimoine, history, archaeology, heritage' },
+  { id: 'philosophy', label: 'Philosophie', short: 'Philosophie', query: 'philosophie, éthique, pensée critique, philosophy, ethics, critical thinking' },
+  { id: 'books', label: 'Livres & littérature', short: 'Livres', query: 'livres, littérature, écriture, books, literature, writing' },
+  { id: 'cinema', label: 'Cinéma & séries', short: 'Cinéma', query: 'cinéma, séries, films, réalisation, cinema, television, filmmaking' },
+  { id: 'music', label: 'Musique', short: 'Musique', query: 'musique, artistes, composition, music, musicians, songwriting' },
+  { id: 'art', label: 'Art & design', short: 'Art & design', query: 'art, design, architecture, photographie, visual arts, photography' },
+  { id: 'health', label: 'Santé & psychologie', short: 'Santé', query: 'santé, psychologie, neurosciences, health, psychology, neuroscience' },
+  { id: 'sports', label: 'Sport', short: 'Sport', query: 'sport, athlètes, entraînement, sports, athletes, training' },
+  { id: 'food', label: 'Cuisine & gastronomie', short: 'Cuisine', query: 'cuisine, gastronomie, cultures alimentaires, cooking, gastronomy, food culture' },
+  { id: 'travel', label: 'Voyages & découvertes', short: 'Voyages', query: 'voyages, géographie, découverte de lieux, travel, geography, places' },
+  { id: 'business', label: 'Entrepreneuriat', short: 'Entreprises', query: 'entrepreneuriat, entreprises, création de produits, entrepreneurship, startups, product development' },
+  { id: 'education', label: 'Éducation', short: 'Éducation', query: 'éducation, pédagogie, apprentissage, education, teaching, learning' },
+  { id: 'gaming', label: 'Jeux vidéo', short: 'Jeux vidéo', query: 'jeux vidéo, création de jeux, game design, video games, game development' },
+  { id: 'space', label: 'Espace & astronomie', short: 'Espace', query: 'espace, astronomie, exploration spatiale, space, astronomy, space exploration' },
 ];
 
 export const DEFAULT_PROFILE = {

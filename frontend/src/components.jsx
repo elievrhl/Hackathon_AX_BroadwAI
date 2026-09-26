@@ -1,7 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
 import { TOPICS, DEFAULT_PROFILE, formatDate } from './reader.js';
-const ICONS = { tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen };
+const ICONS = {
+  tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen,
+  history: Landmark, philosophy: Lightbulb, books: Library, cinema: Clapperboard, music: Music2,
+  art: Palette, health: HeartPulse, sports: Trophy, food: CookingPot, travel: Compass,
+  business: BriefcaseBusiness, education: GraduationCap, gaming: Gamepad2, space: Telescope,
+};
 export function Wordmark({
   small = false
 }) {
@@ -16,7 +21,7 @@ function TopicChoices({
   }
   return <div className="topic-choices">
     {TOPICS.map(topic => {
-      const Icon = ICONS[topic.id];
+      const Icon = ICONS[topic.id] || BookOpen;
       return <button key={topic.id} type="button" className={`topic-choice ${value.includes(topic.id) ? 'selected' : ''}`} aria-pressed={value.includes(topic.id)} onClick={() => toggle(topic.id)}>
         <Icon size={19} strokeWidth={1.5} /><span>{topic.label}</span><span className="choice-check">{value.includes(topic.id) && <Check size={13} />}</span>
       </button>;
