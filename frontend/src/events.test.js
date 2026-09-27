@@ -50,6 +50,9 @@ test('online archives do not expire by publication age or require a city', () =>
   assert.match(eventDateLabel(archive, now), /Archive du 15 octobre 2018/);
   assert.equal(eligibleEvent({ ...archive, availableUntil: '2026-09-26' }, { now }), false);
   assert.equal(eligibleEvent({ ...archive, availableFrom: '2026-10-01' }, { now }), false);
+  const concertVideo = EVENTS_CATALOG.find(item => item.id === 'ground-control');
+  assert.match(eventDateLabel(concertVideo, now), /7 février 2027/);
+  assert.equal(eligibleEvent(concertVideo, { now: new Date('2027-02-08T00:00:00+01:00') }), false);
 });
 
 test('recommendations stay relevant and vary formats and providers without paid dependencies', () => {
@@ -65,7 +68,10 @@ test('recommendations stay relevant and vary formats and providers without paid 
   }
   assert.deepEqual(selectEvents({ topics: ['sports'], languages: ['fr'] }, { now }), []);
   assert.deepEqual(selectEvents(null, { now }), []);
-  assert.ok(selectEvents({ topics: ['music'], languages: ['fr'] }, { now }).every(item => item.topics.includes('music')));
+  const music = selectEvents({ topics: ['music'], languages: ['fr'] }, { now });
+  assert.ok(music.every(item => item.topics.includes('music')));
+  assert.ok(music.some(item => item.kind === 'podcast'));
+  assert.ok(music.some(item => item.kind === 'show'));
 });
 
 test('format filters run before selection, duplicate links are removed and input is immutable', () => {

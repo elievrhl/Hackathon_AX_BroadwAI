@@ -90,6 +90,20 @@ export const EVENTS_CATALOG = [
     url: 'https://www.arte.tv/fr/videos/RC-023176/le-dessous-des-images/',
   },
   {
+    ...online, id: 'ground-control', kind: 'show', title: 'Ground Control · Une soirée glam rock',
+    description: 'The Lemon Twigs, Fat White Family, Los Bitchos et Thomas de Pourquery se retrouvent sur scène dans cette session présentée par Christophe Chassol.',
+    topics: ['music', 'culture'], provider: 'ARTE', venue: 'ARTE Concert · En ligne',
+    availableUntil: '2027-02-07', practical: 'Captation de 2024 · 65 min · Disponibilité annoncée jusqu’au 7 février 2027.',
+    url: 'https://www.arte.tv/fr/videos/119571-000-A/the-lemon-twigs-the-fat-white-family-los-bitchos/',
+  },
+  {
+    ...online, id: 'very-good-trip', kind: 'podcast', title: 'Very Good Trip',
+    description: 'Michka Assayas parcourt les histoires du rock, ses standards et ses chemins de traverse dans une collection de voyages musicaux.',
+    topics: ['music'], provider: 'Radio France', venue: 'France Inter · En ligne',
+    practical: 'Collection musicale ; disponibilité selon les épisodes sur le site.',
+    url: 'https://www.radiofrance.fr/franceinter/podcasts/very-good-trip',
+  },
+  {
     ...online, id: 'science-cqfd', kind: 'podcast', title: 'La Science, CQFD',
     description: 'Des conversations avec des chercheurs pour explorer les découvertes, leurs méthodes et les questions qu’elles ouvrent.',
     topics: ['science', 'tech', 'space', 'health', 'climate'], provider: 'Radio France', venue: 'France Culture · En ligne',

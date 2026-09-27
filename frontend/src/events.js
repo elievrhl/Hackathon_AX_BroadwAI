@@ -77,7 +77,10 @@ export function selectEvents(profile, options = {}) {
 
 export function eventDateLabel(item, now = new Date()) {
   const day = value => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Paris' }).format(new Date(`${value}T12:00:00Z`));
-  if (item.mode === 'online') return item.publishedOn ? `Archive du ${day(item.publishedOn)}` : 'À découvrir en ligne';
+  if (item.mode === 'online') {
+    if (item.availableUntil) return `En ligne · jusqu’au ${day(item.availableUntil)}`;
+    return item.publishedOn ? `Archive du ${day(item.publishedOn)}` : 'À découvrir en ligne';
+  }
   if (item.occurrences) {
     const next = item.occurrences.filter(date => Date.parse(date) > now.getTime()).sort()[0];
     return next ? new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' }).format(new Date(next)) : 'Terminé';
