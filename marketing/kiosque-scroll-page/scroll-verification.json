@@ -1,0 +1,12 @@
+{
+  "duration_seconds": 8,
+  "fps": 60,
+  "frames": 480,
+  "width": 1920,
+  "height": 1080,
+  "first_scroll_css_px": 0.0,
+  "last_scroll_css_px": 1247.0344009489916,
+  "footer_top_css_px": 2530.828125,
+  "remaining_content_below_last_frame_css_px": 563.7937240510084,
+  "scrolling_at_end": true
+}

@@ -1,3 +1,11 @@
+## 27 septembre 2026 — Fusion du menu avec l’amont
+
+Le menu d’avis, son chevron et la suppression de la fiche de lecture sont fusionnés
+avec `e9f2432` : les supports marketing et le retrait par Jad de deux boutons des
+préférences sont conservés. Le Courrier du lecteur reste accessible depuis le journal.
+Sur cette copie Windows, le checkout inclut tout sauf `/:memory:.ses`, dont le nom
+est incompatible avec Windows. Ce fichier reste suivi dans le dépôt partagé.
+
 ## 27 septembre 2026 — Avis rapide depuis le menu des articles
 
 Le menu « … » sous chaque article propose « Je n’aime pas cet article » et le classement

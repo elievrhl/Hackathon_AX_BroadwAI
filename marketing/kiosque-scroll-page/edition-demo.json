@@ -1,0 +1,657 @@
+{
+  "id": "kiosque-demo-diversite",
+  "user_id": "marketing-scroll-demo",
+  "title": "Le monde, au fil de vos curiosités.",
+  "created_at": "2026-09-27T08:00:00Z",
+  "status": "complete",
+  "items": [
+    {
+      "article_id": "kiosque-demo-01",
+      "format": "article",
+      "title": "Comprendre les grandes transformations de l’économie",
+      "url": "https://demo.kiosque.example/kiosque-demo-01",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Économie",
+      "role": "lead",
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 5,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur économie, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Économie"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-02",
+      "format": "video",
+      "title": "Voyage aux frontières du système solaire",
+      "url": "https://demo.kiosque.example/kiosque-demo-02",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Sciences",
+      "role": "secondary",
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": null,
+      "media": {
+        "duration_seconds": 780,
+        "channel_title": "Horizons",
+        "show_title": "Le temps de comprendre"
+      },
+      "brief": {
+        "summary": "Un regard accessible sur sciences, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Sciences"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-03",
+      "format": "article",
+      "title": "Quand l’art nous apprend à regarder autrement",
+      "url": "https://demo.kiosque.example/kiosque-demo-03",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Culture & idées",
+      "role": "secondary",
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 7,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur culture & idées, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Culture & idées"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-04",
+      "format": "article",
+      "title": "La biodiversité, cet équilibre qui nous relie",
+      "url": "https://demo.kiosque.example/kiosque-demo-04",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Climat & vivant",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 8,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur climat & vivant, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Climat & vivant"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-05",
+      "format": "podcast",
+      "title": "L’intelligence artificielle à hauteur d’humain",
+      "url": "https://demo.kiosque.example/kiosque-demo-05",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Tech & IA",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": null,
+      "media": {
+        "duration_seconds": 420,
+        "channel_title": "Horizons",
+        "show_title": "Le temps de comprendre"
+      },
+      "brief": {
+        "summary": "Un regard accessible sur tech & ia, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Tech & IA"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-06",
+      "format": "article",
+      "title": "Prendre les chemins de traverse en Méditerranée",
+      "url": "https://demo.kiosque.example/kiosque-demo-06",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Voyages & découvertes",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 4,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur voyages & découvertes, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Voyages & découvertes"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-07",
+      "format": "article",
+      "title": "Pourquoi les villes réinventent leurs commerces de proximité",
+      "url": "https://demo.kiosque.example/kiosque-demo-07",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Économie",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 5,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur économie, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Économie"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-08",
+      "format": "article",
+      "title": "Ce que les étoiles nous racontent sur nos origines",
+      "url": "https://demo.kiosque.example/kiosque-demo-08",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Sciences",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 6,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur sciences, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Sciences"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-09",
+      "format": "video",
+      "title": "Ces œuvres qui font dialoguer les époques",
+      "url": "https://demo.kiosque.example/kiosque-demo-09",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Culture & idées",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": null,
+      "media": {
+        "duration_seconds": 1140,
+        "channel_title": "Horizons",
+        "show_title": "Le temps de comprendre"
+      },
+      "brief": {
+        "summary": "Un regard accessible sur culture & idées, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Culture & idées"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-10",
+      "format": "article",
+      "title": "À la rencontre des forêts que l’on ne voit pas",
+      "url": "https://demo.kiosque.example/kiosque-demo-10",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Climat & vivant",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 8,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur climat & vivant, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Climat & vivant"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-11",
+      "format": "article",
+      "title": "Les interfaces de demain se dessinent aujourd’hui",
+      "url": "https://demo.kiosque.example/kiosque-demo-11",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Tech & IA",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 9,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur tech & ia, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Tech & IA"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-12",
+      "format": "article",
+      "title": "Voyager en train, et retrouver le plaisir du trajet",
+      "url": "https://demo.kiosque.example/kiosque-demo-12",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Voyages & découvertes",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 4,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur voyages & découvertes, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Voyages & découvertes"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-13",
+      "format": "article",
+      "title": "L’économie circulaire, de l’idée au quotidien",
+      "url": "https://demo.kiosque.example/kiosque-demo-13",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Économie",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 5,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur économie, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Économie"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-14",
+      "format": "article",
+      "title": "Dans les coulisses des grandes découvertes scientifiques",
+      "url": "https://demo.kiosque.example/kiosque-demo-14",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Sciences",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 6,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur sciences, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Sciences"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-15",
+      "format": "podcast",
+      "title": "Pourquoi nous avons toujours besoin de raconter des histoires",
+      "url": "https://demo.kiosque.example/kiosque-demo-15",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Culture & idées",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": null,
+      "media": {
+        "duration_seconds": 420,
+        "channel_title": "Horizons",
+        "show_title": "Le temps de comprendre"
+      },
+      "brief": {
+        "summary": "Un regard accessible sur culture & idées, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Culture & idées"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-16",
+      "format": "article",
+      "title": "Comment les océans façonnent notre planète",
+      "url": "https://demo.kiosque.example/kiosque-demo-16",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Climat & vivant",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 8,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur climat & vivant, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Climat & vivant"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-17",
+      "format": "video",
+      "title": "Ce que le design peut changer dans notre vie numérique",
+      "url": "https://demo.kiosque.example/kiosque-demo-17",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Tech & IA",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": null,
+      "media": {
+        "duration_seconds": 780,
+        "channel_title": "Horizons",
+        "show_title": "Le temps de comprendre"
+      },
+      "brief": {
+        "summary": "Un regard accessible sur tech & ia, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Tech & IA"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-18",
+      "format": "article",
+      "title": "La carte et le territoire : apprendre à se perdre",
+      "url": "https://demo.kiosque.example/kiosque-demo-18",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Voyages & découvertes",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 4,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur voyages & découvertes, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Voyages & découvertes"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-19",
+      "format": "article",
+      "title": "Le temps long : une autre manière de penser l’innovation",
+      "url": "https://demo.kiosque.example/kiosque-demo-19",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Économie",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 5,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur économie, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Économie"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-20",
+      "format": "article",
+      "title": "Observer l’invisible : les outils qui changent la recherche",
+      "url": "https://demo.kiosque.example/kiosque-demo-20",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Sciences",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 6,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur sciences, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Sciences"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-21",
+      "format": "article",
+      "title": "L’architecture, un langage pour habiter le monde",
+      "url": "https://demo.kiosque.example/kiosque-demo-21",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Culture & idées",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 7,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur culture & idées, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Culture & idées"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-22",
+      "format": "article",
+      "title": "Réapprendre à observer le vivant près de chez soi",
+      "url": "https://demo.kiosque.example/kiosque-demo-22",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Climat & vivant",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 8,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur climat & vivant, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Climat & vivant"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-23",
+      "format": "article",
+      "title": "De l’idée au prototype : inventer des outils utiles",
+      "url": "https://demo.kiosque.example/kiosque-demo-23",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Tech & IA",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 9,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur tech & ia, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Tech & IA"
+      },
+      "image_checked": true
+    },
+    {
+      "article_id": "kiosque-demo-24",
+      "format": "article",
+      "title": "À pied, les villes racontent une autre histoire",
+      "url": "https://demo.kiosque.example/kiosque-demo-24",
+      "source": "Kiosque",
+      "published_at": "2026-09-27T08:00:00Z",
+      "section": "Voyages & découvertes",
+      "role": null,
+      "selection_kind": "focused",
+      "reading_kind": "evergreen",
+      "reading_time_minutes": 4,
+      "media": null,
+      "brief": {
+        "summary": "Un regard accessible sur voyages & découvertes, pour explorer de nouvelles idées et prendre le temps de comprendre.",
+        "key_points": [],
+        "language": "fr",
+        "caveats": []
+      },
+      "reason": "Un contenu de démonstration lié à vos centres d’intérêt.",
+      "extraction_status": "extracted",
+      "image": {
+        "alt": "Illustration générée — Voyages & découvertes"
+      },
+      "image_checked": true
+    }
+  ],
+  "trace": [],
+  "warnings": [],
+  "usage": {},
+  "diagnostics": {}
+}

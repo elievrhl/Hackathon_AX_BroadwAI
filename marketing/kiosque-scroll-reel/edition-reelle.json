@@ -1,0 +1,1717 @@
+{
+  "id": "kiosque-marketing-real-selection",
+  "user_id": "marketing-scroll-demo",
+  "title": "Le monde, au fil de vos curiosités.",
+  "created_at": "2026-09-27T19:04:50.240912Z",
+  "status": "complete",
+  "items": [
+    {
+      "url": "https://lejournal.cnrs.fr/articles/jacqueline-bloch-magicienne-de-la-lumiere",
+      "role": "lead",
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "physique quantique",
+          "polaritons",
+          "microcavités semi-conducteurs",
+          "condensat de Bose-Einstein",
+          "horizon analogue et rayonnement de Hawking",
+          "optique non linéaire",
+          "graphène analogues",
+          "transfert de compétences/mentorat"
+        ],
+        "caveats": [
+          "Contamination impossible à isoler : le texte est un récit journalistique mêlant biographie, contexte et interprétations, sans détail méthodologique complet pour chaque résultat.",
+          "Le statut de certains propos (p. ex. “à ce jour, nous n’avons pas encore mis la main dessus”) dépend du moment de rédaction (publié fin 2026) et peut varier ensuite.",
+          "Aucune preuve indépendante n’est fournie dans l’extrait pour étayer chaque affirmation (résultats, analogies, “lois universelles”), au-delà de la narration."
+        ],
+        "summary": "Le texte présente Jacqueline Bloch comme directrice de recherche au C2N, récompensée par la médaille d’or 2026 du CNRS, travaillant sur des microcavités capables de coupler lumière et matière via des polaritons. Il décrit leur formation : photons entre miroirs, excitation d’électrons en exciton, puis émission/réabsorption rendant photon et exciton indiscernables. La chercheuse montre la sculpture de microcavités (pilier), l’étude de condensats de polaritons avec débat “condensat ou laser” (clarification), et la simulation en 2015 d’une analogie d’horizon de trou noir. Le texte évoque aussi une modélisation de propriétés type graphène (nid-d’abeilles) et des résultats sur des “lois universelles” en 2022 puis en 2025 en 2D, ainsi qu’un rôle d’enseignement et de mentorat pour doctorantes.",
+        "headline": "Jacqueline Bloch, magicienne de la lumière",
+        "language": "fr",
+        "validity": {
+          "kind": "news",
+          "reason": "Le point central (récompense 2026 et formulation de l’état d’avancement “à ce jour” sur Hawking) dépend explicitement de la temporalité de publication et peut évoluer ; en revanche, la description générale des microcavités/polaritons reste un mécanisme durable mais le texte ne l’isole pas du contexte daté.",
+          "status": "time_sensitive",
+          "evidence": "elle vient de se voir décerner la médaille d’or 2026 du CNRS."
+        },
+        "key_points": [
+          "Les microcavités produisent des polaritons, entités hybrides mi-lumière mi-excitation de matière.",
+          "Des expériences ont ciblé condensats, interactions, et une analogie d’horizon de trou noir (objectif : rayonnement de Hawking, non observé).",
+          "Le texte relie les travaux à des lois universelles observées sur des fluctuations (2022) puis en deux dimensions (2025), avec enseignement/mentorat."
+        ],
+        "content_type": "other",
+        "cited_sources": [
+          {
+            "url": "https://lejournal.cnrs.fr/medaille-dor-0",
+            "name": "https://lejournal.cnrs.fr/medaille-dor-0",
+            "evidence": "médaille d’or 2026 du CNRS.",
+            "relevance": "Piste pour vérifier le contexte et la fiche officielle liée à la médaille d’or CNRS mentionnée."
+          },
+          {
+            "url": "https://www.femmesetsciences.fr/",
+            "name": "https://www.femmesetsciences.fr",
+            "evidence": "en partenariat avec l’association Femmes & Sciences6.",
+            "relevance": "Piste pour comprendre le programme de mentorat cité pour les doctorantes et le cadre de l’action “Femmes & Sciences”."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://lejournal.cnrs.fr/sites/default/files/styles/visuel_principal/public/assets/images/cnrs_20260072_0005_72dpi.jpg"
+      },
+      "media": null,
+      "title": "Jacqueline Bloch, magicienne de la lumière",
+      "format": "article",
+      "reason": "Portrait scientifique solide, bien ancré dans la recherche fondamentale.",
+      "source": "lejournal.cnrs.fr",
+      "section": "Sciences",
+      "headline": "Jacqueline Bloch, magicienne de la lumière",
+      "article_id": "b92d0402bb7e2d2471852406",
+      "published_at": "2026-09-23T13:27:58Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 11,
+      "cover_id": "01fec4a9a16d4f41b91c54a582ba2010",
+      "original_section": "Sciences & recherche"
+    },
+    {
+      "url": "https://www.tresor.economie.gouv.fr/Articles/2026/09/24/marche-du-travail-quelles-marges-pour-retrouver-le-chemin-du-plein-emploi",
+      "role": "secondary",
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Marché du travail",
+          "Plein emploi",
+          "Chômage et emploi en France",
+          "Formation professionnelle",
+          "Mobilité géographique",
+          "Coût du travail",
+          "Assurance chômage",
+          "Réformes des retraites"
+        ],
+        "caveats": [
+          "Absence de transcription : le document fourni semble être le texte intégral, mais aucune confirmation de dispositif multimédia n’est fournie.",
+          "Contamination impossible à isoler : seule une partie du contenu est fournie (ex. appel au téléchargement et liste de publications), ce qui peut exclure des détails présents dans l’étude complète.",
+          "Données et interprétations sont présentées telles quelles dans le texte fourni, sans vérification externe."
+        ],
+        "summary": "Le document analyse l’évolution du marché du travail français : il s’est nettement amélioré sur une décennie, mais ralentit depuis mi-2023. En 2025, le chômage serait inférieur de 2,7 points à son pic de 2015 et le taux d’emploi des 15-64 ans atteindrait 69,3 %, au plus haut depuis 1975. Malgré des facteurs favorables (cycle international) et des réformes (coût du travail, retraites, ordonnances Travail, apprentissage, réformes de l’assurance chômage, création de France Travail), le chômage atteindrait 8,3 % au 2e trimestre 2026, avec une baisse de l’emploi salarié au 1er semestre 2026. Le texte vise à identifier les marges pour retrouver le plein emploi en ciblant jeunes, seniors, femmes (mères) et peu qualifiés, via formation, appariement, mobilité, coût du travail et institutions (assurance chômage, retraites, protection de l’emploi).",
+        "headline": "Marché du travail : quelles marges pour retrouver le chemin du plein emploi ?",
+        "language": "fr",
+        "validity": {
+          "kind": "news",
+          "reason": "Le propos s’appuie sur des indicateurs datés (ex. chômage au 2e trimestre 2026, publication 2026) ; sa pertinence dépend donc de l’actualité de la situation décrite.",
+          "status": "time_sensitive",
+          "evidence": "Le taux de chômage atteint 8,3 % au 2e trimestre 2026 et l'emploi salarié diminue de 22 800 emplois au premier semestre 2026."
+        },
+        "key_points": [
+          "Amélioration de long terme, mais ralentissement depuis mi-2023 (chiffres 2025 et 2026).",
+          "Les marges vers le plein emploi se concentrent sur jeunes, seniors, femmes (mères) et peu qualifiés.",
+          "Une stratégie passe par formation/appairage, mobilité géographique, coût du travail et institutions (assurance chômage, retraites, protection de l’emploi)."
+        ],
+        "content_type": "analysis",
+        "cited_sources": [
+          {
+            "url": "https://cae-eco.fr/quelles-strategies-pour-lemploi-et-les-salaires",
+            "name": "Conseil d’analyse économique (2026), Note n° 91",
+            "evidence": "- Conseil d’analyse économique (2026), « Quelles stratégies pour l’emploi et les salaires ? », Note n° 91.",
+            "relevance": "Piste de lecture pour compléter l’analyse sur stratégies pour l’emploi et les salaires."
+          },
+          {
+            "url": "https://cae-eco.fr/objectif-plein-emploi-pourquoi-et-comment",
+            "name": "Conseil d’analyse économique (2025), Focus n° 110",
+            "evidence": "- Conseil d'analyse économique (2025), « Objectif plein emploi : pourquoi et comment ? », Focus n° 110.",
+            "relevance": "Cadre pour comprendre pourquoi et comment atteindre le plein emploi."
+          },
+          {
+            "url": "https://www.banque-france.fr/fr/publications-et-statistiques/publications/les-reformes-du-marche-du-travail-et-la-baisse-du-chomage-structurel-en-france-retrospective-2015",
+            "name": "Banque de France (2026)",
+            "evidence": "- Banque de France (2026), « Les réformes du marché du travail et la baisse du chômage structurel en France : rétrospective 2015-2025 ».",
+            "relevance": "Rétrospective des réformes et de leur lien avec la baisse du chômage structurel."
+          },
+          {
+            "url": "https://www.insee.fr/fr/statistiques/8733125",
+            "name": "Insee (2026), Insee Références",
+            "evidence": "- Insee (2026), « Emploi, chômage, revenus du travail – Édition 2026 », Insee Références.",
+            "relevance": "Référence statistique sur emploi, chômage et revenus du travail."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://www.tresor.economie.gouv.fr/Articles/58cdabc0-da6b-44df-9e9d-df575577c925/images/visuel"
+      },
+      "media": null,
+      "title": "Marché du travail : quelles marges pour retrouver le chemin du plein emploi ?",
+      "format": "article",
+      "reason": "Analyse des leviers pour retrouver le plein emploi (emploi, marché du travail, déterminants), directement alignée avec l’intérêt économie/emploi.",
+      "source": "www.tresor.economie.gouv.fr",
+      "section": "Économie",
+      "headline": "Marché du travail : quelles marges pour retrouver le chemin du plein emploi ?",
+      "article_id": "3eca822b1c84cd9fad36e514",
+      "published_at": "2026-09-24T00:00:00Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 3,
+      "cover_id": "e8e64a2873304c8992d27060386d5252",
+      "original_section": "Économie"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=_Ih2JPG2pz8",
+      "role": "secondary",
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "croyances",
+          "foi",
+          "religion",
+          "sens de la vie",
+          "sociétés sécularisées",
+          "peur et mort",
+          "souffrance et questions existentielles"
+        ],
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "La description fournie ne contient pas de transcription, donc l’analyse porte uniquement sur les thèmes annoncés.",
+          "Le document est disponible jusqu’au 21/12/2026, mais la description ne précise pas la nature exacte de ce caractère « temps » pour le sujet lui-même (même si le thème semble général).",
+          "Aucune information sur des intervenants précis ou des preuves/arguments détaillés n’est donnée dans le texte fourni."
+        ],
+        "summary": "Le documentaire ARTE explore, à travers Jobst Knigge, Susanne Utzt et Cristina Trebbi (2024), comment la foi s’est imposée comme « programme de survie ancestral » face à la peur, la mort, le chaos et les questions de sens. Il examine aussi pourquoi cette force influence encore la pensée, y compris dans des sociétés sécularisées. Thèmes : origine, souffrance, croyances et sens de la vie.",
+        "headline": "La nature humaine | Le monde des croyances | ARTE",
+        "language": "fr",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Le sujet annoncé est centré sur des questions existentielles et anthropologiques (origine, souffrance, sens, rôle de la foi) formulées sans dépendre d’un événement daté. L’« disponibilité jusqu’au 21/12/2026 » concerne le visionnage, pas la pérennité du thème.",
+          "status": "durable",
+          "evidence": "D'où venons-nous ? Pourquoi souffrons-nous ? Et à quoi nous raccrocher quand tout nous échappe ?"
+        },
+        "key_points": [
+          "Pourquoi la foi s’impose-t-elle face à la peur, à la mort et au chaos ?",
+          "Comment expliquer l’influence de la foi sur la pensée, y compris dans les sociétés sécularisées ?",
+          "D’où venons-nous et pourquoi souffrons-nous, et à quoi nous raccrocher quand tout échappe ?"
+        ],
+        "content_type": "analysis",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "La nature humaine | Le monde des croyances | ARTE",
+        "url": "https://i.ytimg.com/vi/_Ih2JPG2pz8/hqdefault.jpg"
+      },
+      "media": {
+        "provider": "youtube",
+        "video_id": "_Ih2JPG2pz8",
+        "channel_id": "UCwI-JbGNsojunnHbFAc0M4Q",
+        "channel_title": "ARTE",
+        "duration_seconds": 3159.0
+      },
+      "title": "La nature humaine | Le monde des croyances | ARTE",
+      "format": "video",
+      "reason": "Réflexion sur croyances, foi et questions existentielles : bon angle pour philosophie, éthique et pensée critique.",
+      "source": "www.youtube.com",
+      "section": "Culture & idées",
+      "headline": "La nature humaine | Le monde des croyances | ARTE",
+      "article_id": "26fb41acfca830d701fee303",
+      "published_at": "2026-09-26T10:00:17Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "excerpt",
+      "exploration_reason": null,
+      "reading_time_minutes": null,
+      "cover_id": "e8e64a2873304c8992d27060386d5252",
+      "original_section": "Philosophie"
+    },
+    {
+      "url": "https://www.bbc.co.uk/news/articles/cm5ydvww0erdo?at_medium=RSS&at_campaign=rss",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "glaciers tropicaux",
+          "Papouasie",
+          "Puncak Jaya",
+          "climat et réchauffement",
+          "El Niño",
+          "carottes de glace",
+          "enjeux culturels et spirituels",
+          "exploitation minière"
+        ],
+        "caveats": [
+          "Aucune transcription vidéo n’est fournie (document fourni sous forme de texte d’article).",
+          "Contamination impossible à isoler : le texte combine climat, recherche, enjeux culturels et mention d’exploitation minière.",
+          "Validation limitée : le résumé dépend du contenu fourni sans vérification externe."
+        ],
+        "summary": "L’article décrit la disparition rapide de la “neige éternelle” sur les sommets de la chaîne Sudirman, en Papouasie (Indonésie), près de l’équateur. Bien que les montagnes soient proches du climat tropical, elles portent depuis des siècles des glaces et des neiges, fournissant aux scientifiques des carottages de glace utiles à l’histoire climatique. Le texte avance que la couverture glaciaire a fortement diminué depuis le XIXe siècle et que les dernières zones neigeuses autour de Puncak Jaya pourraient disparaître en 1 à 2 ans. Au-delà de l’enjeu climatique, l’article présente l’importance spirituelle et culturelle du massif pour plusieurs peuples autochtones, et signale aussi des transformations liées à l’exploitation minière.",
+        "headline": "The treasured 'eternal snow' on this tropical island is about to disappear forever",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "Le propos central porte sur une disparition attendue “dans un an ou deux” et sur des chiffres récents (jusqu’en 2025), ce qui rend l’actualité et l’exactitude temporelle dépendantes du contexte au moment de la publication (datée 2026-09-25).",
+          "status": "time_sensitive",
+          "evidence": "But now, nearly all the snow is gone."
+        },
+        "key_points": [
+          "Presque toute la neige/glace aurait disparu, avec des dernières zones autour de Puncak Jaya attendues pour s’éteindre en 1 à 2 ans.",
+          "Les carottes de glace sont présentées comme un “archive” pour comprendre l’atmosphère et les changements des eaux du Pacifique tiède.",
+          "La fonte est décrite comme une atteinte à des repères spirituels/culturels autochtones, en parallèle de transformations minières et de conflits sociaux."
+        ],
+        "content_type": "news",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "An aerial view of the Sudirman mountain range in Papua - a small patch of snow is visible on one of the mountains",
+        "url": "https://ichef.bbci.co.uk/ace/branded_news/1200/cpsprodpb/390c/live/dabff6d0-b7c5-11f1-b1d1-571ed4d7ff2c.jpg"
+      },
+      "media": null,
+      "title": "The treasured 'eternal snow' on this tropical island is about to disappear forever",
+      "format": "article",
+      "reason": "Très fort récit climatique avec enjeu de disparition imminente.",
+      "source": "www.bbc.co.uk",
+      "section": "Climat & vivant",
+      "headline": "The treasured 'eternal snow' on this tropical island is about to disappear forever",
+      "article_id": "f5b48cb8f8fe544db73d609d",
+      "published_at": "2026-09-25T22:12:48Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 5,
+      "cover_id": "f9d9e52822dc49ab8b1226a79e9a4b26",
+      "original_section": "Climat & biodiversité"
+    },
+    {
+      "url": "https://sphinx.acast.com/p/open/s/68db9a016d92c33f9c2eff83/e/6a9dc8ae3559f174782aed0e/media.mp3",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Intelligence artificielle générative",
+          "Climat et réchauffement",
+          "Eau et ressources",
+          "Débats sur les technologies face au défi climatique"
+        ],
+        "caveats": [
+          "Fiche fondée sur la description de l’épisode, sans transcription.",
+          "Aucune transcription n’est fournie : je ne peux pas détailler les arguments précis ni vérifier les réponses apportées.",
+          "La description éditoriale ne donne que des questions et un intervenant annoncé, sans plan détaillé de l’épisode.",
+          "Les éléments promotionnels et informations d’antenne présents dans la description ne sont pas pris en compte pour l’évaluation du contenu."
+        ],
+        "summary": "L’épisode interroge l’impact de l’Intelligence artificielle générative sur le climat, l’eau et les ressources : peut-elle contribuer à faire face au réchauffement, ou faut-il au contraire s’en passer complètement ? Anne-Laure Ligozat, professeure en informatique au LISN/ENSIIE, est annoncée comme intervenante. Le podcast s’inscrit dans une démarche de débat sur les manières de relever le défi climatique.",
+        "headline": "L'IA est-elle l'amie ou l'ennemie du climat ?",
+        "language": "fr",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Le sujet annoncé porte sur un mécanisme général (impact de l’IA générative sur le climat et la décision de l’utiliser ou non) formulé en questions, sans dépendance à une date d’actualité précise.",
+          "status": "durable",
+          "evidence": "Quel est l’impact de l’Intelligence artificielle générative sur le climat, sur l’eau et les ressources ?"
+        },
+        "key_points": [
+          "Quel est l’impact de l’IA générative sur le climat, l’eau et les ressources ?",
+          "L’IA peut-elle jouer un rôle positif contre le réchauffement ?",
+          "Faut-il s’en passer complètement pour préserver le climat ?"
+        ],
+        "content_type": "analysis",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "Chaleur Humaine",
+        "url": "https://assets.pippa.io/shows/68db9a016d92c33f9c2eff83/1788725164851-cc8acff6-b0a3-41d9-b337-6959b3f5ed6a.jpeg"
+      },
+      "media": {
+        "guid": "6a9dc8ae3559f174782aed0e",
+        "feed_url": "https://feeds.acast.com/public/shows/68db9a016d92c33f9c2eff83",
+        "provider": "rss_podcast",
+        "audio_url": "https://sphinx.acast.com/p/open/s/68db9a016d92c33f9c2eff83/e/6a9dc8ae3559f174782aed0e/media.mp3",
+        "publisher": "Le Monde",
+        "show_title": "Chaleur Humaine",
+        "artwork_url": "https://assets.pippa.io/shows/68db9a016d92c33f9c2eff83/1788725164851-cc8acff6-b0a3-41d9-b337-6959b3f5ed6a.jpeg",
+        "episode_type": "full",
+        "duration_seconds": 3058
+      },
+      "title": "L'IA est-elle l'amie ou l'ennemie du climat ?",
+      "format": "podcast",
+      "reason": "Complément de débat sur les usages environnementaux de l’IA.",
+      "source": "www.lemonde.fr",
+      "section": "Tech & IA",
+      "headline": "L'IA est-elle l'amie ou l'ennemie du climat ?",
+      "article_id": "8e9a37450d5cd64ce49a9294",
+      "published_at": "2026-09-08T05:00:00Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "excerpt",
+      "exploration_reason": null,
+      "reading_time_minutes": null,
+      "cover_id": "01fec4a9a16d4f41b91c54a582ba2010",
+      "original_section": "Intelligence artificielle & développement logiciel"
+    },
+    {
+      "url": "https://www.creativebloq.com/entertainment/gaming/everyone-has-a-hundred-bad-games-in-them-and-we-did-them-really-quickly-adam-vian-on-the-creation-and-evolution-of-detective-grimoire",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Jeux vidéo",
+          "Création de jeux",
+          "Série Detective Grimoire",
+          "Flash/Newgrounds",
+          "Design artistique et animation",
+          "3D vs 2D",
+          "Conception d’indices (clues)",
+          "Interview créative"
+        ],
+        "caveats": [
+          "Document fourni sans transcription séparée : l’article est la seule source textuelle.",
+          "Récit basé sur les déclarations d’Adam Vian (pas de vérification externe fournie ici).",
+          "Contamination impossible à isoler : aucune source externe n’est citée dans le texte fourni (content_links vide)."
+        ],
+        "summary": "L’article est une interview d’Adam Vian sur la création et l’évolution de la série Detective Grimoire, un jeu d’enquête façon “murder-mystery adventure”. Il revient sur leur début avec Flash au début des années 2000 (Newgrounds), la rapidité de production et l’idée que les “mauvais” essais permettent d’accélérer l’apprentissage. Vian explique comment Ace Attorney a inspiré le passage vers une formule d’enquête centrée sur le dialogue et l’observation, puis comment le style graphique a évolué (Secret of the Swamp, Tangle Tower) avec l’arrivée de Catherine Unger. Pour The Mermaid Mask, il décrit l’intégration de 3D tout en conservant l’esthétique 2D dessinée, notamment via des modèles et textures correspondant au style initial.",
+        "headline": "\"Everyone has a hundred bad games in them, and we did them really quickly\": Adam Vian on the creation and evolution of Detective Grimoire",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "L’article annonce la sortie de The Mermaid Mask (et liste des plateformes), donc l’intérêt dépend fortement de la période de publication et de la disponibilité actuelle du jeu. En revanche, les passages sur la méthode créative peuvent rester utiles, mais le “propos central” inclut une actualité datée.",
+          "status": "time_sensitive",
+          "evidence": "Detective Grimoire's latest murder mystery, The Mermaid Mask, is out now on PC, PlayStation 5, Switch 2 and 1."
+        },
+        "key_points": [
+          "Débuts Flash (Newgrounds) : produire vite, publier tout de suite, recevoir du feedback pour “vider” rapidement les mauvaises idées.",
+          "Genèse et inspirations : Ace Attorney: Phoenix Wright comme déclencheur pour un jeu d’enquête basé sur le clic et les conversations.",
+          "Évolution artistique et technique : collaboration (préproduction longue, itérations), puis introduction de “3D clues” dans The Mermaid Mask sans repartir de zéro côté style."
+        ],
+        "content_type": "news",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "Game art from SFB Games",
+        "url": "https://cdn.mos.cms.futurecdn.net/ZrXPpYp9mb7wC3HtD42Ndb-1478-80.jpg"
+      },
+      "media": null,
+      "title": "\"Everyone has a hundred bad games in them, and we did them really quickly\": Adam Vian on the creation and evolution of Detective Grimoire",
+      "format": "article",
+      "reason": "Retour d’expérience créatif sur la fabrication d’une série de jeux.",
+      "source": "www.creativebloq.com",
+      "section": "Jeux vidéo",
+      "headline": "\"Everyone has a hundred bad games in them, and we did them really quickly\": Adam Vian on the creation and evolution of Detective Grimoire",
+      "article_id": "54084c114fcc2f84f2cea1e0",
+      "published_at": "2026-09-20T00:00:00Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 9,
+      "cover_id": "f9d9e52822dc49ab8b1226a79e9a4b26",
+      "original_section": "Jeux vidéo & game design"
+    },
+    {
+      "url": "https://arstechnica.com/space/2026/09/nasa-green-lights-billion-dollar-infrared-observatory-for-launch-in-early-2030s/",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Astronomie infrarouge lointain",
+          "Télescopes spatiaux",
+          "NASA et organisations d’observatoires",
+          "Cryogénie spatiale (Kelvin/milliKelvin)",
+          "Programmes “Probe Explorers”",
+          "Gestion de projet et contraintes budgétaires"
+        ],
+        "caveats": [
+          "Aucun lien de sources n’est fourni dans le document (content_links vide).",
+          "Le texte ne précise pas les hypothèses budgétaires/techniques qui conditionnent réellement le calendrier annoncé (2033).",
+          "Contamination impossible à isoler : le passage traite aussi d’autres projets (Habitable Worlds Observatory, retours sur Roman) sans que ce soit le cœur unique de PRIMA."
+        ],
+        "summary": "NASA annonce que la mission PRIMA, premier observatoire d’une nouvelle catégorie “Probe Explorers”, vise un lancement au début des années 2030 (objectif 2033). Avec un plafond de coût de 1,2 milliard $ (hors lancement), PRIMA doit observer l’Univers en infrarouge lointain (24–235 micromètres) et refroidir ses optiques à 4,5 Kelvin via un cryocooler modifié, “hérité” du James Webb mais utilisant l’hélium-3. Les détecteurs seront refroidis à 100 mK. La décision intervient alors qu’une mission concurrente (AXIS) a été disqualifiée pour contraintes calendrier/budget. PRIMA passe en Phase B et poursuit la définition avant revues internes.",
+        "headline": "With PRIMA, NASA will try to build a billion-dollar space telescope in record time",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "La valeur dépend fortement de l’actualité de l’annonce (publication 2026-09-25) et de décisions de planification/financement pouvant évoluer avant la fenêtre de lancement visée (début des années 2030). L’intérêt central reste cependant la description du positionnement PRIMA et de sa logique technique de refroidissement.",
+          "status": "time_sensitive",
+          "evidence": "The first in a new class of space telescopes is on track to reach the launch pad in the early 2030s, NASA announced this week."
+        },
+        "key_points": [
+          "PRIMA (Probe far-Infrared Mission for Astrophysics) vise un lancement en 2033 et une capacité d’observation 24–235 micromètres refroidie à 4,5 K",
+          "Coût annoncé: plafond 1,2 Md $ (hors lancement); optiques plus petites/moins complexes que Roman",
+          "La sélection fait suite à la disqualification d’AXIS; PRIMA dirigée par le JPL et entrée en Phase B"
+        ],
+        "content_type": "news",
+        "cited_sources": [
+          {
+            "url": null,
+            "name": "NASA (annonce de PRIMA)",
+            "evidence": "NASA announced this week.\nThe PRIMA mission will be the first of NASA’s Probe Explorers",
+            "relevance": "Source institutionnelle susceptible de détailler le calendrier, le coût (Phase B, revues) et la configuration instrumentale de PRIMA."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://cdn.arstechnica.net/wp-content/uploads/2026/09/prima_art-1152x648.jpg"
+      },
+      "title": "With PRIMA, NASA will try to build a billion-dollar space telescope in record time",
+      "reason": "Grande mission astronomique avec contraintes techniques claires.",
+      "source": "arstechnica.com",
+      "section": "Sciences",
+      "headline": "With PRIMA, NASA will try to build a billion-dollar space telescope in record time",
+      "article_id": "10d31c0185a34ea0eb2d54dc",
+      "published_at": "2026-09-25T14:07:46Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 7,
+      "format": "article",
+      "media": null,
+      "cover_id": "2f7db8f2dc0a4f808e3e754699b53fe3",
+      "original_section": "Sciences & recherche"
+    },
+    {
+      "url": "https://www.banque-france.fr/fr/publications-et-statistiques/publications/les-francais-et-linflation-les-sequelles-de-lepisode-inflationniste-de-2022-2023",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Inflation en France (2022-2025)",
+          "Pouvoir d’achat et perception",
+          "Écart inflation perçue vs mesurée",
+          "Sondage Banque de France–CSA",
+          "Consommation et épargne des ménages",
+          "Achats quotidiens (alimentation, carburants)"
+        ],
+        "caveats": [
+          "Contamination impossible à isoler : le texte ne précise pas quels passages proviennent d’autres enquêtes vs résultats nouveaux.",
+          "Le document ne fournit pas ici les résultats détaillés du questionnaire (annexe 1 non incluse), ni les pourcentages liés à la « priorité » ou aux mécanismes explicatifs.",
+          "Absence de transcription : le contenu fourni correspond à un extrait/résumé, sans texte intégral vérifiable.",
+          "Pas de liens externes fournis dans content_links ; les sources internes (Bignon et Gautier) sont mentionnées mais non développées dans l’extrait."
+        ],
+        "summary": "Le texte analyse l’après-coup de l’épisode inflationniste français 2022-2023 à partir des données d’inflation mesurée et d’un sondage Banque de France–CSA réalisé fin 2025. En 2025, l’inflation des prix à la consommation baisse nettement (0,8 % sur un an), après 2 % en 2024 et 5 % en 2022-2023. Malgré cette désinflation, la thématique « inflation et pouvoir d’achat » reste prioritaire pour la majorité des répondants. L’écart entre inflation perçue et inflation mesurée s’élargit car le ressenti réagit fortement aux achats quotidiens ; or, entre 2023 et 2025, l’alimentation augmente peu et les carburants baissent. L’enquête (plus de 4 000 ménages) met en évidence des « séquelles » en mémoire influençant consommation et épargne.",
+        "headline": "Les Français et l’inflation : les séquelles de l’épisode inflationniste de 2022-2023 | Banque de France",
+        "language": "fr",
+        "validity": {
+          "kind": "research",
+          "reason": "Le propos relie explicitement les constats à l’inflation mesurée jusqu’en 2025 et à un sondage mené du 3 novembre au 5 décembre 2025 ; son utilité dépend donc du contexte temporel (période étudiée) même si l’idée de « séquelles » perceptives peut éclairer d’autres épisodes.",
+          "status": "time_sensitive"
+        },
+        "key_points": [
+          "Baisse de l’inflation mesurée en 2025 (0,8 %), mais priorité durable au « pouvoir d’achat » dans les perceptions.",
+          "Élargissement de l’écart perçu vs mesuré durant la désinflation, potentiellement lié à la sensibilité aux achats quotidiens.",
+          "Sondage fin 2025 (3 nov.–5 déc., >4 000 ménages) : mise en évidence de « séquelles » sur la perception, impactant consommation et épargne."
+        ],
+        "content_type": "research",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "Part des ménages ayant changé de comportement d'achat selon l'évolution perçue de leur pouvoir d'achat entre 2021 et 2025",
+        "url": "https://www.banque-france.fr/system/files/styles/image_media_1000_563/private/2026-07/BDF265-4_Inflation.png?itok=5ecf6-td"
+      },
+      "media": null,
+      "title": "Les Français et l’inflation : les séquelles de l’épisode inflationniste de 2022-2023 | Banque de France",
+      "format": "article",
+      "reason": "Mémoire inflationniste des ménages.",
+      "source": "www.banque-france.fr",
+      "section": "Économie",
+      "headline": "Les Français et l’inflation : les séquelles de l’épisode inflationniste de 2022-2023 | Banque de France",
+      "article_id": "8d1b7a5258cc0b5187a44740",
+      "published_at": "2026-07-23T00:00:00Z",
+      "reading_kind": "research",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 2,
+      "cover_id": "2053411e8a904884a4d59cb87d94bc4d",
+      "original_section": "Économie / emploi"
+    },
+    {
+      "url": "https://bestfitmusic.substack.com/p/how-i-began-songwriting-by-jack-antonoff",
+      "role": null,
+      "brief": {
+        "level": "unknown",
+        "topics": [
+          "écriture de chansons",
+          "créativité",
+          "processus créatif",
+          "coécriture",
+          "influences musicales",
+          "studio d’enregistrement"
+        ],
+        "caveats": [
+          "Contenu présenté comme une interview ; aucune vérification externe des affirmations n’est fournie.",
+          "Quelques formulations sont subjectives (p. ex. “best advice”, “greatest song ever written”) et ne constituent pas des conclusions testables.",
+          "Le texte ne détaille pas de cadre temporel sur la situation actuelle de l’industrie : il s’agit surtout de pratiques personnelles."
+        ],
+        "summary": "Le texte est une interview où Jack Antonoff raconte comment il a commencé à écrire des chansons. À 12 ans, il passe rapidement de reprises de chansons des années 90 à l’écriture de ses propres titres. Son premier morceau “qu’il croyait” avoir écrit se révèle être une chanson des Red Hot Chili Peppers. Il décrit ensuite son approche comme guidée par l’authenticité (“être soi-même”), des influences de Jeff Tweedy, Tom Waits, Robyn, Jeff Lynne, Taylor Swift, Tegan and Sara, Nick Cave. Il affirme ne pas avoir de “process” fixe : tout peut déclencher l’écriture (paroles, beat, idée). Il dit aussi juger une chanson “finie” après l’avoir écoutée hors studio, et met en garde contre le fait de rester trop longtemps en studio.",
+        "headline": "How I began songwriting by Jack Antonoff",
+        "language": "en",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Les éléments centraux portent sur une approche générale de l’écriture (authenticité, absence de processus fixe, évaluation hors studio) décrite comme expérience personnelle ; cela reste pertinent sans dépendre fortement d’un événement daté ou d’une condition technique précise.",
+          "status": "durable",
+          "evidence": "The best advice I’ve been given is to be myself - or rather that myself is way more interesting than a remade version of someone else."
+        },
+        "key_points": [
+          "Commence à écrire à 12 ans, après des chansons des années 90 ; premier titre “original” en fait déjà existant.",
+          "Pas de méthode unique : l’écriture peut démarrer par paroles, beat ou idée ; les éléments se rassemblent “sans savoir comment”.",
+          "Chanson finie quand elle sonne comme “un objet réel” après écoute hors du studio ; co-écriture = dépasser ce que chacun ferait seul."
+        ],
+        "content_type": "other",
+        "cited_sources": [
+          {
+            "url": null,
+            "name": "Best Fit (Substack)",
+            "evidence": "As told to Best Fit in May 2015 / Polaroids shot by Jason Williamson",
+            "relevance": "Source primaire pour les citations et la narration personnelle d’Antonoff sur son début dans la composition, sa méthode perçue et ses conseils."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://substackcdn.com/image/fetch/$s_!wyNc!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1d9f6326-40f4-4f61-be92-8b001a1432d8_1200x727.webp"
+      },
+      "title": "How I began songwriting by Jack Antonoff",
+      "reason": "Entretien court et lisible sur l’écriture de chansons.",
+      "source": "bestfitmusic.substack.com",
+      "section": "Culture & idées",
+      "headline": "How I began songwriting by Jack Antonoff",
+      "article_id": "d44a0c62ad1c9bc83fc28876",
+      "published_at": "2026-07-08T00:00:00Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 3,
+      "format": "article",
+      "media": null,
+      "cover_id": "2f7db8f2dc0a4f808e3e754699b53fe3",
+      "original_section": "Musique"
+    },
+    {
+      "url": "https://ourworldindata.org/is-organic-farming-better-for-the-environment-than-conventional-farming",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Agriculture biologique",
+          "Agriculture conventionnelle",
+          "Biodiversité",
+          "Écotoxicité",
+          "Usage des terres",
+          "Émissions de gaz à effet de serre",
+          "Pollution de l’eau (acidification, eutrophisation)",
+          "Méta-analyses"
+        ],
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Aucune transcription de type “video” n’est fournie (document = article).",
+          "Le résumé ne couvre que le contenu inclus ; certaines affirmations peuvent dépendre des limites des études/méta-analyses mentionnées.",
+          "Mention de “contamination impossible à isoler” : aucune contamination explicite n’est identifiable dans l’extrait fourni, mais le texte n’indique pas comment isoler d’éventuelles sources mixtes au-delà de ses références."
+        ],
+        "summary": "L’article compare l’agriculture biologique et conventionnelle sur plusieurs impacts environnementaux (émissions de gaz à effet de serre, pollution de l’eau, biodiversité, usage des terres). Il s’appuie surtout sur des méta-analyses, dont une publiée en 2024 qui compile 100 évaluations. Le biologique “gagne” presque toujours sur l’ecotoxicité (liée surtout aux pesticides) et, en lien, tend à soutenir davantage la biodiversité—avec des effets qui diminuent quand on passe de l’échelle du champ à celle de la ferme ou des environs. En revanche, il utilise presque toujours plus de terres (médiane : +64%). Pour le climat et la pollution de l’eau, les résultats par kilogramme de nourriture sont globalement sans différence statistiquement significative.",
+        "headline": "Is organic farming better for the environment than conventional farming?",
+        "language": "en",
+        "validity": {
+          "kind": "research",
+          "reason": "Le propos central (comparaison multi-impacts basée sur méta-analyses et conclusion par indicateurs : ecotoxicité, biodiversité, usage des terres, et résultats mitigés pour climat/pollution) s’appuie sur des mécanismes et agrégations d’études qui restent généralement pertinents au-delà de l’instant, même si de nouvelles études peuvent affiner les éc",
+          "status": "durable",
+          "evidence": "There was no statistically significant difference between organic and conventional farming when it came to greenhouse gas emissions, acidification, and eutrophication."
+        },
+        "key_points": [
+          "Biologique : ecotoxicité plus faible (quasi systématique) et biodiversité souvent plus élevée sur les surfaces",
+          "Conventionnel : meilleurs rendements, donc moins d’occupation des terres (médiane +64% pour le biologique)",
+          "Climat/pollution de l’eau : résultats mitigés, pas de différence statistiquement significative dans les 100 évaluations"
+        ],
+        "content_type": "analysis",
+        "cited_sources": [
+          {
+            "url": "https://www.nature.com/articles/s43247-024-01415-6",
+            "name": "Hashemi et al. (2024) - Communications Earth & Environment (méta-analyse)",
+            "evidence": "published in Communications Earth & Environment in 2024.4 It compiled data from 100 assessment studies.",
+            "relevance": "Source centrale de l’agrégation (100 évaluations) utilisée pour comparer les indicateurs et conclure à l’absence de différence statistiquement significative sur plusieurs métriques."
+          },
+          {
+            "url": "https://iopscience.iop.org/article/10.1088/1748-9326/aa6cd5",
+            "name": "Clark & Tilman (2017) - Environmental Research Letters",
+            "evidence": "I mainly drew on a meta-analysis by Michael Clark and David Tilman, which found little clear difference",
+            "relevance": "Référence historique (méta-analyse) mentionnée comme base de constats antérieurs (peu de différence sur certains impacts)."
+          },
+          {
+            "url": null,
+            "name": "Tuck et al. (2014) - Journal of Applied Ecology",
+            "evidence": "Studies typically find greater diversity of plant, insect, and bird species on organic land.",
+            "relevance": "Étude citée pour l’effet de l’agriculture biologique sur la biodiversité (intensité/effets à différentes échelles)."
+          },
+          {
+            "url": null,
+            "name": "Bengtsson et al. (2005) - Journal of Applied Ecology",
+            "evidence": "They also find that, on average, these organisms are more abundant.",
+            "relevance": "Source citée pour la tendance à une plus grande abondance d’organismes sur les terres biologiques."
+          },
+          {
+            "url": null,
+            "name": "Schneider et al. (2014) - Nature Communications",
+            "evidence": "Gains to species diversity in organically farmed fields are not propagated at the farm level.",
+            "relevance": "Étude citée pour le fait que des gains de diversité observés au niveau des champs ne se propagent pas forcément au niveau de la ferme."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://ourworldindata.org/cdn-cgi/imagedelivery/qLq-8BTgXU8yG0N6HnOy8g/c34a94e0-2051-436f-6d7b-7248cb28fa00/public"
+      },
+      "media": null,
+      "title": "Is organic farming better for the environment than conventional farming?",
+      "format": "article",
+      "reason": "Lecture de fond claire et comparative sur l’agriculture biologique.",
+      "source": "ourworldindata.org",
+      "section": "Climat & vivant",
+      "headline": "Is organic farming better for the environment than conventional farming?",
+      "article_id": "fcdfd96ccbccc9c83eabdfb1",
+      "published_at": "2026-09-14T00:00:00Z",
+      "reading_kind": "research",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 15,
+      "cover_id": "f9d9e52822dc49ab8b1226a79e9a4b26",
+      "original_section": "Climat & biodiversité"
+    },
+    {
+      "url": "https://blog.cloudflare.com/python-workers-ga/",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Cloudflare Workers",
+          "Python",
+          "WSGI/ASGI",
+          "WebAssembly",
+          "Hyperdrive",
+          "Pyodide",
+          "PyEmscripten",
+          "AI agents"
+        ],
+        "caveats": [
+          "Contenu daté (publié le 2026-09-21), donc la disponibilité et le support de paquets/bibliothèques peuvent avoir évolué après cette date.",
+          "Le texte ne fournit pas de liste exhaustive de packages “currently supported” pour Hyperdrive/PyEmscripten ; certaines compatibilités restent conditionnelles (adoption en cours, paquets à construire).",
+          "Certaines affirmations sont centrées sur l’implémentation Cloudflare (performance, overhead minimal) sans métriques chiffrées dans l’extrait."
+        ],
+        "summary": "Le billet annonce que « Python Workers » sont désormais « generally available (GA) » sur la plateforme Cloudflare, faisant de Python un langage de première classe dans le runtime Workers. Le texte décrit l’intégration avec divers services Cloudflare (Workers AI, R2, D1, Hyperdrive, Durable Objects, Queues, Workflows) et la possibilité d’exécuter des frameworks comme FastAPI, Django et Flask. Il explique des changements clés: support natif des bindings Cloudflare sans glue JavaScript côté développeur, connecteurs WSGI/ASGI (workers.asgi / workers.wsgi) et pont réseau pour Hyperdrive avec PostgreSQL/MySQL via sockets implémentés. Il présente aussi des avancées d’écosystème (PEP 783 / PyEmscripten, évolution de Pyodide) et l’exécution de bibliothèques AI via requêtes HTTP compatibles WebAssembly.",
+        "headline": "Python Workers are now generally available",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "L’annonce GA dépend de la date de publication et de l’état actuel de la plateforme. Le mécanisme (WSGI/ASGI, pont sockets, standard PEP 783/PyEmscripten) reste néanmoins conceptuellement durable, mais la disponibilité/support “aujourd’hui” est temporellement fragile.",
+          "status": "time_sensitive",
+          "evidence": "Today, Python Workers are now generally available (GA)."
+        },
+        "key_points": [
+          "Python Workers passent en GA et deviennent un langage « first-class » sur Cloudflare.",
+          "Intégration Web: frameworks FastAPI/Django/Flask via connecteurs workers.asgi/workers.wsgi.",
+          "Réseau & données: pont sockets pour utiliser Hyperdrive avec PostgreSQL/MySQL, et extension écosystème via PEP 783/PyEmscripten."
+        ],
+        "content_type": "news",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "",
+        "url": "https://blog.cloudflare.com/_emdash/api/media/file/01M31JM2B4K28B7C67PCT5PB2R.01M31JM35NW9707QDHV86F68M9.png"
+      },
+      "media": null,
+      "title": "Python Workers are now generally available",
+      "format": "article",
+      "reason": "Annonce technique la plus directement utile sur le runtime Python.",
+      "source": "blog.cloudflare.com",
+      "section": "Tech & IA",
+      "headline": "Python Workers are now generally available",
+      "article_id": "f07239c5823ee40ec1a0b25c",
+      "published_at": "2026-09-21T13:00:00Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 11,
+      "cover_id": "01fec4a9a16d4f41b91c54a582ba2010",
+      "original_section": "Intelligence artificielle & développement logiciel"
+    },
+    {
+      "url": "https://valomobile.in/2026/07/27/when-a-soundtrack-becomes-the-story/",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "musique de jeux vidéo",
+          "émotions",
+          "interactivité",
+          "scores adaptatifs",
+          "leitmotifs",
+          "silence en composition",
+          "mémoire et nostalgie",
+          "narration"
+        ],
+        "caveats": [
+          "Document en anglais.",
+          "Aucune transcription séparée : les limites du texte portent sur ce contenu fourni uniquement.",
+          "Le texte ne cite pas d’étude ou de source externe ; il s’agit d’« observations générales » plutôt que de preuves vérifiées.",
+          "Possible contamination impossible à isoler : l’article mentionne aussi des thèmes connexes via d’autres essais du site sans démonstration directe dans ce contenu."
+        ],
+        "summary": "L’article défend l’idée que la musique de jeu vidéo peut devenir « l’histoire » elle-même, grâce à un pouvoir émotionnel propre. Il explique que la musique agit directement sur les émotions, et que l’interactivité des jeux (le fait de “faire” plutôt que “regarder”) fait que la partition répond aux actions du joueur. L’auteur développe trois mécanismes : les scores adaptatifs, les leitmotifs (thèmes récurrents chargés de sens sur de longues heures) et le rôle de la silence/absence de musique. Enfin, il relie l’attachement à la mémoire à la durée d’immersion, et conclut que, dans les meilleurs cas, le thème devient indissociable de l’identité du jeu.",
+        "headline": "When A Soundtrack Becomes The Story - The Ludic Mind",
+        "language": "en",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Le propos central repose sur des mécanismes de composition et de design (interactivité, leitmotifs, silence, liens mémoire) présentés comme des observations générales ; ces principes restent pertinents au-delà de la date de publication.",
+          "status": "durable",
+          "evidence": "Music tells you how to feel, often before you know what you are feeling."
+        },
+        "key_points": [
+          "La musique émotionnelle des jeux est amplifiée par l’interactivité et la réaction aux actions du joueur.",
+          "Les leitmotifs accumulent du sens au fil du temps (retour transformé des thèmes).",
+          "Le silence et l’absence de musique, comme l’attachement à la mémoire, renforcent l’impact narratif."
+        ],
+        "content_type": "analysis",
+        "cited_sources": [
+          {
+            "url": "https://valomobile.in/flow-state-gaming-why-games-make-time-disappear/",
+            "name": "flow state gaming (Valomobile)",
+            "evidence": "The site’s essay on flow state gaming gets at the same mechanism from a different angle:",
+            "relevance": "Piste pour approfondir la notion de “flow” et le mécanisme d’interaction instantanée évoqué comme parallèle à l’effet des musiques adaptatives."
+          },
+          {
+            "url": "https://valomobile.in/what-video-games-teach-us-about-identity-and-why-we-keep-losing-track-of-who-we-are/",
+            "name": "identity in games (Valomobile)",
+            "evidence": "the site’s essay on identity in games explores how, across enough hours, the line between a character and the player controlling them starts to blur.",
+            "relevance": "Approfondit la comparaison entre transformation des thèmes (leitmotifs) et brouillage identité/personnage au fil des heures."
+          },
+          {
+            "url": "https://valomobile.in/what-video-games-teach-us-about-time-and-why-we-keep-trying-to-outrun-it/",
+            "name": "what games teach us about time (Valomobile)",
+            "evidence": "its essay on what games teach us about time looks at how games let us feel like we’re racing against, or bending, time itself",
+            "relevance": "Complète la discussion sur le temps subjectif et sur la façon dont la musique re-synthétise ce ressenti a posteriori."
+          }
+        ]
+      },
+      "image": {
+        "alt": "When a Soundtrack Becomes the Story",
+        "url": "https://valomobile.in/wp-content/uploads/2026/07/image-47-860x573.png"
+      },
+      "media": null,
+      "title": "When A Soundtrack Becomes The Story - The Ludic Mind",
+      "format": "article",
+      "reason": "Angle design/musique très lisible sur la narration ludique.",
+      "source": "valomobile.in",
+      "section": "Jeux vidéo",
+      "headline": "When A Soundtrack Becomes The Story - The Ludic Mind",
+      "article_id": "19639bfc2b85f6c7c4ecffe9",
+      "published_at": "2026-07-27T00:00:00Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 11,
+      "cover_id": "01fec4a9a16d4f41b91c54a582ba2010",
+      "original_section": "Jeux vidéo & game design"
+    },
+    {
+      "url": "https://www.quantamagazine.org/where-does-the-quantum-world-end-and-ours-begin-20260917/",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "fondations de la mécanique quantique",
+          "décohérence",
+          "décoherent histories",
+          "quantum-to-classical transition",
+          "expériences de type double fente",
+          "cosmologie quantique"
+        ],
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Transcription non fournie intégralement (texte tronqué), ce qui peut limiter le contexte et la portée des explications.",
+          "Aucune vérification web et pas de références détaillées pour chaque affirmation dans le texte fourni.",
+          "L’“article” semble être une transcription partielle : absence de section complète de conclusions et d’éventuelles précisions ultérieures."
+        ],
+        "summary": "L’article (transcription partielle d’un épisode de podcast) explore comment on passe du monde quantique—décrit par des superpositions et des ondes—au monde classique macroscopique. Jonathan Halliwell (Imperial College London) présente l’idée que la décohérence, causée par les interactions avec l’environnement, supprime les interférences quantiques et rend les comportements observés plus classiques. La conversation aborde aussi la question des observateurs et de la “collapse”, sans recourir à un observateur conscient, via l’approche des “histoires” (decoherent histories) reliant des “records” du présent à ce qui s’est passé dans le passé. Le texte mentionne Schrödinger/double fente et l’analogie avec les pistes d’un skieur.",
+        "headline": "Where Does the Quantum World End and Ours Begin?",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "Le document est daté (publication 2026-09-17) et présente un épisode de podcast : l’utilité et la portée peuvent dépendre du contexte éditorial et de l’état des discussions à cette période, même si des notions comme la décohérence et les approches “histories” sont de fond.",
+          "status": "time_sensitive",
+          "evidence": "Where Does the Quantum World End and Ours Begin?"
+        },
+        "key_points": [
+          "La décohérence est présentée comme le mécanisme clé reliant comportement quantique et comportement classique.",
+          "L’approche “histories” vise à éviter l’idée d’observateurs externes et de collapse dans le passé, en corrélant des records.",
+          "La discussion s’appuie sur des expériences/problèmes classiques (double fente, superpositions) pour motiver la transition quantique→classique."
+        ],
+        "content_type": "analysis",
+        "cited_sources": [
+          {
+            "url": "https://profiles.imperial.ac.uk/j.halliwell",
+            "name": "Jonathan Halliwell",
+            "evidence": "Jonathan Halliwell, a professor of theoretical physics at Imperial College London",
+            "relevance": "Profil institutionnel utile pour situer l’auteur et retrouver des travaux sur les fondations de la mécanique quantique/décohérence."
+          },
+          {
+            "url": "https://podcasts.apple.com/us/podcast/the-joy-of-why/id1608948873",
+            "name": "Apple Podcasts",
+            "evidence": "Listen on Apple Podcasts, Spotify, TuneIn or your favorite podcasting app",
+            "relevance": "Point d’accès à l’épisode pour consulter la version audio complète et d’éventuelles sections manquantes dans la transcription fournie."
+          },
+          {
+            "url": "https://open.spotify.com/show/2FoxHraQSKwxV2HgUfwLMp",
+            "name": "Spotify",
+            "evidence": "Listen on Apple Podcasts, Spotify, TuneIn or your favorite podcasting app",
+            "relevance": "Accès à l’épisode pour compléter le contexte lorsque la transcription est tronquée."
+          },
+          {
+            "url": "https://tunein.com/podcasts/Science-Podcasts/The-Joy-of-Why-p1653040/",
+            "name": "TuneIn",
+            "evidence": "Listen on Apple Podcasts, Spotify, TuneIn or your favorite podcasting app",
+            "relevance": "Accès alternatif à l’épisode audio pour retrouver les passages non inclus dans l’extrait."
+          },
+          {
+            "url": "https://www.quantamagazine.org/tag/the-joy-of-why",
+            "name": "stream it from Quanta",
+            "evidence": "or you can stream it from Quanta",
+            "relevance": "Page de tag permettant de retrouver l’épisode et d’autres contenus liés à la série."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://www.quantamagazine.org/wp-content/uploads/2026/09/ChanelleNibbelink_Quanta_JoyofWhy_Ep8_FinalRevised_2880x1620-scaled.png"
+      },
+      "media": null,
+      "title": "Where Does the Quantum World End and Ours Begin?",
+      "format": "article",
+      "reason": "Sujet conceptuel sur la frontière entre monde quantique et monde classique, pertinent pour la pensée critique et les idées.",
+      "source": "www.quantamagazine.org",
+      "section": "Sciences",
+      "headline": "Where Does the Quantum World End and Ours Begin?",
+      "article_id": "2c46993fd86b8bc354a7b02f",
+      "published_at": "2026-09-17T15:09:33Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 43,
+      "cover_id": "e8e64a2873304c8992d27060386d5252",
+      "original_section": "Philosophie"
+    },
+    {
+      "url": "https://fr.euronews.com/2026/09/01/inflation-de-la-zone-euro-a-33-en-aout-portee-par-la-flambee-de-lenergie",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "inflation",
+          "zone euro",
+          "Eurostat",
+          "énergie",
+          "BCE",
+          "taux d’intérêt",
+          "services",
+          "énergie et gaz/pétrole"
+        ],
+        "caveats": [
+          "Document issu d’un article ; absence de transcription (limite pour retrouver mot-à-mot et vérifier des citations).",
+          "Les chiffres relèvent d’une « estimation rapide » : ils peuvent être révisés ultérieurement.",
+          "Les projections sur la BCE et le scénario central sont des anticipations d’un économiste et des attentes de marché, pas des résultats établis.",
+          "Contamination possible non isolable : le texte mêle données macro, explications causales et perspectives de politique monétaire."
+        ],
+        "summary": "Le texte indique qu’en août 2026, l’inflation dans la zone euro est estimée à 3,3 % (contre 2,9 % en juillet) selon une estimation rapide d’Eurostat. La hausse est attribuée principalement à l’énergie : les prix de l’énergie augmenteraient de 14,3 % sur un an, après 10,3 % en juillet, en lien avec la guerre en Iran et des perturbations du trafic maritime autour du détroit d’Ormuz. Les prix alimentaires augmentent aussi (1,2 %), tandis que l’inflation des services ralentit (3,0 %). L’inflation sous-jacente recule légèrement (2,4 %).",
+        "headline": "Inflation de la zone euro à 3,3 % en août, portée par la flambée de l'énergie",
+        "language": "fr",
+        "validity": {
+          "kind": "news",
+          "reason": "L’information centrale (inflation d’août 2026 et dynamique décrite) dépend fortement de la date et peut être révisée ; l’utilité pour une décision actuelle (notamment BCE) décroît avec l’écoulement du temps, même si les mécanismes généraux énergie/inflation restent pertinents.",
+          "status": "time_sensitive"
+        },
+        "key_points": [
+          "Inflation zone euro : 3,3 % en août 2026 contre 2,9 % en juillet (estimation rapide Eurostat).",
+          "Énergie moteur : +14,3 % sur un an en août, après +10,3 % en juillet ; progression mensuelle énergie +2,9 %.",
+          "Inflation sous-jacente : légère baisse à 2,4 % (contre 2,5 %) ; services ralentissent à 3,0 %."
+        ],
+        "content_type": "news",
+        "cited_sources": [
+          {
+            "url": null,
+            "name": "Eurostat",
+            "relevance": "Source institutionnelle mentionnée comme à l’origine de l’estimation rapide d’inflation et des données sur les composantes (énergie, services, alimentation)."
+          },
+          {
+            "url": null,
+            "name": "Oxford Economics (Leo Barincou)",
+            "relevance": "Expert cité pour l’interprétation (rebond après perturbations du détroit d’Ormuz, rôle de l’inflation des services) et pour les anticipations sur la BCE."
+          },
+          {
+            "url": null,
+            "name": "Banque centrale européenne (BCE)",
+            "relevance": "Institution citée pour l’objectif d’inflation (2 %) et la perspective d’ajustement des taux lors de la réunion du 10 septembre."
+          }
+        ]
+      },
+      "image": {
+        "alt": "Inflation de la zone euro à 3,3 % en août, portée par la flambée de l'énergie",
+        "url": "https://images.euronews.com/articles/stories/09/89/68/34/1200x675_cmsv2_8eaa82cb-376e-5cc9-bfe7-f2e6d2181c87-9896834.jpg"
+      },
+      "media": null,
+      "title": "Inflation de la zone euro à 3,3 % en août, portée par la flambée de l'énergie",
+      "format": "article",
+      "reason": "Point d’alerte sur la zone euro.",
+      "source": "fr.euronews.com",
+      "section": "Économie",
+      "headline": "Inflation de la zone euro à 3,3 % en août, portée par la flambée de l'énergie",
+      "article_id": "79d39d4efff5a02f9545ab16",
+      "published_at": "2026-09-01T00:00:00Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 3,
+      "cover_id": "2053411e8a904884a4d59cb87d94bc4d",
+      "original_section": "Économie / emploi"
+    },
+    {
+      "url": "https://proxycast.radiofrance.fr/0760f712-f39e-4aba-a3f2-891453f91f66/423b51d8-3f44-4b9a-b906-e0d14bdf0516/614ffdc4-f1fc-465b-8ea3-7cb5799d6010/27047-17.08.2026-ITEMA_24633841-2026C43838E0030-NET_MFC_58ACA1EA-E853-47A6-A848-82573D194046-25-63c76b8d2f9ae90a168f3331aa880017.m4a",
+      "role": null,
+      "brief": {
+        "level": "beginner",
+        "topics": [
+          "rumeurs et croyances",
+          "calendrier maya et interprétations",
+          "fin du monde (2012) : sens et sérieux"
+        ],
+        "caveats": [
+          "Fiche fondée sur la description de l’épisode, sans transcription.",
+          "Pas de transcription : impossible de vérifier précisément les arguments, les exemples détaillés ou les intervenants au-delà de ce qui est annoncé.",
+          "La description fournit surtout un cadre général ; on ne connaît pas le plan complet ni le niveau de profondeur sur chaque point.",
+          "Le contenu annoncé concerne des interprétations historiques/culturelles ; la part « prise au sérieux » est indiquée, sans détail dans l’extrait fourni."
+        ],
+        "summary": "L’épisode de « La Science CQFD » explore la rumeur de « fin du monde » annoncée à plusieurs reprises, avec un focus sur l’épisode 2012 : la fin supposée du calendrier maya le 21 décembre. Il se demande si cette rumeur a été prise au sérieux et propose de distinguer « fin du monde » et « fin d’un monde », en cherchant ce que racontent réellement ces récits.",
+        "headline": "[DÉCOUVERTE] Les rumeurs qui ont changé le monde | \"La fin du monde approche\"",
+        "language": "fr",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Le sujet porte sur l’interprétation d’une rumeur récurrente (fin du monde) et sur le sens de récits historiques/culturels (calendrier maya, 21 décembre). Ce type de question se prête à une lecture durable, sans dépendre d’un événement ponctuel daté unique.",
+          "status": "durable",
+          "evidence": "En 2012, rebelotte ! L’antique calendrier maya prendrait fin précisément le 21 décembre. Cette rumeur a-t-elle vraiment été prise au sérieux ?"
+        },
+        "key_points": [
+          "La rumeur de fin du monde a-t-elle été prise au sérieux, notamment en 2012 ?",
+          "Que signifie réellement l’idée de « fin du monde » vs « fin d’un monde » ?",
+          "Quel éclairage apportent les récits autour du calendrier maya et du 21 décembre ?"
+        ],
+        "content_type": "analysis",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "La Science CQFD",
+        "url": "https://www.radiofrance.fr/s3/rf-cruiser-embed-production/2026/09/19c81285-1066-4219-9cf3-27f835f519cb/1400x1400_sc_sc-carre-les-rumeurs-qui-ont-change-le-monde-1.jpg"
+      },
+      "media": {
+        "guid": "c3b27bdc-80c1-427a-afd5-6eb190bb911f",
+        "feed_url": "https://radiofrance-podcast.net/podcast09/podcast_423b51d8-3f44-4b9a-b906-e0d14bdf0516.xml",
+        "provider": "rss_podcast",
+        "audio_url": "https://proxycast.radiofrance.fr/0760f712-f39e-4aba-a3f2-891453f91f66/423b51d8-3f44-4b9a-b906-e0d14bdf0516/614ffdc4-f1fc-465b-8ea3-7cb5799d6010/27047-17.08.2026-ITEMA_24633841-2026C43838E0030-NET_MFC_58ACA1EA-E853-47A6-A848-82573D194046-25-63c76b8d2f9ae90a168f3331aa880017.m4a",
+        "publisher": "France Culture (podcast@radiofrance.com)",
+        "show_title": "La Science CQFD",
+        "artwork_url": "https://www.radiofrance.fr/s3/rf-cruiser-embed-production/2026/09/19c81285-1066-4219-9cf3-27f835f519cb/1400x1400_sc_sc-carre-les-rumeurs-qui-ont-change-le-monde-1.jpg",
+        "episode_type": "full",
+        "duration_seconds": 3672
+      },
+      "title": "[DÉCOUVERTE] Les rumeurs qui ont changé le monde | \"La fin du monde approche\"",
+      "format": "podcast",
+      "reason": "Épisode sur les rumeurs de fin du monde, intéressant pour esprit critique, croyances et raisonnement sur les récits collectifs.",
+      "source": "www.radiofrance.fr",
+      "section": "Culture & idées",
+      "headline": "[DÉCOUVERTE] Les rumeurs qui ont changé le monde | \"La fin du monde approche\"",
+      "article_id": "208faf0149c67dae8a59da89",
+      "published_at": "2026-09-26T22:00:03Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "excerpt",
+      "exploration_reason": null,
+      "reading_time_minutes": null,
+      "cover_id": "e8e64a2873304c8992d27060386d5252",
+      "original_section": "Philosophie"
+    },
+    {
+      "url": "https://research.google/blog/mapping-global-methane-emissions-from-space-with-deep-learning/",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "méthane",
+          "émissions fugitives",
+          "télédétection spatiale",
+          "apprentissage profond",
+          "hyperspectral",
+          "satellite EMIT/ISS",
+          "vision transformer",
+          "modélisation atmosphérique (puffs lagrangiens)"
+        ],
+        "caveats": [
+          "Document en anglais ; pas de transcription audio/vidéo à partir de ce texte (evidence_kind=full_text).",
+          "Ce résumé ne vérifie pas les performances ni les chiffres annoncés ; ils sont rapportés tels quels dans le document.",
+          "Certaines formulations concernent des objectifs futurs (ex. prochaine génération de spectromètres) sans préciser de calendrier détaillé dans l’extrait fourni.",
+          "Le texte peut être contaminé par des éléments promotionnels (mise en avant de sorties de données/outils), impossibles à isoler intégralement."
+        ],
+        "summary": "L’article présente MAPL-EMIT, un cadre d’apprentissage profond (vision transformer Swin-S) conçu pour automatiser la détection, l’amélioration/quantification et l’estimation de sources de panaches de méthane à partir de données hyperspectrales du satellite EMIT (ISS). Le texte relie cet effort à l’enjeu climatique : pouvoir de réchauffement du méthane élevé, réduction rapide recherchée, et engagement via le Global Methane Pledge. L’approche vise une cartographie globale à l’échelle des installations, en s’appuyant sur une base d’entraînement synthétique (3,6 millions de panaches injectés dans des scènes réelles) et en rapportant des performances de type rappel à 84% et une sensibilité accrue (environ 50% de panaches plausibles supplémentaires sur ~1100 granules).",
+        "headline": "Mapping global methane emissions from space with deep learning",
+        "language": "en",
+        "validity": {
+          "kind": "research",
+          "reason": "L’article décrit une approche et des résultats datés (publication annoncée et chiffres de performance) ; l’utilité centrale pour comprendre la méthode reste pertinente, mais les éléments dépendant de versions, de publications associées et de disponibilités de modèles/datasets peuvent changer avec le temps.",
+          "status": "time_sensitive",
+          "evidence": "September 1, 2026\nVishal Batchu, Research Engineer, and Michelangelo Conserva, Research Scientist, Google Research\nThe Methane Analysis and Plume Localization with EMIT model is a"
+        },
+        "key_points": [
+          "Présentation d’un modèle deep learning, MAPL-EMIT, appliqué à des mesures hyperspectrales EMIT pour détecter des panaches de méthane",
+          "Mise en avant de la comparaison aux données de référence (L2B) avec un rappel annoncé à 84% et une augmentation d’environ 50% de panaches plausibles sur ~1100 granules",
+          "Construction d’un entraînement à partir de 3,6 millions de panaches synthétiques injectés dans des scènes EMIT, avec scores de confiance liés à un ajustement spectral et des étiquettes “lower/higher confidence”"
+        ],
+        "content_type": "news",
+        "cited_sources": [
+          {
+            "url": "https://earth.jpl.nasa.gov/emit/",
+            "name": "Earth Surface Mineral Dust Source Investigation (EMIT)",
+            "evidence": "NASA’s Earth Surface Mineral Dust Source Investigation (EMIT) instrument on the International Space Station.",
+            "relevance": "Page de référence pour l’instrument EMIT (mission, description), utile pour comprendre la source des données hyperspectrales utilisées."
+          },
+          {
+            "url": "https://www.globalmethanepledge.org/",
+            "name": "Global Methane Pledge",
+            "evidence": "This urgency is reflected in the Global Methane Pledge, where over 125 countries have committed to a 30% emissions reduction by 2030.",
+            "relevance": "Contexte d’objectifs de réduction du méthane ; utile pour relier l’approche de cartographie à des engagements politiques."
+          },
+          {
+            "url": "https://www.pnas.org/",
+            "name": "Proceedings of the National Academy of Sciences (PNAS)",
+            "evidence": "Building on these investments, in “Global monitoring of methane point sources using deep learning on hyperspectral radiance measurements from EMIT”, published in Proceedings of the National Academy of Sciences (PNAS), we describe a new approach",
+            "relevance": "Lieu de publication de l’article de recherche cité ; utile pour accéder aux détails scientifiques derrière MAPL-EMIT."
+          },
+          {
+            "url": "https://developers.google.com/earth-engine/datasets/catalog/projects_nature-trace_assets_ghg_emit_mapl_emit_plumes_v1_0",
+            "name": "Earth Engine dataset (global plume database)",
+            "evidence": "we're releasing our global plume database on Earth Engine",
+            "relevance": "Ressource de données explicitement mentionnée pour explorer la base de panaches et reproduire des analyses."
+          },
+          {
+            "url": "https://www.kaggle.com/models/vishalbatchu/emit-methane-plume-detection-and-quantification/",
+            "name": "Kaggle trained model",
+            "evidence": "along with the trained model and synthetic plumes on Kaggle",
+            "relevance": "Accès au modèle entraîné mentionné dans le document ; utile pour tests et réutilisation."
+          },
+          {
+            "url": "https://www.kaggle.com/datasets/vishalbatchu/synthetic-puff-based-overlapping-plumes",
+            "name": "Kaggle synthetic plumes",
+            "evidence": "along with the trained model and synthetic plumes on Kaggle",
+            "relevance": "Données synthétiques nécessaires pour comprendre/évaluer l’entraînement ; utile pour réutiliser la simulation."
+          }
+        ]
+      },
+      "image": {
+        "alt": "Satellite map overlay showing two concentrated emission plumes radiating from sources marked with an 'X'.",
+        "url": "https://storage.googleapis.com/gweb-research2023-media/images/MAPL-EMIT-3.width-1250.png"
+      },
+      "media": null,
+      "title": "Mapping global methane emissions from space with deep learning",
+      "format": "article",
+      "reason": "Article de méthode sur la mesure du méthane par IA et satellite.",
+      "source": "research.google",
+      "section": "Climat & vivant",
+      "headline": "Mapping global methane emissions from space with deep learning",
+      "article_id": "62800b7caea9d8447ca2f5e5",
+      "published_at": "2026-09-01T18:40:00Z",
+      "reading_kind": "research",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 7,
+      "cover_id": "f9d9e52822dc49ab8b1226a79e9a4b26",
+      "original_section": "Climat & biodiversité"
+    },
+    {
+      "url": "https://blog.cloudflare.com/introducing-adaptive-intelligence/",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "cybersécurité",
+          "bot management",
+          "détection d’automatisation",
+          "machine learning",
+          "économie des attaques",
+          "Cloudflare",
+          "non-déterminisme",
+          "déploiement progressif"
+        ],
+        "caveats": [
+          "Donnée NON FIABLE : aucune vérification externe n’est fournie.",
+          "Absence de transcription (non applicable ici car il s’agit d’un article, mais aucune transcription audio/vidéo n’est incluse).",
+          "Les affirmations centrales (objectifs, performances attendues, “non-déterminisme”, efficacité) ne sont pas quantifiées dans l’extrait fourni.",
+          "Le texte peut inclure des éléments promotionnels (annonce de produit) et n’apporte pas de résultats chiffrés dans le passage fourni."
+        ],
+        "summary": "Le billet présente “Adaptive Intelligence”, un nouveau moteur de détection des robots (bots) lancé par Cloudflare. L’approche part du constat que les attaques déterminées finissent par contourner les défenses, et que l’écart de réactivité favorise les attaquants. L’objectif est de rendre le contournement plus lent, coûteux et donc moins rentable, en modifiant les “boucles” d’adaptation. Le texte décrit une détection non déterministe (évaluations statistiques), un apprentissage continu (re-entraînement ML en continu), des règles “jetables” générées puis retirées aléatoirement, et un apprentissage à partir du trafic protégé. Un fonctionnement en boucle (observe, train, deploy, validate) est détaillé, ainsi que l’articulation avec Precursor.",
+        "headline": "Introducing Adaptive Intelligence: Undermining the economics of every bot attack",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "Propos lié au lancement d’une fonctionnalité produit (“launching today”, “Getting started”) publié en 2026 ; l’intérêt dépend de sa disponibilité et de son état actuel.",
+          "status": "time_sensitive",
+          "evidence": "Today we are launching Adaptive Intelligence, a new bot detection engine that starts from the opposite idea."
+        },
+        "key_points": [
+          "Réduction de la rentabilité des attaques via des défenses qui changent plus vite que l’adversaire",
+          "Re-entraînement ML continu et déploiements sans version à choisir, avec tests en “shadow mode”",
+          "Règles “disposable” et apprentissage à partir des corrections et signaux issus du trafic protégé"
+        ],
+        "content_type": "news",
+        "cited_sources": [
+          {
+            "url": "https://blog.cloudflare.com/introducing-precursor/",
+            "name": "Precursor (Cloudflare)",
+            "evidence": "Last month we introduced Precursor, a continuous behavioral validation engine for bot management built with privacy in mind",
+            "relevance": "Source pertinente pour comprendre la validation comportementale continue et le lien fonctionnel avec Adaptive Intelligence."
+          },
+          {
+            "url": "https://dash.cloudflare.com/?to=%2F%3Aaccount%2F%3Azone%2Fsecurity%2Fsettings%3Ftabs%3Dbot-traffic",
+            "name": "Bot Management dashboard (Cloudflare)",
+            "evidence": "Enterprise customers should turn on \"Auto Update Machine Learning\" in the Bot Management dashboard.",
+            "relevance": "Permet de retrouver où activer “Auto Update Machine Learning” et le contexte d’activation côté produit."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://blog.cloudflare.com/_emdash/api/media/file/01M15GS69WEYGDMY3B1NHZGYZX.01M15GS72XAM4E7AESJXBQCCNR.png"
+      },
+      "media": null,
+      "title": "Introducing Adaptive Intelligence: Undermining the economics of every bot attack",
+      "format": "article",
+      "reason": "Approche opérationnelle de défense anti-bot par apprentissage continu.",
+      "source": "blog.cloudflare.com",
+      "section": "Tech & IA",
+      "headline": "Introducing Adaptive Intelligence: Undermining the economics of every bot attack",
+      "article_id": "1e45d1b10f1436637f72d64d",
+      "published_at": "2026-08-31T12:59:00Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 13,
+      "cover_id": "01fec4a9a16d4f41b91c54a582ba2010",
+      "original_section": "Intelligence artificielle & développement logiciel"
+    },
+    {
+      "url": "https://aie.edu.au/articles/develop-your-game-design-skills-using-paper-prototypes/",
+      "role": null,
+      "brief": {
+        "level": "beginner",
+        "topics": [
+          "game design",
+          "prototypage",
+          "paper prototyping",
+          "game mechanics",
+          "playtesting",
+          "portfolio",
+          "pédagogie",
+          "règles de jeu"
+        ],
+        "caveats": [
+          "Aucune transcription n’est fournie (document de type article : limites possibles sur ce qui n’est pas inclus).",
+          "Le document ne fournit pas de preuves empiriques chiffrées ; il s’agit d’un guide pédagogique.",
+          "Mention d’une candidature/portfolio AIE : le contenu est orienté vers un contexte précis (programme et entretien), pouvant ne pas s’appliquer à tous les lecteurs."
+        ],
+        "summary": "L’article explique comment pratiquer le game design sans commencer directement par un moteur (Unreal Engine 4 ou Unity 3D) grâce au paper prototyping : réaliser un prototype avec papier, crayons, dés et pièces de jeux pour passer plus vite de l’idée au test et à l’itération. Il présente d’abord la notion de game mechanics (règles et actions de base), puis donne des exemples concrets de mécaniques à prototyper (précision d’arme via dés, génération procédurale par cartes, vitesse de déplacement, inventaire RPG). La suite décrit la création des règles, le playtesting (soi-même puis d’autres joueurs, prise de notes) et la façon d’utiliser le prototype dans un portfolio pour candidater au programme Game Design and Production d’AIE.",
+        "headline": "Develop Your Game Design Skills Using Paper Prototypes | Academy of Interactive Entertainment (AIE)",
+        "language": "en",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Les principes décrits (prototype papier, itération via playtesting, clarification des règles et feedback joueurs) relèvent de pratiques générales de design de jeux qui restent valables indépendamment de la date.",
+          "status": "durable",
+          "evidence": "The quickest way to get started is to play against (or with, depending on your game) yourself."
+        },
+        "key_points": [
+          "Le paper prototyping sert à obtenir du feedback tôt avant de mobiliser du temps, de l’art ou de la programmation.",
+          "Les mécaniques (règles et actions de base) peuvent être simulées avec des cartes, dés et valeurs simples.",
+          "Le playtesting itératif (notes, ajustements, observation de la compréhension des règles) nourrit l’équilibrage du design."
+        ],
+        "content_type": "tutorial",
+        "cited_sources": [
+          {
+            "url": "https://aie.edu.au/course/game-design-production/",
+            "name": "Academy of Interactive Entertainment (AIE)",
+            "evidence": "If you are looking to build a portfolio to get into AIE’s Game Design and Production two-year program, a paper prototype is a great way to show you are thinking about the player experience.",
+            "relevance": "Page du programme mentionné ; utile pour relier l’usage du prototype au contexte de candidature."
+          },
+          {
+            "url": "http://aie.edu.au/apply",
+            "name": "Academy of Interactive Entertainment (AIE)",
+            "evidence": "Apply Now for the next AIE Game Design intake.",
+            "relevance": "Page « Apply Now » mentionnée ; utile pour comprendre le lien entre portfolio et candidature."
+          }
+        ]
+      },
+      "image": {
+        "alt": "Students Making Paper Prototypes | AIE",
+        "url": "https://aie.edu.au/wp-content/uploads/2020/04/Paper_Prototypes_Develop_Game_Design_Skills_comp-02.avif"
+      },
+      "media": null,
+      "title": "Develop Your Game Design Skills Using Paper Prototypes | Academy of Interactive Entertainment (AIE)",
+      "format": "article",
+      "reason": "Méthode simple et pédagogique pour prototyper.",
+      "source": "aie.edu.au",
+      "section": "Jeux vidéo",
+      "headline": "Develop Your Game Design Skills Using Paper Prototypes | Academy of Interactive Entertainment (AIE)",
+      "article_id": "ec789f7aca2a034a59423eed",
+      "published_at": "2020-04-09T00:00:00Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 7,
+      "cover_id": "01fec4a9a16d4f41b91c54a582ba2010",
+      "original_section": "Jeux vidéo & game design"
+    },
+    {
+      "url": "https://www.radiofrance.fr/franceculture/podcasts/la-science-au-labo/information-quantique-un-dispositif-pour-dejouer-l-obstacle-de-la-decoherence-9556462",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "information quantique",
+          "décohérence",
+          "mesure quantique",
+          "acte d’observation",
+          "technologies quantiques"
+        ],
+        "caveats": [
+          "Fiche fondée sur la description de l’épisode, sans transcription.",
+          "Pas de transcription : les détails techniques, l’architecture exacte du dispositif et les conclusions ne peuvent pas être confirmés.",
+          "La fiche s’appuie uniquement sur l’extrait de description fourni."
+        ],
+        "summary": "L’épisode traite de l’impact de l’acte d’observation sur la mesure quantique, qui induit la décohérence et freine les technologies quantiques. Il présente un « dispositif » visant à contourner cet obstacle, en lien avec l’enjeu de fiabilité des mesures. Une équipe est annoncée : Olivier Bétard, avec Céline Loozen comme intervenante.",
+        "headline": "Information quantique : un dispositif pour déjouer l’obstacle de la décohérence.",
+        "language": "fr",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Le sujet annoncé (rôle de l’observation sur la mesure quantique, décohérence et information quantique) correspond à des mécanismes fondamentaux, généralement valables au-delà de la date de publication.",
+          "status": "durable",
+          "evidence": "L’acte d’observation influe sur la mesure quantique, en induisant la décohérence"
+        },
+        "key_points": [
+          "Comment l’acte d’observation influe sur la mesure quantique via la décohérence",
+          "Enjeux de la décohérence comme frein au développement des technologies quantiques",
+          "Présentation d’un dispositif pour « déjouer » cet obstacle"
+        ],
+        "content_type": "analysis",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "La Science CQFD",
+        "url": "https://www.radiofrance.fr/s3/cruiser-production-eu3/2025/03/813155bd-8aa2-47c6-afb2-045669660bca/1400x1400_sc_la-science-au-labo.jpg"
+      },
+      "media": {
+        "guid": "f4dc5ca7-8af3-4aeb-8453-52c481cee544",
+        "feed_url": "https://radiofrance-podcast.net/podcast09/podcast_423b51d8-3f44-4b9a-b906-e0d14bdf0516.xml",
+        "provider": "rss_podcast",
+        "audio_url": "https://proxycast.radiofrance.fr/0760f712-f39e-4aba-a3f2-891453f91f66/423b51d8-3f44-4b9a-b906-e0d14bdf0516/d0c33425-d180-4e8d-a36e-4fd6441c98ee/26859-22.09.2026-ITEMA_24681982-2026C54251E0265-NET_MFC_75542012-D2A1-484A-9823-0FDDFA1865E7-25-ec94d7e0d0198a7792183974a06279fb.m4a",
+        "publisher": "France Culture (podcast@radiofrance.com)",
+        "show_title": "La Science CQFD",
+        "artwork_url": "https://www.radiofrance.fr/s3/cruiser-production-eu3/2025/03/813155bd-8aa2-47c6-afb2-045669660bca/1400x1400_sc_la-science-au-labo.jpg",
+        "episode_type": "full",
+        "duration_seconds": 445
+      },
+      "title": "Information quantique : un dispositif pour déjouer l'obstacle de la décohérence.",
+      "format": "podcast",
+      "reason": "Explique un obstacle central de l’information quantique.",
+      "source": "www.radiofrance.fr",
+      "section": "Sciences",
+      "headline": "Information quantique : un dispositif pour déjouer l'obstacle de la décohérence.",
+      "article_id": "fd7f7b7468c679f11830e2ad",
+      "published_at": "2026-09-22T14:25:00Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "excerpt",
+      "exploration_reason": null,
+      "reading_time_minutes": null,
+      "cover_id": "01fec4a9a16d4f41b91c54a582ba2010",
+      "original_section": "Sciences & recherche"
+    },
+    {
+      "url": "https://www.rfi.fr/fr/environnement/20260926-les-vagues-de-chaleur-en-2026-ont-co%C3%BBt%C3%A9-113-milliards-d-euros-en-europe-selon-l-assureur-allianz",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Climat",
+          "Canicules",
+          "Économie",
+          "Assurance",
+          "Santé publique"
+        ],
+        "caveats": [
+          "Aucune transcription exhaustive d’une vidéo ou d’un podcast n’est fournie (format article).",
+          "Le texte ne donne pas le détail méthodologique complet de l’étude Allianz dans l’extrait fourni.",
+          "Il n’est pas possible d’isoler et vérifier l’ensemble des affirmations secondaires (ex. autres estimations) à partir du seul contenu fourni."
+        ],
+        "summary": "En 2026, les vagues de chaleur ayant frappé l’Europe cet été auraient coûté 113 milliards d’euros aux 30 pays européens, selon une étude de l’assureur Allianz sur l’économie climatique. Le montant représenterait environ 0,46 % du PIB combiné. L’Italie serait le pays le plus touché (27,8 milliards d’euros), suivie de l’Allemagne (25 milliards) et de la France (20,1 milliards). L’article évoque aussi un mécanisme économique: la chaleur peut réduire la production sans dommages visibles. Allianz estime en outre qu’il est probable que 2027 soit à nouveau marqué par une chaleur exceptionnelle.",
+        "headline": "Les vagues de chaleur en 2026 ont coûté 113 milliards d'euros en Europe, selon l'assureur Allianz",
+        "language": "fr",
+        "validity": {
+          "kind": "news",
+          "reason": "Le propos central chiffre un coût pour l’année 2026 et formule une anticipation pour 2027; l’intérêt dépend fortement du contexte temporel et de la valeur indicative des estimations.",
+          "status": "time_sensitive",
+          "evidence": "Les canicules qui ont frappé l'Europe cet été ont coûté 113 milliards d'euros aux 30 pays européens"
+        },
+        "key_points": [
+          "Coût estimé des canicules 2026 en Europe: 113 milliards d’euros (30 pays), soit ~0,46 % du PIB combiné.",
+          "Principaux pays contributeurs: Italie 27,8 Md€, Allemagne 25 Md€, France 20,1 Md€.",
+          "Effets possibles sur l’économie et projection: baisse de productivité/absentéisme et probabilité d’une nouvelle année très chaude en 2027."
+        ],
+        "content_type": "news",
+        "cited_sources": [
+          {
+            "url": null,
+            "name": "En Europe, les canicules s'enchaînent et leur coût reste difficile à mesurer",
+            "evidence": "En Europe, les canicules s'enchaînent et leur coût reste difficile à mesurer",
+            "relevance": "Article de RFI suggéré pour approfondir la mesure des coûts et le contexte européen des canicules."
+          },
+          {
+            "url": "https://www.rfi.fr/fr/podcasts/accents-d-europe/20260908-après-un-été-caniculaire-les-européens-face-aux-conséquences",
+            "name": "Après un été caniculaire, les Européens face aux conséquences",
+            "evidence": "Après un été caniculaire, les Européens face aux conséquences",
+            "relevance": "Piste RFI (podcast) pour explorer les impacts concrets sur les Européens après un été caniculaire."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://s.rfi.fr/media/display/36b7fd34-a79f-11f1-b789-005056a90284/w:1280/p:16x9/AP26225598961485.jpg"
+      },
+      "media": null,
+      "title": "Les vagues de chaleur en 2026 ont coûté 113 milliards d'euros en Europe, selon l'assureur Allianz",
+      "format": "article",
+      "reason": "Croise économie et climat avec un coût chiffré des canicules en Europe, pertinent pour la lecture macro et les arbitrages publics.",
+      "source": "www.rfi.fr",
+      "section": "Économie",
+      "headline": "Les vagues de chaleur en 2026 ont coûté 113 milliards d'euros en Europe, selon l'assureur Allianz",
+      "article_id": "5aaf8d714652fd5ead239072",
+      "published_at": "2026-09-26T15:48:52Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 3,
+      "cover_id": "e8e64a2873304c8992d27060386d5252",
+      "original_section": "Économie"
+    },
+    {
+      "url": "https://www.france24.com/fr/%C3%A9missions/avec-judith/20260926-la-philosophe-st%C3%A9phanie-roza-revient-sur-la-crise-iranienne-et-les-fractures-de-notre-%C3%A9poque",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "philosophie politique",
+          "Iran",
+          "régime des mollahs",
+          "crise de la démocratie",
+          "universalisme",
+          "raison",
+          "progrès",
+          "tensions au sein de la gauche"
+        ],
+        "caveats": [
+          "Document NON FIABLE.",
+          "Aucune transcription de l’épisode n’est fournie : le contenu résumé ne permet pas de vérifier les arguments précis de l’entretien.",
+          "Le texte n’indique pas de date de publication/modification (“Publié le : Modifié le :” sans valeur).",
+          "Les propos sont décrits de façon générale ; aucune citation détaillée n’est présente."
+        ],
+        "summary": "L’article présente un épisode de l’émission « Avec Judith » (France 24) dont l’invitée est la philosophe Stéphanie Roza, agrégée de philosophie et chargée de recherche au CNRS. L’entretien revient sur plusieurs thèmes liés aux bouleversements contemporains : la situation en Iran et les incertitudes autour du régime des mollahs, une « crise de la démocratie », ainsi que la remise en cause de notions comme l’universalisme, la raison et le progrès. Le texte évoque aussi les tensions traversant la gauche contemporaine et les sociétés occidentales, avec une analyse philosophique de ces fractures.",
+        "headline": "La philosophe Stéphanie Roza revient sur la crise iranienne et les fractures de notre époque",
+        "language": "fr",
+        "validity": {
+          "kind": "news",
+          "reason": "Le sujet annonce explicitement une « crise iranienne » et une analyse de fractures contemporaines, ce qui dépend fortement du contexte actuel ; la valeur informative est donc liée à la période de diffusion (publié le 2026-09-26).",
+          "status": "time_sensitive",
+          "evidence": "De la situation en Iran aux incertitudes qui entourent le régime des mollahs à la crise de la démocratie"
+        },
+        "key_points": [
+          "Entretien avec Stéphanie Roza (CNRS) dans « Avec Judith ».",
+          "Discussion de la crise iranienne et des incertitudes sur le régime des mollahs.",
+          "Lien avec la crise de la démocratie et des remises en cause (universalisme, raison, progrès)."
+        ],
+        "content_type": "news",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "",
+        "url": "https://s.france24.com/media/display/8425e69a-b815-11f1-b7e7-0fb9a8008200/w:1280/p:16x9/minia-horizontale-roza.jpg"
+      },
+      "media": null,
+      "title": "La philosophe Stéphanie Roza revient sur la crise iranienne et les fractures de notre époque",
+      "format": "article",
+      "reason": "Entretien centré sur une philosophe et les fractures de l’époque, bon complément d’analyse intellectuelle de l’actualité.",
+      "source": "www.france24.com",
+      "section": "Culture & idées",
+      "headline": "La philosophe Stéphanie Roza revient sur la crise iranienne et les fractures de notre époque",
+      "article_id": "1870f0c64ab3617d9324114d",
+      "published_at": "2026-09-26T14:33:39Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 1,
+      "cover_id": "e8e64a2873304c8992d27060386d5252",
+      "original_section": "Philosophie"
+    },
+    {
+      "url": "https://www.theguardian.com/environment/2026/sep/26/saildrone-unmanned-hurricane-proof-ship-antarctica-climate-hobart",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "Antarctique",
+          "science du climat",
+          "océanographie",
+          "véhicules autonomes",
+          "énergie solaire et éolienne"
+        ],
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Texte tronqué : détails méthodologiques, instruments de mesure et partenaires scientifiques non fournis ici.",
+          "« May not return for months » indique une incertitude opérationnelle non chiffrée.",
+          "Aucune donnée chiffrée sur la qualité/validation des mesures n’est incluse dans l’extrait.",
+          "Contamination impossible à isoler : l’extrait ne contient pas de section complète et peut manquer des éléments contextuels (conditions, calendrier exact, risques)."
+        ],
+        "summary": "Un petit véhicule océanique sans équipage de 7 mètres a entrepris un tour de l’Antarctique, présenté comme un projet de science climatique. Propulsé par des vents d’ouest puissants et par de l’énergie solaire, il doit parcourir environ 22 000 km dans des eaux difficiles, avec une possible absence de retour pendant plusieurs mois. Le texte indique que l’objectif est de collecter des données pour aider des scientifiques australiens à mieux comprendre comment les océans absorbent les émissions. La distance est décrite comme environ sept fois celle entre Sydney et Perth.",
+        "headline": "Un petit navire autonome lance un tour de l’Antarctique pour la science climatique",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "Le propos central (départ et trajectoire en cours, calendrier de retour probable sur plusieurs mois) dépend fortement de la date et du déroulement du voyage ; l’utilité de l’annonce sans suivi devient limitée après l’événement.",
+          "status": "time_sensitive",
+          "evidence": "A small uncrewed vessel has embarked on a lap around Antarctica and may not return for months."
+        },
+        "key_points": [
+          "Véhicule sans équipage de 7 m, en route pour un tour de l’Antarctique",
+          "Trajet annoncé : ~22 000 km, possible non-retour pendant plusieurs mois",
+          "But : mesures pour comprendre l’absorption des émissions par les océans"
+        ],
+        "content_type": "news",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "",
+        "url": "https://i.guim.co.uk/img/media/48058fa72e0165f663864dc596b32a55a904c0c3/455_1450_8422_6738/master/8422.jpg?width=1200&height=630&quality=85&auto=format&fit=crop&precrop=40%3A21%2Coffset-x50%2Coffset-y0&overlay-align=bottom%2Cleft&overlay-width=100p&overlay-base64=L2ltZy9zdGF0aWMvb3ZlcmxheXMvdGctZGVmYXVsdC5wbmc&enable=upscale&s=54c35d2deab302dc1e5019883384fb7a"
+      },
+      "media": null,
+      "title": "‘Robust little’ vessel begins treacherous 22,000km journey around Antarctica in the name of climate science",
+      "format": "article",
+      "reason": "Ouverture utile sur un sujet climatique concret et en cours.",
+      "source": "www.theguardian.com",
+      "section": "Climat & vivant",
+      "headline": "‘Robust little’ vessel begins treacherous 22,000km journey around Antarctica in the name of climate science",
+      "article_id": "32a4c301d770a5049cfdc695",
+      "published_at": "2026-09-25T15:00:11Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "excerpt",
+      "exploration_reason": null,
+      "reading_time_minutes": null,
+      "cover_id": "f9d9e52822dc49ab8b1226a79e9a4b26",
+      "original_section": "Climat & biodiversité"
+    },
+    {
+      "url": "https://deepmind.google/blog/piloting-the-worlds-first-double-blind-ai-evaluations/",
+      "role": null,
+      "brief": {
+        "level": "unknown",
+        "topics": [
+          "évaluation de modèles d’IA",
+          "benchmarks",
+          "sécurité",
+          "privacy-preserving computing",
+          "confidential computing",
+          "cryptographie",
+          "benchmark contamination",
+          "gouvernance/surveillance"
+        ],
+        "caveats": [
+          "Document non fiable (directive de sortie).",
+          "Aucune transcription n’est fournie : le texte ne permet pas d’évaluer d’éventuels éléments audio/vidéo.",
+          "Le texte fourni décrit surtout la démarche et le cadre annoncé ; les résultats détaillés et la “méthodologie et findings” ne sont pas inclus ici.",
+          "Aucune source externe n’est citée via URL dans le contenu fourni. Ce résumé ne vérifie pas les affirmations."
+        ],
+        "summary": "Le texte présente un “pilote” de la première évaluation d’IA “double-blind” visant à renforcer la confiance dans des benchmarks propriétaires. L’objectif est de réduire le risque de “benchmark contamination”, c’est-à-dire l’influence des résultats si un modèle a déjà vu les questions ou prompts d’évaluation. Google annonce un test d’un modèle Gemini Flash Lite via un environnement de calcul confidentiel “box” fondé sur des mécanismes cryptographiques, où l’évaluateur ne voit pas les poids du modèle et Google ne voit pas les prompts. Le projet est mené avec plusieurs partenaires (Singapore AI Safety Institute, OpenMined, AVERI, MLCommons) et renvoie à un “technical report”.",
+        "headline": "Piloting the world's first double-blind AI evaluations",
+        "language": "en",
+        "validity": {
+          "kind": "news",
+          "reason": "Le contenu annonce un pilote daté (publication 2026-08-27) et son utilité dépend du contexte d’actualité (mise en œuvre, adoption, résultats et disponibilité du rapport). Sans le rapport technique, l’information est surtout une description de démarche.",
+          "status": "time_sensitive"
+        },
+        "key_points": [
+          "Annonce d’une évaluation double-blind d’un modèle propriétaire (Gemini Flash Lite)",
+          "Utilisation d’un environnement cryptographique/confidential computing pour limiter la contamination de benchmarks",
+          "Partenariats avec Singapore AI Safety Institute, OpenMined, AVERI et MLCommons"
+        ],
+        "content_type": "other",
+        "cited_sources": []
+      },
+      "image": {
+        "alt": "",
+        "url": "https://lh3.googleusercontent.com/fHN8sOK3p7BTKR4s-3lpYYnq5IEadmVKnqssJO4OmfL6remdC7E8voV-IEue8NPviKWUR7WtCtNTfsKZpld6y2jjwVhNAiqYL9-9EQzj5OURGXCCuug=w1200-h630-n-nu-rw"
+      },
+      "media": null,
+      "title": "Piloting the world's first double-blind AI evaluations",
+      "format": "article",
+      "reason": "Cadre de confiance pour évaluer l’IA.",
+      "source": "deepmind.google",
+      "section": "Tech & IA",
+      "headline": "Piloting the world's first double-blind AI evaluations",
+      "article_id": "71c43cf780d371eea28301d0",
+      "published_at": "2026-08-27T12:59:16Z",
+      "reading_kind": "current",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 3,
+      "cover_id": "2053411e8a904884a4d59cb87d94bc4d",
+      "original_section": "Intelligence artificielle / logiciel / tech"
+    },
+    {
+      "url": "https://gamestudiounlocked.substack.com/p/cultivating-a-culture-of-experimentation",
+      "role": null,
+      "brief": {
+        "level": "intermediate",
+        "topics": [
+          "culture d’innovation",
+          "gestion créative",
+          "motivation intrinsèque",
+          "sécurité psychologique",
+          "équipes agiles et petites tailles",
+          "rituels de prototypage",
+          "contraintes de conception",
+          "gestion du temps et pression"
+        ],
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Document de type article ; pas de transcription séparée mentionnée (absence de transcription non applicable ici).",
+          "Contamination impossible à isoler : le texte mélange exemples de studios, récits attribués et synthèse de littérature, sans délimitation stricte entre faits rapportés et interprétation de l’auteur.",
+          "Certaines affirmations présentent des nuances de preuve (ex. mention d’un point “non répliqué indépendamment” pour Project Aristotle), mais d’autres éléments sont avancés comme appuis de recherche sans détails complets dans l’extrait."
+        ],
+        "summary": "Le texte critique le modèle classique d’« innovation culture » (temps “créatif”, hackathons, posters sur la sécurité psychologique) et soutient que l’originalité “expédiée” dépend plutôt d’un ensemble de pratiques organisationnelles interreliées. L’auteur affirme que les studios qui produisent des jeux originaux construisent des conditions comme l’indépendance (autonomie), des équipes petites et dirigées clairement, une défaillance visible ritualisée, des contraintes productrices d’invention, une architecture du temps alternant pression ciblée et “expédition”, et des normes de gentillesse en recrutement avec conséquences comportementales. Il mobilise aussi des travaux de recherche (autodétermination, sécurité psychologique, flow, créativité sous pression).",
+        "headline": "Cultivating a culture of experimentation",
+        "language": "en",
+        "validity": {
+          "kind": "evergreen",
+          "reason": "Les mécanismes organisationnels décrits (autonomie, coordination, sécurité psychologique, contraintes, prototypage visible, gestion des états de temps, normes comportementales) sont présentés comme des conditions générales de créativité en équipes, soutenues par des cadres théoriques et résultats de recherche cités. L’utilité n’exige pas que la “sự",
+          "status": "durable",
+          "evidence": "The playbook for “innovation culture” typically looks like this: you set aside 20% “creative” or “pet project” time, run quarterly hackathons, put up a poster about psychological"
+        },
+        "key_points": [
+          "L’originalité serait moins le résultat de programmes “d’innovation” que de conditions structurelles et culturelles interreliées.",
+          "Six conditions sont proposées : indépendance, petites équipes dirigées, échec ritualisé et visible, contraintes, alternance des états de temps, et gentillesse en recrutement avec normes durables.",
+          "Le texte s’appuie sur des notions de recherche (autonomie/intrinsèque, “intelligent failure”, méta-analyses, “Creativity Under the Gun”) et cite des exemples de studios.",
+          ""
+        ],
+        "content_type": "analysis",
+        "cited_sources": [
+          {
+            "url": "https://davidburkus.com/books/the-myths-of-creativity/",
+            "name": "The Myths of Creativity (David Burkus)",
+            "evidence": "David Burkus’ The Myths of Creativity walks through the empirical record on brainstorming, idea contests, suggestion boxes",
+            "relevance": "Outil de lecture pour la critique des interventions classiques de “créativité” (brainstorming, concours d’idées, suggestion boxes) et leur impact limité sur l’originalité réellement livrée."
+          },
+          {
+            "url": "https://www.hbs.edu/ris/Publication%20Files/12-096.pdf",
+            "name": "componential theory of creativity (Teresa Amabile)",
+            "evidence": "Teresa Amabile’s componential theory of creativity, refined over a whopping thirty years of studies, highlights the underlying reason: creativity is driven by intrinsic motivation",
+            "relevance": "Base théorique utilisée pour relier la créativité à la motivation intrinsèque et critiquer les programmes basés sur des motivateurs extrinsèques."
+          },
+          {
+            "url": "https://selfdeterminationtheory.org/SDT/documents/2000_RyanDeci_SDT.pdf",
+            "name": "Self-Determination Theory (Edward Deci, Richard Ryan)",
+            "evidence": "The seminal Self-Determination Theory, developed by Edward Deci and Richard Ryan over four decades, identifies autonomy as one of three psychological needs",
+            "relevance": "Cadre théorique cité pour soutenir le rôle de l’autonomie comme besoin psychologique favorisant la motivation intrinsèque."
+          },
+          {
+            "url": "https://web.mit.edu/curhan/www/docs/Articles/15341_Readings/Group_Performance/Edmondson%20Psychological%20safety.pdf",
+            "name": "Edmondson research on psychological safety",
+            "evidence": "The Edmondson research on psychological safety, particularly her work on what she calls intelligent failure",
+            "relevance": "Source académique citée pour le concept d’“intelligent failure” et pour relier sécurité psychologique et apprentissage/créativité."
+          },
+          {
+            "url": "https://digitalcommons.odu.edu/cgi/viewcontent.cgi?article=1018&context=management_fac_pubs",
+            "name": "Frazier meta-analysis",
+            "evidence": "The Frazier meta-analysis confirms that psychologically safe teams produce more creativity, more information sharing, more learning behavior",
+            "relevance": "Méta-analyse citée pour étayer l’idée que les équipes psychologiquement sûres favorisent créativité, partage d’information et comportements d’apprentissage."
+          },
+          {
+            "url": "https://hbr.org/2002/08/creativity-under-the-gun",
+            "name": "Creativity Under the Gun (Amabile et al., HBR)",
+            "evidence": "Amabile and her team analyzed over 9,000 daily diary entries from people doing creative work and published the results in HBR as “Creativity Under the Gun”",
+            "relevance": "Source citée pour le modèle des états temporels (pression/couplage vs exploration/curiosité) et leurs effets sur la créativité."
+          },
+          {
+            "url": "https://www.semanticscholar.org/paper/Creativity-from-Constraints:-The-Psychology-of-Stokes/026bf70e9164fa05e6467d419b999537777b8b40",
+            "name": "Creativity from Constraints (Patricia Stokes)",
+            "evidence": "Patricia Stokes’s Creativity from Constraints builds a case from the lives of artists, designers and architects: the breakthroughs tend to come from self-imposed restrictions",
+            "relevance": "Lecture pour l’argument “les contraintes stimulent l’invention” en s’appuyant sur des exemples d’art/design/architecture."
+          }
+        ]
+      },
+      "image": {
+        "alt": "",
+        "url": "https://substackcdn.com/image/fetch/$s_!1YsZ!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F0b7a683a-e9de-45b1-96b7-e00ba3187972_1292x768.png"
+      },
+      "media": null,
+      "title": "Cultivating a culture of experimentation",
+      "format": "article",
+      "reason": "Angle solide sur l’organisation d’un studio et l’expérimentation.",
+      "source": "gamestudiounlocked.substack.com",
+      "section": "Jeux vidéo",
+      "headline": "Cultivating a culture of experimentation",
+      "article_id": "d9c9e413d13101ba96bd2560",
+      "published_at": "2026-05-06T00:00:00Z",
+      "reading_kind": "evergreen",
+      "image_checked": true,
+      "selection_kind": "focused",
+      "extraction_status": "extracted",
+      "exploration_reason": null,
+      "reading_time_minutes": 18,
+      "cover_id": "f9d9e52822dc49ab8b1226a79e9a4b26",
+      "original_section": "Jeux vidéo & game design"
+    }
+  ],
+  "warnings": [],
+  "diagnostics": {}
+}

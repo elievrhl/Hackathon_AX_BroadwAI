@@ -1,0 +1,29 @@
+{
+  "mode": "built-in image_gen",
+  "images": [
+    {
+      "slug": "01-economie",
+      "source": "/Users/jadelezzi/.codex/generated_images/01a0e33c-def1-7510-a9b6-813a4ac7d0d0/exec-d4432a74-5f6c-4775-a83d-f08e3d2132cc.png"
+    },
+    {
+      "slug": "02-sciences",
+      "source": "/Users/jadelezzi/.codex/generated_images/01a0e33c-def1-7510-a9b6-813a4ac7d0d0/exec-3b20dec0-d898-4fb3-8758-1342b35c2624.png"
+    },
+    {
+      "slug": "03-culture",
+      "source": "/Users/jadelezzi/.codex/generated_images/01a0e33c-def1-7510-a9b6-813a4ac7d0d0/exec-2112fe51-02e0-43d6-9017-0426d15d51b0.png"
+    },
+    {
+      "slug": "04-planete",
+      "source": "/Users/jadelezzi/.codex/generated_images/01a0e33c-def1-7510-a9b6-813a4ac7d0d0/exec-0cc56940-35f3-4dc7-93c5-b75f3e1aaee4.png"
+    },
+    {
+      "slug": "05-technologies",
+      "source": "/Users/jadelezzi/.codex/generated_images/01a0e33c-def1-7510-a9b6-813a4ac7d0d0/exec-a246b144-00cb-479c-853c-cbfc6a58e0d7.png"
+    },
+    {
+      "slug": "06-voyage",
+      "source": "/Users/jadelezzi/.codex/generated_images/01a0e33c-def1-7510-a9b6-813a4ac7d0d0/exec-b9681cc3-707b-41ba-94f7-00a85074f502.png"
+    }
+  ]
+}

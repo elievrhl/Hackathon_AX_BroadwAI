@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
+import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
 import { TOPICS, DEFAULT_PROFILE, formatDate, contentAction } from './reader.js';
 import { Play, Video, Headphones } from 'lucide-react';
 import { ThemeButton } from './ThemePicker.jsx';
@@ -207,9 +207,7 @@ export function Preferences({
   saving = false,
   error = '',
   onSave,
-  onClose,
-  onReset,
-  onMemory
+  onClose
 }) {
   const [draft, setDraft] = useState({
     ...profile,
@@ -246,8 +244,6 @@ export function Preferences({
       {error && <p className="reader-error" role="alert">{error}</p>}
       <button className="primary-button full-width" disabled={saving || !draft.topics.length} type="submit">{saving ? 'Enregistrement…' : 'Enregistrer mes préférences'} <Check size={18} /></button>
       <p className="prototype-note">Vos préférences accompagnent vos prochaines lectures.</p>
-      <button className="secondary-button" type="button" onClick={onMemory}>Écrire à Kiosque · Ma fiche lecteur</button>
-      <button className="text-button reset-button" type="button" disabled={saving} onClick={onReset}><LogOut size={15} /> Rechoisir mes centres d’intérêt</button>
     </form>
   </Modal>;
 }

@@ -1,0 +1,28 @@
+{
+  "cssWidth": 1280,
+  "cssHeight": 720,
+  "scale": 1.5,
+  "scrollHeight": 2601,
+  "footerTop": 2530.828125,
+  "articles": 24,
+  "loadedImages": 12,
+  "sections": [
+    "La une",
+    "Économie",
+    "Sciences",
+    "Culture & idées",
+    "Climat & vivant",
+    "Tech & IA",
+    "Voyages & découvertes"
+  ],
+  "alerts": [],
+  "fixedVisible": [
+    {
+      "tag": "A",
+      "classes": "skip-link",
+      "text": "Aller au contenu"
+    }
+  ],
+  "scrollEnd": 1250,
+  "errors": []
+}
