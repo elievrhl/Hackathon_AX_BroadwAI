@@ -1,5 +1,9 @@
 # Kiosque — presse personnalisée
 
+Pour essayer le projet : [démarrage local](#démarrer),
+[tests automatiques et parcours de vérification](#tests),
+[comptes et accès administrateur](AUTHENTICATION.md).
+
 ## Interface lecteur — React connecté au backend
 
 Le projet s’appelle **Kiosque**. L’interface [`frontend/`](frontend/README.md)
@@ -179,14 +183,14 @@ API : `GET/POST /v1/readers/{user_id}/preferences`,
 `GET /v1/readers/{user_id}/feedback/{cover_id}` et `POST /v1/feedback` enrichi.
 Ces routes nécessitent une session authentifiée et sont limitées au lecteur concerné.
 
-Pour tester le parcours dans un environnement isolé, compiler le frontend puis lancer
-`python -m tests.serve_feedback_fixture` et ouvrir `http://127.0.0.1:8012/reader/`.
-Cette fixture utilise seulement les données simulées des tests, sans base ni modèle payant.
+Un [parcours de démonstration sans base ni modèle payant](#essayer-linterface-sans-clé-api)
+est disponible pour tester le courrier et la fiche avec des données simulées.
 
 ## Backend agentique (package `broadwai`)
 
 Première implémentation de la collecte d'articles et de la création d'une couverture personnalisée.
-Python 3.12+, FastAPI, PostgreSQL, SDK OpenAI Responses. Aucun appel LLM payant au démarrage.
+Python 3.12+, FastAPI, PostgreSQL, SDK OpenAI Responses. Les appels IA nécessitent une
+configuration explicite ; si elle est présente, une édition due peut démarrer avec le serveur.
 
 Pour reprendre le travail avec un autre agent : [contexte et passation du projet](PROJECT_HANDOFF.md).
 
@@ -284,12 +288,32 @@ pour l'ancienne diversification. Pas d'appel LLM nécessaire à cette étape.
 
 ## Démarrer
 
-Prérequis : [uv](https://docs.astral.sh/uv/) et Docker Compose (ou PostgreSQL existant).
+Toutes les commandes de cette section partent de la **racine du dépôt**.
+Prérequis : [uv](https://docs.astral.sh/uv/) pour Python 3.12+, Docker Compose
+(ou PostgreSQL 17 existant), Node.js 22.12+ et pnpm 11.
+
+### Installer et configurer
+
+Créer `.env` à partir de l’exemple, en conservant un éventuel fichier déjà configuré.
+
+macOS / Linux :
+
+```sh
+cp -n .env.example .env
+```
+
+Windows PowerShell :
 
 ```powershell
-Copy-Item .env.example .env
-docker compose up -d postgres
-uv sync --python 3.12
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+```
+
+Puis, sur les deux systèmes :
+
+```sh
+uv sync --locked --python 3.12
+pnpm --dir frontend install --frozen-lockfile
+docker compose up -d --wait postgres
 ```
 
 Dans `.env`, renseigner `OPENAI_API_KEY`, `SUMMARY_MODEL` et `EDITOR_MODEL` avec des modèles
@@ -300,17 +324,48 @@ Aucun Assistant, agent enregistré, base vectorielle ou fournisseur de recherche
 n'est nécessaire. Créer une clé API dans un projet OpenAI avec facturation active et accès aux
 modèles choisis. Ne pas publier `.env`.
 
-```powershell
-uv run uvicorn broadwai.api:app --host 127.0.0.1 --port 8000
+Conserver `AUTH_PUBLIC_URL=http://127.0.0.1:5173/` pour le serveur Vite.
+`DATABASE_URL` doit correspondre à PostgreSQL ; la valeur de `.env.example` convient
+au service Compose. `GRADIUM_API_KEY` est facultative et active la dictée vocale.
+Sans clés API, utiliser les [tests et la démonstration](#tests) ci-dessous : la génération
+réelle, le courrier IA et la dictée ne seront pas disponibles sur le serveur normal.
+
+### Lancer les deux serveurs
+
+Terminal 1 — backend :
+
+```sh
+uv run uvicorn broadwai.api:create_app --factory --host 127.0.0.1 --port 8010
 ```
 
-API interactive : <http://127.0.0.1:8000/docs>. Le schéma PostgreSQL initial est créé au démarrage.
-`DATABASE_URL` permet d'utiliser une autre instance. Les identifiants de Compose sont réservés au
-développement local. Le volume `postgres_data` conserve les données entre les redémarrages.
+Terminal 2 — frontend, également depuis la racine :
+
+```sh
+pnpm --dir frontend dev
+```
+
+Ouvrir le [lecteur](http://127.0.0.1:5173/), puis créer un compte avec un prénom,
+une adresse e-mail et un mot de passe d’au moins 12 caractères.
+Le [contrôle de santé](http://127.0.0.1:8010/health) doit répondre avec `status: "ok"`.
+La [documentation API](http://127.0.0.1:8010/docs) décrit les routes ; les routes privées
+nécessitent une session et les écritures un jeton CSRF. L’interface les transmet automatiquement.
+
+Le schéma PostgreSQL est créé ou mis à jour au démarrage. Le volume `postgres_data`
+conserve les données entre les redémarrages. Arrêter chaque serveur avec `Ctrl+C` ;
+`docker compose stop postgres` arrête la base en conservant ses données.
 
 ## Administration simple
 
-Ouvrir <http://127.0.0.1:8000/admin> (également accessible depuis `/`). Aucun build frontend requis.
+Après création de votre compte, lui attribuer le rôle administrateur depuis la racine
+(remplacer l’adresse par celle du compte créé) :
+
+```sh
+uv run python -m broadwai.account_admin promote administrateur@example.com
+```
+
+En restant connecté au lecteur, ouvrir <http://127.0.0.1:5173/admin> via le proxy Vite.
+La même origine permet de conserver la session et la protection CSRF. Un compte ordinaire
+reçoit une erreur 403 sur cette page. Voir [AUTHENTICATION.md](AUTHENTICATION.md).
 
 - Ajouter, modifier, mettre en pause ou supprimer des sites web, flux RSS/Atom ou Hacker News.
 - Déclencher la collecte d'une source ou de toutes les sources actives, avec la limite configurée.
@@ -324,7 +379,8 @@ Deux tables supplémentaires sont créées de façon additive au redémarrage : 
 conserve les articles et retire seulement ses associations. Modifier une source conserve son
 historique d'articles. Les collectes directes via `/v1/ingest` ne sont pas rattachées rétroactivement.
 
-L'admin n'appelle pas de LLM et ne génère pas de fiches : elle affiche les données disponibles.
+La gestion et la collecte des sources n’appellent pas de LLM : cette page affiche les données
+disponibles. La génération depuis **Éditions & planification** utilise, elle, les modèles configurés.
 
 La limite par défaut est **50 contenus par source et par collecte**, également pour les
 chaînes vidéo ; les contenus déjà stockés sont conservés. Un flux peut fournir moins de
@@ -475,12 +531,11 @@ accès au texte complet. Les paywalls ne sont pas contournés.
 
 ## Premier parcours
 
-```powershell
-# Collecte de métadonnées et extraits ; pas de LLM.
-Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/v1/ingest `
-  -ContentType 'application/json' -InFile examples/ingest.json
-
-```
+Dans l’administration, ajouter un flux RSS ou un site, puis cliquer sur **Collecter**.
+Les adresses de `examples/sources.json` peuvent servir de point de départ.
+Cette collecte récupère des métadonnées et des extraits sans appel LLM.
+Les appels directs à `/v1/ingest` nécessitent eux aussi une session administrateur
+et un jeton CSRF ; l’interface gère ces deux éléments.
 
 Ouvrir ensuite Kiosque sur <http://127.0.0.1:5173/> et se connecter. La dernière une
 s’affiche ; si le compte n’en possède pas, sa première édition est préparée immédiatement.
@@ -682,19 +737,142 @@ mais la récupération des liens nécessite une nouvelle collecte du contenu HTM
 
 ## Tests
 
-```powershell
+### Tests automatiques sans clé API
+
+Depuis la racine, installer les dépendances puis lancer les vérifications :
+
+```sh
+uv sync --locked
+pnpm --dir frontend install --frozen-lockfile
+
+# Backend : API, comptes, sélection, collecte, bibliothèques, dictée et planification.
+uv run pytest -q
+
+# Interface lecteur, puis scripts de l’administration.
+pnpm --dir frontend test
+node --test tests/covers-data.test.cjs tests/source-directory.test.cjs
+
+# Vérifier que le lecteur peut être compilé pour la production.
+pnpm --dir frontend build
+
+# Contrôles Python également exécutés par la CI.
 uv run ruff check .
 uv run ruff format --check .
-uv run pytest -q
-# Avec PostgreSQL démarré : tests réels du repository et du pipeline persistant.
-$env:TEST_DATABASE_URL = 'postgresql://broadwai:broadwai@localhost:5432/broadwai'
-uv run pytest tests/test_postgres.py -q
 ```
 
-Les tests PostgreSQL créent puis suppriment leur propre schéma unique. Sans `TEST_DATABASE_URL`,
-ils sont marqués ignorés. La CI fournit un service PostgreSQL et exécute toute la suite sans clé LLM.
-Les autres tests n'ont besoin ni de réseau ni de crédits : recherche, appels LLM et collecte sont
-doublés aux frontières pour vérifier décisions, refus de finalisation, erreurs, budgets et cache.
+Il n’est pas nécessaire de lancer les serveurs ni de configurer `.env` pour ces tests.
+Les fournisseurs externes sont simulés : aucun crédit OpenAI ou Gradium n’est consommé.
+Sans `TEST_DATABASE_URL`, seuls les tests PostgreSQL sont indiqués `skipped` ; les autres
+doivent passer. Un échec affiche le fichier et le nom du scénario concerné.
+
+Pour cibler une modification, par exemple la dictée et le courrier :
+
+```sh
+uv run pytest -q tests/test_dictation.py tests/test_reader_chat.py
+node --test frontend/src/dictation.test.js frontend/src/reader-chat.test.js
+```
+
+### Inclure les tests PostgreSQL
+
+Créer une base dédiée, une seule fois, dans le PostgreSQL local de Compose :
+
+```sh
+docker compose up -d --wait postgres
+docker compose exec postgres createdb -U broadwai broadwai_test
+```
+
+Si `broadwai_test` existe déjà, réutiliser cette base. Puis lancer **toute la suite**
+avec son URL, et pas seulement `test_postgres.py` : les comptes, bibliothèques et tâches
+planifiées ont aussi leurs propres tests de persistance.
+
+macOS / Linux :
+
+```sh
+TEST_DATABASE_URL='postgresql://broadwai:broadwai@127.0.0.1:5432/broadwai_test' uv run pytest -q
+```
+
+Windows PowerShell :
+
+```powershell
+$env:TEST_DATABASE_URL = 'postgresql://broadwai:broadwai@127.0.0.1:5432/broadwai_test'
+uv run pytest -q
+Remove-Item Env:TEST_DATABASE_URL
+```
+
+Adapter l’URL si PostgreSQL est déjà installé ailleurs. Le compte doit pouvoir créer
+des schémas. Chaque test crée puis supprime son propre schéma isolé ; la CI utilise
+également une base dédiée. `DATABASE_URL` configure le site, `TEST_DATABASE_URL`
+configure uniquement ces tests.
+
+### Essayer l’interface sans clé API
+
+Cette démonstration utilise un catalogue et un rédacteur simulés, avec des comptes
+en mémoire : aucun PostgreSQL ni clé API n’est nécessaire. Après installation des
+dépendances, compiler le frontend depuis la racine :
+
+```sh
+pnpm --dir frontend build
+```
+
+Puis lancer le serveur de démonstration avec la dictée réelle désactivée :
+
+```sh
+# macOS / Linux
+GRADIUM_API_KEY= uv run python -m tests.serve_feedback_fixture
+```
+
+```powershell
+# Windows PowerShell
+$env:GRADIUM_API_KEY = ''
+uv run python -m tests.serve_feedback_fixture
+```
+
+Ouvrir <http://127.0.0.1:8012/reader/> dans une fenêtre privée et créer un compte de test.
+Le `.env` habituel n’est pas chargé et les données disparaissent à l’arrêt du processus.
+La dictée est désactivée dans cette démonstration ; le courrier répond selon un scénario
+prédéfini, qui permet les vérifications suivantes :
+
+1. Ouvrir **Écrire à Kiosque** et envoyer « J’aimerais découvrir l’histoire des sciences ».
+2. Ouvrir **Ma fiche** : l’envie doit être enregistrée.
+3. Envoyer « Oublie cette envie » : elle doit être retirée de la fiche.
+4. Envoyer « erreur » : un message d’échec doit apparaître et le brouillon rester disponible.
+
+Arrêter avec `Ctrl+C`. Cette démonstration vérifie l’interface, pas la qualité éditoriale
+des modèles ni les services vocaux réels.
+
+### Vérifier le site avec les services réels
+
+Suivre [Démarrer](#démarrer) avec PostgreSQL et les clés configurées. Ce parcours utilise
+des crédits API : la première édition d’un nouveau lecteur se prépare automatiquement,
+et les messages du courrier, la dictée et certains contrôles d’images utilisent leurs fournisseurs.
+
+| Action | Résultat attendu |
+| --- | --- |
+| Créer un compte puis ouvrir le journal | La première une se prépare puis s’affiche ; recharger réutilise cette édition. |
+| Modifier **Mes préférences**, enregistrer et recharger | Le prénom, les sujets, les langues et le contexte sont conservés. |
+| Cliquer sur un titre ou une image | Le contenu original s’ouvre chez son éditeur, avec son titre d’origine. |
+| Liker un contenu et l’ajouter à une bibliothèque | Le like et l’article sauvegardé sont retrouvés après rechargement. |
+| Envoyer une envie dans **Écrire à Kiosque** | Une réponse apparaît et les changements annoncés figurent dans **Ma fiche**. |
+| Dicter puis arrêter le micro | Le texte complète le brouillon ; il reste modifiable et n’est pas envoyé automatiquement. Annuler ou fermer coupe le micro. |
+| Demander **Refaire ma une** | La progression s’affiche ; une deuxième tentative le même jour est refusée, même après rechargement. |
+| Ouvrir l’administration avec un compte ordinaire | L’accès est refusé ; un compte promu administrateur peut gérer les sources et les éditions. |
+
+La planification quotidienne à 3 h et 4 h, les changements d’heure et la reprise après
+interruption sont couverts par `tests/test_daily_sources.py` et `tests/test_daily_editions.py` :
+inutile d’attendre la nuit pour vérifier ces règles.
+
+### Dépannage rapide
+
+| Symptôme | Vérification |
+| --- | --- |
+| API inaccessible ou erreur du proxy Vite | Le backend écoute sur **8010** et `/health` répond ; le lecteur est sur **5173**. |
+| Connexion PostgreSQL refusée | Vérifier `docker compose ps`, `DATABASE_URL` ou `TEST_DATABASE_URL`, et la disponibilité du port 5432. |
+| « Origine de la requête non autorisée » | Aligner `AUTH_PUBLIC_URL` avec l’adresse du navigateur, puis redémarrer le backend. Ne pas mélanger `localhost` et `127.0.0.1`. |
+| Erreur 401 / 403 | Se connecter ; pour l’administration, promouvoir le compte. Les appels API d’écriture ont aussi besoin du jeton CSRF de session. |
+| La une ne se prépare pas | Vérifier `llm_configured` et `daily_editions_enabled` dans `/health`, les clés et les modèles, puis les diagnostics dans l’administration. |
+| Micro grisé ou refusé | Vérifier `GRADIUM_API_KEY`, les autorisations du micro, un navigateur compatible et HTTPS ou une adresse locale. |
+
+### Vérifications réseau facultatives
 
 Vérification réseau facultative, sans base ni LLM : `uv run python -m scripts.smoke_retrieval`.
 Elle lit un flux réel et tente d'extraire un de ses articles ; son résultat dépend des sites.

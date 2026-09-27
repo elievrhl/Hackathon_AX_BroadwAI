@@ -1,0 +1,38 @@
+{
+  "music_start_s": 14.0,
+  "picture_copy": true,
+  "voice_and_original_sound_gain_db": -3.5,
+  "speech_ducking": {
+    "threshold": 0.06,
+    "ratio": 3,
+    "attack_ms": 20,
+    "release_ms": 330
+  },
+  "closing_music_lift_db": 5,
+  "closing_music_lift_start_s": 66.6,
+  "quieter_voice_passage_extra_music_reduction_db": 2.5,
+  "mix_loudness": {
+    "input_i": "-16.54",
+    "input_tp": "-3.06",
+    "input_lra": "12.90",
+    "input_thresh": "-27.35",
+    "output_i": "-15.86",
+    "output_tp": "-1.50",
+    "output_lra": "6.40",
+    "output_thresh": "-26.30",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.14"
+  },
+  "encoded_loudness": {
+    "input_i": "-16.54",
+    "input_tp": "-3.06",
+    "input_lra": "13.00",
+    "input_thresh": "-27.36",
+    "output_i": "-15.87",
+    "output_tp": "-1.50",
+    "output_lra": "6.40",
+    "output_thresh": "-26.30",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.13"
+  }
+}
