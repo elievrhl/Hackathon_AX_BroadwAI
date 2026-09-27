@@ -15,8 +15,8 @@ export function enterAccount({ email, name, create }, storage = localStorage) {
   const accounts = readLocal(ACCOUNTS, [], storage);
   if (!Array.isArray(accounts)) throw new Error('La liste des comptes locaux est illisible.');
   let account = accounts.find(a => a.email === address);
-  if (create && account) throw new Error('Ce compte existe déjà dans ce navigateur. Connectez-vous.');
-  if (!create && !account) throw new Error('Créez d’abord ce compte de démonstration dans ce navigateur.');
+  if (create && account) throw new Error('Ce profil existe déjà sur cet appareil. Retrouvez-le avec votre adresse e-mail.');
+  if (!create && !account) throw new Error('Créez d’abord votre profil sur cet appareil.');
   if (create) {
     if (!name.trim()) throw new Error('Indiquez votre prénom.');
     const legacy = accounts.length === 0 ? readLocal('kiosque.user', null, storage) : null;

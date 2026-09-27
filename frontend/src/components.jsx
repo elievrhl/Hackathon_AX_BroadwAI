@@ -77,7 +77,7 @@ export function Onboarding({
               name: event.target.value
             })} required maxLength={40} pattern=".*\S.*" /></label>
           <button className="primary-button full-width" type="submit">Choisir mes sujets <ArrowRight size={18} /></button>
-          <p className="prototype-note">Votre profil est conservé dans ce navigateur. Les éditions sont enregistrées sur votre serveur local.</p>
+          <p className="prototype-note">Vos sujets sont enregistrés pour préparer votre une chaque jour à 4 h, heure de Paris.</p>
         </form> : <form className="interests-form" onSubmit={event => {
           event.preventDefault();
           if (draft.topics.length) onComplete({
@@ -233,7 +233,7 @@ export function ArticleDetail({
       {!!article.caveats.length && <ul className="article-caveats">{article.caveats.map((note, index) => <li key={index}>{note}</li>)}</ul>}
     </details>
     {article.reason && <div className="relevance"><Sparkles size={18} strokeWidth={1.5} /><div><h3>{article.format === 'podcast' ? 'Pourquoi cet épisode ?' : article.format === 'video' ? 'Pourquoi cette vidéo ?' : 'Pourquoi cet article ?'}</h3><p>{article.reason}</p></div></div>}
-    {canFeedback ? <ArticleFeedback article={article} feedback={feedback} onFeedback={onFeedback} onMemory={onMemory} size={size} /> : <p className="prototype-note">Cette édition a été créée avec un autre profil local. Les retours seront disponibles sur vos propres éditions.</p>}
+    {canFeedback ? <ArticleFeedback article={article} feedback={feedback} onFeedback={onFeedback} onMemory={onMemory} size={size} /> : <p className="prototype-note">Cette édition appartient à un autre lecteur. Les retours seront disponibles sur vos propres éditions.</p>}
     <div className="detail-actions"><ArticleSaveActions article={article} saved={saved} busy={saving} onSave={onSave} onOrganize={onOrganize} labelled /><button className="text-button" onClick={onClose}>Retour au journal <ArrowRight size={16} /></button></div>
     <p className="prototype-note detail-disclaimer">{article.format === 'podcast' ? 'L’épisode s’ouvre chez son éditeur, ou via son lien audio public.' : article.format === 'video' ? 'La vidéo s’ouvre directement sur YouTube.' : 'La lecture complète se fait sur le site de l’éditeur, qui peut demander un abonnement.'}</p>
     {notice && <p className="feedback-notice" role="status">{notice}</p>}
@@ -277,11 +277,11 @@ export function Preferences({
           notes: event.target.value
         })} placeholder="Un métier, un projet, une curiosité…" /></label>
       <label className="field">Langues des articles<select value={draft.languages.includes('en') ? 'fr-en' : 'fr'} onChange={event => setDraft({ ...draft, languages: event.target.value === 'fr-en' ? ['fr', 'en'] : ['fr'] })}><option value="fr-en">Français et anglais</option><option value="fr">Français</option></select></label>
-      <p className="field-help">Ces préférences seront utilisées pour votre prochaine génération.</p>
+      <p className="field-help">Ces préférences seront utilisées pour votre prochaine une, préparée chaque jour à 4 h (heure de Paris).</p>
       <button className="primary-button full-width" disabled={!draft.topics.length} type="submit">Enregistrer mes préférences <Check size={18} /></button>
-      <p className="prototype-note">Le profil reste dans ce navigateur ; ses intérêts et son contexte sont envoyés au rédacteur lors de la génération.</p>
+      <p className="prototype-note">Vos préférences accompagnent vos prochaines lectures.</p>
       <button className="secondary-button" type="button" onClick={onMemory}>Écrire à Kiosque · Ma fiche lecteur</button>
-      <button className="text-button reset-button" type="button" onClick={onReset}><LogOut size={15} /> Reconfigurer mon profil local</button>
+      <button className="text-button reset-button" type="button" onClick={onReset}><LogOut size={15} /> Rechoisir mes centres d’intérêt</button>
     </form>
   </Modal>;
 }

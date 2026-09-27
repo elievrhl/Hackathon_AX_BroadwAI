@@ -11,21 +11,25 @@ export async function request(path, options = {}) {
     });
   } catch {
     if (path.includes('/messages')) throw new ApiError('La connexion avec Kiosque a été interrompue. Votre message est conservé : vous pouvez réessayer.');
-    throw new ApiError('Le serveur est inaccessible. Vérifiez que le backend tourne, puis consultez l’historique avant de relancer une génération.');
+    throw new ApiError('Kiosque est momentanément inaccessible. Réessayez dans quelques instants.');
   }
   const data = await response.json().catch(() => null);
   if (!response.ok) {
     const messages = {
-      429: 'Une couverture est déjà en préparation. Attendez sa fin et actualisez l’historique.',
-      503: 'La génération est indisponible. Vérifiez la clé API et les modèles dans le fichier .env du serveur.',
-      504: 'La préparation a dépassé le délai disponible. Les résumés déjà créés sont conservés. Consultez l’historique avant de réessayer.',
+      401: 'Ouvrez votre espace de lecture pour continuer.',
+      403: 'Cette action n’est pas disponible pour votre profil.',
+      429: 'Cette action est déjà en cours. Patientez quelques instants.',
+      503: 'Ce service est momentanément indisponible. Réessayez un peu plus tard.',
+      504: 'L’opération prend plus de temps que prévu. Réessayez dans quelques instants.',
     };
-    const message = path.includes('/messages')
-      ? (typeof data?.detail === 'string' ? data.detail : `Votre message n’a pas pu être traité (${response.status}).`)
-      : messages[response.status] || (typeof data?.detail === 'string' ? data.detail : `Erreur du serveur (${response.status}).`);
+    const detail = [400, 404, 409, 422].includes(response.status) && typeof data?.detail === 'string'
+      ? data.detail : null;
+    const message = messages[response.status] || detail || (path.includes('/messages')
+      ? 'Votre message n’a pas pu être traité. Il est conservé pour réessayer.'
+      : 'Cette action n’a pas pu aboutir. Réessayez dans quelques instants.');
     throw new ApiError(message, response.status);
   }
-  if (data === null) throw new ApiError('Le serveur n’a pas renvoyé une réponse JSON. Vérifiez le proxy de l’API.');
+  if (data === null) throw new ApiError('La réponse de Kiosque n’a pas pu être lue. Réessayez dans quelques instants.');
   return data;
 }
 
@@ -59,6 +63,8 @@ export const removeFromCollection = (userId, id, articleId) => request(`/v1/coll
 export const importBookmarks = (userId, articleIds) => jsonRequest(`/v1/collections/import-bookmarks?user_id=${encodeURIComponent(userId)}`, 'POST', { article_ids: articleIds });
 
 const readerPath = userId => `/v1/readers/${encodeURIComponent(userId)}`;
+export const registerDailyEdition = (userId, payload) => jsonRequest(`${readerPath(userId)}/daily-edition`, 'PUT', payload);
+export const getDailyEdition = userId => request(`${readerPath(userId)}/daily-edition`);
 export const getReaderFeedback = (userId, coverId) => request(`${readerPath(userId)}/feedback/${encodeURIComponent(coverId)}`);
 export const getPreferences = userId => request(`${readerPath(userId)}/preferences`);
 export const getReaderMessages = userId => request(`${readerPath(userId)}/messages`);

@@ -1,21 +1,12 @@
 # Kiosque — presse personnalisée
 
-## Événements — catalogue de démonstration
-
-Le lecteur propose désormais **Événements · À voir, à écouter, à vivre**, avec
-17 références préparées : sorties à Paris, émissions et podcasts. Jusqu’à six
-suggestions suivent les sujets cochés ; les sorties terminées sont écartées et
-les prochaines sont limitées à 14 jours. Les filtres Sortir / Regarder / Écouter
-et un aperçu dans la une fonctionnent sans génération d’articles ni appel IA.
-Les sources ont été consultées le 27 septembre 2026 ; billets, annulations et
-droits de diffusion ne sont pas actualisés en direct. [Pipeline et catalogue](frontend/EVENTS.md).
-
 ## Interface lecteur — React connecté au backend
 
 Le projet s’appelle **Kiosque**. L’interface [`frontend/`](frontend/README.md)
 affiche les vraies couvertures de l’API : profil local sans compte, génération de
 15 à 20 articles, historique, rubriques, liens éditeurs, favoris et retours de lecture.
-La génération payante ne démarre que sur le bouton « Générer ma une ».
+Les éditions sont préparées automatiquement chaque jour à 4 h, heure de Paris,
+pour les profils enregistrés côté serveur. Le lecteur ne propose plus de bouton de génération.
 
 La une affiche les visuels des articles, y compris les brèves : métadonnées Open Graph/Twitter
 en priorité, puis images structurées JSON-LD ou images du texte. La récupération prend aussi
@@ -379,15 +370,39 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/v1/ingest `
 ```
 
 Ouvrir ensuite Kiosque sur <http://127.0.0.1:5173/>, choisir ses sujets et son contexte,
-puis cliquer sur **Générer ma une**. Le frontend construit la requête à partir du profil local ;
+le profil est alors synchronisé pour la préparation quotidienne de 4 h. Le frontend construit la requête à partir du profil local ;
 les thèmes utilisent des mots-clés français et anglais car BM25 ne traduit pas les intérêts.
 
 Pour un premier test réel, renseigner les trois variables LLM dans `.env`, redémarrer le serveur,
 puis vérifier que `/health` indique `llm_configured: true`. La recherche web peut être désactivée
 avec `WEB_SEARCH_ENABLED=false`.
 `POST /v1/covers` renvoie actuellement la couverture à la fin du traitement (maximum 300 secondes),
-avec sa trace. Le lecteur affiche le temps écoulé ; il n'y a pas encore de flux d'événements SSE.
+avec sa trace. Cette API manuelle reste disponible pour les outils de développement ; le lecteur
+suit désormais la préparation automatique sans maintenir une requête ouverte.
 Les éditions déjà générées se consultent depuis son historique et leurs traces dans l'inspecteur.
+
+## Éditions quotidiennes à 4 h
+
+Le backend FastAPI prépare une édition par profil chaque jour à **4 h, Europe/Paris**,
+y compris lors des changements d’heure. Les sujets, langues, niveau, contexte et format
+sont synchronisés via `PUT /v1/readers/{user_id}/daily-edition`. Les profils existants
+sont inscrits lors de leur prochaine visite ; une première inscription programme le
+prochain 4 h, sans appel payant immédiat. Les modifications suivantes gardent cette échéance.
+Les likes et les demandes du Courrier du lecteur sont relus lors de la préparation.
+
+PostgreSQL conserve les profils et une tentative unique par compte et date, même avec
+plusieurs serveurs. Le planificateur vérifie les échéances toutes les 30 secondes ; les
+éditions sont mises en file et peuvent se terminer après 4 h. Le backend et PostgreSQL
+doivent rester actifs ; en local, l’ordinateur doit être allumé et éveillé. Après un arrêt,
+seule la dernière échéance manquée est rattrapée, sans produire tout un historique.
+Une tentative échouée ou interrompue n’est pas refacturée automatiquement le même jour ;
+l’édition précédente reste lisible et le statut signale l’échec.
+
+`GET /v1/readers/{user_id}/daily-edition` expose l’état et la prochaine échéance.
+`DAILY_EDITIONS_ENABLED=false` suspend le planificateur sans perdre les profils.
+À l’ouverture du journal, la dernière édition est chargée ; un onglet ouvert vérifie les
+nouveautés chaque minute et lors du retour à la page. Un lien explicite vers une archive
+reste sur l’édition choisie. Aucun appel payant n’est déclenché par ces consultations.
 
 ## Fonctionnement
 
@@ -450,7 +465,8 @@ Les échecs consomment aussi ces quotas. Les tokens de recherche sont inclus dan
 appels hébergés sont comptés séparément ; leur facturation outil s'ajoute au coût des modèles.
 La réservation de tokens de recherche est estimée, pas un plafond de facture garanti.
 
-Le bouton **Générer ma une** du frontend lance un test réel, facturable, avec le profil local.
+La préparation quotidienne utilise les crédits des modèles configurés, avec les mêmes quotas
+que la génération manuelle via `POST /v1/covers`.
 Le rédacteur reste libre de ne pas proposer de source si aucune
 n'est exploitable. La recherche est exécutée chez OpenAI ; collecte RSS, extraction et stockage
 restent sur le serveur Python.

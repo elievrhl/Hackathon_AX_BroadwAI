@@ -12,12 +12,14 @@ from broadwai.models import (
 )
 from broadwai.preferences import PreferenceConflict, target_key, validate_preference
 from broadwai.reader_chat import check_replay, preference_snapshot, prepare_changes
+from tests.daily_fakes import MemoryDailyStore
 
 
-class MemoryStore:
+class MemoryStore(MemoryDailyStore):
     """Test double only: the production repository is PostgreSQL."""
 
     def __init__(self, articles=()):
+        super().__init__()
         self.rows = {a.id: a for a in articles}
         self.briefs = {}
         self.covers = {}

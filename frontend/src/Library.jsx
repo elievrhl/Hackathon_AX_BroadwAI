@@ -21,12 +21,11 @@ export function AccountScreen({ onEnter }) {
     } catch (reason) { setError(reason.message); }
   }
   return <SetupLayout>
-      <section className="account-panel" aria-labelledby="account-title">{create ? <SetupProgress step={1} /> : <p className="eyebrow">VOTRE ESPACE DE LECTURE</p>}<h2 id="account-title">{create ? 'Bienvenue chez vous.' : 'Heureux de vous revoir.'}</h2><div className="account-tabs"><button aria-pressed={create} onClick={() => { setCreate(true); setError(''); }}>Créer un compte</button><button aria-pressed={!create} onClick={() => { setCreate(false); setError(''); }}>Se connecter</button></div>
+      <section className="account-panel" aria-labelledby="account-title">{create ? <SetupProgress step={1} /> : <p className="eyebrow">VOTRE ESPACE DE LECTURE</p>}<h2 id="account-title">{create ? 'Bienvenue chez vous.' : 'Heureux de vous revoir.'}</h2><div className="account-tabs"><button aria-pressed={create} onClick={() => { setCreate(true); setError(''); }}>Créer mon profil</button><button aria-pressed={!create} onClick={() => { setCreate(false); setError(''); }}>Retrouver mon profil</button></div>
         <form key={String(create)} onSubmit={submit}>
           {create && <label className="field">Prénom<input name="name" autoComplete="given-name" required maxLength={40} placeholder="Camille" /></label>}
           <label className="field">Adresse e-mail<input name="email" type="email" autoComplete="off" required maxLength={254} placeholder="camille@exemple.fr" /></label>
-          <label className="field">Mot de passe de démonstration<input name="password" type="password" autoComplete="off" required maxLength={128} placeholder="Un mot de passe fictif" /></label>
-          <p className="account-demo">Compte de démonstration dans ce navigateur. Utilisez un mot de passe fictif : il n’est ni enregistré ni vérifié. Aucun e-mail n’est envoyé.</p>
+          <p className="account-demo">Votre espace de lecture sur cet appareil.</p>
           {error && <p className="reader-error" role="alert">{error}</p>}
           <button className="primary-button full-width" type="submit">{create ? 'Créer mon espace' : 'Entrer dans mon espace'}<ArrowRight size={18} /></button>
         </form>
@@ -41,7 +40,7 @@ export function AccountNav({ account, view, onView, onLogout, disabled }) {
       <button className="account-journal" aria-current={view === 'journal' ? 'page' : undefined} disabled={disabled} onClick={() => onView('journal')}><BookOpen size={17} aria-hidden="true" />Mon journal</button>
       <button aria-label="Articles sauvegardés" title="Articles sauvegardés" aria-current={view === 'saved' ? 'page' : undefined} disabled={disabled} onClick={() => onView('saved')}><Bookmark size={18} aria-hidden="true" /></button>
       <button aria-label="Archives" title="Archives — vos éditions complètes" aria-current={view === 'archives' ? 'page' : undefined} disabled={disabled} onClick={() => onView('archives')}><Archive size={18} aria-hidden="true" /></button>
-      <ThemeButton />
+      <ThemeButton compact />
       <button className="account-logout" aria-label="Déconnexion" title="Déconnexion" disabled={disabled} onClick={onLogout}><LogOut size={16} aria-hidden="true" /></button>
     </div>
   </nav>;
@@ -89,7 +88,7 @@ export function Archives({ editions, loading, error, busy, onRetry, onOpen, onVi
     <div className="library-toolbar"><span>{editions.length} édition{editions.length !== 1 ? 's' : ''}</span><div className="library-switch" aria-label="Présentation des archives"><button aria-pressed={!spines} onClick={() => setSpines(false)}>Couvertures</button><button aria-pressed={spines} onClick={() => setSpines(true)}>Tranches</button></div></div>
     {loading && <p role="status">Chargement des éditions…</p>}
     {error && <div className="reader-error" role="alert">{error} <button className="text-button" onClick={onRetry}>Réessayer</button></div>}
-    {!loading && !error && !editions.length && <div className="library-empty"><Archive size={38} strokeWidth={1} /><h2>Votre histoire de lecture commence ici.</h2><p>Chaque édition créée apparaîtra automatiquement dans vos archives.</p><button className="primary-button" onClick={() => onView('journal')}>Préparer ma une<ArrowRight size={17} /></button></div>}
+    {!loading && !error && !editions.length && <div className="library-empty"><Archive size={38} strokeWidth={1} /><h2>Votre histoire de lecture commence ici.</h2><p>Chaque édition créée apparaîtra automatiquement dans vos archives.</p><button className="primary-button" onClick={() => onView('journal')}>Ouvrir mon journal<ArrowRight size={17} /></button></div>}
     <div className={`library-shelf ${spines ? 'show-spines' : ''}`}>{editions.map(edition => <article className="library-volume" key={edition.id}>
       <button className="edition-open" disabled={busy || loading} onClick={() => onOpen(edition.id)} aria-label={`Lire l’édition ${edition.title}`}><EditionArtwork edition={edition} spine={spines} /></button>
       <div className="library-volume-caption"><span>{formatDate(edition.created_at)} · {edition.item_count} contenus</span><h2>{edition.title}</h2><div><button className="text-button" disabled={busy || loading} onClick={() => onOpen(edition.id)}>Feuilleter l’édition<ArrowRight size={14} /></button></div></div>

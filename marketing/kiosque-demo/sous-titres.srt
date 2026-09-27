@@ -1,0 +1,111 @@
+1
+00:00:00,600 --> 00:00:04,897
+Chaque jour, des centaines de titres. Des onglets qui s’accumulent.
+
+2
+00:00:05,196 --> 00:00:07,006
+Et trop peu de temps pour tout lire.
+
+3
+00:00:07,306 --> 00:00:09,362
+Et si votre journal partait de vous ?
+
+4
+00:00:10,600 --> 00:00:13,248
+Voici Kiosque, votre journal personnel.
+
+5
+00:00:13,495 --> 00:00:19,089
+Choisissez les sujets qui vous passionnent : le climat, les jeux vidéo, le monde, la culture.
+
+6
+00:00:19,336 --> 00:00:21,387
+Vous donnez le cap à votre prochaine édition.
+
+7
+00:00:22,600 --> 00:00:26,737
+Ajoutez votre contexte : un projet, un métier, une envie.
+
+8
+00:00:27,021 --> 00:00:31,384
+Puis choisissez vos langues et la taille de votre sélection, de quinze à vingt contenus.
+
+9
+00:00:32,600 --> 00:00:35,527
+Kiosque compose une une autour de vos centres d’intérêt.
+
+10
+00:00:35,835 --> 00:00:41,802
+Ici, une édition déjà préparée réunit articles et vidéos, organisés par rubriques.
+
+11
+00:00:42,110 --> 00:00:43,816
+Les sources restent visibles.
+
+12
+00:00:44,124 --> 00:00:49,327
+Vous repérez les sujets qui comptent pour vous, et vous décidez où prendre le temps d’aller plus loin.
+
+13
+00:00:50,600 --> 00:00:53,757
+Un article vous intrigue ? Ouvrez sa fiche.
+
+14
+00:00:54,075 --> 00:00:58,345
+Retrouvez un résumé, les points clés et la raison de sa sélection.
+
+15
+00:00:58,663 --> 00:01:04,824
+Pour approfondir, un clic vous mène au contenu original, directement chez l’éditeur.
+
+16
+00:01:06,600 --> 00:01:09,928
+Vos envies évoluent ? Écrivez simplement à Kiosque.
+
+17
+00:01:10,236 --> 00:01:14,006
+Par exemple : j’aimerais découvrir l’histoire des sciences.
+
+18
+00:01:14,314 --> 00:01:21,973
+Le Courrier du lecteur permet de demander plus d’un sujet, moins d’un autre, ou de nouveaux horizons pour vos prochaines éditions.
+
+19
+00:01:22,282 --> 00:01:23,349
+Vous gardez la main.
+
+20
+00:01:24,600 --> 00:01:27,646
+Une lecture à garder ? Sauvegardez-la en un clic.
+
+21
+00:01:27,923 --> 00:01:32,429
+Vous la retrouvez dans vos articles sauvegardés et pouvez la classer dans une collection.
+
+22
+00:01:32,707 --> 00:01:35,810
+Vos éditions restent aussi accessibles dans les archives.
+
+23
+00:01:36,087 --> 00:01:39,367
+Votre bibliothèque se construit au fil de vos découvertes.
+
+24
+00:01:40,600 --> 00:01:44,606
+Et pour le plaisir de lire, choisissez votre ambiance parmi six thèmes.
+
+25
+00:01:44,879 --> 00:01:49,381
+Éditorial, minimal, coloré… Kiosque s’habille à votre façon.
+
+26
+00:01:50,600 --> 00:01:54,397
+Moins de temps à chercher. Plus de place pour comprendre et découvrir.
+
+27
+00:01:54,675 --> 00:01:57,519
+Kiosque. Le monde, à votre mesure.
+
+28
+00:01:57,797 --> 00:01:59,394
+Composez votre première une.

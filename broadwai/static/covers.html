@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BroadwAI · Construction des couvertures</title>
+  <title>Kiosque · Éditions & planification</title>
   <link rel="stylesheet" href="/admin/assets/admin.css">
   <link rel="stylesheet" href="/admin/assets/covers.css">
   <script src="/admin/assets/cited-sources.js" defer></script>
@@ -10,10 +10,21 @@
   <script src="/admin/assets/covers.js" defer></script>
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="/admin">BroadwAI</a><span class="badge">Inspection</span><a class="api-link" href="/admin">← Sources & articles</a></header>
+  <header class="topbar"><a class="brand" href="/admin">Kiosque</a><span class="badge">Administration</span><a class="api-link" href="/admin">← Sources & articles</a><a href="/reader/">Ouvrir le lecteur →</a></header>
   <main>
-    <div class="page-heading"><div><p class="eyebrow">DU PROFIL À LA UNE</p><h1>Comprendre une couverture</h1><p class="muted">Quels articles ont été examinés, pourquoi ont-ils été retenus ou écartés ? Retrouvez le parcours de chaque édition enregistrée.</p><p class="small">Bilan après génération, sans suivi en direct. Actualiser recharge l’historique ; la consultation ne lance aucune génération ni appel aux modèles.</p></div><button id="reload">Actualiser</button></div>
+    <div class="page-heading"><div><p class="eyebrow">PILOTAGE ÉDITORIAL</p><h1>Éditions & planification</h1><p class="muted">Préparations quotidiennes, génération manuelle, historique et diagnostics.</p></div><button id="reload">Actualiser</button></div>
     <p id="error" class="error" role="alert" hidden></p>
+    <section class="panel edition-operations" aria-labelledby="operations-title">
+      <div class="panel-heading"><h2 id="operations-title">Préparation des unes</h2><span id="scheduler-health" class="badge">Vérification…</span></div>
+      <p id="model-health" class="small"></p>
+      <form id="generation-form" class="generation-controls">
+        <label for="reader-profile">Profil lecteur<select id="reader-profile"><option value="">Tous les lecteurs · historique</option></select></label>
+        <button id="generate-cover" class="primary" type="submit" disabled>Générer une une maintenant</button>
+      </form>
+      <div id="profile-schedule" class="profile-schedule" aria-live="polite"><p class="muted">Choisissez un profil pour consulter sa planification ou préparer une édition.</p></div>
+      <p class="small">La préparation automatique démarre chaque jour à 4 h, heure de Paris. Le serveur doit rester actif. Une génération manuelle utilise les crédits des modèles et ne modifie pas ce rendez-vous.</p>
+      <p id="generation-notice" role="status" aria-live="polite" hidden></p>
+    </section>
     <div class="inspection-layout">
       <aside class="panel history-panel" aria-label="Historique des couvertures"><div class="panel-heading"><h2>Éditions enregistrées</h2></div><div id="covers-list"></div><button id="more" hidden>Afficher davantage</button></aside>
       <section id="cover-detail" class="panel" aria-label="Parcours de la couverture"><p class="empty">Choisissez une couverture.</p></section>

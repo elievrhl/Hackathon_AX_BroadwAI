@@ -1,0 +1,170 @@
+[
+  {
+    "scene": 0,
+    "start": 0.6,
+    "end": 4.896999999999999,
+    "text": "Chaque jour, des centaines de titres. Des onglets qui s’accumulent."
+  },
+  {
+    "scene": 0,
+    "start": 5.196126687253882,
+    "end": 7.006480853920548,
+    "text": "Et trop peu de temps pour tout lire."
+  },
+  {
+    "scene": 0,
+    "start": 7.305607541174432,
+    "end": 9.361815874507766,
+    "text": "Et si votre journal partait de vous ?"
+  },
+  {
+    "scene": 1,
+    "start": 10.6,
+    "end": 13.248,
+    "text": "Voici Kiosque, votre journal personnel."
+  },
+  {
+    "scene": 1,
+    "start": 13.49501341665135,
+    "end": 19.08863841665135,
+    "text": "Choisissez les sujets qui vous passionnent : le climat, les jeux vidéo, le monde, la culture."
+  },
+  {
+    "scene": 1,
+    "start": 19.335651833302702,
+    "end": 21.3872143333027,
+    "text": "Vous donnez le cap à votre prochaine édition."
+  },
+  {
+    "scene": 2,
+    "start": 22.6,
+    "end": 26.73710416666667,
+    "text": "Ajoutez votre contexte : un projet, un métier, une envie."
+  },
+  {
+    "scene": 2,
+    "start": 27.020653228911193,
+    "end": 31.383590728911194,
+    "text": "Puis choisissez vos langues et la taille de votre sélection, de quinze à vingt contenus."
+  },
+  {
+    "scene": 3,
+    "start": 32.6,
+    "end": 35.52708333333334,
+    "text": "Kiosque compose une une autour de vos centres d’intérêt."
+  },
+  {
+    "scene": 3,
+    "start": 35.83508581599224,
+    "end": 41.80185664932557,
+    "text": "Ici, une édition déjà préparée réunit articles et vidéos, organisés par rubriques."
+  },
+  {
+    "scene": 3,
+    "start": 42.10985913198447,
+    "end": 43.81642163198447,
+    "text": "Les sources restent visibles."
+  },
+  {
+    "scene": 3,
+    "start": 44.12442411464337,
+    "end": 49.32698661464337,
+    "text": "Vous repérez les sujets qui comptent pour vous, et vous décidez où prendre le temps d’aller plus loin."
+  },
+  {
+    "scene": 4,
+    "start": 50.6,
+    "end": 53.75697916666667,
+    "text": "Un article vous intrigue ? Ouvrez sa fiche."
+  },
+  {
+    "scene": 4,
+    "start": 54.07516098484849,
+    "end": 58.34472348484849,
+    "text": "Retrouvez un résumé, les points clés et la raison de sa sélection."
+  },
+  {
+    "scene": 4,
+    "start": 58.66290530303031,
+    "end": 64.82375946969697,
+    "text": "Pour approfondir, un clic vous mène au contenu original, directement chez l’éditeur."
+  },
+  {
+    "scene": 5,
+    "start": 66.6,
+    "end": 69.92770833333333,
+    "text": "Vos envies évoluent ? Écrivez simplement à Kiosque."
+  },
+  {
+    "scene": 5,
+    "start": 70.2362976148743,
+    "end": 74.00552678154096,
+    "text": "Par exemple : j’aimerais découvrir l’histoire des sciences."
+  },
+  {
+    "scene": 5,
+    "start": 74.31411606308194,
+    "end": 81.97324106308194,
+    "text": "Le Courrier du lecteur permet de demander plus d’un sujet, moins d’un autre, ou de nouveaux horizons pour vos prochaines éditions."
+  },
+  {
+    "scene": 5,
+    "start": 82.28183034462292,
+    "end": 83.34949701128959,
+    "text": "Vous gardez la main."
+  },
+  {
+    "scene": 6,
+    "start": 84.6,
+    "end": 87.64595833333333,
+    "text": "Une lecture à garder ? Sauvegardez-la en un clic."
+  },
+  {
+    "scene": 6,
+    "start": 87.92338789223439,
+    "end": 92.42915872556772,
+    "text": "Vous la retrouvez dans vos articles sauvegardés et pouvez la classer dans une collection."
+  },
+  {
+    "scene": 6,
+    "start": 92.70658828446878,
+    "end": 95.80983828446878,
+    "text": "Vos éditions restent aussi accessibles dans les archives."
+  },
+  {
+    "scene": 6,
+    "start": 96.08726784336984,
+    "end": 99.36703867670317,
+    "text": "Votre bibliothèque se construit au fil de vos découvertes."
+  },
+  {
+    "scene": 7,
+    "start": 100.6,
+    "end": 104.60591666666666,
+    "text": "Et pour le plaisir de lire, choisissez votre ambiance parmi six thèmes."
+  },
+  {
+    "scene": 7,
+    "start": 104.87915997547235,
+    "end": 109.38065997547235,
+    "text": "Éditorial, minimal, coloré… Kiosque s’habille à votre façon."
+  },
+  {
+    "scene": 8,
+    "start": 110.6,
+    "end": 114.39691666666666,
+    "text": "Moins de temps à chercher. Plus de place pour comprendre et découvrir."
+  },
+  {
+    "scene": 8,
+    "start": 114.67453939064247,
+    "end": 117.51910189064246,
+    "text": "Kiosque. Le monde, à votre mesure."
+  },
+  {
+    "scene": 8,
+    "start": 117.79672461461827,
+    "end": 119.39414128128493,
+    "text": "Composez votre première une."
+  }
+]

@@ -110,7 +110,7 @@ export default function ReaderChat({ userId, profile, generating, open }) {
           <label className="sr-only" htmlFor="reader-message">Votre message à Kiosque</label>
           <div className="chat-input-wrap"><textarea id="reader-message" ref={input} rows={2} maxLength={2000} value={draft} disabled={loading || loadFailed} readOnly={!!pending} onChange={e => setDraft(e.target.value)} placeholder="En ce moment, j’aimerais lire…" aria-describedby="chat-input-help" onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); e.currentTarget.form.requestSubmit(); } }} /><button type="submit" aria-label="Envoyer le message" title="Envoyer le message (Entrée)" disabled={!!pending || loading || loadFailed || draft.trim().length < 2}><ArrowUp size={21} aria-hidden="true" /></button></div>
           <span className="sr-only" id="chat-input-help">Entrée pour envoyer. Maj + Entrée pour une nouvelle ligne. 2 000 caractères maximum.</span>
-          <div className="chat-composer-footer"><span>Messages lus par l’IA · crédits du serveur</span>{draft.length > 1800 && <span>{draft.length}/2 000</span>}</div>
+          <div className="chat-composer-footer"><span>Kiosque vous répond avec l’aide de l’IA</span>{draft.length > 1800 && <span>{draft.length}/2 000</span>}</div>
         </form>
       </section>
       <aside className="reader-dossier" id="reader-dossier" aria-labelledby="dossier-title" hidden={!showDossier}>

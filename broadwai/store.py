@@ -6,11 +6,12 @@ from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
+from broadwai.daily_store import DailyEditionStore
 from broadwai.models import Article, Brief, Cover, Feedback
 from broadwai.preference_store import PreferenceStore
 
 
-class Store(PreferenceStore):
+class Store(PreferenceStore, DailyEditionStore):
     """PostgreSQL repository with a bounded connection pool."""
 
     def __init__(self, database_url: str):

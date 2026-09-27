@@ -6,10 +6,11 @@ import { THEMES, THEME_STORAGE_KEY, readTheme, saveTheme, applyTheme, COLOR_MODE
 const ThemeContext = createContext(null);
 const MODE_ICONS = { light: Sun, dark: Moon, auto: Monitor };
 
-export function ThemeButton() {
+export function ThemeButton({ compact = false }) {
   const { theme, openPicker } = useContext(ThemeContext);
-  return <button type="button" className="theme-button" onClick={openPicker} aria-haspopup="dialog" aria-label={`Changer de thème, thème actuel : ${THEMES.find(item => item.id === theme).name}`}>
-    <Palette size={16} aria-hidden="true" /><span>Thèmes</span><span className="theme-current-dot" aria-hidden="true" />
+  const label = `Thèmes — thème actuel : ${THEMES.find(item => item.id === theme).name}`;
+  return <button type="button" className={compact ? undefined : 'theme-button'} onClick={openPicker} aria-haspopup="dialog" aria-label={label} title={label}>
+    <Palette size={compact ? 18 : 16} aria-hidden="true" />{!compact && <><span>Thèmes</span><span className="theme-current-dot" aria-hidden="true" /></>}
   </button>;
 }
 

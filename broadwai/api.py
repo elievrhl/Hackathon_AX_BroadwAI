@@ -1,5 +1,5 @@
 import asyncio
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from broadwai.collections import router as collections_router
 from broadwai.config import Settings
+from broadwai.daily_editions import DailyEditions
 from broadwai.image_review import ImageReviewer
 from broadwai.images import ArticleImages
 from broadwai.llm import BudgetExceeded, ModelError, OpenAILanguageModel, RunBudget
@@ -71,9 +72,17 @@ def create_app(
             else None,
             require_review=settings.image_review_enabled,
         )
+        app.state.daily_editions = DailyEditions(
+            repository, prepare_cover, app.state.cover_lock,
+            enabled=settings.daily_editions_enabled and llm is not None,
+        )
+        daily_task = asyncio.create_task(app.state.daily_editions.serve())
         try:
             yield
         finally:
+            daily_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await daily_task
             await app.state.images.close()
             if model is None and llm is not None:
                 await llm.close()
@@ -116,6 +125,7 @@ def create_app(
             "llm_configured": app.state.model is not None,
             "web_search_configured": app.state.search.enabled,
             "catalog": app.state.store.stats(),
+            "daily_editions_enabled": app.state.daily_editions.enabled,
         }
 
     @app.get("/v1/likes")
@@ -166,45 +176,79 @@ def create_app(
         if app.state.cover_lock.locked():
             raise HTTPException(429, "Une couverture est déjà en préparation ; réessayer ensuite")
         async with app.state.cover_lock:
-            memory = await asyncio.to_thread(
-                app.state.store.reading_memory, request.profile.user_id
-            )
-            request = request.model_copy(
-                update={"profile": request.profile.model_copy(update={"reading_memory": memory})}
-            )
-            pipeline = CoverPipeline(
-                app.state.store, app.state.collector, app.state.search, app.state.model, settings
-            )
-            try:
-                async with asyncio.timeout(300):
-                    if (request.discover_videos and request.max_videos) or (
-                        request.discover_podcasts and request.max_podcasts
-                    ):
-                        if not app.state.source_lock.locked():
-                            async with app.state.source_lock:
-                                reports = await refresh_media_sources(
-                                    app.state.store,
-                                    app.state.collector,
-                                    videos=bool(request.discover_videos and request.max_videos),
-                                    podcasts=bool(
-                                        request.discover_podcasts and request.max_podcasts
-                                    ),
-                                )
-                            pipeline.log("media_refreshed", sources=reports)
-                            if any(report["errors"] for report in reports):
-                                pipeline.warnings.append(
-                                    "Certains flux vidéo ou podcast sont indisponibles ; "
-                                    "la sélection utilise le catalogue disponible."
-                                )
-                    return await pipeline.run(request)
-            except TimeoutError as exc:
-                raise HTTPException(
-                    504, "Délai de génération dépassé ; fiches déjà créées conservées"
-                ) from exc
-            except ModelError as exc:
-                raise HTTPException(
-                    502, "Les appels aux modèles ont échoué ; aucune couverture enregistrée"
-                ) from exc
+            return await prepare_cover(request)
+
+    async def prepare_cover(request: CoverRequest):
+        memory = await asyncio.to_thread(
+            app.state.store.reading_memory, request.profile.user_id
+        )
+        request = request.model_copy(
+            update={"profile": request.profile.model_copy(update={"reading_memory": memory})}
+        )
+        pipeline = CoverPipeline(
+            app.state.store, app.state.collector, app.state.search, app.state.model, settings
+        )
+        try:
+            async with asyncio.timeout(300):
+                if (request.discover_videos and request.max_videos) or (
+                    request.discover_podcasts and request.max_podcasts
+                ):
+                    if not app.state.source_lock.locked():
+                        async with app.state.source_lock:
+                            reports = await refresh_media_sources(
+                                app.state.store,
+                                app.state.collector,
+                                videos=bool(request.discover_videos and request.max_videos),
+                                podcasts=bool(
+                                    request.discover_podcasts and request.max_podcasts
+                                ),
+                            )
+                        pipeline.log("media_refreshed", sources=reports)
+                        if any(report["errors"] for report in reports):
+                            pipeline.warnings.append(
+                                "Certains flux vidéo ou podcast sont indisponibles ; "
+                                "la sélection utilise le catalogue disponible."
+                            )
+                return await pipeline.run(request)
+        except TimeoutError as exc:
+            raise HTTPException(
+                504, "Délai de génération dépassé ; fiches déjà créées conservées"
+            ) from exc
+        except ModelError as exc:
+            raise HTTPException(
+                502, "Les appels aux modèles ont échoué ; aucune couverture enregistrée"
+            ) from exc
+
+    @app.put("/v1/readers/{user_id}/daily-edition")
+    async def register_daily_edition(user_id: str, request: CoverRequest):
+        if user_id != request.profile.user_id:
+            raise HTTPException(422, "Le profil doit correspondre au compte")
+        return await app.state.daily_editions.register(request)
+
+    @app.get("/v1/readers/{user_id}/daily-edition")
+    async def daily_edition_status(user_id: str):
+        return await app.state.daily_editions.status(user_id)
+
+    @app.get("/v1/admin/editions")
+    async def admin_editions(
+        limit: int = Query(100, ge=1, le=200), offset: int = Query(0, ge=0)
+    ):
+        rows = await asyncio.to_thread(app.state.store.list_daily_profiles, limit, offset)
+        for row in rows:
+            row["schedule"] = await app.state.daily_editions.status(row["user_id"])
+        return {
+            "profiles": rows,
+            "llm_configured": app.state.model is not None,
+            "daily_editions_enabled": app.state.daily_editions.enabled,
+            "preparing": app.state.cover_lock.locked(),
+        }
+
+    @app.post("/v1/admin/readers/{user_id}/covers", response_model=Cover)
+    async def admin_generate_cover(user_id: str):
+        saved = await asyncio.to_thread(app.state.store.get_daily_profile, user_id)
+        if saved is None:
+            raise HTTPException(404, "Profil absent : ouvrir le lecteur et choisir ses sujets")
+        return await create_cover(CoverRequest.model_validate(saved))
 
     @app.get("/v1/covers")
     def list_covers(

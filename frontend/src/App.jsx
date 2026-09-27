@@ -1,16 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, MessageCircle, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Check, MessageCircle } from 'lucide-react';
 import { Onboarding, Preferences, ArticleDetail, Modal } from './components.jsx';
 import ReaderChat from './ReaderChat.jsx';
-import { preferenceSummary } from './preferences.js';
 import Newspaper from './Newspaper.jsx';
 import { getArchives, getSavedArticles, saveArticle, unsaveArticle, getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
 import { readLocal, accountKey, currentAccount, leaveAccount } from './accounts.js';
 import SavedArticles, { Archives, AccountScreen, AccountNav, SaveArticleDialog, CollectionForm } from './Library.jsx';
-import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover, formatDate } from './reader.js';
-import { getHealth, listCovers, getCover, createCover, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
+import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover } from './reader.js';
+import { listCovers, getCover, registerDailyEdition, getDailyEdition, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
 
-const STATUS_LABELS = { complete: 'complète', partial: 'partielle', fallback: 'secours' };
+import { dailyEditionMessage, initialEditionId } from './daily-edition.js';
 
 export default function App() {
   const [account, setAccount] = useState(currentAccount);
@@ -44,7 +43,6 @@ function ReaderApp({ account, onLogout }) {
   const [profile, setProfile] = useState(() => normalizeProfile(read(STORAGE_KEY)));
   const [cover, setCover] = useState(null);
   const [history, setHistory] = useState([]);
-  const [health, setHealth] = useState(null);
   const [preferences, setPreferences] = useState(false);
   const [memory, setMemory] = useState(false);
   const [article, setArticle] = useState(null);
@@ -57,7 +55,11 @@ function ReaderApp({ account, onLogout }) {
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('loading');
-  const [elapsed, setElapsed] = useState(0);
+  const [daily, setDaily] = useState(null);
+  const [dailyError, setDailyError] = useState('');
+  const pinnedEdition = useRef(Boolean(linkedCoverId));
+  const displayedEdition = useRef(null);
+  const currentEdition = useRef(null);
   const inFlight = useRef(false);
   const pendingFeedback = useRef(new Set());
 
@@ -65,13 +67,19 @@ function ReaderApp({ account, onLogout }) {
     try { localStorage.setItem(accountKey(userId, key), JSON.stringify(value)); }
     catch { setNotice('Le stockage du navigateur est indisponible. Vos réglages restent disponibles pour cette visite.'); }
   }
-  function displayCover(raw) {
+  function displayCover(raw, pin = false) {
+    pinnedEdition.current = pin;
+    displayedEdition.current = raw.id;
     const next = adaptCover(raw);
     setCover(next);
     setArticle(null);
-    persist('kiosque.lastCover', next.id);
+    if (!pin) {
+      currentEdition.current = raw;
+      persist('kiosque.lastCover', next.id);
+    }
     const url = new URL(window.location.href);
-    url.searchParams.set('cover', next.id);
+    if (pin) url.searchParams.set('cover', next.id);
+    else url.searchParams.delete('cover');
     window.history.replaceState(null, '', url);
     // Direct links also work for editions older than the visible history page.
     setHistory(rows => rows.some(row => row.id === raw.id) ? rows : [...rows, {
@@ -81,25 +89,25 @@ function ReaderApp({ account, onLogout }) {
   useEffect(() => {
     let active = true;
     async function initialize() {
-      const [healthResult, historyResult, likesResult, libraryResult] = await Promise.allSettled([getHealth(), listCovers(userId), getLikes(userId), loadCollections()]);
+      const [historyResult, likesResult, libraryResult] = await Promise.allSettled([listCovers(userId), getLikes(userId), loadCollections()]);
       if (!active) return;
       if (libraryResult.status === 'fulfilled') acceptLibrary(libraryResult.value);
       else setLibraryError(libraryResult.reason.message);
       setLibraryLoading(false);
       if (likesResult.status === 'fulfilled') { setLiked(likesResult.value.article_ids); setLikesReady(true); }
       else setNotice('Les likes sont indisponibles. Rechargez la page pour réessayer.');
-      if (healthResult.status === 'fulfilled') setHealth(healthResult.value);
       if (historyResult.status === 'fulfilled') setHistory(historyResult.value);
       else setError(historyResult.reason.message);
-      const previous = linkedCoverId || read('kiosque.lastCover');
-      if (typeof previous === 'string') {
-        try {
-          const raw = await getCover(previous, userId);
-          if (active) displayCover(raw);
-        } catch (reason) { if (active) setError(reason.message); }
-      }
+      // Keep the current edition available when a linked archive is being read.
+      const currentId = initialEditionId(null, historyResult.status === 'fulfilled' ? historyResult.value : [], read('kiosque.lastCover')) || linkedCoverId;
+      const ids = [...new Set([currentId, linkedCoverId].filter(Boolean))];
+      const editions = await Promise.allSettled(ids.map(id => getCover(id, userId)));
+      if (!active) return;
+      editions.forEach((result, index) => {
+        if (result.status === 'fulfilled') displayCover(result.value, ids[index] !== currentId);
+        else setError(result.reason.message);
+      });
       if (active) {
-        if (read('kiosque.pending')) setNotice('Une génération a été lancée avant de quitter la page. Actualisez l’historique pour retrouver son résultat.');
         setBusy('');
       }
     }
@@ -123,14 +131,48 @@ function ReaderApp({ account, onLogout }) {
     return () => clearTimeout(timer);
   }, [notice]);
   useEffect(() => {
-    if (busy !== 'generating') return;
-    const start = Date.now();
-    setElapsed(0);
-    const timer = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
-    const warn = event => { event.preventDefault(); event.returnValue = ''; };
-    window.addEventListener('beforeunload', warn);
-    return () => { clearInterval(timer); window.removeEventListener('beforeunload', warn); };
-  }, [busy]);
+    if (!profile) return;
+    let active = true;
+    let retry;
+    async function syncProfile() {
+      try {
+        const status = await registerDailyEdition(userId, toCoverRequest(profile, userId));
+        if (active) { setDaily(status); setDailyError(''); }
+      } catch {
+        if (active) {
+          setDailyError('Votre une sera disponible dès que possible.');
+          // Synchronizing preferences is free; paid preparation stays on the server.
+          retry = window.setTimeout(syncProfile, 30_000);
+        }
+      }
+    }
+    syncProfile();
+    return () => { active = false; clearTimeout(retry); };
+  }, [profile]);
+  useEffect(() => {
+    if (!profile || !daily?.registered) return;
+    let active = true;
+    let refreshing = false;
+    async function refreshDaily() {
+      if (document.hidden || refreshing || inFlight.current) return;
+      refreshing = true;
+      try {
+        const [rows, status] = await Promise.all([listCovers(userId), getDailyEdition(userId)]);
+        if (!active) return;
+        setHistory(rows); setDaily(status);
+        const latest = rows[0]?.id;
+        if (latest && latest !== displayedEdition.current && !pinnedEdition.current) {
+          const raw = await getCover(latest, userId);
+          if (active && !pinnedEdition.current && !inFlight.current) displayCover(raw);
+        }
+      } catch (reason) {
+        if (active) setNotice(`La mise à jour des éditions est momentanément indisponible : ${reason.message}`);
+      } finally { refreshing = false; }
+    }
+    const timer = window.setInterval(refreshDaily, 60_000);
+    document.addEventListener('visibilitychange', refreshDaily);
+    return () => { active = false; clearInterval(timer); document.removeEventListener('visibilitychange', refreshDaily); };
+  }, [profile, daily?.registered]);
 
   function saveProfile(value) {
     const next = normalizeProfile(value);
@@ -143,36 +185,27 @@ function ReaderApp({ account, onLogout }) {
     inFlight.current = true;
     setBusy('loading'); setError('');
     try {
-      displayCover(await getCover(id, userId));
+      displayCover(await getCover(id, userId), true);
       if (!profile) saveProfile({ ...DEFAULT_PROFILE, name: account.name });
       setView('journal');
     }
     catch (reason) { setError(reason.message); }
     finally { inFlight.current = false; setBusy(''); }
   }
-  async function refreshHistory() {
-    if (inFlight.current || busy) return;
-    inFlight.current = true; setBusy('loading'); setError('');
-    try {
-      const [rows, status] = await Promise.all([listCovers(userId), getHealth()]);
-      setHistory(rows); setHealth(status);
-    } catch (reason) { setError(reason.message); }
-    finally { inFlight.current = false; setBusy(''); }
-  }
-  async function generate() {
-    if (inFlight.current || busy) return;
-    inFlight.current = true;
-    setBusy('generating'); setError('');
-    persist('kiosque.pending', Date.now());
-    try {
-      const raw = await createCover(toCoverRequest(profile, userId));
-      displayCover(raw);
-      // Preserve the result even if the next history refresh fails.
-      setHistory(rows => [{ id: raw.id, title: raw.title, created_at: raw.created_at, status: raw.status, item_count: raw.items.length }, ...rows.filter(row => row.id !== raw.id)]);
-      persist('kiosque.pending', null);
-      setNotice(`${raw.items.length} contenus reçus. Bonne découverte !`);
-    } catch (reason) { setError(reason.message); }
-    finally { inFlight.current = false; setBusy(''); }
+  function returnToCurrentEdition() {
+    if (inFlight.current || busy || libraryLock.current) return;
+    if (currentEdition.current) displayCover(currentEdition.current);
+    else {
+      pinnedEdition.current = false;
+      displayedEdition.current = null;
+      setCover(null);
+      setArticle(null);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('cover');
+      window.history.replaceState(null, '', url);
+    }
+    setError('');
+    setView('journal');
   }
   function articleOrigin(selected) {
     return selected.coverId || (cover?.userId === userId && cover.items.some(item => item.id === selected.id) ? cover.id : null);
@@ -213,7 +246,7 @@ function ReaderApp({ account, onLogout }) {
       const result = await sendFeedback({ ...payload, user_id: userId, cover_id: coverId, article_id: selected.id });
       if (kind !== 'open') {
         setFeedback(previous => ({ ...previous, [key]: { ...previous[key], ...payload, preference_id: result.preference?.id || previous[key]?.preference_id } }));
-        setNotice(result.preference ? 'Votre retour et la préférence associée sont enregistrés pour la prochaine génération.' : 'Votre retour sur cet article a été enregistré.');
+        setNotice(result.preference ? 'Votre retour et la préférence associée sont enregistrés pour votre prochaine édition.' : 'Votre retour sur cet article a été enregistré.');
       }
     } catch (reason) { if (kind === 'open') setNotice(`Retour non enregistré : ${reason.message}`); else throw reason; }
     finally { pendingFeedback.current.delete(key); }
@@ -328,6 +361,7 @@ function ReaderApp({ account, onLogout }) {
   }
   function navigate(next) {
     if (libraryLock.current) return;
+    if (next === 'journal' && pinnedEdition.current) returnToCurrentEdition();
     setView(next); setArticle(null); setError(''); setLibraryError('');
     if (next === 'saved') { setSelectedCollection(null); refreshLibrary(false); }
     if (next === 'archives') refreshArchives();
@@ -336,28 +370,21 @@ function ReaderApp({ account, onLogout }) {
   return <>
     <a className="skip-link" href="#main">Aller au contenu</a>
     {(profile || view !== 'journal') && <AccountNav account={account} view={view} onView={navigate} onLogout={onLogout} disabled={!!busy || !!libraryPending} />}
-    {view === 'archives' ? <Archives editions={archives} loading={archivesLoading} error={archivesError || error} busy={!!busy} onRetry={refreshArchives} onOpen={openCover} onView={navigate} /> : view === 'saved' ? <SavedArticles savedArticles={savedArticles} collections={collections} selected={selectedCollection} loading={libraryLoading} error={libraryError} pending={libraryPending} onRetry={refreshLibrary} onOpen={openCollection} onBack={() => { setSelectedCollection(null); setLibraryError(''); }} onCreate={() => { setLibraryError(''); setCollectionForm({}); }} onEdit={collection => { setLibraryError(''); setCollectionForm(collection); }} onDelete={removeCollection} onRemoveArticle={removeCollectionArticle} onSaveArticle={toggleSavedArticle} onOrganize={chooseSave} onRead={recordOpen} onView={navigate} /> : profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} profile={profile} cover={cover} saved={saved} onSave={toggleSavedArticle} onOrganize={chooseSave} saving={libraryLoading || !!libraryPending} onOpen={setArticle} onRead={recordOpen} onPreferences={() => setPreferences(true)} busy={!!busy}>
+    {view === 'archives' ? <Archives editions={archives} loading={archivesLoading} error={archivesError || error} busy={!!busy} onRetry={refreshArchives} onOpen={openCover} onView={navigate} /> : view === 'saved' ? <SavedArticles savedArticles={savedArticles} collections={collections} selected={selectedCollection} loading={libraryLoading} error={libraryError} pending={libraryPending} onRetry={refreshLibrary} onOpen={openCollection} onBack={() => { setSelectedCollection(null); setLibraryError(''); }} onCreate={() => { setLibraryError(''); setCollectionForm({}); }} onEdit={collection => { setLibraryError(''); setCollectionForm(collection); }} onDelete={removeCollection} onRemoveArticle={removeCollectionArticle} onSaveArticle={toggleSavedArticle} onOrganize={chooseSave} onRead={recordOpen} onView={navigate} /> : profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} cover={cover} saved={saved} onSave={toggleSavedArticle} onOrganize={chooseSave} saving={libraryLoading || !!libraryPending} onOpen={setArticle} onRead={recordOpen} onPreferences={() => setPreferences(true)} busy={!!busy}>
       <section className="reader-controls" aria-label="Gestion de votre édition">
         <div className="reader-actions">
+        {pinnedEdition.current && <button className="text-button" onClick={returnToCurrentEdition} disabled={!!busy || !!libraryPending} title="Revenir à mon édition actuelle" aria-label="Retour à mon édition actuelle"><ArrowLeft size={16} aria-hidden="true" /> Retour</button>}
         <button className="text-button" onClick={openMemory}><MessageCircle size={16} aria-hidden="true" /> Écrire à Kiosque</button>
         </div>
-        {cover?.userId === userId && !!cover.preferenceImpact?.length && <details className="preference-impact"><summary>Vos demandes dans cette édition</summary><ul>{cover.preferenceImpact.map(row => <li key={row.id}>{preferenceSummary(row)} · {row.selected_count} article{row.selected_count !== 1 ? 's' : ''} retenu{row.selected_count !== 1 ? 's' : ''}{row.action === 'exclude' ? ' correspondant à la cible exclue' : ''}{row.explanation && <p>{row.explanation}</p>}{['more', 'diversify'].includes(row.action) && row.selected_count === 0 && <p>Aucune lecture correspondante n’a pu être retenue dans cette édition.</p>}</li>)}</ul>{cover.preferenceWarnings.map((warning, i) => <p key={i} className="edition-warning">{warning}</p>)}<p className="field-help">Bilan de cette édition au moment de sa création. Les corrections suivantes s’appliqueront aux prochaines générations.</p></details>}
-        <details className="edition-management" open={cover ? undefined : true}>
-        <summary>Mes éditions</summary>
-        <div className="generation-row"><div><strong>{cover ? 'La prochaine édition vous attend.' : 'Composez votre première une.'}</strong><p>{profile.size} contenus souhaités · articles, jusqu’à 3 vidéos et 2 podcasts pertinents</p><p className="field-help">La génération consomme des crédits. À leur premier affichage, les nouvelles photos d’articles font aussi l’objet d’une vérification facturée ; son résultat est ensuite réutilisé.</p></div><button className="primary-button" disabled={!!busy || health?.llm_configured === false} onClick={generate}>{busy === 'generating' ? 'Préparation en cours…' : 'Générer ma une'}<ArrowRight size={18} /></button></div>
-        <div className="history-row"><label htmlFor="edition-history">Éditions récentes</label><select id="edition-history" value={cover?.id || ''} disabled={!!busy} onChange={event => openCover(event.target.value)}><option value="" disabled>Choisir une édition déjà générée</option>{history.map(row => <option key={row.id} value={row.id}>{formatDate(row.created_at)} · {row.item_count} contenus · {STATUS_LABELS[row.status] || row.status} · {row.title}</option>)}</select><button className="text-button" onClick={refreshHistory} disabled={!!busy}><RefreshCw size={15} /> Actualiser</button></div>
-        {!history.length && !busy && <p className="field-help">Aucune édition générée pour ce compte pour le moment.</p>}
-        {cover && <a className="audit-link" href={`/admin/covers?id=${encodeURIComponent(cover.id)}`} target="_blank" rel="noreferrer">Voir la construction de cette édition : sélection, résumés, outils et coût ↗</a>}
-        </details>
-        {health?.llm_configured === false && <p className="reader-error" role="alert">Le backend est accessible, mais sa clé API ou ses modèles ne sont pas configurés.</p>}
+        {(!cover || daily?.status === 'running' || daily?.status === 'failed' || dailyError) && <p className="daily-edition-status" role="status">{dailyError || dailyEditionMessage(daily)}</p>}
         {error && <p className="reader-error" role="alert">{error}</p>}
-        {busy && <div className="generation-status" role="status"><span className="working-dot" /><span>{busy === 'generating' ? `Le rédacteur prépare votre édition… ${elapsed} s écoulées. Cela peut prendre plusieurs minutes. Vous pouvez continuer à lire l’édition affichée.` : 'Chargement des éditions…'}</span></div>}
+        {busy && <div className="generation-status" role="status"><span className="working-dot" /><span>Chargement des éditions…</span></div>}
       </section>
     </Newspaper> : <Onboarding initialName={account.name} onComplete={saveProfile} onExplore={() => { saveProfile({ ...DEFAULT_PROFILE, name: account.name }); if (history.length) openCover(history[0].id); }} />}
     {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} onMemory={openMemory} />}
     {savingArticle && <SaveArticleDialog article={savingArticle} collections={collections} loading={libraryLoading} busy={!!libraryPending} error={libraryError} onToggle={toggleCollectionArticle} onCreate={saveCollection} onRetry={refreshLibrary} onClose={() => setSavingArticle(null)} />}
     {collectionForm && <Modal className="collection-dialog" labelId="collection-form-title" onClose={() => { if (!libraryPending) setCollectionForm(null); }}><p className="eyebrow">VOS ARTICLES, VOS ENVIES</p><h2 id="collection-form-title">{collectionForm.id ? 'Modifier la collection' : 'Nouvelle collection'}</h2><CollectionForm key={collectionForm.id || 'new'} collection={collectionForm.id ? collectionForm : null} busy={!!libraryPending} error={libraryError} onSubmit={saveCollection} onCancel={() => setCollectionForm(null)} /></Modal>}
-    {profile && <Modal className="reader-chat-dialog" labelId="memory-title" open={memory} onClose={() => setMemory(false)}><ReaderChat userId={userId} profile={profile} generating={busy === 'generating'} open={memory} /></Modal>}
+    {profile && <Modal className="reader-chat-dialog" labelId="memory-title" open={memory} onClose={() => setMemory(false)}><ReaderChat userId={userId} profile={profile} generating={daily?.status === 'running'} open={memory} /></Modal>}
     {article && <ArticleDetail key={`${cover.id}:${article.id}`} liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} article={article} saved={saved.includes(article.id)} onSave={toggleSavedArticle} saving={libraryLoading || !!libraryPending} onOrganize={() => { setArticle(null); chooseSave(article); }} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} onMemory={openMemory} size={profile?.size || 18} />}
     <div className={`toast ${notice ? 'visible' : ''}`} role="status" aria-live="polite">{notice && <><Check size={17} /><span>{notice}</span></>}</div>
   </>;

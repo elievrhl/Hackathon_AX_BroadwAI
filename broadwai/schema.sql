@@ -19,6 +19,21 @@ CREATE TABLE IF NOT EXISTS covers (
     payload JSONB NOT NULL
 );
 CREATE INDEX IF NOT EXISTS covers_user_id ON covers(user_id);
+-- Profiles and paid-run receipts survive browser closure and server restarts.
+CREATE TABLE IF NOT EXISTS daily_edition_profiles (
+    user_id TEXT PRIMARY KEY,
+    request JSONB NOT NULL,
+    first_run_at TIMESTAMPTZ NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS daily_edition_runs (
+    user_id TEXT NOT NULL REFERENCES daily_edition_profiles(user_id),
+    edition_date DATE NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('running','completed','failed')),
+    started_at TIMESTAMPTZ NOT NULL,
+    cover_id TEXT REFERENCES covers(id),
+    PRIMARY KEY(user_id, edition_date)
+);
 CREATE TABLE IF NOT EXISTS library_editions (
     user_id TEXT NOT NULL,
     cover_id TEXT NOT NULL REFERENCES covers(id) ON DELETE CASCADE,

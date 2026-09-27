@@ -3,14 +3,6 @@
 React 19 / Vite 7, API FastAPI et PostgreSQL. Comptes de démonstration locaux au navigateur,
 sans vérification du mot de passe ni authentification serveur.
 
-## Rubrique Événements
-
-L’onglet **Événements** et l’aperçu en bas de la une proposent des sorties à Paris,
-des émissions et des podcasts issus d’un catalogue préparé de 17 références.
-La sélection suit les sujets cochés, filtre les dates et varie les formats, sans
-appel IA. Les filtres Sortir / Regarder / Écouter sont disponibles avant toute
-génération d’articles. Voir [la pipeline, les sources et l’entretien du catalogue](EVENTS.md).
-
 ## Lancer
 
 Démarrer PostgreSQL et le backend sur le port 8010 depuis la racine du projet :
@@ -46,16 +38,20 @@ utiliser la même adresse pour retrouver son profil local.
 ## Parcours
 
 1. Ouvrir un compte de démonstration, puis choisir ses sujets et un contexte facultatif.
-2. Cliquer sur **Générer ma une** pour envoyer les intérêts, notes, langues et taille
-   à `POST /v1/covers`. Ce clic utilise les crédits OpenAI du serveur.
-3. Pendant la préparation, un temps écoulé est affiché, sans inventer des étapes de
-   progression. Les doubles clics sont bloqués ; l’ancienne édition reste lisible.
+2. Les intérêts, notes, langues et taille sont synchronisés via
+   `PUT /v1/readers/{user_id}/daily-edition`. La première préparation est prévue
+   au prochain 4 h, heure de Paris. Aucun bouton ni appel payant immédiat.
+3. Le serveur prépare une édition chaque jour à 4 h, même page fermée. Le lecteur
+   affiche le statut et ouvre la dernière édition disponible. Un onglet ouvert
+   vérifie les nouveautés chaque minute et lors du retour à la page.
 4. Cliquer sur un titre ou une image pour lire directement l’article chez son éditeur,
    dans un nouvel onglet. Le bouton **Fiche & avis** donne accès au résumé, à la raison
    de sélection et aux retours, sans quitter le journal.
 5. **Archives** (icône de boîte dans la barre du haut) retrouve toutes les éditions du compte, conservées
    automatiquement avec leurs couvertures et leur vue en tranches. Une couverture
-   ouvre l’édition existante, sans nouvelle génération.
+   ouvre l’édition existante, sans nouvelle génération. Le bouton **Retour** ramène à
+   l’édition courante, qui reste mémorisée pendant la consultation des archives,
+   y compris après un rechargement de la page. **Mon journal** permet aussi de la retrouver.
 6. Le marque-page sauvegarde immédiatement un article, sans fenêtre intermédiaire.
    **Articles sauvegardés** (icône marque-page dans la barre du haut) rassemble ces lectures. Le menu **… → Ajouter
    à une collection** permet un classement facultatif ; un article peut appartenir à
@@ -109,9 +105,11 @@ approuver dans l’administration.
 
 Une édition partielle ou de secours est signalée. Les erreurs réseau, 429, 503 et 504
 restent visibles ; aucun contenu fictif et aucune relance payante automatique ne les
-remplacent. Après une fermeture pendant la génération, actualiser l’historique :
-le traitement côté serveur peut encore se terminer. Il n’y a pas encore de suivi de
-tâche asynchrone ni de reprise automatique d’une requête interrompue.
+remplacent. Après une fermeture pendant la génération, la dernière édition est retrouvée à la réouverture :
+le traitement côté serveur continue. Le statut quotidien est persistant et les tentatives
+sont uniques par compte et date. Un serveur arrêté rattrape la dernière échéance manquée
+à son redémarrage, sans rejouer les tentatives déjà lancées. Le serveur doit rester actif
+pour démarrer à 4 h ; `DAILY_EDITIONS_ENABLED=false` suspend cette préparation.
 
 ## Stockage et retours
 
@@ -139,8 +137,10 @@ une valeur absente, invalide ou inaccessible revient à Auto. L’apparence est 
 avant le premier rendu React pour éviter un éclair de la mauvaise palette.
 
 - `kiosque.accounts.v1`, `kiosque.session.v1` : comptes de démonstration et session locale.
-- Les clés `kiosque.reader.v1`, `kiosque.lastCover` et `kiosque.pending` sont suffixées
-  par l’identifiant du compte pour isoler le profil, la dernière édition et une génération en cours.
+- Les clés `kiosque.reader.v1`, `kiosque.lastCover` sont suffixées
+  par l’identifiant du compte pour isoler le profil et la dernière édition.
+- Les profils de préparation et les tentatives quotidiennes sont persistés dans PostgreSQL
+  (`daily_edition_profiles` et `daily_edition_runs`).
 - Les archives lisent toutes les éditions du compte via `/v1/archives`.
 - Les articles sauvegardés sont persistés dans PostgreSQL via `/v1/saved-articles`,
   indépendamment de leur classement facultatif via `/v1/collections`. Les articles

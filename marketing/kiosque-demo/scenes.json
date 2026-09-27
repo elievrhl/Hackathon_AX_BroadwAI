@@ -1,0 +1,152 @@
+[
+  {
+    "duration": 10,
+    "label": "LE MONDE, À VOTRE MESURE",
+    "title": "L’actualité est partout.\nVotre attention\nest précieuse.",
+    "note": "Un journal qui part de vous.",
+    "style": "intro",
+    "lines": [
+      "Chaque jour, des centaines de titres. Des onglets qui s’accumulent.",
+      "Et trop peu de temps pour tout lire.",
+      "Et si votre journal partait de vous ?"
+    ]
+  },
+  {
+    "duration": 12,
+    "label": "01 / CHOISIR",
+    "title": "Vos sujets.\nVotre regard.",
+    "note": "Climat · Jeux vidéo\nMonde · Culture",
+    "image": "01-preferences.png",
+    "crop": [
+      515,
+      30,
+      1085,
+      870
+    ],
+    "style": "portrait",
+    "lines": [
+      "Voici Kiosque, votre journal personnel.",
+      "Choisissez les sujets qui vous passionnent : le climat, les jeux vidéo, le monde, la culture.",
+      "Vous donnez le cap à votre prochaine édition."
+    ]
+  },
+  {
+    "duration": 10,
+    "label": "02 / PERSONNALISER",
+    "title": "Un journal\nà votre mesure.",
+    "note": "Votre contexte\nVos langues\n15 à 20 contenus",
+    "image": "02-contexte.png",
+    "crop": [
+      515,
+      400,
+      1085,
+      870
+    ],
+    "style": "detail",
+    "lines": [
+      "Ajoutez votre contexte : un projet, un métier, une envie.",
+      "Puis choisissez vos langues et la taille de votre sélection, de quinze à vingt contenus."
+    ]
+  },
+  {
+    "duration": 18,
+    "label": "03 / DÉCOUVRIR",
+    "title": "Votre une,\ncomposée avec l’IA.",
+    "note": "Des rubriques. Des sources. Des découvertes.",
+    "image": "03-une.png",
+    "style": "wide",
+    "tag": "ÉDITION DÉJÀ PRÉPARÉE",
+    "lines": [
+      "Kiosque compose une une autour de vos centres d’intérêt.",
+      "Ici, une édition déjà préparée réunit articles et vidéos, organisés par rubriques.",
+      "Les sources restent visibles.",
+      "Vous repérez les sujets qui comptent pour vous, et vous décidez où prendre le temps d’aller plus loin."
+    ]
+  },
+  {
+    "duration": 16,
+    "label": "04 / COMPRENDRE",
+    "title": "L’essentiel,\navant d’aller\nplus loin.",
+    "note": "Résumé · Points clés\nPourquoi cet article ?",
+    "image": "04-fiche.png",
+    "image2": "04-raison.png",
+    "crop": [
+      435,
+      30,
+      1165,
+      870
+    ],
+    "style": "portrait",
+    "lines": [
+      "Un article vous intrigue ? Ouvrez sa fiche.",
+      "Retrouvez un résumé, les points clés et la raison de sa sélection.",
+      "Pour approfondir, un clic vous mène au contenu original, directement chez l’éditeur."
+    ]
+  },
+  {
+    "duration": 18,
+    "label": "05 / AFFINER",
+    "title": "Vos envies évoluent.\nVotre journal aussi.",
+    "note": "Écrire à Kiosque\nLe Courrier du lecteur",
+    "image": "06-courrier.png",
+    "crop": [
+      270,
+      50,
+      1330,
+      850
+    ],
+    "style": "chat",
+    "tag": "EXEMPLE DE DEMANDE",
+    "lines": [
+      "Vos envies évoluent ? Écrivez simplement à Kiosque.",
+      "Par exemple : j’aimerais découvrir l’histoire des sciences.",
+      "Le Courrier du lecteur permet de demander plus d’un sujet, moins d’un autre, ou de nouveaux horizons pour vos prochaines éditions.",
+      "Vous gardez la main."
+    ]
+  },
+  {
+    "duration": 16,
+    "label": "06 / RETROUVER",
+    "title": "Une découverte\nà garder.",
+    "note": "Articles sauvegardés · Collections · Archives",
+    "image": "08-bibliotheque.png",
+    "image2": "09-archives.png",
+    "style": "wide",
+    "lines": [
+      "Une lecture à garder ? Sauvegardez-la en un clic.",
+      "Vous la retrouvez dans vos articles sauvegardés et pouvez la classer dans une collection.",
+      "Vos éditions restent aussi accessibles dans les archives.",
+      "Votre bibliothèque se construit au fil de vos découvertes."
+    ]
+  },
+  {
+    "duration": 10,
+    "label": "07 / PRENDRE PLAISIR",
+    "title": "À chacun\nson Kiosque.",
+    "note": "Six ambiances pour lire à votre façon.",
+    "image": "07-themes.png",
+    "crop": [
+      320,
+      46,
+      1280,
+      854
+    ],
+    "style": "themes",
+    "lines": [
+      "Et pour le plaisir de lire, choisissez votre ambiance parmi six thèmes.",
+      "Éditorial, minimal, coloré… Kiosque s’habille à votre façon."
+    ]
+  },
+  {
+    "duration": 10,
+    "label": "VOTRE PROCHAINE LECTURE COMMENCE ICI",
+    "title": "Moins chercher.\nMieux découvrir.",
+    "note": "Choisissez vos sujets.\nComposez votre première une.",
+    "style": "outro",
+    "lines": [
+      "Moins de temps à chercher. Plus de place pour comprendre et découvrir.",
+      "Kiosque. Le monde, à votre mesure.",
+      "Composez votre première une."
+    ]
+  }
+]

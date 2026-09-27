@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     max_download_bytes: int = Field(2_000_000, ge=1000, le=10_000_000)
     max_article_chars: int = Field(18_000, ge=1000, le=60_000)
     max_catalog_articles: int = Field(3000, ge=10, le=50_000)
+    daily_editions_enabled: bool = True
 
     @property
     def llm_ready(self) -> bool:
