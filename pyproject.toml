@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "Collecte d'articles et couverture personnalisée par un agent rédacteur"
 requires-python = ">=3.12"
 dependencies = [
+  "argon2-cffi>=25,<26",
+  "PyJWT[crypto]>=2.10,<3",
+  "email-validator>=2.2,<3",
   "aiohttp>=3.11,<4",
   "certifi>=2025",
   "fastapi>=0.115,<1",

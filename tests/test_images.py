@@ -1,7 +1,7 @@
 import asyncio
 
 import pytest
-from fastapi.testclient import TestClient
+from tests.client import TestClient
 
 from broadwai.api import create_app
 from broadwai.config import Settings

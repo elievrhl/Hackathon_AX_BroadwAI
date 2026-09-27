@@ -1,32 +1,53 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, Check, MessageCircle, RefreshCw } from 'lucide-react';
-import { Onboarding, Preferences, ArticleDetail, Modal } from './components.jsx';
+import { Onboarding, Preferences, ArticleDetail, Modal, SetupLayout } from './components.jsx';
 import ReaderChat from './ReaderChat.jsx';
 import RegenerateEdition from './RegenerateEdition.jsx';
 import RegenerationProgress from './RegenerationProgress.jsx';
 import { regenerationMessage } from './regeneration.js';
 import Newspaper from './Newspaper.jsx';
 import { getArchives, getSavedArticles, saveArticle, unsaveArticle, getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
-import { readLocal, accountKey, currentAccount, leaveAccount } from './accounts.js';
+import { readLocal, accountKey, currentAccount, leaveAccount, saveAccountProfile } from './accounts.js';
 import SavedArticles, { Archives, AccountScreen, AccountNav, SaveArticleDialog, CollectionForm } from './Library.jsx';
-import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover } from './reader.js';
+import { DEFAULT_PROFILE, normalizeProfile, toCoverRequest, adaptCover } from './reader.js';
 import { listCovers, getCover, registerDailyEdition, getDailyEdition, getRegeneration, regenerateEdition, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
 
 import { dailyEditionMessage, initialEditionId } from './daily-edition.js';
 
 export default function App() {
-  const [account, setAccount] = useState(currentAccount);
-  function logout() {
-    leaveAccount();
-    const url = new URL(window.location.href);
-    url.searchParams.delete('cover');
-    window.history.replaceState(null, '', url);
-    setAccount(null);
+  const [account, setAccount] = useState(null);
+  const [providers, setProviders] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [sessionError, setSessionError] = useState('');
+  async function loadSession() {
+    setLoading(true); setSessionError('');
+    try {
+      const session = await currentAccount();
+      setAccount(session.account); setProviders(session.providers || {});
+    } catch (reason) { setSessionError(reason.message); }
+    finally { setLoading(false); }
   }
-  return account ? <ReaderApp key={account.id} account={account} onLogout={logout} /> : <AccountScreen onEnter={setAccount} />;
+  useEffect(() => {
+    loadSession();
+    const expired = () => { setAccount(null); setSessionError(''); };
+    window.addEventListener('kiosque-session-expired', expired);
+    return () => window.removeEventListener('kiosque-session-expired', expired);
+  }, []);
+  async function logout() {
+    setSessionError('');
+    try {
+      await leaveAccount();
+      const url = new URL(window.location.href);
+      url.searchParams.delete('cover');
+      window.history.replaceState(null, '', url);
+      setAccount(null);
+    } catch (reason) { setSessionError(reason.message); }
+  }
+  if (loading || (!account && sessionError)) return <SetupLayout><section className="account-panel"><p role={sessionError ? 'alert' : 'status'}>{sessionError || 'Ouverture de votre espace…'}</p>{sessionError && <button className="secondary-button" onClick={loadSession}>Réessayer</button>}</section></SetupLayout>;
+  return <>{sessionError && <p className="reader-error" role="alert">{sessionError}</p>}{account ? <ReaderApp key={account.id} account={account} onAccountChange={setAccount} onLogout={logout} /> : <AccountScreen providers={providers} onEnter={setAccount} />}</>;
 }
 
-function ReaderApp({ account, onLogout }) {
+function ReaderApp({ account, onAccountChange, onLogout }) {
   const userId = account.id;
   const read = (key, fallback = null) => readLocal(accountKey(userId, key), fallback);
   const [view, setView] = useState('journal');
@@ -43,10 +64,13 @@ function ReaderApp({ account, onLogout }) {
   const [libraryPending, setLibraryPending] = useState('');
   const libraryLock = useRef(false);
   const [linkedCoverId] = useState(() => new URLSearchParams(window.location.search).get('cover'));
-  const [profile, setProfile] = useState(() => normalizeProfile(read(STORAGE_KEY)));
+  const [profile, setProfile] = useState(() => normalizeProfile(account.reader_profile));
   const [cover, setCover] = useState(null);
   const [history, setHistory] = useState([]);
   const [preferences, setPreferences] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState('');
+  const profileLock = useRef(false);
   const [memory, setMemory] = useState(false);
   const [article, setArticle] = useState(null);
   const [feedback, setFeedback] = useState({});
@@ -219,11 +243,18 @@ function ReaderApp({ account, onLogout }) {
     return () => { active = false; clearInterval(timer); document.removeEventListener('visibilitychange', refreshDaily); };
   }, [profile, daily?.registered]);
 
-  function saveProfile(value) {
+  async function saveProfile(value) {
+    if (profileLock.current) return false;
     const next = normalizeProfile(value);
-    setProfile(next);
-    persist(STORAGE_KEY, next);
-    setPreferences(false);
+    profileLock.current = true; setProfileSaving(true); setProfileError('');
+    try {
+      const updated = await saveAccountProfile(next);
+      onAccountChange(updated);
+      setProfile(normalizeProfile(updated.reader_profile));
+      setPreferences(false);
+      return true;
+    } catch (reason) { setProfileError(reason.message); return false; }
+    finally { profileLock.current = false; setProfileSaving(false); }
   }
   async function regenerate(reason) {
     if (inFlight.current || busy || !regeneration?.available || !regeneratingCover) return;
@@ -256,7 +287,7 @@ function ReaderApp({ account, onLogout }) {
     setBusy('loading'); setError('');
     try {
       displayCover(await getCover(id, userId), true);
-      if (!profile) saveProfile({ ...DEFAULT_PROFILE, name: account.name });
+      if (!profile) await saveProfile({ ...DEFAULT_PROFILE, name: account.name });
       setView('journal');
     }
     catch (reason) { setError(reason.message); }
@@ -332,10 +363,7 @@ function ReaderApp({ account, onLogout }) {
     } catch (reason) { setNotice(`Like non enregistré : ${reason.message}`); }
     finally { pendingLikes.current.delete(selected.id); setLiking([...pendingLikes.current]); }
   }
-  function reset() {
-    persist(STORAGE_KEY, null); setPreferences(false); setProfile(null);
-    // Keep the device identity, bookmarks and server editions; no account is deleted.
-  }
+  function reset() { return saveProfile(null); }
   function openMemory() { setArticle(null); setPreferences(false); setMemory(true); }
 
   async function loadCollections() {
@@ -453,8 +481,8 @@ function ReaderApp({ account, onLogout }) {
         {error && <p className="reader-error" role="alert">{error}</p>}
         {busy && busy !== 'regenerating' && <div className="generation-status" role="status"><span className="working-dot" /><span>Chargement des éditions…</span></div>}
       </section>
-    </Newspaper> : <Onboarding initialName={account.name} onComplete={saveProfile} onExplore={() => { saveProfile({ ...DEFAULT_PROFILE, name: account.name }); if (history.length) openCover(history[0].id); }} />}
-    {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} onMemory={openMemory} />}
+    </Newspaper> : <Onboarding initialName={account.name} saving={profileSaving} error={profileError} onComplete={saveProfile} onExplore={async () => { if (await saveProfile({ ...DEFAULT_PROFILE, name: account.name }) && history.length) openCover(history[0].id); }} />}
+    {preferences && <Preferences profile={profile} saving={profileSaving} error={profileError} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} onMemory={openMemory} />}
     {regeneratingCover && <RegenerateEdition busy={busy === 'regenerating'} status={regeneration} error={regenerationError} onSubmit={regenerate} onClose={() => setRegeneratingCover(null)} />}
     {savingArticle && <SaveArticleDialog article={savingArticle} collections={collections} loading={libraryLoading} busy={!!libraryPending} error={libraryError} onToggle={toggleCollectionArticle} onCreate={saveCollection} onRetry={refreshLibrary} onClose={() => setSavingArticle(null)} />}
     {collectionForm && <Modal className="collection-dialog" labelId="collection-form-title" onClose={() => { if (!libraryPending) setCollectionForm(null); }}><p className="eyebrow">VOS ARTICLES, VOS ENVIES</p><h2 id="collection-form-title">{collectionForm.id ? 'Modifier la collection' : 'Nouvelle collection'}</h2><CollectionForm key={collectionForm.id || 'new'} collection={collectionForm.id ? collectionForm : null} busy={!!libraryPending} error={libraryError} onSubmit={saveCollection} onCancel={() => setCollectionForm(null)} /></Modal>}

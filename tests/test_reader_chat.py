@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 from uuid import uuid4
 
 import pytest
-from fastapi.testclient import TestClient
+from tests.client import TestClient
 
 from broadwai.api import create_app
 from broadwai.config import Settings

@@ -75,9 +75,28 @@ export function articleImageUrl(item) {
 
 export function mediaDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return '';
-  const value = Math.floor(seconds);
-  const minutes = Math.floor(value / 60);
-  return `${minutes >= 60 ? `${Math.floor(minutes / 60)}:` : ''}${minutes >= 60 ? String(minutes % 60).padStart(2, '0') : minutes}:${String(value % 60).padStart(2, '0')}`;
+  const value = Math.max(1, Math.floor(seconds));
+  const hours = Math.floor(value / 3600), minutes = Math.floor(value / 60) % 60, remainder = value % 60;
+  return [hours && `${hours} h`, minutes && `${minutes} min`, remainder && `${remainder} s`].filter(Boolean).join(' ');
+}
+
+function originalVideo(item) {
+  // Old editions keep their IDs and feedback while linking to the original video.
+  let url;
+  try { url = new URL(item.url); } catch { return item; }
+  if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.port
+    || !['recapcraft.com', 'www.recapcraft.com'].includes(url.hostname)) return item;
+  const match = url.pathname.match(/^\/v\/([A-Za-z0-9_-]{11})\/?$/);
+  if (!match) return item;
+  const media = item.media?.video_id === match[1] ? item.media : {};
+  return {
+    ...item, format: 'video', url: `https://www.youtube.com/watch?v=${match[1]}`, source: 'www.youtube.com',
+    title: media.original_title || item.title.replace(/\s*-\s*Summary(?: & Key Points)?\s*$/i, ''),
+    media, published_at: media.original_published_at || null,
+    reading_time_minutes: null, extraction_status: 'excerpt',
+    brief: { ...item.brief, summary: media.original_description || '', key_points: [],
+      caveats: [media.original_description ? 'Présentation issue de la description de la vidéo originale, sans transcription.' : 'Consultez la vidéo originale sur YouTube.'] },
+  };
 }
 
 export function contentCount(items) {
@@ -94,7 +113,7 @@ export function contentAction(format) {
 /** Keep the editor's order and section names; every item appears exactly once on the front page. */
 export function adaptCover(raw) {
   if (!raw?.id || !Array.isArray(raw.items)) throw new Error('Réponse de couverture invalide.');
-  const items = raw.items.map(item => ({
+  const items = raw.items.map(originalVideo).map(item => ({
     id: item.article_id, title: item.title, originalTitle: item.title, coverId: item.cover_id || null,
     url: safeArticleUrl(item.url), source: item.source, publishedAt: item.published_at,
     format: item.format || 'article',

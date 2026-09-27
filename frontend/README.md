@@ -1,8 +1,8 @@
 # Kiosque — interface lecteur connectée
 
-React 19 / Vite 7, API FastAPI et PostgreSQL. Profils de lecture locaux au navigateur,
-sans mot de passe ni authentification serveur. La séparation lecteur/admin concerne
-l’interface : un contrôle d’accès serveur reste nécessaire avant une ouverture publique.
+React 19 / Vite 7, API FastAPI et PostgreSQL. Comptes côté serveur avec e-mail et mot de passe,
+connexion Google/Apple configurable, sessions par cookie et préférences synchronisées.
+Voir [la configuration de l’authentification](../AUTHENTICATION.md).
 
 ## Lancer
 
@@ -33,12 +33,12 @@ pnpm preview
 
 Le build est dans `frontend/dist/`. Après compilation, redémarrer FastAPI permet de
 servir aussi <http://127.0.0.1:8010/reader/>. `pnpm preview` utilise le port 4173 et
-le même proxy. Le stockage du navigateur est séparé pour chaque origine/port :
-utiliser la même adresse pour retrouver son profil local.
+le même proxy. Définir `AUTH_PUBLIC_URL` sur l’adresse exacte utilisée pour le lecteur.
+Les comptes sont partagés entre appareils qui se connectent au même serveur.
 
 ## Parcours
 
-1. Créer ou retrouver son profil sur cet appareil, puis choisir ses sujets et un contexte facultatif.
+1. Créer son compte ou se connecter avec e-mail et mot de passe, Google ou Apple, puis choisir ses sujets et un contexte facultatif.
 2. Les intérêts, notes, langues et taille sont synchronisés via
    `PUT /v1/readers/{user_id}/daily-edition`. La première préparation est prévue
    au prochain 4 h, heure de Paris. L’inscription ne lance pas de préparation immédiate.
@@ -161,9 +161,10 @@ fixe. `kiosque.colorMode.v1` mémorise ce réglage et le synchronise entre ongle
 une valeur absente, invalide ou inaccessible revient à Auto. L’apparence est appliquée
 avant le premier rendu React pour éviter un éclair de la mauvaise palette.
 
-- `kiosque.accounts.v1`, `kiosque.session.v1` : profils sur cet appareil et session locale.
-- Les clés `kiosque.reader.v1`, `kiosque.lastCover` sont suffixées
-  par l’identifiant du compte pour isoler le profil et la dernière édition.
+- Les comptes et profils de lecture sont en base (`accounts`) ; la connexion utilise
+  un cookie `HttpOnly` et une session révocable dans `account_sessions`.
+- `kiosque.lastCover`, suffixée par l’identifiant du compte, mémorise seulement la
+  dernière édition sur l’appareil. Les anciennes clés de compte local sont ignorées.
 - Les profils de préparation et les tentatives quotidiennes sont persistés dans PostgreSQL
   (`daily_edition_profiles` et `daily_edition_runs`).
 - Les archives lisent toutes les éditions du compte via `/v1/archives`.
@@ -207,11 +208,9 @@ le modèle économique, comme l'évaluation sémantique lors de la prochaine gé
 Les avis et explications se rechargent après actualisation. Les conflits de correction
 (409) sont signalés et la liste peut être actualisée. Les anciennes éditions restent lisibles.
 
-L’historique affiche les 100 dernières éditions du compte déclaré. Les éditions, bibliothèques
-et retours vérifient cet identifiant côté API. Ce mécanisme n’est pas une authentification ; le prototype
-reste destiné à un serveur local de confiance. Reconfigurer le profil conserve les
-éditions, l’identité locale et les favoris. Si `localStorage` est inaccessible, l’usage
-reste possible pour la visite en cours.
+L’historique affiche les 100 dernières éditions du compte connecté. La session côté serveur
+et les contrôles d’appartenance protègent ses lectures. Reconfigurer les sujets conserve
+les éditions et les favoris. Le stockage local ne contient pas de preuve de connexion.
 
 ## Structure et validation sans crédits
 

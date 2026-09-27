@@ -49,6 +49,8 @@ function TopicChoices({
 }
 export function Onboarding({
   initialName = '',
+  saving = false,
+  error = '',
   onComplete,
   onExplore
 }) {
@@ -100,8 +102,9 @@ export function Onboarding({
                 })} />
             </label>
             <div className="interests-actions">
+              {error && <p className="reader-error" role="alert">{error}</p>}
               <button className="text-button" type="button" onClick={() => setStep(0)}><ArrowLeft size={15} /> Retour</button>
-              <button className="primary-button" type="submit" disabled={!draft.topics.length}>Ouvrir mon journal <ArrowRight size={18} /></button>
+              <button className="primary-button" type="submit" disabled={saving || !draft.topics.length}>{saving ? 'Enregistrement…' : 'Ouvrir mon journal'} <ArrowRight size={18} /></button>
             </div>
           </div>
         </form>}
@@ -114,10 +117,10 @@ function ArticleMeta({
 }) {
   return <div className="article-meta">
     <span>{article.channelTitle || article.source}</span>
-    {article.format === 'video' && <span className="video-label"><Play size={11} fill="currentColor" aria-hidden="true" /> YouTube{article.duration && ` · ${article.duration}`}</span>}
-    {article.format === 'podcast' && article.duration && <span className="video-label"><Headphones size={12} aria-hidden="true" />{article.duration}</span>}
+    {article.format === 'video' && <span className="video-label"><Play size={11} fill="currentColor" aria-hidden="true" /> YouTube</span>}
     {article.publishedAt && <><span className="meta-dot" aria-hidden="true">·</span><time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time></>}
     {!!article.readingTimeMinutes && <><span className="meta-dot" aria-hidden="true">·</span><span className="reading-time" title="Temps de lecture estimé à 200 mots par minute.">≈ {article.readingTimeMinutes} min</span></>}
+    {article.duration && <><span className="meta-dot" aria-hidden="true">·</span><span className="reading-time" title={article.format === 'podcast' ? 'Durée de l’épisode' : 'Durée de la vidéo'}>{article.duration}</span></>}
   </div>;
 }
 
@@ -241,6 +244,8 @@ export function ArticleDetail({
 }
 export function Preferences({
   profile,
+  saving = false,
+  error = '',
   onSave,
   onClose,
   onReset,
@@ -278,10 +283,11 @@ export function Preferences({
         })} placeholder="Un métier, un projet, une curiosité…" /></label>
       <label className="field">Langues des articles<select value={draft.languages.includes('en') ? 'fr-en' : 'fr'} onChange={event => setDraft({ ...draft, languages: event.target.value === 'fr-en' ? ['fr', 'en'] : ['fr'] })}><option value="fr-en">Français et anglais</option><option value="fr">Français</option></select></label>
       <p className="field-help">Ces préférences seront utilisées pour votre prochaine une, préparée chaque jour à 4 h (heure de Paris).</p>
-      <button className="primary-button full-width" disabled={!draft.topics.length} type="submit">Enregistrer mes préférences <Check size={18} /></button>
+      {error && <p className="reader-error" role="alert">{error}</p>}
+      <button className="primary-button full-width" disabled={saving || !draft.topics.length} type="submit">{saving ? 'Enregistrement…' : 'Enregistrer mes préférences'} <Check size={18} /></button>
       <p className="prototype-note">Vos préférences accompagnent vos prochaines lectures.</p>
       <button className="secondary-button" type="button" onClick={onMemory}>Écrire à Kiosque · Ma fiche lecteur</button>
-      <button className="text-button reset-button" type="button" onClick={onReset}><LogOut size={15} /> Rechoisir mes centres d’intérêt</button>
+      <button className="text-button reset-button" type="button" disabled={saving} onClick={onReset}><LogOut size={15} /> Rechoisir mes centres d’intérêt</button>
     </form>
   </Modal>;
 }

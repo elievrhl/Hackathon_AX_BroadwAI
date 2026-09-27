@@ -41,14 +41,18 @@ test('mixed editions keep original video titles, channel, duration and every car
   assert.equal(item.title, raw.items[7].title);
   assert.equal(item.format, 'video');
   assert.equal(item.channelTitle, 'ARTE');
-  assert.equal(item.duration, '1:01:02');
+  assert.equal(item.duration, '1 h 1 min 2 s');
   assert.equal(item.readingTimeMinutes, null);
   assert.equal(contentCount(cover.items), '7 articles · 1 vidéo');
   assert.equal(cover.remainingSections.flatMap(section => section.articles).filter(row => row.id === item.id).length, 1);
   assert.equal(mediaDuration(undefined), '');
   assert.equal(mediaDuration(-1), '');
   assert.equal(mediaDuration('45'), '');
-  assert.equal(mediaDuration(622), '10:22');
+  assert.equal(mediaDuration(622), '10 min 22 s');
+  assert.equal(mediaDuration(3600), '1 h');
+  assert.equal(mediaDuration(45), '45 s');
+  assert.equal(mediaDuration(Infinity), '');
+  assert.equal(mediaDuration(NaN), '');
 });
 
 test('podcasts preserve their show, duration, original title and direct episode link', () => {
@@ -58,7 +62,7 @@ test('podcasts preserve their show, duration, original title and direct episode 
   const cover = adaptCover(raw);
   const podcast = cover.items[6];
   assert.equal(podcast.channelTitle, 'Sciences à écouter');
-  assert.equal(podcast.duration, '33:00');
+  assert.equal(podcast.duration, '33 min');
   assert.equal(podcast.title, raw.items[6].title);
   assert.equal(podcast.url, raw.items[6].url);
   assert.equal(podcast.readingTimeMinutes, null);
@@ -67,6 +71,32 @@ test('podcasts preserve their show, duration, original title and direct episode 
   assert.equal(contentAction('article'), 'Lire l’article');
   assert.equal(contentCount(cover.items), '6 articles · 1 vidéo · 1 podcast');
   assert.ok(cover.remainingSections.some(section => section.articles.includes(podcast)));
+});
+
+test('saved video recaps link to the original without presenting the recap as its transcript', () => {
+  const raw = fixture(1);
+  Object.assign(raw.items[0], {
+    title: 'Designing Math - Summary & Key Points',
+    url: 'https://www.recapcraft.com/v/bLSLN96Gn-w/', source: 'www.recapcraft.com',
+    format: 'article', reading_time_minutes: 6,
+    media: { video_id: 'bLSLN96Gn-w', duration_seconds: 1649, channel_title: 'Figma',
+      original_title: 'Designing Math', original_description: 'Description originale.' },
+  });
+  const item = adaptCover(raw).items[0];
+  assert.equal(item.id, raw.items[0].article_id);
+  assert.equal(item.url, 'https://www.youtube.com/watch?v=bLSLN96Gn-w');
+  assert.equal(item.title, 'Designing Math');
+  assert.equal(item.format, 'video');
+  assert.equal(item.duration, '27 min 29 s');
+  assert.equal(item.readingTimeMinutes, null);
+  assert.equal(item.summary, 'Description originale.');
+  assert.deepEqual(item.keyPoints, []);
+  raw.items[0].media = null;
+  const unavailable = adaptCover(raw).items[0];
+  assert.equal(unavailable.duration, '');
+  assert.equal(unavailable.summary, '');
+  raw.items[0].url = 'https://recapcraft.com.evil.example/v/bLSLN96Gn-w/';
+  assert.equal(adaptCover(raw).items[0].format, 'article');
 });
 
 test('stored profiles migrate without accepting malformed preferences', () => {

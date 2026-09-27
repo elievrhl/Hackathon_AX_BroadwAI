@@ -109,7 +109,7 @@ if (typeof document !== "undefined") {
     $("detail").querySelector(".close").addEventListener("click", () => $("detail").close());
     stats(); render();
     if (["http:","https:"].includes(location.protocol)) {
-      fetch("/v1/sources").then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(rows => {
+      fetch("/v1/source-directory").then(response => { if (!response.ok) throw new Error("unavailable"); return response.json(); }).then(rows => {
         const current = new Map(rows.map(row => [`${row.kind}|${row.url}`, row]));
         data.sources.forEach(source => { const live = current.get(`${source.kind}|${source.url}`); source.imported = Boolean(live); source.articleCount = live?.article_count ?? 0; source.enabled = live?.enabled ?? false; });
         $("live-status").textContent = "État du site actualisé à l’ouverture · les contenus et activations proviennent du catalogue local."; stats(); render();

@@ -49,6 +49,10 @@ function link(label, url) {
   return a;
 }
 async function api(url, options = {}) {
+  if (options.method && !['GET', 'HEAD'].includes(options.method.toUpperCase())) {
+    const session = await fetch('/v1/auth/session', { credentials: 'same-origin' }).then(response => response.json());
+    options = { ...options, headers: { ...options.headers, 'X-Kiosque-CSRF': session.csrf_token } };
+  }
   const response = await fetch(url, options);
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(typeof data?.detail === "string" ? data.detail : `Requête impossible (${response.status})`);

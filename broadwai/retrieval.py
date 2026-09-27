@@ -16,7 +16,14 @@ from broadwai.network import PublicFetcher, RetrievalError, validate_destination
 from broadwai.podcasts import episode_metadata, public_url
 from broadwai.videos import known_duration
 from broadwai.website import article_links, website_article
-from broadwai.youtube import channel_feed, metadata_duration, thumbnail, video_id
+from broadwai.youtube import (
+    channel_feed,
+    metadata_duration,
+    summary_video_id,
+    thumbnail,
+    video_id,
+    video_metadata,
+)
 
 
 def plain(text: str) -> str:
@@ -215,6 +222,53 @@ class Collector:
             errors.append({"source": url, "error": str(exc)})
 
     async def extract(self, article: Article) -> Article:
+        recap_id = summary_video_id(article.url)
+        original_id = recap_id or (
+            video_id(article.url)
+            if article.format != "video" or known_duration(article) is None
+            else None
+        )
+        if original_id:
+            # Keep the catalog ID so saved editions, likes and feedback still refer
+            # to this item. Only YouTube supplies the replacement's content and date.
+            previous = self.store.get_article(article.id)
+            if previous and previous.discovery.get("original_summary_url") == article.url:
+                return previous
+            watch_url = f"https://www.youtube.com/watch?v={original_id}"
+            async with self.video_slots:
+                page = await self.fetcher.get(watch_url)
+            metadata = (
+                video_metadata(page.body, original_id)
+                if video_id(page.url) == original_id
+                and page.content_type in {"text/html", "application/xhtml+xml"}
+                else None
+            )
+            if not metadata:
+                raise RetrievalError("Métadonnées de la vidéo originale indisponibles")
+            original = Article(
+                id=article.id,
+                url=watch_url,
+                source="www.youtube.com",
+                format="video",
+                collected_at=article.collected_at,
+                discovery={
+                    **article.discovery,
+                    **({"original_summary_url": article.url} if recap_id else {}),
+                },
+                **metadata,
+            )
+            if not recap_id and article.extraction_status == "extracted":
+                original = original.model_copy(
+                    update={
+                        "text": article.text,
+                        "transcript": article.transcript,
+                        "content_links": article.content_links,
+                        "extraction_status": "extracted",
+                    }
+                )
+            original.image = thumbnail(original)
+            original.image_checked_at = utcnow()
+            return self.store.put_article(original)
         if article.format == "podcast":
             # An episode webpage/MP3 is not a transcript. Keep the feed description
             # as an excerpt, preserving any transcript explicitly supplied elsewhere.

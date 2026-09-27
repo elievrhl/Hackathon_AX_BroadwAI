@@ -1,6 +1,6 @@
 from importlib.resources import files
 
-from fastapi.testclient import TestClient
+from tests.client import TestClient
 
 from broadwai.api import create_app
 from broadwai.collections import CollectionInput, Collections

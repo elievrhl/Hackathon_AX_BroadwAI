@@ -3,7 +3,7 @@
 ## Interface lecteur — React connecté au backend
 
 Le projet s’appelle **Kiosque**. L’interface [`frontend/`](frontend/README.md)
-affiche les vraies couvertures de l’API : profil local sans compte, génération de
+affiche les vraies couvertures de l’API : compte authentifié côté serveur, génération de
 15 à 20 articles, historique, rubriques, liens éditeurs, favoris et retours de lecture.
 Les éditions sont préparées automatiquement chaque jour à 4 h, heure de Paris,
 pour les profils enregistrés côté serveur. Le bouton **Refaire ma une** permet de demander
@@ -146,7 +146,7 @@ déclenchent pas d'appel LLM ; les messages du Courrier du lecteur, eux, sont lu
 
 La migration PostgreSQL est additive au démarrage : table `reader_preferences` et champs
 `reason`, `comment`, `preference_id` de `feedback`. Les règles et éditions persistent
-côté serveur sous l'identité locale existante. Les corrections utilisent une révision
+côté serveur sous l’identité du compte authentifié. Les corrections utilisent une révision
 pour refuser les écrasements concurrents (HTTP 409). La génération prend un instantané ;
 une correction pendant son exécution reste disponible pour la suivante. Une demande
 ponctuelle est marquée appliquée avec l'enregistrement atomique d'une édition non vide,
@@ -156,8 +156,7 @@ API : `GET/POST /v1/readers/{user_id}/preferences`,
 `GET/POST /v1/readers/{user_id}/messages`,
 `PUT/DELETE /v1/readers/{user_id}/preferences/{id}` (révision obligatoire),
 `GET /v1/readers/{user_id}/feedback/{cover_id}` et `POST /v1/feedback` enrichi.
-L'identité locale reste sans authentification : ces routes sont destinées au serveur
-local de confiance, comme le reste de l'API.
+Ces routes nécessitent une session authentifiée et sont limitées au lecteur concerné.
 
 Pour tester le parcours dans un environnement isolé, compiler le frontend puis lancer
 `python -m tests.serve_feedback_fixture` et ouvrir `http://127.0.0.1:8012/reader/`.
@@ -386,8 +385,7 @@ Les sources proposées par le rédacteur apparaissent dans une section dédiée.
 ajoute la source validée aux sources actives, sans déclencher de collecte ; « Refuser » conserve
 la décision et empêche une proposition identique de réactiver cette source automatiquement.
 Une collecte admin à la fois par processus ; garder un seul worker pour cet usage local.
-Cette page utilise l'API locale existante sans authentification : elle n'est pas destinée à une
-exposition publique. L'absence de texte ou de fiche est indiquée explicitement.
+Cette page et ses API nécessitent une session administrateur. L'absence de texte ou de fiche est indiquée explicitement.
 
 Routes associées : `GET/POST /v1/sources`, `PUT/DELETE /v1/sources/{id}`,
 `POST /v1/sources/collect`, `POST /v1/sources/{id}/collect`,
@@ -438,7 +436,7 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/v1/ingest `
 ```
 
 Ouvrir ensuite Kiosque sur <http://127.0.0.1:5173/>, choisir ses sujets et son contexte,
-le profil est alors synchronisé pour la préparation quotidienne de 4 h. Le frontend construit la requête à partir du profil local ;
+le profil est alors synchronisé pour la préparation quotidienne de 4 h. Le frontend construit la requête à partir du profil synchronisé du compte ;
 les thèmes utilisent des mots-clés français et anglais car BM25 ne traduit pas les intérêts.
 
 Pour un premier test réel, renseigner les trois variables LLM dans `.env`, redémarrer le serveur,
@@ -622,8 +620,8 @@ mais la récupération des liens nécessite une nouvelle collecte du contenu HTM
 - Le profil est fourni à chaque requête, complété par les préférences explicites enregistrées.
   L'apprentissage implicite à partir de clics répétés n'est pas activé : un avis isolé ne change
   pas les goûts. Un article présenté n'est pas considéré comme lu sans événement explicite.
-- API de développement locale, **sans authentification** : `user_id` n'est pas une preuve d'identité.
-  Ajouter auth, quotas globaux et traitement des données personnelles avant une exposition publique.
+- Les sessions et contrôles d’accès sont côté serveur. Voir [AUTHENTICATION.md](AUTHENTICATION.md)
+  pour HTTPS, Google/Apple, le rôle administrateur et les limites actuelles de récupération de compte.
 
 ## Tests
 
@@ -696,18 +694,16 @@ Références d'intégration : [OpenAI Structured Outputs](https://developers.ope
 [Trafilatura](https://trafilatura.readthedocs.io/en/latest/usage-python.html),
 [Psycopg](https://www.psycopg.org/psycopg3/docs/basic/usage.html).
 
-## Profils sur cet appareil et bibliothèque
+## Comptes serveur et bibliothèque
 
-L’interface permet de créer ou retrouver un profil sur cet appareil à partir du prénom
-et de l’e-mail. Le faux champ de mot de passe et le texte de démonstration ont été retirés.
-Aucun e-mail n’est envoyé. L’identité et la session restent locales au navigateur.
-Cela ne constitue pas une authentification serveur : les identifiants de compte dans
-l’API sont déclaratifs, et l’administration reste sans contrôle d’accès. La séparation
-visuelle lecteur/admin doit être complétée par une authentification et des autorisations
-avant une ouverture publique. Un autre appareil ne retrouve pas automatiquement ce profil.
+Les comptes se créent avec e-mail et mot de passe, Google ou Apple. Les sessions,
+préférences et lectures sont persistantes dans PostgreSQL et accessibles depuis
+un autre appareil après connexion. Les accès lecteur/admin sont contrôlés côté serveur.
+[Configuration et activation Google/Apple](AUTHENTICATION.md).
 
-Le premier compte créé reprend l’identité et les préférences de l’ancien lecteur anonyme.
-Les comptes suivants ont chacun leurs préférences, likes, historique et bibliothèques séparés.
+Les anciens profils locaux restent conservés sans rattachement automatique à un e-mail
+non vérifié. Les nouveaux comptes ont chacun leurs préférences, likes et bibliothèques.
+
 « Ma bibliothèque » organise les articles en collections nommées, comme des playlists.
 Le marque-page d’un article ouvre un sélecteur : cochez une ou plusieurs bibliothèques,
 ou créez-en une sur le moment. Chaque bibliothèque peut être renommée, décrite ou supprimée.
@@ -733,10 +729,10 @@ typographique les remplace. Les visuels restent dépendants des images accessibl
 ## Likes et profil de lecture appris
 
 Un petit cœur en tête de chaque article permet d’aimer ou de retirer un like.
-Les favoris restent séparés. Les likes sont persistés par profil local dans PostgreSQL
+Les favoris restent séparés. Les likes sont persistés par compte dans PostgreSQL
 (`article_likes`), sans fenêtre, questionnaire ou appel modèle au clic.
 `GET/PUT /v1/likes` lit ou modifie ce choix ; seuls les articles d’une édition du profil
-fourni sont acceptés. Comme le reste de l’API locale, ceci ne remplace pas une authentification.
+fourni sont acceptés. La session authentifiée doit correspondre à ce compte.
 
 Les 100 derniers articles aimés composent automatiquement une mémoire de lecture :
 sujets précis pondérés par le nombre d’articles, formats, niveaux de profondeur et exemples

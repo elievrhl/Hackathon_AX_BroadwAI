@@ -697,3 +697,9 @@
   .collection-sidebar { border-bottom:1px solid #d4d1c6; padding-bottom:20px; }
   .saved-results-heading { align-items:flex-start; flex-wrap:wrap; }
 }
+
+.account-social { display: grid; gap: 10px; margin-top: 24px; }
+.account-social button { justify-content: center; }
+.account-social button:disabled { opacity: .45; cursor: not-allowed; }
+.account-divider { display: flex; align-items: center; gap: 14px; margin: 24px 0; font-size: .75rem; color: var(--muted); }
+.account-divider::before, .account-divider::after { content: ''; height: 1px; flex: 1; background: var(--line); }

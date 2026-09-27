@@ -59,6 +59,8 @@ class OpenAIWebSearch:
             "pas une liste de grands médias dans tes requêtes internes. Blogs personnels, "
             "revues indépendantes, essais, critiques, sources locales et récits de praticiens "
             "comptent autant que les journaux. Cherche un apport original et substantiel. "
+            "Évite les résumés automatiques de vidéos et de podcasts : cite directement "
+            "la vidéo ou l'épisode d'origine, jamais sa page de résumé. "
             "Pour l'actualité privilégie les dernières 24–72 heures, dans le plafond "
             "max_article_age_days, avec une date vérifiable ; pour les idées accepte des lectures "
             "de fond SANS limite d'âge si leurs informations restent valables. Un essai ancien "

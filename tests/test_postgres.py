@@ -13,7 +13,7 @@ from tests.test_pipeline import pipeline, request
 
 @pytest.mark.parametrize("content_format", ["article", "animation", "video", "podcast"])
 def test_generation_and_readback_with_persisted_multimedia_fields(pg_store, content_format):
-    from fastapi.testclient import TestClient
+    from tests.client import TestClient
     from psycopg.types.json import Jsonb
 
     from broadwai.api import create_app
@@ -55,7 +55,7 @@ def test_generation_and_readback_with_persisted_multimedia_fields(pg_store, cont
 
 
 def test_library_api_persistence_isolation_and_removal(pg_store):
-    from fastapi.testclient import TestClient
+    from tests.client import TestClient
 
     from broadwai.api import create_app
     from broadwai.config import Settings
@@ -402,7 +402,7 @@ def test_postgres_sources_collection_and_article_browsing(pg_store):
 
 @pytest.mark.parametrize("kind", ["rss", "website"])
 def test_postgres_proposals_require_review_and_approval_is_idempotent(pg_store, kind):
-    from fastapi.testclient import TestClient
+    from tests.client import TestClient
 
     from broadwai.api import create_app
     from broadwai.config import Settings

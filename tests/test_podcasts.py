@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 from xml.sax.saxutils import escape
 
 import pytest
-from fastapi.testclient import TestClient
+from tests.client import TestClient
 
 from broadwai.api import create_app
 from broadwai.collections import CollectionInput, Collections

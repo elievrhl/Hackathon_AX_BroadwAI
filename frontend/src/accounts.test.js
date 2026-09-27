@@ -1,34 +1,29 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { enterAccount, leaveAccount, currentAccount, accountKey } from './accounts.js';
+import { enterAccount, leaveAccount, currentAccount, saveAccountProfile } from './accounts.js';
 import { getLibrary, saveEdition, removeEdition, listCovers, getCover } from './api.js';
 
-function storage() {
-  const entries = new Map();
-  return { getItem: key => entries.get(key) ?? null, setItem: (key, value) => entries.set(key, value), removeItem: key => entries.delete(key), entries };
-}
-test('demo accounts preserve the first reader and isolate subsequent readers without storing passwords', () => {
-  const db = storage();
-  db.setItem('kiosque.user', JSON.stringify('local-existing'));
-  db.setItem('kiosque.reader.v1', JSON.stringify({ name: 'Ancien', topics: ['tech'] }));
-  db.setItem('kiosque.lastCover', JSON.stringify('previous-edition'));
-  const alice = enterAccount({ create: true, email: ' Alice@Example.com ', name: 'Alice', password: 'never-store-this' }, db);
-  assert.equal(alice.id, 'local-existing');
-  assert.equal(alice.email, 'alice@example.com');
-  assert.equal(db.getItem(accountKey(alice.id, 'kiosque.lastCover')), '"previous-edition"');
-  assert.deepEqual(currentAccount(db), alice);
-  leaveAccount(db);
-  assert.equal(currentAccount(db), null);
-  const bob = enterAccount({ create: true, email: 'bob@example.com', name: 'Bob' }, db);
-  assert.notEqual(bob.id, alice.id);
-  assert.equal(db.getItem(accountKey(bob.id, 'kiosque.reader.v1')), null);
-  assert.equal(db.getItem(accountKey(bob.id, 'kiosque.lastCover')), null);
-  assert.deepEqual(enterAccount({ create: false, email: 'ALICE@example.com' }, db), alice);
-  assert.ok(!JSON.stringify([...db.entries]).includes('never-store-this'));
-  assert.throws(() => enterAccount({ create: true, email: 'alice@example.com', name: 'Alice' }, db), /existe/);
-  assert.throws(() => enterAccount({ create: false, email: 'nobody@example.com' }, db), /Créez/);
+test('accounts and preferences are restored from the server with cookie credentials', async () => {
+  const original = globalThis.fetch;
+  const calls = [];
+  const account = { id: 'server-account', email: 'alice@example.com', reader_profile: { topics: ['tech'] } };
+  globalThis.fetch = async (url, options) => {
+    calls.push({ url, options });
+    return new Response(url.endsWith('/logout') ? null : JSON.stringify({ account, csrf_token: 'session-csrf' }), { status: url.endsWith('/logout') ? 204 : 200 });
+  };
+  try {
+    assert.equal((await currentAccount()).account.id, account.id);
+    assert.deepEqual(await enterAccount({ email: ' alice@example.com ', name: ' Alice ', password: 'not stored on device', create: true }), account);
+    await saveAccountProfile(account.reader_profile);
+    await leaveAccount();
+    assert.deepEqual(calls.map(c => c.url), ['/v1/auth/session', '/v1/auth/register', '/v1/auth/profile', '/v1/auth/logout']);
+    assert.ok(calls.every(c => c.options.credentials === 'same-origin'));
+    assert.equal(calls[1].options.headers['X-Kiosque-CSRF'], 'session-csrf');
+    assert.equal(JSON.parse(calls[1].options.body).password, 'not stored on device');
+    assert.deepEqual(JSON.parse(calls[2].options.body), { profile: account.reader_profile });
+  } finally { globalThis.fetch = original; }
 });
-test('library and reader requests always carry the selected demo identity', async () => {
+test('library and reader requests always carry the selected server identity', async () => {
   const original = globalThis.fetch;
   const calls = [];
   globalThis.fetch = async (url, options) => { calls.push([url, options.method || 'GET']); return { ok: true, json: async () => [] }; };

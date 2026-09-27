@@ -12,7 +12,8 @@ from broadwai.api import create_app
 from broadwai.config import Settings
 from broadwai.models import utcnow
 from broadwai.reader_chat import ReaderReply
-from tests.fakes import FakeCollector, FakeSearch, MemoryStore, ScriptedModel, article
+from tests.auth_fakes import AuthMemoryStore as MemoryStore
+from tests.fakes import FakeCollector, FakeSearch, ScriptedModel, article
 
 
 class ChatFixtureModel(ScriptedModel):
@@ -78,7 +79,12 @@ store = MemoryStore(
     ]
 )
 app = create_app(
-    Settings(_env_file=None, openai_api_key=None, image_review_enabled=False),
+    Settings(
+        auth_public_url="http://127.0.0.1:8012/reader/",
+        _env_file=None,
+        openai_api_key=None,
+        image_review_enabled=False,
+    ),
     store=store,
     model=ChatFixtureModel(),
     collector=FakeCollector(store),

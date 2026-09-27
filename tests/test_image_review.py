@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock
 
 import httpx
 import pytest
-from fastapi.testclient import TestClient
+from tests.client import TestClient
 from openai import APIConnectionError
 from PIL import Image
 

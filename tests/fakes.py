@@ -110,7 +110,12 @@ class MemoryStore(MemoryDailyStore, MemoryRegenerationStore):
 
     def put_article(self, article):
         previous = self.rows.get(article.id)
-        if previous and previous.extraction_status == "extracted" and not article.text:
+        if (
+            previous
+            and previous.extraction_status == "extracted"
+            and not article.text
+            and previous.format == article.format
+        ):
             return previous
         self.rows[article.id] = article
         return article

@@ -1,4 +1,6 @@
-from pydantic import Field, SecretStr
+from urllib.parse import urlsplit
+
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,6 +37,25 @@ class Settings(BaseSettings):
     max_article_chars: int = Field(18_000, ge=1000, le=60_000)
     max_catalog_articles: int = Field(3000, ge=10, le=50_000)
     daily_editions_enabled: bool = True
+    auth_public_url: str = "http://127.0.0.1:5173/"
+    auth_session_days: int = Field(30, ge=1, le=90)
+    google_client_id: str = ""
+    google_client_secret: SecretStr | None = None
+    apple_client_id: str = ""
+    apple_team_id: str = ""
+    apple_key_id: str = ""
+    apple_private_key_path: str = ""
+
+    @field_validator("auth_public_url")
+    @classmethod
+    def validate_auth_url(cls, value):
+        url = urlsplit(value)
+        local = url.hostname in {"localhost", "127.0.0.1", "::1"}
+        if (url.scheme != "https" and not (url.scheme == "http" and local)) or (
+            not url.hostname or url.username or url.password or url.query or url.fragment
+        ):
+            raise ValueError("AUTH_PUBLIC_URL doit être une URL HTTPS (HTTP local uniquement)")
+        return value.rstrip("/") + "/"
 
     @property
     def llm_ready(self) -> bool:

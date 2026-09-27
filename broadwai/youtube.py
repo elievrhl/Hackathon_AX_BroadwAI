@@ -1,6 +1,8 @@
 """Public YouTube identities and duration metadata; never infer spoken content."""
 
+import json
 import re
+from datetime import datetime
 from html.parser import HTMLParser
 from urllib.parse import parse_qs, urlsplit
 
@@ -15,6 +17,7 @@ class _DurationMetadata(HTMLParser):
         super().__init__()
         self.canonical = None
         self.duration = None
+        self.values = {}
 
     def handle_starttag(self, tag, attrs):
         values = dict(attrs)
@@ -22,6 +25,69 @@ class _DurationMetadata(HTMLParser):
             self.canonical = values.get("href")
         if tag == "meta" and values.get("itemprop") == "duration":
             self.duration = values.get("content")
+        if tag == "meta" and values.get("itemprop"):
+            self.values.setdefault(values["itemprop"], values.get("content"))
+
+
+def summary_video_id(url: str) -> str | None:
+    """Recognize video-summary permalinks, not articles merely mentioning a video."""
+    try:
+        parsed = urlsplit(url)
+        if (
+            parsed.scheme not in {"https", "http"}
+            or parsed.username
+            or parsed.password
+            or parsed.port not in {None, 80, 443}
+            or parsed.hostname not in {"recapcraft.com", "www.recapcraft.com"}
+        ):
+            return None
+        match = re.fullmatch(r"/v/([A-Za-z0-9_-]{11})/?", parsed.path)
+        return match[1] if match else None
+    except ValueError:
+        return None
+
+
+def video_metadata(body: bytes, expected_id: str) -> dict | None:
+    """Read the original video's public metadata, never its recommended videos or recap."""
+    text = body.decode("utf-8", errors="replace")
+    metadata = _DurationMetadata()
+    metadata.feed(text)
+    if not metadata.canonical or video_id(metadata.canonical) != expected_id:
+        return None
+    details = {}
+    match = re.search(r"(?:var\s+)?ytInitialPlayerResponse\s*=\s*", text)
+    if match:
+        try:
+            player, _ = json.JSONDecoder().raw_decode(text[match.end() :])
+            details = player.get("videoDetails", {})
+            if details.get("videoId") != expected_id:
+                return None
+        except (ValueError, AttributeError, TypeError):
+            return None
+    title = details.get("title") or metadata.values.get("name")
+    description = details.get("shortDescription") or metadata.values.get("description")
+    if not isinstance(title, str) or not title.strip() or not isinstance(description, str):
+        return None
+    published_at = None
+    try:
+        published_at = datetime.fromisoformat(metadata.values.get("datePublished") or "")
+    except ValueError:
+        pass
+    return {
+        "title": title[:1000],
+        "excerpt": description[:12000],
+        "published_at": published_at,
+        "media": {
+            "provider": "youtube",
+            "video_id": expected_id,
+            "channel_id": details.get("channelId"),
+            "channel_title": details.get("author"),
+            "duration_seconds": metadata_duration(body, expected_id),
+            "original_title": title[:1000],
+            "original_description": description[:12000],
+            "original_published_at": published_at.isoformat() if published_at else None,
+        },
+    }
 
 
 def metadata_duration(body: bytes, expected_id: str) -> float | None:

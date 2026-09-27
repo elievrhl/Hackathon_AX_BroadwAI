@@ -2,19 +2,32 @@
 export class ApiError extends Error {
   constructor(message, status = 0) { super(message); this.status = status; }
 }
+let csrfToken = null;
+export function setCsrfToken(value) { csrfToken = value; }
 
 export async function request(path, options = {}) {
   let response;
   try {
     response = await fetch(path, {
-      ...options, headers: { Accept: 'application/json', ...options.headers },
+      ...options, credentials: 'same-origin', headers: { Accept: 'application/json',
+        'X-Kiosque-Request': '1', ...(csrfToken ? { 'X-Kiosque-CSRF': csrfToken } : {}), ...options.headers },
     });
   } catch {
     if (path.includes('/messages')) throw new ApiError('La connexion avec Kiosque a été interrompue. Votre message est conservé : vous pouvez réessayer.');
     throw new ApiError('Kiosque est momentanément inaccessible. Réessayez dans quelques instants.');
   }
+  if (response.status === 204) return null;
   const data = await response.json().catch(() => null);
   if (!response.ok) {
+    if (response.status === 401 && !path.startsWith('/v1/auth/') && typeof window !== 'undefined') {
+      setCsrfToken(null);
+      window.dispatchEvent(new Event('kiosque-session-expired'));
+    }
+    if (path.startsWith('/v1/auth/')) {
+      const message = typeof data?.detail === 'string' ? data.detail
+        : 'Vérifiez votre adresse e-mail et les champs du formulaire.';
+      throw new ApiError(message, response.status);
+    }
     const messages = {
       401: 'Ouvrez votre espace de lecture pour continuer.',
       403: 'Cette action n’est pas disponible pour votre profil.',

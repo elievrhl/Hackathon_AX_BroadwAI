@@ -31,6 +31,7 @@ from broadwai.preferences import PreferencePolicy, direct_match, semantic
 from broadwai.ranking import Ranked, diversify, eligible, rank, similarity, tokens
 from broadwai.videos import duration_allowed
 from broadwai.web_search import open_web_query
+from broadwai.youtube import summary_video_id
 
 
 class CoverPipeline:
@@ -270,8 +271,9 @@ class CoverPipeline:
         self.catalog_index[article.id] = article
         error = None
         # A media landing page is not a transcript: use its supplied description.
-        checked = article.format in {"video", "podcast"} or (
-            article.extraction_status == "extracted" and bool(article.text.strip())
+        checked = not summary_video_id(article.url) and (
+            article.format in {"video", "podcast"}
+            or (article.extraction_status == "extracted" and bool(article.text.strip()))
         )
         if not checked:
             try:
@@ -304,7 +306,9 @@ class CoverPipeline:
                 )
                 self.warnings.append(f"{article.id}: {error}")
         status = (
-            "full_text"
+            "unavailable"
+            if summary_video_id(article.url)
+            else "full_text"
             if article.extraction_status == "extracted" and article.text.strip()
             else "excerpt_only"
             if len(article.excerpt.strip()) >= 80
@@ -386,6 +390,10 @@ class CoverPipeline:
 
     async def _prepare(self, ranked: Ranked, request: CoverRequest, seen: set[str]) -> bool:
         article = ranked.article
+        if summary_video_id(article.url):
+            article = await self._check_access(article, self.settings.prefetch_timeout)
+            if summary_video_id(article.url):
+                return False
         if not duration_allowed(article):
             return False
         if article.format == "video" and not request.max_videos:
@@ -1591,7 +1599,9 @@ class CoverPipeline:
                             reason="Annuaire ou répertoire de sources",
                         )
                         continue
-                    if not eligible(candidate, request.profile, seen):
+                    # Web references do not carry durations yet. Read original media
+                    # metadata first; ranking and preparation enforce the duration cap.
+                    if not eligible(candidate, request.profile, seen, require_video_duration=False):
                         self.log(
                             "candidate_skipped",
                             article_id=candidate.id,

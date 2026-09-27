@@ -27,6 +27,10 @@ function notice(message, error = false) {
   $("notice").className = error ? "error" : "";
 }
 async function api(url, options = {}) {
+  if (options.method && !['GET', 'HEAD'].includes(options.method.toUpperCase())) {
+    const session = await fetch('/v1/auth/session', { credentials: 'same-origin' }).then(response => response.json());
+    options = { ...options, headers: { ...options.headers, 'X-Kiosque-CSRF': session.csrf_token } };
+  }
   const response = await fetch(url, { ...options, headers: { "Content-Type": "application/json", ...options.headers } });
   if (!response.ok) {
     let data; try { data = await response.json(); } catch { data = {}; }

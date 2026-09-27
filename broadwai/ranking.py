@@ -7,6 +7,7 @@ from datetime import datetime
 
 from broadwai.models import Article, Profile, utcnow
 from broadwai.videos import duration_allowed
+from broadwai.youtube import summary_video_id, video_id
 
 STOPWORDS = set(
     "a au aux avec ce ces dans de des du en et est la le les pour par sur un une "
@@ -22,6 +23,10 @@ def tokens(text: str) -> list[str]:
 
 
 def similarity(a: Article, b: Article) -> float:
+    left_video = video_id(a.url) or summary_video_id(a.url)
+    right_video = video_id(b.url) or summary_video_id(b.url)
+    if a.url == b.url or (left_video and left_video == right_video):
+        return 1.0
     if a.content_hash == b.content_hash:
         return 1.0
     if a.text and b.text and len(a.text) >= 200:
@@ -31,8 +36,10 @@ def similarity(a: Article, b: Article) -> float:
     return len(left & right) / max(1, len(left | right))
 
 
-def eligible(article: Article, profile: Profile, seen: set[str]) -> bool:
-    if not duration_allowed(article):
+def eligible(
+    article: Article, profile: Profile, seen: set[str], *, require_video_duration: bool = True
+) -> bool:
+    if require_video_duration and not duration_allowed(article):
         return False
     if article.discovery.get("kind") == "source_directory":
         return False

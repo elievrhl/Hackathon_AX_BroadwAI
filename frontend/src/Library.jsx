@@ -8,28 +8,48 @@ import { formatDate, articleImageUrl, adaptCover, contentAction } from './reader
 import ArticleSaveActions from './ArticleSaveActions.jsx';
 import './library.css';
 
-export function AccountScreen({ onEnter }) {
-  const [create, setCreate] = useState(true);
-  const [error, setError] = useState('');
-  function submit(event) {
+export function AccountScreen({ onEnter, providers = {} }) {
+  const [create, setCreate] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(() => {
+    const url = new URL(window.location.href);
+    const reason = url.searchParams.get('auth_error');
+    if (reason) { url.searchParams.delete('auth_error'); window.history.replaceState(null, '', url); }
+    return ({ oauth_failed: 'La connexion n’a pas abouti. Réessayez.', oauth_cancelled: 'Connexion annulée. Vous pouvez réessayer.', email_in_use: 'Un compte utilise déjà cette adresse. Connectez-vous avec votre méthode habituelle.' })[reason] || '';
+  });
+  async function submit(event) {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    if (busy) return;
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setBusy(true); setError('');
     try {
-      const account = enterAccount({ email: data.get('email'), name: data.get('name') || '', create });
-      event.currentTarget.reset();
+      const account = await enterAccount({ email: data.get('email'), name: data.get('name') || '', password: data.get('password'), create });
+      form.reset();
       onEnter(account);
     } catch (reason) { setError(reason.message); }
+    finally { setBusy(false); }
   }
   return <SetupLayout>
-      <section className="account-panel" aria-labelledby="account-title">{create ? <SetupProgress step={1} /> : <p className="eyebrow">VOTRE ESPACE DE LECTURE</p>}<h2 id="account-title">{create ? 'Bienvenue chez vous.' : 'Heureux de vous revoir.'}</h2><div className="account-tabs"><button aria-pressed={create} onClick={() => { setCreate(true); setError(''); }}>Créer mon profil</button><button aria-pressed={!create} onClick={() => { setCreate(false); setError(''); }}>Retrouver mon profil</button></div>
-        <form key={String(create)} onSubmit={submit}>
-          {create && <label className="field">Prénom<input name="name" autoComplete="given-name" required maxLength={40} placeholder="Camille" /></label>}
-          <label className="field">Adresse e-mail<input name="email" type="email" autoComplete="off" required maxLength={254} placeholder="camille@exemple.fr" /></label>
-          <p className="account-demo">Votre espace de lecture sur cet appareil.</p>
-          {error && <p className="reader-error" role="alert">{error}</p>}
-          <button className="primary-button full-width" type="submit">{create ? 'Créer mon espace' : 'Entrer dans mon espace'}<ArrowRight size={18} /></button>
-        </form>
-      </section>
+    <section className="account-panel" aria-labelledby="account-title">
+      <p className="eyebrow">VOTRE ESPACE DE LECTURE</p>
+      <h2 id="account-title">{create ? 'Bienvenue chez vous.' : 'Heureux de vous revoir.'}</h2>
+      <div className="account-tabs"><button disabled={busy} aria-pressed={!create} onClick={() => { setCreate(false); setError(''); }}>Se connecter</button><button disabled={busy} aria-pressed={create} onClick={() => { setCreate(true); setError(''); }}>Créer un compte</button></div>
+      <div className="account-social" aria-label="Autres méthodes de connexion">
+        <button className="secondary-button full-width" disabled={busy || !providers.google} title={providers.google ? undefined : 'Connexion Google indisponible pour le moment'} onClick={() => { window.location.assign('/v1/auth/google/start'); }}>Continuer avec Google</button>
+        <button className="secondary-button full-width" disabled={busy || !providers.apple} title={providers.apple ? undefined : 'Connexion Apple indisponible pour le moment'} onClick={() => { window.location.assign('/v1/auth/apple/start'); }}>Continuer avec Apple</button>
+      </div>
+      <p className="account-divider">ou avec votre adresse e-mail</p>
+      <form key={String(create)} onSubmit={submit}>
+        {create && <label className="field">Prénom<input name="name" autoComplete="given-name" disabled={busy} required maxLength={40} placeholder="Camille" /></label>}
+        <label className="field">Adresse e-mail<input name="email" type="email" autoComplete="email" disabled={busy} required maxLength={254} placeholder="camille@exemple.fr" /></label>
+        <label className="field">Mot de passe<input name="password" type="password" autoComplete={create ? 'new-password' : 'current-password'} disabled={busy} required minLength={create ? 12 : 1} maxLength={128} aria-describedby={create ? 'password-help' : undefined} /></label>
+        {create && <p className="field-help" id="password-help">Au moins 12 caractères. Vous pouvez utiliser une phrase de passe.</p>}
+        <p className="account-demo">Vos préférences et vos lectures vous suivent sur tous vos appareils.</p>
+        {error && <p className="reader-error" role="alert">{error}</p>}
+        <button className="primary-button full-width" disabled={busy} type="submit">{busy ? 'Connexion en cours…' : create ? 'Créer mon compte' : 'Se connecter'}<ArrowRight size={18} /></button>
+      </form>
+    </section>
   </SetupLayout>;
 }
 

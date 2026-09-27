@@ -2,10 +2,12 @@ import asyncio
 from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
+from broadwai.auth import authorize_request
+from broadwai.auth import router as auth_router
 from broadwai.collections import router as collections_router
 from broadwai.config import Settings
 from broadwai.daily_editions import DailyEditions
@@ -22,6 +24,8 @@ from broadwai.models import (
     PreferenceUpdate,
 )
 from broadwai.network import PublicFetcher
+from broadwai.oauth import OAuth
+from broadwai.oauth import router as oauth_router
 from broadwai.pipeline import CoverPipeline
 from broadwai.preferences import PreferenceConflict
 from broadwai.reader_chat import ReaderMessage, check_replay, preference_snapshot
@@ -53,6 +57,8 @@ def create_app(
                 settings.max_article_chars,
             )
         app.state.store = repository
+        app.state.settings = settings
+        app.state.oauth = OAuth(settings)
         app.state.model = llm
         app.state.collector = collector or Collector(
             repository,
@@ -94,6 +100,7 @@ def create_app(
             with suppress(asyncio.CancelledError):
                 await daily_task
             await app.state.images.close()
+            await app.state.oauth.client.aclose()
             if model is None and llm is not None:
                 await llm.close()
             if store is None:
@@ -104,12 +111,26 @@ def create_app(
         version="0.1.0",
         lifespan=lifespan,
         description="Catalogue partagé et agent de création de couvertures.",
+        dependencies=[Depends(authorize_request)],
     )
     static = Path(__file__).with_name("static")
     app.mount("/admin/assets", StaticFiles(directory=static), name="admin-assets")
     app.include_router(admin_router)
     app.include_router(collections_router)
     app.include_router(saved_articles_router)
+    app.include_router(auth_router)
+    app.include_router(oauth_router)
+
+    @app.middleware("http")
+    async def private_responses(request, call_next):
+        response = await call_next(request)
+        # Authorization codes must not appear in the server's access log.
+        if request.url.path.startswith("/v1/auth/") and request.url.path.endswith("/callback"):
+            request.scope["query_string"] = b""
+        if request.url.path.startswith("/v1/") and not request.url.path.endswith("/image"):
+            response.headers["Cache-Control"] = "no-store"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
 
     # Optional production build. API/admin still work when the frontend is not built.
     reader_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
@@ -141,6 +162,13 @@ def create_app(
     @app.get("/v1/likes")
     def likes(user_id: str = Query(min_length=1, max_length=100)):
         return {"article_ids": app.state.store.liked_ids(user_id)}
+
+    @app.get("/v1/source-directory")
+    def source_directory():
+        return [
+            {key: row.get(key) for key in ("name", "url", "kind", "enabled", "article_count")}
+            for row in app.state.store.list_sources()
+        ]
 
     @app.put("/v1/likes")
     def set_like(event: ArticleLike):
@@ -283,10 +311,13 @@ def create_app(
 
     @app.get("/v1/covers")
     def list_covers(
+        request: Request,
         limit: int = Query(30, ge=1, le=100),
         offset: int = Query(0, ge=0),
         user_id: str | None = Query(None, min_length=1, max_length=100),
     ):
+        if not request.state.account["is_admin"]:
+            user_id = request.state.account["id"]
         if user_id is None:
             return app.state.store.list_covers(limit, offset)
         return app.state.store.list_covers(limit, offset, user_id=user_id)
@@ -313,7 +344,13 @@ def create_app(
         return {"saved": False}
 
     @app.get("/v1/covers/{cover_id}", response_model=Cover)
-    def get_cover(cover_id: str, user_id: str | None = Query(None, min_length=1, max_length=100)):
+    def get_cover(
+        cover_id: str,
+        request: Request,
+        user_id: str | None = Query(None, min_length=1, max_length=100),
+    ):
+        if not request.state.account["is_admin"]:
+            user_id = request.state.account["id"]
         cover = app.state.store.get_cover(cover_id)
         if cover is None or (user_id is not None and cover.user_id != user_id):
             raise HTTPException(404, "Couverture introuvable")

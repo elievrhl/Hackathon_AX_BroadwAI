@@ -212,3 +212,42 @@ WHERE NOT EXISTS (SELECT 1 FROM reader_data_migrations WHERE id='saved-articles-
 ORDER BY c.user_id,m.article_id,m.added_at DESC
 ON CONFLICT DO NOTHING;
 INSERT INTO reader_data_migrations VALUES ('saved-articles-v1') ON CONFLICT DO NOTHING;
+
+-- Server-owned reader accounts. Existing demo readers remain untouched.
+CREATE TABLE IF NOT EXISTS accounts (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    password_hash TEXT,
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    is_admin BOOLEAN NOT NULL DEFAULT FALSE,
+    reader_profile JSONB,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE IF NOT EXISTS account_identities (
+    provider TEXT NOT NULL CHECK (provider IN ('google','apple')),
+    subject TEXT NOT NULL,
+    account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    PRIMARY KEY(provider, subject),
+    UNIQUE(account_id, provider)
+);
+CREATE TABLE IF NOT EXISTS account_sessions (
+    token_hash TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS account_sessions_expiry ON account_sessions(expires_at);
+CREATE TABLE IF NOT EXISTS oauth_flows (
+    state_hash TEXT PRIMARY KEY,
+    provider TEXT NOT NULL,
+    browser_hash TEXT NOT NULL,
+    nonce TEXT NOT NULL,
+    verifier TEXT NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL
+);
+CREATE TABLE IF NOT EXISTS auth_rate_limits (
+    key TEXT PRIMARY KEY,
+    attempts INTEGER NOT NULL,
+    expires_at TIMESTAMPTZ NOT NULL
+);
