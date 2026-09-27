@@ -1,0 +1,86 @@
+{
+  "music_is_silent_before_14s": true,
+  "first_music_sample_s": 14.000041666666666,
+  "intro_audio_matches_original_with_gain_only_max_error": 1.1894735507667065e-07,
+  "picture_bitstream_identical": true,
+  "video_sha256": "SHA256=7bda6b51f3a3f0a4458c1af2b4f1f943b0413b47f3781324150d44cdfcf55f7e",
+  "full_decode_ok": true,
+  "technical": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "codec_type": "video",
+        "width": 1920,
+        "height": 1080,
+        "r_frame_rate": "25/1",
+        "duration": "74.480000",
+        "nb_frames": "1862"
+      },
+      {
+        "codec_name": "aac",
+        "codec_type": "audio",
+        "sample_rate": "48000",
+        "r_frame_rate": "0/0",
+        "duration": "74.480000",
+        "nb_frames": "3493"
+      }
+    ],
+    "format": {
+      "duration": "74.560000",
+      "size": "19607674"
+    }
+  },
+  "levels": [
+    {
+      "start_s": 14.45,
+      "end_s": 19,
+      "original_audio_rms_db": -18.34,
+      "music_rms_db": -35.34,
+      "original_above_music_db": 16.99
+    },
+    {
+      "start_s": 20.1,
+      "end_s": 29.4,
+      "original_audio_rms_db": -18.95,
+      "music_rms_db": -29.37,
+      "original_above_music_db": 10.42
+    },
+    {
+      "start_s": 30.4,
+      "end_s": 39.5,
+      "original_audio_rms_db": -17.96,
+      "music_rms_db": -29.54,
+      "original_above_music_db": 11.58
+    },
+    {
+      "start_s": 40.4,
+      "end_s": 49.7,
+      "original_audio_rms_db": -18.68,
+      "music_rms_db": -30.36,
+      "original_above_music_db": 11.68
+    },
+    {
+      "start_s": 51.1,
+      "end_s": 56.9,
+      "original_audio_rms_db": -21.68,
+      "music_rms_db": -31.61,
+      "original_above_music_db": 9.93
+    },
+    {
+      "start_s": 57.5,
+      "end_s": 65.6,
+      "original_audio_rms_db": -18.06,
+      "music_rms_db": -30.83,
+      "original_above_music_db": 12.77
+    },
+    {
+      "start_s": 66.6,
+      "end_s": 73,
+      "original_audio_rms_db": -26.01,
+      "music_rms_db": -20.68,
+      "original_above_music_db": -5.33
+    }
+  ]
+}
