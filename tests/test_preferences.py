@@ -143,7 +143,7 @@ async def test_semantic_exclusion_also_holds_in_fallback_and_for_other_users():
     assert len(other.items) == 2
 
 
-@pytest.mark.parametrize("failure", ["error", "omitted", "ungrounded", "duplicate"])
+@pytest.mark.parametrize("failure", ["error", "omitted", "uncertain", "duplicate"])
 async def test_hard_semantic_exclusion_never_passes_an_unverified_candidate(failure):
     class BrokenChecks(ScriptedModel):
         async def assess_preferences(self, state, budget):
@@ -154,10 +154,7 @@ async def test_hard_semantic_exclusion_never_passes_an_unverified_candidate(fail
             row = {
                 "article_id": state["candidates"][0]["article_id"],
                 "preference_id": state["preferences"][0]["id"],
-                "match": "no",
-                "evidence": "Une citation inventée"
-                if failure == "ungrounded"
-                else state["candidates"][0]["title"],
+                "match": "uncertain" if failure == "uncertain" else "no",
             }
             return PreferenceAssessments(
                 assessments=[row, row] if failure == "duplicate" else [row]

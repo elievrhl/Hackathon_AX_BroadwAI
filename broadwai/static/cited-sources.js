@@ -39,9 +39,7 @@ function appendCitedSources(parent, sources) {
       }
       const relevance = document.createElement("p");
       relevance.textContent = source.relevance;
-      const evidence = document.createElement("blockquote");
-      evidence.textContent = source.evidence;
-      item.append(relevance, evidence);
+      item.append(relevance);
       list.append(item);
     }
     section.append(list);

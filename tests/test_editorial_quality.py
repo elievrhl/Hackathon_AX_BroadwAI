@@ -5,7 +5,6 @@ from unittest.mock import AsyncMock
 import pytest
 from pydantic import ValidationError
 
-from broadwai.editorial import grounded
 from broadwai.llm import BudgetExceeded, OpenAILanguageModel, RunBudget
 from broadwai.models import (
     Article,
@@ -26,16 +25,6 @@ def response(tokens):
     return SimpleNamespace(
         status="completed", usage=SimpleNamespace(input_tokens=tokens, output_tokens=0)
     )
-
-
-def test_grounded_evidence_accepts_quote_wrappers_and_typography_but_not_invented_words():
-    assert grounded(
-        '"The Writing Category Nobody has Named Yet"',
-        "Practitioner Voice: The Writing Category Nobody has Named Yet",
-    )
-    assert grounded("« l'histoire des sciences »", "Passionné par l’histoire des sciences")
-    assert grounded('"livres"', "livres, littérature", minimum=2)
-    assert not grounded('"l’histoire de Singapour"', "l’histoire des sciences")
 
 
 @pytest.mark.parametrize("language", ["français", "French", "fr-FR", "fr_FR", "fra"])
@@ -190,7 +179,7 @@ async def test_invalid_search_without_query_does_not_poison_the_next_valid_searc
     assert outcome["added_ids"] == []
 
 
-async def test_invented_profile_constraint_is_rejected_before_ranking():
+async def test_profile_interpretation_does_not_require_quotations():
     model = ScriptedModel()
     model.interpret = AsyncMock(
         return_value=EditorialIntent.model_validate(
@@ -201,20 +190,21 @@ async def test_invented_profile_constraint_is_rejected_before_ranking():
                         "query": "histoire",
                         "priority": "primary",
                         "level": "intermediate",
-                        "evidence": "histoire des sciences",
+                        "origin": "notes",
                     }
                 ],
-                "constraints": [{"requirement": "Seulement Singapour", "evidence": "Singapour"}],
+                "constraints": [{"requirement": "Privilégier les analyses historiques"}],
             }
         )
     )
     cover = await pipeline(MemoryStore(), model).run(
         request(notes="J'aime l'histoire des sciences")
     )
-    assert cover.diagnostics["editorial_intent"]["constraints"] == []
+    assert cover.diagnostics["editorial_intent"]["constraints"] == [
+        {"requirement": "Privilégier les analyses historiques"}
+    ]
     assert cover.diagnostics["editorial_intent"]["needs"][0]["topic"] == "Histoire"
-    assert cover.diagnostics["events"][0]["kind"] == "intent_items_rejected"
-    assert any("sans citation" in warning for warning in cover.warnings)
+    assert not any(e["kind"] == "intent_items_rejected" for e in cover.diagnostics["events"])
 
 
 @pytest.mark.parametrize(
@@ -272,14 +262,14 @@ async def test_specific_notes_stay_primary_when_model_prefers_broad_ui_interests
                         "query": "Python",
                         "priority": "primary",
                         "level": "intermediate",
-                        "evidence": "Python",
+                        "origin": "profile",
                     },
                     {
                         "topic": "Histoire des sciences",
                         "query": "history science instruments",
                         "priority": "secondary",
                         "level": "expert",
-                        "evidence": "Histoire des sciences",
+                        "origin": "notes",
                     },
                 ],
                 "constraints": [],
@@ -292,7 +282,7 @@ async def test_specific_notes_stay_primary_when_model_prefers_broad_ui_interests
     assert runner.intent["needs"][1]["level"] == "expert"
 
 
-async def test_constraints_can_cite_structured_profile_fields_sent_to_the_model():
+async def test_constraints_can_use_structured_profile_fields_without_quotations():
     model = ScriptedModel()
     model.interpret = AsyncMock(
         return_value=EditorialIntent.model_validate(
@@ -303,13 +293,12 @@ async def test_constraints_can_cite_structured_profile_fields_sent_to_the_model(
                         "query": "histoire",
                         "priority": "primary",
                         "level": "intermediate",
-                        "evidence": "Histoire des sciences",
+                        "origin": "notes",
                     }
                 ],
                 "constraints": [
                     {
                         "requirement": "Lire en français et en anglais",
-                        "evidence": 'languages": ["fr", "en"]',
                     }
                 ],
             }
@@ -323,7 +312,7 @@ async def test_constraints_can_cite_structured_profile_fields_sent_to_the_model(
     assert not runner.warnings
 
 
-async def test_final_evidence_can_quote_the_verified_original_passage_in_a_brief():
+async def test_final_selection_accepts_a_brief_without_quotations():
     item = article()
     runner = pipeline(MemoryStore([item]), PlannedModel(plan_for([item]), []))
     await runner.run(request())
@@ -332,7 +321,6 @@ async def test_final_evidence_can_quote_the_verified_original_passage_in_a_brief
         kind="evergreen",
         status="durable",
         reason="Concept durable",
-        evidence="Un passage original validé lors de la préparation",
     )
     selection = Selection(
         article_id=item.id,
@@ -342,11 +330,9 @@ async def test_final_evidence_can_quote_the_verified_original_passage_in_a_brief
         role="lead",
         matched_need="need-1",
         story_key="un sujet",
-        evidence="« Un passage original validé lors de la préparation »",
     )
     assert runner._validate([selection], request()) == []
-    selection.evidence = "Une preuve inventée qui n'existe pas"
-    assert any("preuve absente" in error for error in runner._validate([selection], request()))
+    assert "evidence" not in selection.model_dump()
 
 
 async def test_layout_overflow_preserves_articles_and_editor_order_without_fallback():
@@ -405,14 +391,12 @@ def test_explicit_notes_and_compiled_needs_influence_retrieval_before_llm_plan()
     assert rows[0].score_details["needs"]["need-1"] > 0
 
 
-@pytest.mark.parametrize("defect", ["invented_need", "invented_evidence"])
-async def test_high_score_needs_grounded_profile_match_before_summary(defect):
+async def test_high_score_still_requires_a_known_need_before_summary():
     item = article()
     plan = plan_for([item], [95])
     plan.contract_version = 2
     pick = plan.picks[0]
-    pick.matched_need = "unknown" if defect == "invented_need" else "need-1"
-    pick.evidence = item.title if defect == "invented_need" else "Contenu inventé sans source"
+    pick.matched_need = "unknown"
     pick.temporal_kind = "research"
     model = PlannedModel(plan, [])
     cover = await pipeline(MemoryStore([item]), model).run(request())

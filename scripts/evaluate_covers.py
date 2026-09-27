@@ -21,6 +21,8 @@ from broadwai.pipeline import CoverPipeline
 from broadwai.retrieval import Collector
 from broadwai.store import Store
 from broadwai.web_search import OpenAIWebSearch
+from scripts.evaluation_snapshot import clone_catalog, scoped_url
+from scripts.evaluation_spend import SpendGuard
 
 
 def write_json(path, value):
@@ -91,9 +93,13 @@ async def checkpoint(runner, path, label):
 
 
 async def run(args):
-    settings = Settings()
+    settings = Settings(_env_file=args.env_file)
     if not settings.llm_ready:
         raise SystemExit("Configuration LLM absente")
+    database_url = settings.database_url.get_secret_value()
+    if args.schema:
+        clone_catalog(database_url, args.snapshot_from, args.schema)
+        database_url = scoped_url(database_url, args.schema)
     profiles = json.loads(args.profiles.read_text(encoding="utf-8"))
     if args.only:
         profiles = [p for p in profiles if p["name"] in args.only]
@@ -118,6 +124,8 @@ async def run(args):
         {
             "started_at": datetime.now(UTC).isoformat(),
             "models": {"summary": settings.summary_model, "editor": settings.editor_model},
+            "database_schema": args.schema,
+            "snapshot_from": args.snapshot_from,
             "timeout_seconds": args.timeout,
             "source_hashes": {
                 str(p): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -130,7 +138,7 @@ async def run(args):
             ),
         },
     )
-    store = Store(settings.database_url.get_secret_value())
+    store = Store(database_url)
     store.pool.open(wait=True, timeout=10)
     model = OpenAILanguageModel(
         settings.openai_api_key.get_secret_value(),
@@ -138,6 +146,13 @@ async def run(args):
         settings.editor_model,
         settings.max_article_chars,
     )
+    guard = (
+        SpendGuard(args.spend_ledger, args.max_usd, args.spend_ceiling)
+        if args.spend_ledger
+        else None
+    )
+    if guard:
+        guard.attach(model)
     results = []
     try:
         write_json(args.output / "catalog-before.json", store.stats())
@@ -186,6 +201,8 @@ async def run(args):
     finally:
         await model.close()
         store.close()
+        if guard:
+            guard.close()
 
 
 def main():
@@ -199,6 +216,12 @@ def main():
     parser.add_argument("--only", nargs="+")
     parser.add_argument("--size", type=int, default=18)
     parser.add_argument("--timeout", type=float, default=300)
+    parser.add_argument("--env-file", type=Path, default=Path(".env"))
+    parser.add_argument("--schema", help="New isolated audit_ schema; production stays unchanged")
+    parser.add_argument("--snapshot-from", default="public")
+    parser.add_argument("--spend-ledger", type=Path)
+    parser.add_argument("--max-usd", type=float, default=3.0)
+    parser.add_argument("--spend-ceiling", type=float, help="Cumulative ceiling for this pass")
     args = parser.parse_args()
     asyncio.run(run(args))
 

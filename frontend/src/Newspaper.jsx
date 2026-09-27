@@ -32,6 +32,6 @@ export default function Newspaper({ cover, saved, onSave, onOrganize, saving, on
         {!!cover.exploration.length && <section className="exploration-section" aria-labelledby="exploration-heading"><div className="section-heading"><h2 id="exploration-heading">Exploration</h2></div><div className="exploration-grid">{cover.exploration.map(article => card(article, 'section-article'))}</div></section>}
       </div> : <section className="filtered-articles" style={{ '--content-columns': Math.max(1, Math.min(filtered.length, 3)) }} aria-label="Articles de la rubrique">{filtered.length ? filtered.map(article => card(article, 'filtered-article')) : <div className="empty-state"><h2>Aucun article dans cette rubrique.</h2><p>Retrouvez les autres lectures à la une.</p></div>}</section>)}
     </main>
-    <footer className="paper-footer"><Wordmark small /></footer>
+    <footer className="paper-footer"><Wordmark small /><a className="footer-demo" href="/admin/assets/sources.html" target="_blank" rel="noreferrer">Nos sources</a></footer>
   </div>;
 }

@@ -104,7 +104,6 @@ function articleDetails(row) {
   if (row.access) d.append(n("p", `Avant le choix éditorial : ${{full_text: "texte intégral disponible", excerpt_only: "extrait seulement", unavailable: "contenu inexploitable"}[row.access.status] || row.access.status}${row.access.checked ? "" : " · téléchargement non effectué"}${row.access.error ? ` · ${row.access.error}` : ""}`, "small"));
   if (row.pick) {
     d.append(n("p", `Avis éditorial : ${fmt(row.pick.score)}/100 · ${row.pick.section || "Rubrique inconnue"}`, "small"), n("p", row.pick.reason));
-    if (row.pick.evidence) d.append(n("blockquote", row.pick.evidence));
   }
   if (row.events.length) {
     const list = n("ol", undefined, "article-events");
@@ -206,7 +205,6 @@ function picksTable(parent, picks, data) {
   table(parent, ["Article proposé", "Rubrique", "Avis / 100", "Justification"], (picks || []).map(p => {
     const info = n("div", p.reason);
     if (p.exploration) info.append(n("p", `Réserve Exploration : ${p.exploration_reason || "raison non enregistrée"}`, "small"));
-    if (p.evidence) info.append(n("blockquote", p.evidence));
     info.append(n("p", `Contexte du profil respecté : ${p.matches_profile == null ? "inconnu" : p.matches_profile ? "oui" : "non"} · Lecture de fond : ${p.evergreen == null ? "inconnue" : p.evergreen ? "oui" : "non"}`, "small"));
     return [articleName(data, p.article_id), p.section, fmt(p.score), info];
   }));
@@ -229,7 +227,7 @@ function renderPlan(parent, data) {
   panel.append(n("p", `Le premier examen porte sur ${preview ? preview.candidates.length : "un nombre non enregistré de"} titres et extraits. Le classement lexical rapproche les mots du profil et des articles ; la diversification élargit les sources.`));
   if (!plan) { panel.append(n("p", "Plan éditorial non enregistré ou indisponible.", "muted")); return; }
   panel.append(n("p", `Rubriques envisagées : ${(plan.sections || []).join(" · ")}`));
-  panel.append(n("p", `Le score éditorial est un avis du modèle sur 100. ${audit.settings?.min_editorial_score == null ? "Seuil de passage non enregistré." : `Seuil utilisé : ${audit.settings.min_editorial_score}/100.`} Un score suffisant ne garantit pas la sélection : le contexte, les preuves et les contrôles suivants comptent aussi.`, "small"));
+  panel.append(n("p", `Le score éditorial est un avis du modèle sur 100. ${audit.settings?.min_editorial_score == null ? "Seuil de passage non enregistré." : `Seuil utilisé : ${audit.settings.min_editorial_score}/100.`} Un score suffisant ne garantit pas la sélection : le contexte et les contrôles suivants comptent aussi.`, "small"));
   const picks = section(panel, `${(plan.picks || []).length} propositions dans le plan initial`, "Inclut les propositions ensuite rejetées et les réserves d’Exploration.");
   picksTable(picks, plan.picks, data);
   paragraphs(panel, (plan.gaps || []).map(g => `Manque repéré : ${g}`), "notice");

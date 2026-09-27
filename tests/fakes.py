@@ -278,7 +278,6 @@ class ScriptedModel:
                     query=i["topic"],
                     priority="primary",
                     level=profile["level"],
-                    evidence=i["topic"],
                 )
                 for i in profile["interests"]
             ]
@@ -293,7 +292,6 @@ class ScriptedModel:
                     "article_id": c["article_id"],
                     "preference_id": p["id"],
                     "match": "yes" if p["target"].casefold() in c["title"].casefold() else "no",
-                    "evidence": c["title"],
                 }
                 for c in state["candidates"]
                 for p in state["preferences"]
