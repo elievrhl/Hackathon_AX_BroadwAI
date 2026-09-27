@@ -56,8 +56,9 @@ en priorité, puis images structurées JSON-LD ou images du texte. La récupéra
 en charge `picture`, `srcset` et les attributs de chargement différé. Jusqu’à cinq URLs
 distinctes sont essayées si une image échoue au téléchargement ou au contrôle ; la première
 image utilisable est conservée pour les prochaines lectures. Un clic sur le titre ou le visuel
-ouvre directement l’article chez l’éditeur dans l’onglet courant. Le bouton « Fiche & avis »
-conserve l’accès au résumé et aux retours. Les images indisponibles laissent une carte textuelle ; les
+ouvre directement l’article chez l’éditeur dans un nouvel onglet. Le menu « … » sous chaque
+article donne accès à « Je n’aime pas cet article » et à une courte liste de raisons.
+Les images indisponibles laissent une carte textuelle ; les
 brèves gardent une présentation compacte. Les éditions déjà enregistrées sont illustrées à leur
 ouverture, sans régénérer les résumés.
 Le backend sert les images des articles sélectionnés via `/v1/articles/{id}/image`,
@@ -199,8 +200,12 @@ Pour reprendre le travail avec un autre agent : [contexte et passation du projet
 Le quota par source vaut trois par défaut (au moins six domaines pour 18 articles).
 Le profil se règle dans le frontend. Celui-ci présente la une par rubriques, avec les titres
 originaux des éditeurs, sans traduction, même pour les éditions déjà enregistrées. Les titres et
-images ouvrent directement l'article dans un nouvel onglet. Le bouton « Fiche & avis »
-ouvre les détails et les retours ; les résumés sont aussi consultables dans `/admin/covers`.
+images ouvrent directement l'article dans un nouvel onglet. Le menu « … » propose
+« Je n’aime pas cet article », puis une liste de raisons : source, sujet, niveau technique,
+style ou autre. Une raison prédéfinie enregistre directement l’avis ; « Autre » permet
+d’ajouter une précision facultative dans le même menu. Aucun écran séparé n’est ouvert.
+La fiche de lecture n’est plus affichée dans le lecteur ; les résumés
+restent consultables dans `/admin/covers`.
 L’inspecteur ouvre la couverture sélectionnée dans le
 frontend via `/reader/?cover={id}`.
 

@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
+import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
 import { TOPICS, DEFAULT_PROFILE, formatDate, contentAction } from './reader.js';
 import { Play, Video, Headphones } from 'lucide-react';
 import { ThemeButton } from './ThemePicker.jsx';
-import { ArticleFeedback } from './FeedbackForms.jsx';
 import ArticleSaveActions from './ArticleSaveActions.jsx';
 const ICONS = {
   tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen,
@@ -156,7 +155,7 @@ export function ArticleCard({
   article,
   variant = '',
   liked, liking, canLike, onLike,
-  onOpen,
+  onFeedback,
   onRead,
   saved,
   onSave,
@@ -170,7 +169,7 @@ export function ArticleCard({
         <MediaBadge format={article.format} duration={article.duration} />
         <h3><PublisherLink className="article-title" article={article} onRead={onRead}>{article.title}</PublisherLink></h3>
         <ArticleMeta article={article} />
-        <div className="article-actions"><button className="article-details-button" onClick={() => onOpen(article)} aria-label={`Fiche et avis : ${article.title}`}>Fiche & avis</button><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><ArticleSaveActions article={article} saved={saved} busy={saving} onSave={onSave} onOrganize={onOrganize} /></div>
+        <div className="article-actions"><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><ArticleSaveActions article={article} saved={saved} busy={saving} onSave={onSave} onOrganize={onOrganize} onFeedback={onFeedback} /></div>
       </div>
     </div>
   </article>;
@@ -202,44 +201,6 @@ export function Modal({
   }}>
     <button className="close-button" onClick={onClose} aria-label="Fermer"><X size={22} /></button>{children}
   </dialog>;
-}
-export function ArticleDetail({
-  liked, liking, canLike, onLike,
-  article,
-  saved,
-  onSave,
-  onOrganize,
-  saving,
-  canFeedback,
-  feedback,
-  notice,
-  onFeedback,
-  onMemory,
-  size,
-  onRead,
-  onClose
-}) {
-  return <Modal className="article-dialog" labelId="article-title" onClose={onClose}>
-    <Wordmark small />
-    <div className="detail-kicker eyebrow">{article.section} <span>/</span> {article.kind}</div>
-    <LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} />
-    <MediaBadge format={article.format} duration={article.duration} />
-    <h2 id="article-title">{article.title}</h2>
-    <ArticleMeta article={article} />
-    <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority />
-    {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
-    <div className="publisher-action">{article.url && <a className="primary-button" href={article.url} target="_blank" rel="noopener noreferrer" onClick={() => onRead(article)}>{contentAction(article.format)} <ArrowRight size={17} /></a>}</div>
-    <details className="article-brief"><summary>Voir la fiche de lecture</summary><p className="detail-summary">{article.summary}</p>
-      {!!article.keyPoints.length && <div className="detail-keypoints"><h3>L’essentiel</h3><ol>{article.keyPoints.map((point, index) => <li key={index}>{point}</li>)}</ol></div>}
-      {article.excerptOnly && <p className="prototype-note">{article.format === 'podcast' ? 'Sujet présenté à partir de la description de l’épisode. L’audio n’a pas été transcrit.' : article.format === 'video' ? 'Sujet présenté à partir de la description de la chaîne. La vidéo n’a pas été transcrite.' : 'Fiche préparée à partir d’un extrait : le texte intégral n’a pas pu être récupéré.'}</p>}
-      {!!article.caveats.length && <ul className="article-caveats">{article.caveats.map((note, index) => <li key={index}>{note}</li>)}</ul>}
-    </details>
-    {article.reason && <div className="relevance"><Sparkles size={18} strokeWidth={1.5} /><div><h3>{article.format === 'podcast' ? 'Pourquoi cet épisode ?' : article.format === 'video' ? 'Pourquoi cette vidéo ?' : 'Pourquoi cet article ?'}</h3><p>{article.reason}</p></div></div>}
-    {canFeedback ? <ArticleFeedback article={article} feedback={feedback} onFeedback={onFeedback} onMemory={onMemory} size={size} /> : <p className="prototype-note">Cette édition appartient à un autre lecteur. Les retours seront disponibles sur vos propres éditions.</p>}
-    <div className="detail-actions"><ArticleSaveActions article={article} saved={saved} busy={saving} onSave={onSave} onOrganize={onOrganize} labelled /><button className="text-button" onClick={onClose}>Retour au journal <ArrowRight size={16} /></button></div>
-    <p className="prototype-note detail-disclaimer">{article.format === 'podcast' ? 'L’épisode s’ouvre chez son éditeur, ou via son lien audio public.' : article.format === 'video' ? 'La vidéo s’ouvre directement sur YouTube.' : 'La lecture complète se fait sur le site de l’éditeur, qui peut demander un abonnement.'}</p>
-    {notice && <p className="feedback-notice" role="status">{notice}</p>}
-  </Modal>;
 }
 export function Preferences({
   profile,

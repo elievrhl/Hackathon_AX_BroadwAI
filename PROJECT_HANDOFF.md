@@ -1,3 +1,26 @@
+## 27 septembre 2026 — Fusion du menu avec l’amont
+
+Le menu d’avis, son chevron et la suppression de la fiche de lecture sont fusionnés
+avec `e9f2432` : les supports marketing et le retrait par Jad de deux boutons des
+préférences sont conservés. Le Courrier du lecteur reste accessible depuis le journal.
+Sur cette copie Windows, le checkout inclut tout sauf `/:memory:.ses`, dont le nom
+est incompatible avec Windows. Ce fichier reste suivi dans le dépôt partagé.
+
+## 27 septembre 2026 — Avis rapide depuis le menu des articles
+
+Le menu « … » sous chaque article propose « Je n’aime pas cet article » et le classement
+en collection. L’avis ouvre une courte liste de raisons dans ce même menu : source,
+sujet, trop technique, trop simple, style ou autre. Un clic enregistre une raison
+prédéfinie. « Autre » propose une précision facultative, avec envoi explicite.
+Le retour garde l’identifiant de son édition, y compris depuis les articles sauvegardés.
+L’écran « Expliquer pour la suite », le bouton « Fiche & avis » et la fiche de lecture
+ont été retirés du lecteur. La fiche lecteur du Courrier et les préférences déjà
+enregistrées restent disponibles ; les résumés restent accessibles en administration.
+
+Validation : 54 tests JavaScript, test ciblé de persistance des avis et build Vite réussis.
+Menu et option « Autre » vérifiés dans le navigateur, sans envoyer d’avis depuis le compte
+ouvert. Aucun dialogue de retour ne s’ouvre ; le lecteur local affiche la nouvelle version.
+
 ## 27 septembre 2026 — Version commune Elie / Jad
 
 `main` intègre le dernier commit de Jad, `99a8761` (supports de présentation), ainsi

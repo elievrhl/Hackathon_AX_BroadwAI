@@ -33,11 +33,6 @@ select { font: inherit; color: var(--ink); border: 1px solid var(--line); backgr
 .working-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red); flex-shrink: 0; animation: working 1.5s ease-in-out infinite; }
 @keyframes working { 50% { opacity: .3; } }
 .audit-link { display: inline-block; margin-top: 16px; font-size: .75rem; color: var(--muted); }
-.publisher-action { margin-top: 24px; }
-.publisher-action a { text-decoration: none; width: fit-content; }
-.article-brief { margin-top: 26px; }
-.article-brief summary { cursor: pointer; font-size: .875rem; }
-.article-caveats { color: var(--muted); font-size: .85rem; line-height: 1.6; }
 .feedback-options { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; }
 .feedback-options button { font-size: .75rem; }
 .feedback-options [aria-pressed=true] { border-color: var(--red); background: var(--accent-soft, #efe6dc); }
@@ -56,7 +51,7 @@ select { font: inherit; color: var(--ink); border: 1px solid var(--line); backgr
 .preference-preview strong { font-size: .85rem; }
 .future-feedback { display: flex; align-items: flex-start; gap: 10px; font-size: .85rem; line-height: 1.5; margin: 20px 0; }
 .future-feedback input { width: auto; margin-top: 3px; }
-.article-feedback summary, .applied-preferences summary, .preference-impact summary { cursor: pointer; font-size: .85rem; }
+.applied-preferences summary, .preference-impact summary { cursor: pointer; font-size: .85rem; }
 .article-feedback form { margin: 20px 0; }
 .preference-impact { margin: 0 0 20px; }
 .preference-impact li, .applied-preferences li { font-size: .8rem; line-height: 1.7; margin-bottom: 8px; }
@@ -745,8 +740,6 @@ input::placeholder,textarea::placeholder {
   color: var(--red);
 }
 .article-actions { display: flex; align-items: center; gap: 4px; margin-top: 12px; }
-.article-details-button { background: none; color: var(--muted); padding: 6px 0; font-size: .7rem; min-height: 32px; }
-.article-details-button:hover { color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
 .article-actions .like-button { margin-left: auto; }
 .article-actions .save-button { margin: 0; }
 .article-inner { min-width: 0; width: 100%; }
