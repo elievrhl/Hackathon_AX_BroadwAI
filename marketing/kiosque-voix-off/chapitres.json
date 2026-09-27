@@ -1,0 +1,50 @@
+[
+  {
+    "passage": 1,
+    "title": "Tous vos contenus, au même endroit",
+    "start_s": 0.16,
+    "end_s": 13.2,
+    "duration_s": 13.04,
+    "file": "01-tous-vos-contenus.wav"
+  },
+  {
+    "passage": 2,
+    "title": "Un kiosque qui vous ressemble",
+    "start_s": 13.52,
+    "end_s": 24.56,
+    "duration_s": 11.04,
+    "file": "02-vos-centres-interet.wav"
+  },
+  {
+    "passage": 3,
+    "title": "Une sélection pensée pour vous",
+    "start_s": 24.88,
+    "end_s": 37.44,
+    "duration_s": 12.56,
+    "file": "03-selection-personnalisee.wav"
+  },
+  {
+    "passage": 4,
+    "title": "Des recommandations qui évoluent",
+    "start_s": 37.76,
+    "end_s": 48.96,
+    "duration_s": 11.2,
+    "file": "04-recommandations.wav"
+  },
+  {
+    "passage": 5,
+    "title": "À garder pour plus tard",
+    "start_s": 49.28,
+    "end_s": 56.96,
+    "duration_s": 7.68,
+    "file": "05-bibliotheque.wav"
+  },
+  {
+    "passage": 6,
+    "title": "Et le scroll s’arrête là",
+    "start_s": 57.28,
+    "end_s": 63.84,
+    "duration_s": 6.56,
+    "file": "06-le-fil-a-une-fin.wav"
+  }
+]

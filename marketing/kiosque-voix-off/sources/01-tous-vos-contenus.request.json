@@ -1,0 +1,12 @@
+{
+  "text": "Kiosque, c’est un peu le kiosque du coin, en version numérique. Articles, vidéos, podcasts : retrouvez au même endroit des contenus sur les sujets qui vous intéressent, et découvrez-en de nouveaux.",
+  "voice_id": "WWHSNJCSTm77dyGd",
+  "output_format": "wav",
+  "only_audio": true,
+  "model_name": "default",
+  "json_config": {
+    "temp": 0.65,
+    "padding_bonus": 0.1,
+    "rewrite_rules": "fr"
+  }
+}

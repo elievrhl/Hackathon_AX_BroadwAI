@@ -1,0 +1,1039 @@
+[
+  {
+    "start": 0.0,
+    "end": 7.06,
+    "text": " Kiosk, c'est un peu le Kiosk du coin en version numérique, article, vidéo, podcast,",
+    "words": [
+      {
+        "word": " Kiosk,",
+        "start": 0.0,
+        "end": 0.66,
+        "probability": 0.5876960977911949
+      },
+      {
+        "word": " c",
+        "start": 0.92,
+        "end": 1.18,
+        "probability": 0.9828077554702759
+      },
+      {
+        "word": "'est",
+        "start": 1.18,
+        "end": 1.26,
+        "probability": 0.9988704919815063
+      },
+      {
+        "word": " un",
+        "start": 1.26,
+        "end": 1.4,
+        "probability": 0.98473060131073
+      },
+      {
+        "word": " peu",
+        "start": 1.4,
+        "end": 1.54,
+        "probability": 0.9981219172477722
+      },
+      {
+        "word": " le",
+        "start": 1.54,
+        "end": 1.68,
+        "probability": 0.9918045997619629
+      },
+      {
+        "word": " Kiosk",
+        "start": 1.68,
+        "end": 2.24,
+        "probability": 0.7889055212338766
+      },
+      {
+        "word": " du",
+        "start": 2.24,
+        "end": 2.42,
+        "probability": 0.9188437461853027
+      },
+      {
+        "word": " coin",
+        "start": 2.42,
+        "end": 2.72,
+        "probability": 0.8944114446640015
+      },
+      {
+        "word": " en",
+        "start": 2.72,
+        "end": 3.3,
+        "probability": 0.856107771396637
+      },
+      {
+        "word": " version",
+        "start": 3.3,
+        "end": 3.7,
+        "probability": 0.979874312877655
+      },
+      {
+        "word": " numérique,",
+        "start": 3.7,
+        "end": 4.32,
+        "probability": 0.9942255318164825
+      },
+      {
+        "word": " article,",
+        "start": 4.7,
+        "end": 5.36,
+        "probability": 0.8026492595672607
+      },
+      {
+        "word": " vidéo,",
+        "start": 5.78,
+        "end": 6.08,
+        "probability": 0.9392685294151306
+      },
+      {
+        "word": " podcast,",
+        "start": 6.62,
+        "end": 7.06,
+        "probability": 0.9091073274612427
+      }
+    ]
+  },
+  {
+    "start": 7.54,
+    "end": 12.2,
+    "text": " retrouvé au même endroit des contenus sur les sujets qui vous intéressent et découvraisent",
+    "words": [
+      {
+        "word": " retrouvé",
+        "start": 7.54,
+        "end": 7.96,
+        "probability": 0.720461517572403
+      },
+      {
+        "word": " au",
+        "start": 7.96,
+        "end": 8.08,
+        "probability": 0.9591661095619202
+      },
+      {
+        "word": " même",
+        "start": 8.08,
+        "end": 8.26,
+        "probability": 0.9924248456954956
+      },
+      {
+        "word": " endroit",
+        "start": 8.26,
+        "end": 8.68,
+        "probability": 0.9670124650001526
+      },
+      {
+        "word": " des",
+        "start": 8.68,
+        "end": 8.92,
+        "probability": 0.9832584857940674
+      },
+      {
+        "word": " contenus",
+        "start": 8.92,
+        "end": 9.36,
+        "probability": 0.9604687094688416
+      },
+      {
+        "word": " sur",
+        "start": 9.36,
+        "end": 9.56,
+        "probability": 0.9947829842567444
+      },
+      {
+        "word": " les",
+        "start": 9.56,
+        "end": 9.68,
+        "probability": 0.9890396595001221
+      },
+      {
+        "word": " sujets",
+        "start": 9.68,
+        "end": 9.98,
+        "probability": 0.9871282279491425
+      },
+      {
+        "word": " qui",
+        "start": 9.98,
+        "end": 10.16,
+        "probability": 0.9792935252189636
+      },
+      {
+        "word": " vous",
+        "start": 10.16,
+        "end": 10.3,
+        "probability": 0.9943580031394958
+      },
+      {
+        "word": " intéressent",
+        "start": 10.3,
+        "end": 11.2,
+        "probability": 0.9063811302185059
+      },
+      {
+        "word": " et",
+        "start": 11.2,
+        "end": 11.54,
+        "probability": 0.907773494720459
+      },
+      {
+        "word": " découvraisent",
+        "start": 11.54,
+        "end": 12.2,
+        "probability": 0.45448576907316846
+      }
+    ]
+  },
+  {
+    "start": 12.2,
+    "end": 12.62,
+    "text": " de nouveaux.",
+    "words": [
+      {
+        "word": " de",
+        "start": 12.2,
+        "end": 12.36,
+        "probability": 0.9472224712371826
+      },
+      {
+        "word": " nouveaux.",
+        "start": 12.36,
+        "end": 12.62,
+        "probability": 0.790748655796051
+      }
+    ]
+  },
+  {
+    "start": 13.38,
+    "end": 17.32,
+    "text": " Pour commencer, créer votre compte et choisissez vos centres d'intérêt.",
+    "words": [
+      {
+        "word": " Pour",
+        "start": 13.38,
+        "end": 13.64,
+        "probability": 0.9500382542610168
+      },
+      {
+        "word": " commencer,",
+        "start": 13.64,
+        "end": 14.2,
+        "probability": 0.9942627549171448
+      },
+      {
+        "word": " créer",
+        "start": 14.78,
+        "end": 14.94,
+        "probability": 0.5818939805030823
+      },
+      {
+        "word": " votre",
+        "start": 14.94,
+        "end": 15.32,
+        "probability": 0.9991642236709595
+      },
+      {
+        "word": " compte",
+        "start": 15.32,
+        "end": 15.6,
+        "probability": 0.9929048418998718
+      },
+      {
+        "word": " et",
+        "start": 15.6,
+        "end": 15.9,
+        "probability": 0.9286811947822571
+      },
+      {
+        "word": " choisissez",
+        "start": 15.9,
+        "end": 16.36,
+        "probability": 0.996439665555954
+      },
+      {
+        "word": " vos",
+        "start": 16.36,
+        "end": 16.6,
+        "probability": 0.9633511900901794
+      },
+      {
+        "word": " centres",
+        "start": 16.6,
+        "end": 16.82,
+        "probability": 0.9535394906997681
+      },
+      {
+        "word": " d",
+        "start": 16.82,
+        "end": 17.06,
+        "probability": 0.9993804693222046
+      },
+      {
+        "word": "'intérêt.",
+        "start": 17.06,
+        "end": 17.32,
+        "probability": 0.9699896574020386
+      }
+    ]
+  },
+  {
+    "start": 18.32,
+    "end": 23.98,
+    "text": " Économie, culture, sciences, à vous de nous dire ce qui éveille votre curiosité.",
+    "words": [
+      {
+        "word": " Économie,",
+        "start": 18.32,
+        "end": 18.9,
+        "probability": 0.7354292472203573
+      },
+      {
+        "word": " culture,",
+        "start": 19.56,
+        "end": 19.92,
+        "probability": 0.9779201745986938
+      },
+      {
+        "word": " sciences,",
+        "start": 20.64,
+        "end": 21.02,
+        "probability": 0.6625954508781433
+      },
+      {
+        "word": " à",
+        "start": 21.74,
+        "end": 21.96,
+        "probability": 0.8068084120750427
+      },
+      {
+        "word": " vous",
+        "start": 21.96,
+        "end": 22.1,
+        "probability": 0.9869217872619629
+      },
+      {
+        "word": " de",
+        "start": 22.1,
+        "end": 22.24,
+        "probability": 0.9978671073913574
+      },
+      {
+        "word": " nous",
+        "start": 22.24,
+        "end": 22.36,
+        "probability": 0.9974570870399475
+      },
+      {
+        "word": " dire",
+        "start": 22.36,
+        "end": 22.54,
+        "probability": 0.9988603591918945
+      },
+      {
+        "word": " ce",
+        "start": 22.54,
+        "end": 22.72,
+        "probability": 0.9942895174026489
+      },
+      {
+        "word": " qui",
+        "start": 22.72,
+        "end": 22.88,
+        "probability": 0.9792103171348572
+      },
+      {
+        "word": " éveille",
+        "start": 22.88,
+        "end": 23.12,
+        "probability": 0.813094437122345
+      },
+      {
+        "word": " votre",
+        "start": 23.12,
+        "end": 23.38,
+        "probability": 0.993468165397644
+      },
+      {
+        "word": " curiosité.",
+        "start": 23.38,
+        "end": 23.98,
+        "probability": 0.9958210587501526
+      }
+    ]
+  },
+  {
+    "start": 24.86,
+    "end": 29.98,
+    "text": " Notre agent IA joue le rôle de rédacteur en chef, il sélectionne des contenus de qualité",
+    "words": [
+      {
+        "word": " Notre",
+        "start": 24.86,
+        "end": 25.1,
+        "probability": 0.9778857231140137
+      },
+      {
+        "word": " agent",
+        "start": 25.1,
+        "end": 25.4,
+        "probability": 0.9099783301353455
+      },
+      {
+        "word": " IA",
+        "start": 25.4,
+        "end": 25.82,
+        "probability": 0.4883573353290558
+      },
+      {
+        "word": " joue",
+        "start": 25.82,
+        "end": 26.08,
+        "probability": 0.918951153755188
+      },
+      {
+        "word": " le",
+        "start": 26.08,
+        "end": 26.26,
+        "probability": 0.9983890056610107
+      },
+      {
+        "word": " rôle",
+        "start": 26.26,
+        "end": 26.48,
+        "probability": 0.9923924207687378
+      },
+      {
+        "word": " de",
+        "start": 26.48,
+        "end": 26.68,
+        "probability": 0.9942684173583984
+      },
+      {
+        "word": " rédacteur",
+        "start": 26.68,
+        "end": 27.12,
+        "probability": 0.8676336258649826
+      },
+      {
+        "word": " en",
+        "start": 27.12,
+        "end": 27.26,
+        "probability": 0.9911942481994629
+      },
+      {
+        "word": " chef,",
+        "start": 27.26,
+        "end": 27.44,
+        "probability": 0.9414110779762268
+      },
+      {
+        "word": " il",
+        "start": 28.14,
+        "end": 28.34,
+        "probability": 0.8580604791641235
+      },
+      {
+        "word": " sélectionne",
+        "start": 28.34,
+        "end": 28.94,
+        "probability": 0.991050660610199
+      },
+      {
+        "word": " des",
+        "start": 28.94,
+        "end": 29.06,
+        "probability": 0.9791740775108337
+      },
+      {
+        "word": " contenus",
+        "start": 29.06,
+        "end": 29.48,
+        "probability": 0.9853402972221375
+      },
+      {
+        "word": " de",
+        "start": 29.48,
+        "end": 29.6,
+        "probability": 0.994702160358429
+      },
+      {
+        "word": " qualité",
+        "start": 29.6,
+        "end": 29.98,
+        "probability": 0.9454561471939087
+      }
+    ]
+  },
+  {
+    "start": 29.98,
+    "end": 36.72,
+    "text": " entre actualité et sujet de fonds, de quoi suivre ce qui se passe, mais aussi prendre le temps de comprendre.",
+    "words": [
+      {
+        "word": " entre",
+        "start": 29.98,
+        "end": 30.8,
+        "probability": 0.7683954238891602
+      },
+      {
+        "word": " actualité",
+        "start": 30.8,
+        "end": 31.56,
+        "probability": 0.784401148557663
+      },
+      {
+        "word": " et",
+        "start": 31.56,
+        "end": 31.82,
+        "probability": 0.9412343502044678
+      },
+      {
+        "word": " sujet",
+        "start": 31.82,
+        "end": 32.12,
+        "probability": 0.6982811093330383
+      },
+      {
+        "word": " de",
+        "start": 32.12,
+        "end": 32.3,
+        "probability": 0.9698853492736816
+      },
+      {
+        "word": " fonds,",
+        "start": 32.3,
+        "end": 33.2,
+        "probability": 0.7574294209480286
+      },
+      {
+        "word": " de",
+        "start": 33.2,
+        "end": 33.26,
+        "probability": 0.9904628396034241
+      },
+      {
+        "word": " quoi",
+        "start": 33.26,
+        "end": 33.44,
+        "probability": 0.9936966300010681
+      },
+      {
+        "word": " suivre",
+        "start": 33.44,
+        "end": 33.84,
+        "probability": 0.9757168889045715
+      },
+      {
+        "word": " ce",
+        "start": 33.84,
+        "end": 34.08,
+        "probability": 0.9019483923912048
+      },
+      {
+        "word": " qui",
+        "start": 34.08,
+        "end": 34.22,
+        "probability": 0.9703260064125061
+      },
+      {
+        "word": " se",
+        "start": 34.22,
+        "end": 34.36,
+        "probability": 0.9978468418121338
+      },
+      {
+        "word": " passe,",
+        "start": 34.36,
+        "end": 34.7,
+        "probability": 0.9847840070724487
+      },
+      {
+        "word": " mais",
+        "start": 35.16,
+        "end": 35.2,
+        "probability": 0.9968613386154175
+      },
+      {
+        "word": " aussi",
+        "start": 35.2,
+        "end": 35.48,
+        "probability": 0.999168872833252
+      },
+      {
+        "word": " prendre",
+        "start": 35.48,
+        "end": 35.78,
+        "probability": 0.9937765598297119
+      },
+      {
+        "word": " le",
+        "start": 35.78,
+        "end": 36.0,
+        "probability": 0.9982796907424927
+      },
+      {
+        "word": " temps",
+        "start": 36.0,
+        "end": 36.18,
+        "probability": 0.9992749094963074
+      },
+      {
+        "word": " de",
+        "start": 36.18,
+        "end": 36.3,
+        "probability": 0.9961347579956055
+      },
+      {
+        "word": " comprendre.",
+        "start": 36.3,
+        "end": 36.72,
+        "probability": 0.9899722337722778
+      }
+    ]
+  },
+  {
+    "start": 37.58,
+    "end": 44.62,
+    "text": " Un contenu vous plaît, un sujet vous intéresse moins, dites-le à Kiosk, vos retours affinent la sélection,",
+    "words": [
+      {
+        "word": " Un",
+        "start": 37.58,
+        "end": 37.84,
+        "probability": 0.9581470489501953
+      },
+      {
+        "word": " contenu",
+        "start": 37.84,
+        "end": 38.3,
+        "probability": 0.9877466857433319
+      },
+      {
+        "word": " vous",
+        "start": 38.3,
+        "end": 38.5,
+        "probability": 0.9645851254463196
+      },
+      {
+        "word": " plaît,",
+        "start": 38.5,
+        "end": 38.74,
+        "probability": 0.9298418164253235
+      },
+      {
+        "word": " un",
+        "start": 39.22,
+        "end": 39.44,
+        "probability": 0.9945095181465149
+      },
+      {
+        "word": " sujet",
+        "start": 39.44,
+        "end": 39.76,
+        "probability": 0.9970464110374451
+      },
+      {
+        "word": " vous",
+        "start": 39.76,
+        "end": 39.94,
+        "probability": 0.995203971862793
+      },
+      {
+        "word": " intéresse",
+        "start": 39.94,
+        "end": 40.48,
+        "probability": 0.9907535314559937
+      },
+      {
+        "word": " moins,",
+        "start": 40.48,
+        "end": 40.74,
+        "probability": 0.7645403146743774
+      },
+      {
+        "word": " dites",
+        "start": 41.5,
+        "end": 41.6,
+        "probability": 0.8996861577033997
+      },
+      {
+        "word": "-le",
+        "start": 41.6,
+        "end": 41.82,
+        "probability": 0.7720206379890442
+      },
+      {
+        "word": " à",
+        "start": 41.82,
+        "end": 41.94,
+        "probability": 0.855446994304657
+      },
+      {
+        "word": " Kiosk,",
+        "start": 41.94,
+        "end": 42.42,
+        "probability": 0.7906481325626373
+      },
+      {
+        "word": " vos",
+        "start": 43.12,
+        "end": 43.22,
+        "probability": 0.6997264623641968
+      },
+      {
+        "word": " retours",
+        "start": 43.22,
+        "end": 43.58,
+        "probability": 0.9420142769813538
+      },
+      {
+        "word": " affinent",
+        "start": 43.58,
+        "end": 43.98,
+        "probability": 0.5155406892299652
+      },
+      {
+        "word": " la",
+        "start": 43.98,
+        "end": 44.16,
+        "probability": 0.997079610824585
+      },
+      {
+        "word": " sélection,",
+        "start": 44.16,
+        "end": 44.62,
+        "probability": 0.9745428264141083
+      }
+    ]
+  },
+  {
+    "start": 45.1,
+    "end": 52.04,
+    "text": " pour garder un fil simple, concit et pertinent. Pas le temps de tout lire, enregistrer les contenus",
+    "words": [
+      {
+        "word": " pour",
+        "start": 45.1,
+        "end": 45.32,
+        "probability": 0.9968990087509155
+      },
+      {
+        "word": " garder",
+        "start": 45.32,
+        "end": 45.68,
+        "probability": 0.9930174350738525
+      },
+      {
+        "word": " un",
+        "start": 45.68,
+        "end": 45.84,
+        "probability": 0.9980654120445251
+      },
+      {
+        "word": " fil",
+        "start": 45.84,
+        "end": 46.02,
+        "probability": 0.8936618566513062
+      },
+      {
+        "word": " simple,",
+        "start": 46.02,
+        "end": 46.52,
+        "probability": 0.9946854114532471
+      },
+      {
+        "word": " concit",
+        "start": 47.06,
+        "end": 47.42,
+        "probability": 0.5767159014940262
+      },
+      {
+        "word": " et",
+        "start": 47.42,
+        "end": 47.84,
+        "probability": 0.7820078730583191
+      },
+      {
+        "word": " pertinent.",
+        "start": 47.84,
+        "end": 48.32,
+        "probability": 0.8806268572807312
+      },
+      {
+        "word": " Pas",
+        "start": 49.06,
+        "end": 49.4,
+        "probability": 0.9318215250968933
+      },
+      {
+        "word": " le",
+        "start": 49.4,
+        "end": 49.52,
+        "probability": 0.9975495934486389
+      },
+      {
+        "word": " temps",
+        "start": 49.52,
+        "end": 49.68,
+        "probability": 0.9995239973068237
+      },
+      {
+        "word": " de",
+        "start": 49.68,
+        "end": 49.82,
+        "probability": 0.9989238381385803
+      },
+      {
+        "word": " tout",
+        "start": 49.82,
+        "end": 49.96,
+        "probability": 0.7264285683631897
+      },
+      {
+        "word": " lire,",
+        "start": 49.96,
+        "end": 50.22,
+        "probability": 0.9506554007530212
+      },
+      {
+        "word": " enregistrer",
+        "start": 50.84,
+        "end": 51.46,
+        "probability": 0.8027148246765137
+      },
+      {
+        "word": " les",
+        "start": 51.46,
+        "end": 51.6,
+        "probability": 0.9961583018302917
+      },
+      {
+        "word": " contenus",
+        "start": 51.6,
+        "end": 52.04,
+        "probability": 0.9603469371795654
+      }
+    ]
+  },
+  {
+    "start": 52.04,
+    "end": 58.02,
+    "text": " qui vous donnent envie et retrouver-les dans votre bibliothèque quand vous aurez un moment. Sur Kiosk,",
+    "words": [
+      {
+        "word": " qui",
+        "start": 52.04,
+        "end": 52.2,
+        "probability": 0.9906151294708252
+      },
+      {
+        "word": " vous",
+        "start": 52.2,
+        "end": 52.34,
+        "probability": 0.9959458708763123
+      },
+      {
+        "word": " donnent",
+        "start": 52.34,
+        "end": 52.6,
+        "probability": 0.9070212841033936
+      },
+      {
+        "word": " envie",
+        "start": 52.6,
+        "end": 52.86,
+        "probability": 0.9584235548973083
+      },
+      {
+        "word": " et",
+        "start": 52.86,
+        "end": 53.28,
+        "probability": 0.9343616366386414
+      },
+      {
+        "word": " retrouver",
+        "start": 53.28,
+        "end": 53.58,
+        "probability": 0.960992693901062
+      },
+      {
+        "word": "-les",
+        "start": 53.58,
+        "end": 53.86,
+        "probability": 0.40804533660411835
+      },
+      {
+        "word": " dans",
+        "start": 53.86,
+        "end": 54.0,
+        "probability": 0.9965274930000305
+      },
+      {
+        "word": " votre",
+        "start": 54.0,
+        "end": 54.28,
+        "probability": 0.9983066320419312
+      },
+      {
+        "word": " bibliothèque",
+        "start": 54.28,
+        "end": 55.06,
+        "probability": 0.9723069667816162
+      },
+      {
+        "word": " quand",
+        "start": 55.06,
+        "end": 55.52,
+        "probability": 0.65577632188797
+      },
+      {
+        "word": " vous",
+        "start": 55.52,
+        "end": 55.7,
+        "probability": 0.9995213747024536
+      },
+      {
+        "word": " aurez",
+        "start": 55.7,
+        "end": 56.0,
+        "probability": 0.9181147515773773
+      },
+      {
+        "word": " un",
+        "start": 56.0,
+        "end": 56.1,
+        "probability": 0.9884033799171448
+      },
+      {
+        "word": " moment.",
+        "start": 56.1,
+        "end": 56.38,
+        "probability": 0.9985299110412598
+      },
+      {
+        "word": " Sur",
+        "start": 57.16,
+        "end": 57.42,
+        "probability": 0.8724414110183716
+      },
+      {
+        "word": " Kiosk,",
+        "start": 57.42,
+        "end": 58.02,
+        "probability": 0.9908140103022257
+      }
+    ]
+  },
+  {
+    "start": 58.02,
+    "end": 63.26,
+    "text": " le fil à une fin, des contenus qui valent votre temps et le temps d'en profiter.",
+    "words": [
+      {
+        "word": " le",
+        "start": 58.02,
+        "end": 58.8,
+        "probability": 0.33218032121658325
+      },
+      {
+        "word": " fil",
+        "start": 58.8,
+        "end": 59.04,
+        "probability": 0.7372755408287048
+      },
+      {
+        "word": " à",
+        "start": 59.04,
+        "end": 59.16,
+        "probability": 0.6236599683761597
+      },
+      {
+        "word": " une",
+        "start": 59.16,
+        "end": 59.28,
+        "probability": 0.9938310384750366
+      },
+      {
+        "word": " fin,",
+        "start": 59.28,
+        "end": 59.5,
+        "probability": 0.9318782687187195
+      },
+      {
+        "word": " des",
+        "start": 60.1,
+        "end": 60.38,
+        "probability": 0.7300121784210205
+      },
+      {
+        "word": " contenus",
+        "start": 60.38,
+        "end": 60.8,
+        "probability": 0.9222073256969452
+      },
+      {
+        "word": " qui",
+        "start": 60.8,
+        "end": 61.0,
+        "probability": 0.9915919303894043
+      },
+      {
+        "word": " valent",
+        "start": 61.0,
+        "end": 61.16,
+        "probability": 0.7049707025289536
+      },
+      {
+        "word": " votre",
+        "start": 61.16,
+        "end": 61.5,
+        "probability": 0.9981631636619568
+      },
+      {
+        "word": " temps",
+        "start": 61.5,
+        "end": 61.8,
+        "probability": 0.9633639454841614
+      },
+      {
+        "word": " et",
+        "start": 61.8,
+        "end": 62.32,
+        "probability": 0.8271508812904358
+      },
+      {
+        "word": " le",
+        "start": 62.32,
+        "end": 62.46,
+        "probability": 0.994347870349884
+      },
+      {
+        "word": " temps",
+        "start": 62.46,
+        "end": 62.68,
+        "probability": 0.9878436326980591
+      },
+      {
+        "word": " d",
+        "start": 62.68,
+        "end": 62.8,
+        "probability": 0.9788699150085449
+      },
+      {
+        "word": "'en",
+        "start": 62.8,
+        "end": 62.84,
+        "probability": 0.9149290025234222
+      },
+      {
+        "word": " profiter.",
+        "start": 62.84,
+        "end": 63.26,
+        "probability": 0.9799260795116425
+      }
+    ]
+  }
+]

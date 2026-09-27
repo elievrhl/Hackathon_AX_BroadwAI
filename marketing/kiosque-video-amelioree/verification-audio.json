@@ -1,0 +1,7 @@
+{
+  "estimated_audio_lag_ms": 0.0,
+  "original_loudness_lufs": -29.47,
+  "processed_loudness_lufs": -15.78,
+  "processed_true_peak_dbtp": -1.8,
+  "sample_rate_for_correlation": 16000
+}

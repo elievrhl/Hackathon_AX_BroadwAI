@@ -1,0 +1,182 @@
+[
+  {
+    "uid": "b35yykvVppLXyw_l",
+    "name": "Elise",
+    "description": "A warm and smooth French adult voice ideal for friendly conversation and welcoming support.",
+    "language": "fr",
+    "tags": [
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Conversational"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Formal & professional"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Advertisement & Social media"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Customer Service"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Education"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Journalism"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "country",
+        "value": "fr"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "emotion",
+        "value": "Positive"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "emotion",
+        "value": "Joyful"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "emotion",
+        "value": "Energetic"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "emotion",
+        "value": "Confident"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "emotion",
+        "value": "Kind"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "age",
+        "value": "Adult"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "gender",
+        "value": "female"
+      }
+    ]
+  },
+  {
+    "uid": "w9V1722uEmTkWqnR",
+    "name": "Camille",
+    "description": "A joyful and professional French adult voice that delivers corporate and journalistic scripts with energy.",
+    "language": "fr",
+    "tags": [
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "country",
+        "value": "fr"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "perceived age",
+        "value": "Adult"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "perceived gender",
+        "value": "Feminine"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "emotion",
+        "value": "Positive (Joyful/Energetic) Neutral/Informational"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Corporate"
+      }
+    ]
+  },
+  {
+    "uid": "WWHSNJCSTm77dyGd",
+    "name": "Valentin",
+    "description": "A warm and lively French adult voice that brings a spark of genuine enthusiasm to any script.",
+    "language": "fr",
+    "tags": [
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Advertisement & Social media"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Education"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "category",
+        "value": "Journalism"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "country",
+        "value": "fr"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "emotion",
+        "value": "Positive (Joyful/Energetic) Positive (Warm/Kind)"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "perceived age",
+        "value": "Adult"
+      },
+      {
+        "translations": {},
+        "category_translations": {},
+        "category": "perceived gender",
+        "value": "Masculine"
+      }
+    ]
+  }
+]

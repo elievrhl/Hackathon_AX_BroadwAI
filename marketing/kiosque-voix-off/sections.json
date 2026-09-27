@@ -1,0 +1,32 @@
+[
+  {
+    "id": "01-tous-vos-contenus",
+    "title": "Tous vos contenus, au même endroit",
+    "text": "Kiosque, c’est un peu le kiosque du coin, en version numérique. Articles, vidéos, podcasts : retrouvez au même endroit des contenus sur les sujets qui vous intéressent, et découvrez-en de nouveaux."
+  },
+  {
+    "id": "02-vos-centres-interet",
+    "title": "Un kiosque qui vous ressemble",
+    "text": "Pour commencer, créez votre compte et choisissez vos centres d’intérêt. Économie, culture, sciences… À vous de nous dire ce qui éveille votre curiosité."
+  },
+  {
+    "id": "03-selection-personnalisee",
+    "title": "Une sélection pensée pour vous",
+    "text": "Notre agent IA joue le rôle de rédacteur en chef. Il sélectionne des contenus de qualité, entre actualité et sujets de fond. De quoi suivre ce qui se passe, mais aussi prendre le temps de comprendre."
+  },
+  {
+    "id": "04-recommandations",
+    "title": "Des recommandations qui évoluent",
+    "text": "Un contenu vous plaît ? Un sujet vous intéresse moins ? Dites-le à Kiosque. Vos retours affinent la sélection, pour garder un fil simple, concis et pertinent."
+  },
+  {
+    "id": "05-bibliotheque",
+    "title": "À garder pour plus tard",
+    "text": "Pas le temps de tout lire ? Enregistrez les contenus qui vous donnent envie et retrouvez-les dans votre bibliothèque, quand vous aurez un moment."
+  },
+  {
+    "id": "06-le-fil-a-une-fin",
+    "title": "Et le scroll s’arrête là",
+    "text": "Sur Kiosque, le fil a une fin. Des contenus qui valent votre temps… et le temps d’en profiter."
+  }
+]

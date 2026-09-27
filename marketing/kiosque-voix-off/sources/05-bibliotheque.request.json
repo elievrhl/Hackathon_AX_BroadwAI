@@ -1,0 +1,12 @@
+{
+  "text": "Pas le temps de tout lire ? Enregistrez les contenus qui vous donnent envie et retrouvez-les dans votre bibliothèque, quand vous aurez un moment.",
+  "voice_id": "WWHSNJCSTm77dyGd",
+  "output_format": "wav",
+  "only_audio": true,
+  "model_name": "default",
+  "json_config": {
+    "temp": 0.65,
+    "padding_bonus": 0.1,
+    "rewrite_rules": "fr"
+  }
+}

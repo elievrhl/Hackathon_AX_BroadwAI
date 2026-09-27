@@ -1,0 +1,12 @@
+{
+  "text": "Un contenu vous plaît ? Un sujet vous intéresse moins ? Dites-le à Kiosque. Vos retours affinent la sélection, pour garder un fil simple, concis et pertinent.",
+  "voice_id": "WWHSNJCSTm77dyGd",
+  "output_format": "wav",
+  "only_audio": true,
+  "model_name": "default",
+  "json_config": {
+    "temp": 0.65,
+    "padding_bonus": 0.1,
+    "rewrite_rules": "fr"
+  }
+}

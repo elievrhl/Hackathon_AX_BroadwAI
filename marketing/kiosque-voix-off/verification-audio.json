@@ -1,0 +1,31 @@
+{
+  "duration_s": 63.84,
+  "gain_db": 2.48,
+  "source_loudness": {
+    "input_i": "-18.56",
+    "input_tp": "-3.98",
+    "input_lra": "2.80",
+    "input_thresh": "-29.02",
+    "output_i": "-15.84",
+    "output_tp": "-1.50",
+    "output_lra": "2.70",
+    "output_thresh": "-26.31",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.16"
+  },
+  "final_loudness": {
+    "input_i": "-16.08",
+    "input_tp": "-1.50",
+    "input_lra": "2.80",
+    "input_thresh": "-26.54",
+    "output_i": "-15.84",
+    "output_tp": "-1.50",
+    "output_lra": "2.70",
+    "output_thresh": "-26.31",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.16"
+  },
+  "voice": "Valentin",
+  "provider": "Gradium",
+  "sample_rate": 48000
+}
