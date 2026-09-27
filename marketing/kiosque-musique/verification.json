@@ -1,0 +1,33 @@
+{
+  "title": "Curiosité",
+  "duration_seconds": 63.84,
+  "bpm": 96,
+  "key": "G major",
+  "sample_rate": 48000,
+  "composition": "Original, locally synthesized, no third-party samples",
+  "loudness": {
+    "input_i": "-18.00",
+    "input_tp": "-2.92",
+    "input_lra": "7.20",
+    "input_thresh": "-28.26",
+    "output_i": "-17.22",
+    "output_tp": "-2.06",
+    "output_lra": "4.70",
+    "output_thresh": "-27.39",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.78"
+  },
+  "master_gain_db": -0.6799999999999997,
+  "mix_loudness": {
+    "input_i": "-16.29",
+    "input_tp": "-4.36",
+    "input_lra": "2.60",
+    "input_thresh": "-26.73",
+    "output_i": "-17.89",
+    "output_tp": "-6.15",
+    "output_lra": "2.50",
+    "output_thresh": "-28.31",
+    "normalization_type": "dynamic",
+    "target_offset": "-0.11"
+  }
+}
