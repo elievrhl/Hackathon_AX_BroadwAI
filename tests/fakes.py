@@ -181,8 +181,10 @@ class MemoryStore(MemoryDailyStore):
     def get_cover(self, cover_id):
         return self.covers.get(cover_id)
 
-    def list_covers(self, limit=30, offset=0):
+    def list_covers(self, limit=30, offset=0, user_id=None):
         covers = sorted(self.covers.values(), key=lambda c: c.created_at, reverse=True)
+        if user_id is not None:
+            covers = [cover for cover in covers if cover.user_id == user_id]
         return [
             {
                 "id": c.id,

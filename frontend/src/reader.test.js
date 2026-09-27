@@ -201,7 +201,7 @@ test('server failures never become simulated content or automatic paid retries',
     t.mock.restoreAll();
   }
   t.mock.method(globalThis, 'fetch', async () => new Response('<html>wrong proxy</html>'));
-  await assert.rejects(getHealth(), /JSON/);
+  await assert.rejects(getHealth(), /n’a pas pu être lue/);
   t.mock.restoreAll();
   t.mock.method(globalThis, 'fetch', async () => { throw new TypeError('network'); });
   await assert.rejects(listCovers(), /inaccessible/);

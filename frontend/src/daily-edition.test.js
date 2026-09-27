@@ -33,7 +33,7 @@ test('registration saves personalization without posting a paid cover request', 
 });
 
 test('daily status never promises an active schedule when it is unavailable', () => {
-  assert.match(dailyEditionMessage(null), /Activation/);
+  assert.match(dailyEditionMessage(null), /bientôt disponible/);
   assert.match(dailyEditionMessage({ enabled: false }), /indisponible/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'running' }), /se prépare/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'failed' }), /n’a pas pu/);

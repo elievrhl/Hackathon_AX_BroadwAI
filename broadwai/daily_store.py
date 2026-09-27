@@ -9,13 +9,15 @@ class DailyEditionStore:
         with self.pool.connection() as db, db.cursor(row_factory=dict_row) as cursor:
             return cursor.execute(
                 "SELECT user_id,request,first_run_at,updated_at FROM daily_edition_profiles "
-                "ORDER BY updated_at DESC,user_id LIMIT %s OFFSET %s", (limit, offset),
+                "ORDER BY updated_at DESC,user_id LIMIT %s OFFSET %s",
+                (limit, offset),
             ).fetchall()
 
     def get_daily_profile(self, user_id):
         with self.pool.connection() as db:
             row = db.execute(
-                "SELECT request FROM daily_edition_profiles WHERE user_id=%s", (user_id,),
+                "SELECT request FROM daily_edition_profiles WHERE user_id=%s",
+                (user_id,),
             ).fetchone()
         return row[0] if row else None
 

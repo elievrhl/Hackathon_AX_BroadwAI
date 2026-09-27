@@ -298,6 +298,20 @@ sont signalées et les paywalls ne sont pas contournés ; un extrait disponible 
 Les schémas des sources et propositions sont mis à jour au redémarrage du backend, en conservant
 les sources et historiques existants.
 
+### Administration des éditions
+
+Les commandes techniques sont accessibles dans `/admin/covers` depuis **Éditions &
+planification** : modèles configurés, préparation en cours, profils synchronisés, échéance
+quotidienne, génération manuelle et historique filtré. **Actualiser** ne génère rien.
+`GET /v1/admin/editions?limit=100&offset=0` fournit ce tableau de bord, sans clé API.
+`POST /v1/admin/readers/{user_id}/covers` prépare une édition à partir du profil enregistré,
+avec les quotas et verrouillages habituels, sans décaler sa préparation quotidienne.
+
+Le lecteur conserve ses archives, mais ne présente plus le bloc « Mes éditions », les
+liens admin, les coûts, les diagnostics de sélection ou les messages de configuration.
+Quand le build est installé, la racine du backend ouvre le lecteur ; l’administration
+reste accessible explicitement par `/admin`.
+
 ### Inspection des couvertures
 
 L’inspecteur présente d’abord le résultat (articles retenus/demandés, sources, durée et coût),
@@ -311,7 +325,7 @@ passages, les retraits restent rattachés à leur tentative et les données abse
 pas reconstruites. La page affiche un bilan après génération, sans suivi en direct.
 
 `/admin/covers` affiche l'historique et le déroulement enregistré de chaque couverture. Le lien
-« Couvertures & traces » est disponible dans l'admin. `GET /v1/covers?limit=30&offset=0` liste
+« Éditions & planification » est disponible dans l'admin. `GET /v1/covers?limit=30&offset=0` liste
 les couvertures ; `GET /v1/covers/{id}` contient la trace et le champ `diagnostics`.
 
 Pour les nouvelles générations, le journal conserve le profil/les limites utilisés, les scores
@@ -628,14 +642,15 @@ Références d'intégration : [OpenAI Structured Outputs](https://developers.ope
 [Trafilatura](https://trafilatura.readthedocs.io/en/latest/usage-python.html),
 [Psycopg](https://www.psycopg.org/psycopg3/docs/basic/usage.html).
 
-## Comptes de démonstration et bibliothèque
+## Profils sur cet appareil et bibliothèque
 
-L’interface propose une création de compte et une connexion par e-mail et mot de passe
-**fictif**. Aucun e-mail n’est envoyé ; le mot de passe reste dans le formulaire et n’est
-ni conservé, ni transmis, ni vérifié. Le compte (identifiant, prénom, e-mail) et la session
-sont locaux au navigateur. Ce prototype n’est pas une authentification : les identifiants
-de compte dans l’API sont déclaratifs, et l’administration reste sans contrôle d’accès.
-Un autre navigateur ou appareil ne retrouve donc pas automatiquement le même compte.
+L’interface permet de créer ou retrouver un profil sur cet appareil à partir du prénom
+et de l’e-mail. Le faux champ de mot de passe et le texte de démonstration ont été retirés.
+Aucun e-mail n’est envoyé. L’identité et la session restent locales au navigateur.
+Cela ne constitue pas une authentification serveur : les identifiants de compte dans
+l’API sont déclaratifs, et l’administration reste sans contrôle d’accès. La séparation
+visuelle lecteur/admin doit être complétée par une authentification et des autorisations
+avant une ouverture publique. Un autre appareil ne retrouve pas automatiquement ce profil.
 
 Le premier compte créé reprend l’identité et les préférences de l’ancien lecteur anonyme.
 Les comptes suivants ont chacun leurs préférences, likes, historique et bibliothèques séparés.

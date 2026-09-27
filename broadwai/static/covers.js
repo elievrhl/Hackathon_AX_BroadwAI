@@ -1,6 +1,6 @@
 "use strict";
 const $ = id => document.getElementById(id);
-const state = {rows: [], selected: new URLSearchParams(location.search).get("id"), sequence: 0};
+const state = {rows: [], selected: new URLSearchParams(location.search).get("id"), sequence: 0, listSequence: 0, operations: null, generating: false};
 const n = (tag, text, cls) => {
   const element = document.createElement(tag);
   if (text !== undefined) element.textContent = text;
@@ -48,10 +48,12 @@ function link(label, url) {
   a.target = "_blank"; a.rel = "noopener noreferrer";
   return a;
 }
-async function api(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`Chargement impossible (${response.status})`);
-  return response.json();
+async function api(url, options = {}) {
+  const response = await fetch(url, options);
+  const data = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(typeof data?.detail === "string" ? data.detail : `Requête impossible (${response.status})`);
+  if (data === null) throw new Error("Réponse du serveur illisible.");
+  return data;
 }
 function error(e) { $("error").hidden = false; $("error").textContent = e.message; }
 function jsonDetails(label, data) {
@@ -363,14 +365,103 @@ function renderHistory() {
     b.addEventListener("click", () => showCover(cover.id)); list.append(b);
   }
 }
-async function load(more = false) {
-  $("error").hidden = true; $("reload").disabled = true; $("more").disabled = true;
-  try {
-    const rows = await api(`/v1/covers?limit=30&offset=${more ? state.rows.length : 0}`);
-    state.rows = more ? [...state.rows, ...rows] : rows; $("more").hidden = rows.length < 30; renderHistory();
-    if (!more && (state.selected || rows[0])) await showCover(state.selected || rows[0].id);
-  } finally { $("reload").disabled = false; $("more").disabled = false; }
+const scheduleNames = { scheduled: "Programmée", running: "En préparation", ready: "Terminée", failed: "Échec · prochaine tentative automatique à 4 h", disabled: "Désactivée", unregistered: "Non inscrite" };
+const parisDate = value => value ? new Date(value).toLocaleString("fr-FR", { timeZone: "Europe/Paris", dateStyle: "short", timeStyle: "short" }) : "—";
+function selectedProfile() { return state.operations?.profiles.find(row => row.user_id === $("reader-profile").value); }
+function operationControls() {
+  const profile = selectedProfile();
+  $("generate-cover").disabled = !profile || !state.operations?.llm_configured || state.operations?.preparing || state.generating;
+  $("generate-cover").textContent = state.generating ? "Préparation en cours…" : "Générer une une maintenant";
+  $("reader-profile").disabled = state.generating;
 }
-$("reload").addEventListener("click", () => load().catch(error));
+function renderSchedule() {
+  const profile = selectedProfile(), parent = $("profile-schedule");
+  parent.replaceChildren();
+  if (!profile) parent.append(n("p", state.operations?.profiles.length ? "Choisissez un profil pour consulter sa planification ou préparer une édition." : "Aucun profil inscrit. Les lecteurs sont ajoutés lorsqu’ils choisissent leurs sujets dans Kiosque.", "muted"));
+  else {
+    const {request, schedule} = profile;
+    parent.append(n("p", `Compte : ${profile.user_id}`, "small"));
+    parent.append(n("p", request.profile.interests.map(interest => interest.topic).join(" · ")));
+    parent.append(n("p", `${request.size} contenus · langues : ${request.profile.languages.join(", ") || "toutes"} · profil mis à jour le ${parisDate(profile.updated_at)}`, "small"));
+    parent.append(n("p", `Préparation quotidienne : ${scheduleNames[schedule.status] || schedule.status} · prochaine échéance : ${parisDate(schedule.next_run_at)} (Paris)`));
+    if (schedule.cover_id) parent.append(link("Ouvrir la trace de la dernière préparation quotidienne", `/admin/covers?id=${encodeURIComponent(schedule.cover_id)}`));
+  }
+  operationControls();
+}
+async function loadOperations() {
+  try {
+    // Profiles are paginated by the API. Keep every registered reader selectable.
+    let data, profiles = [], offset = 0;
+    do {
+      data = await api(`/v1/admin/editions?limit=100&offset=${offset}`);
+      profiles.push(...data.profiles); offset += data.profiles.length;
+    } while (data.profiles.length === 100);
+    state.operations = {...data, profiles};
+    const selected = $("reader-profile").value;
+    $("reader-profile").replaceChildren(new Option("Tous les lecteurs · historique", ""));
+    for (const profile of profiles) {
+      const topics = profile.request.profile.interests.map(interest => interest.topic.split(",")[0]).join(" / ");
+      $("reader-profile").add(new Option(`${profile.user_id} · ${topics}`, profile.user_id));
+    }
+    $("reader-profile").value = selected;
+    $("scheduler-health").textContent = data.daily_editions_enabled ? "Automatique · 4 h Paris" : "Automatique désactivée";
+    $("model-health").textContent = !data.llm_configured ? "Modèles indisponibles : configurer OPENAI_API_KEY, SUMMARY_MODEL et EDITOR_MODEL sur le serveur." : data.preparing ? "Une couverture est actuellement en préparation." : "Modèles configurés · aucune préparation en cours sur ce serveur.";
+    renderSchedule();
+  } catch (e) {
+    state.operations = null;
+    $("scheduler-health").textContent = "État indisponible";
+    operationControls();
+    throw e;
+  }
+}
+async function load(more = false, refreshDetail = true) {
+  const seq = ++state.listSequence;
+  $("error").hidden = true; $("reload").disabled = true; $("more").disabled = true;
+  const params = new URLSearchParams({limit: 30, offset: more ? state.rows.length : 0});
+  if ($("reader-profile").value) params.set("user_id", $("reader-profile").value);
+  try {
+    const rows = await api(`/v1/covers?${params}`);
+    if (seq !== state.listSequence) return;
+    state.rows = more ? [...state.rows, ...rows] : rows; $("more").hidden = rows.length < 30; renderHistory();
+    if (!more && refreshDetail) {
+      if (state.selected || rows[0]) await showCover(state.selected || rows[0].id);
+      else $("cover-detail").replaceChildren(n("p", "Aucune édition pour ce profil.", "empty"));
+    }
+  } finally { if (seq === state.listSequence) { $("reload").disabled = false; $("more").disabled = false; } }
+}
+async function generate(event) {
+  event.preventDefault();
+  if ($("generate-cover").disabled || state.generating) return;
+  const profile = selectedProfile();
+  if (!profile) return;
+  state.generating = true; operationControls();
+  $("generation-notice").hidden = false;
+  $("generation-notice").textContent = "Préparation en cours. Cela peut prendre jusqu’à cinq minutes. Gardez cette page ouverte ; aucune relance automatique ne sera effectuée.";
+  $("error").hidden = true;
+  let cover;
+  try {
+    cover = await api(`/v1/admin/readers/${encodeURIComponent(profile.user_id)}/covers`, {method: "POST"});
+  } catch (e) {
+    error(e);
+    $("generation-notice").textContent = "La préparation n’a pas été confirmée. Actualisez l’historique avant de lancer une nouvelle tentative.";
+  } finally { state.generating = false; operationControls(); }
+  if (cover) {
+    state.selected = cover.id;
+    state.rows = [{...cover, item_count: cover.items.length, audit_version: cover.diagnostics?.version || 0}, ...state.rows.filter(row => row.id !== cover.id)];
+    history.replaceState(null, "", `?id=${encodeURIComponent(cover.id)}`);
+    renderHistory(); renderCover(cover);
+    $("generation-notice").textContent = `Édition enregistrée : ${cover.title}. ${cover.items.length} contenus · ${statusNames[cover.status] || cover.status}.`;
+    try { await Promise.all([load(false, false), loadOperations()]); }
+    catch (e) { error(new Error(`L’édition est enregistrée. Actualisation incomplète : ${e.message}`)); }
+  }
+}
+$("generation-form").addEventListener("submit", generate);
+$("reader-profile").addEventListener("change", () => {
+  state.selected = null; state.sequence++;
+  history.replaceState(null, "", location.pathname);
+  renderSchedule(); load().catch(error);
+});
+$("reload").addEventListener("click", () => Promise.all([load(), loadOperations()]).catch(error));
 $("more").addEventListener("click", () => load(true).catch(error));
-load().catch(error);
+Promise.all([load(), loadOperations()]).catch(error);
+setInterval(() => { if (!document.hidden && !state.generating) loadOperations().catch(error); }, 30_000);

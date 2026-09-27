@@ -18,7 +18,7 @@ export default function Newspaper({ cover, saved, onSave, onOrganize, saving, on
       <nav className="paper-navigation" aria-label="Rubriques du journal"><div className="nav-topics"><button className={filter === 'all' ? 'active' : ''} aria-current={filter === 'all' ? 'page' : undefined} onClick={() => setFilter('all')}>La une</button>{sections.map(section => <button key={section.id} className={filter === section.id ? 'active' : ''} aria-current={filter === section.id ? 'page' : undefined} onClick={() => setFilter(section.id)}>{section.label}</button>)}</div></nav>
     </header>
     <main id="main" className="paper-main">
-      <div className="edition-intro"><div><h1>{filter === 'all' ? (cover?.title || <>Le monde, <em>de votre point de vue.</em></>) : sections.find(section => section.id === filter)?.label}</h1><p>{cover ? `${contentCount(items)} · ${formatDate(cover.createdAt)}` : 'Votre une est préparée chaque jour à 4 h, heure de Paris.'}</p></div></div>
+      <div className="edition-intro"><div><h1>{filter === 'all' ? (cover?.title || <>Le monde, <em>de votre point de vue.</em></>) : sections.find(section => section.id === filter)?.label}</h1>{cover && <p>{`${contentCount(items)} · ${formatDate(cover.createdAt)}`}</p>}</div></div>
       {children}
       {cover && !items.length && <div className="empty-state"><h2>Aucun article retenu.</h2><p>Nous préparons vos prochaines lectures. Vous pouvez retrouver les précédentes dans vos archives.</p></div>}
       {items.length > 0 && (filter === 'all' ? <div className="edition-flow" style={{ '--content-columns': Math.min(items.length, 3) }}>

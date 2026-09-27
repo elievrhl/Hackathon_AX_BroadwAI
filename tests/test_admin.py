@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -29,7 +31,8 @@ def test_admin_page_and_assets_are_served_without_llm(admin):
     response = client.get("/admin")
     assert response.status_code == 200
     assert "Sources & articles" in response.text
-    assert client.get("/").url.path == "/admin"
+    expected = "/reader/" if Path("frontend/dist/index.html").is_file() else "/admin"
+    assert client.get("/").url.path == expected
     assert client.get("/admin/assets/admin.js").status_code == 200
     assert client.get("/admin/assets/admin.css").status_code == 200
 

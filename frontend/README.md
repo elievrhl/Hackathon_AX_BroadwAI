@@ -1,7 +1,8 @@
 # Kiosque — interface lecteur connectée
 
-React 19 / Vite 7, API FastAPI et PostgreSQL. Comptes de démonstration locaux au navigateur,
-sans vérification du mot de passe ni authentification serveur.
+React 19 / Vite 7, API FastAPI et PostgreSQL. Profils de lecture locaux au navigateur,
+sans mot de passe ni authentification serveur. La séparation lecteur/admin concerne
+l’interface : un contrôle d’accès serveur reste nécessaire avant une ouverture publique.
 
 ## Lancer
 
@@ -37,7 +38,7 @@ utiliser la même adresse pour retrouver son profil local.
 
 ## Parcours
 
-1. Ouvrir un compte de démonstration, puis choisir ses sujets et un contexte facultatif.
+1. Créer ou retrouver son profil sur cet appareil, puis choisir ses sujets et un contexte facultatif.
 2. Les intérêts, notes, langues et taille sont synchronisés via
    `PUT /v1/readers/{user_id}/daily-edition`. La première préparation est prévue
    au prochain 4 h, heure de Paris. Aucun bouton ni appel payant immédiat.
@@ -111,6 +112,21 @@ sont uniques par compte et date. Un serveur arrêté rattrape la dernière éch�
 à son redémarrage, sans rejouer les tentatives déjà lancées. Le serveur doit rester actif
 pour démarrer à 4 h ; `DAILY_EDITIONS_ENABLED=false` suspend cette préparation.
 
+## Commandes réservées à l’administration
+
+Le lecteur n’affiche plus « Mes éditions », le sélecteur d’historique technique, les
+coûts, les états internes de sélection, le bilan des préférences ni les liens vers
+l’administration. Les anciennes éditions restent disponibles dans **Archives**.
+Les erreurs d’infrastructure sont reformulées sans clés, configuration ou traces.
+Les préférences, sauvegardes, likes, avis et la provenance des résumés restent visibles.
+
+`/admin/covers` rassemble le suivi des préparations de 4 h, la disponibilité des modèles,
+le choix d’un profil, **Générer une une maintenant**, **Actualiser**, l’historique filtré
+et les diagnostics détaillés. Consulter ou actualiser l’administration ne déclenche aucun
+appel payant ; seule la commande explicite de génération en déclenche un.
+Le profil utilisé est celui enregistré côté serveur ; une génération manuelle ne décale
+pas la prochaine préparation quotidienne.
+
 ## Stockage et retours
 
 Le bouton **Thèmes**, accessible dès l’accueil puis dans la navigation du lecteur,
@@ -136,7 +152,7 @@ fixe. `kiosque.colorMode.v1` mémorise ce réglage et le synchronise entre ongle
 une valeur absente, invalide ou inaccessible revient à Auto. L’apparence est appliquée
 avant le premier rendu React pour éviter un éclair de la mauvaise palette.
 
-- `kiosque.accounts.v1`, `kiosque.session.v1` : comptes de démonstration et session locale.
+- `kiosque.accounts.v1`, `kiosque.session.v1` : profils sur cet appareil et session locale.
 - Les clés `kiosque.reader.v1`, `kiosque.lastCover` sont suffixées
   par l’identifiant du compte pour isoler le profil et la dernière édition.
 - Les profils de préparation et les tentatives quotidiennes sont persistés dans PostgreSQL

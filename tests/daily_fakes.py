@@ -7,10 +7,9 @@ class MemoryDailyStore:
         self.daily_runs = {}
 
     def list_daily_profiles(self, limit=100, offset=0):
-        return [
-            {"user_id": user, **profile}
-            for user, profile in self.daily_profiles.items()
-        ][offset:offset + limit]
+        return [{"user_id": user, **profile} for user, profile in self.daily_profiles.items()][
+            offset : offset + limit
+        ]
 
     def get_daily_profile(self, user_id):
         return self.daily_profiles.get(user_id, {}).get("request")

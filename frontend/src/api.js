@@ -18,7 +18,7 @@ export async function request(path, options = {}) {
     const messages = {
       401: 'Ouvrez votre espace de lecture pour continuer.',
       403: 'Cette action n’est pas disponible pour votre profil.',
-      429: 'Cette action est déjà en cours. Patientez quelques instants.',
+      429: path.includes('/messages') ? 'Kiosque lit déjà un message. Patientez quelques instants.' : 'Cette action est déjà en cours. Patientez quelques instants.',
       503: 'Ce service est momentanément indisponible. Réessayez un peu plus tard.',
       504: 'L’opération prend plus de temps que prévu. Réessayez dans quelques instants.',
     };

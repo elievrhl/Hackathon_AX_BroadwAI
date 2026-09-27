@@ -108,7 +108,7 @@ def create_app(
 
     @app.get("/", include_in_schema=False)
     def root():
-        return RedirectResponse("/admin")
+        return RedirectResponse("/reader/" if (reader_dist / "index.html").is_file() else "/admin")
 
     @app.get("/admin", include_in_schema=False)
     def admin():
