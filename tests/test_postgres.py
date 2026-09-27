@@ -31,6 +31,70 @@ def pg_store():
             db.execute(sql.SQL("DROP SCHEMA {} CASCADE").format(sql.Identifier(schema)))
 
 
+def test_library_api_persistence_isolation_and_removal(pg_store):
+    from fastapi.testclient import TestClient
+
+    from broadwai.api import create_app
+    from broadwai.config import Settings
+    from broadwai.models import Cover
+
+    cover = Cover(
+        user_id="alice",
+        title="Une à conserver",
+        status="partial",
+        items=[],
+        trace=[],
+        warnings=[],
+        usage={},
+    )
+    pg_store.put_cover(cover)
+    bob = cover.model_copy(update={"id": uuid4().hex, "user_id": "bob"})
+    pg_store.put_cover(bob)
+    settings = Settings(_env_file=None, openai_api_key=None, summary_model="", editor_model="")
+    with TestClient(create_app(settings, store=pg_store)) as client:
+        path = f"/v1/library/{cover.id}"
+        assert client.get("/v1/library", params={"user_id": "alice"}).json() == []
+        assert client.put(path, params={"user_id": "bob"}).status_code == 404
+        assert client.put(path).status_code == 422
+        for _ in range(2):
+            assert client.put(path, params={"user_id": "alice"}).json() == {"saved": True}
+        saved = client.get("/v1/library", params={"user_id": "alice"}).json()
+        assert len(saved) == 1
+        assert saved[0]["id"] == cover.id
+        assert saved[0]["artwork"]["version"] == 1
+        assert saved[0]["saved_at"]
+        assert pg_store.library("alice")[0]["artwork"] == saved[0]["artwork"]
+        assert client.get("/v1/library", params={"user_id": "bob"}).json() == []
+        assert client.get(f"/v1/covers/{cover.id}", params={"user_id": "bob"}).status_code == 404
+        assert client.get(f"/v1/covers/{cover.id}", params={"user_id": "alice"}).status_code == 200
+        assert [c["id"] for c in client.get("/v1/covers", params={"user_id": "bob"}).json()] == [
+            bob.id
+        ]
+        client.delete(path, params={"user_id": "bob"})
+        assert len(pg_store.library("alice")) == 1
+        client.delete(path, params={"user_id": "alice"})
+        assert pg_store.library("alice") == []
+        assert pg_store.get_cover(cover.id) == cover
+
+
+async def test_library_uses_images_discovered_after_generation(pg_store):
+    source = article()
+    pg_store.put_article(source)
+    cover = await pipeline(pg_store, ScriptedModel([finalize_first])).run(request())
+    pg_store.set_article_image(
+        source.id, ArticleImage(url="https://example.com/photo.jpg", alt="Photo"), utcnow()
+    )
+    pg_store.save_edition("alice", cover.id)
+    first = pg_store.library("alice")[0]
+    assert first["artwork"]["photos"] == [source.id]
+    pg_store.set_article_image(source.id, None, utcnow())
+    pg_store.save_edition("alice", cover.id)
+    assert pg_store.library("alice")[0] == first  # Repeated save preserves the recipe and date.
+    pg_store.remove_edition("alice", cover.id)
+    pg_store.save_edition("alice", cover.id)
+    assert pg_store.library("alice")[0]["artwork"]["photos"] == []
+
+
 async def test_likes_persist_are_idempotent_and_reversible(pg_store):
     from broadwai.reader_memory import ArticleLike
 

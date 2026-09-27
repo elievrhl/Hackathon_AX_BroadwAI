@@ -489,6 +489,29 @@ Références d'intégration : [OpenAI Structured Outputs](https://developers.ope
 [Trafilatura](https://trafilatura.readthedocs.io/en/latest/usage-python.html),
 [Psycopg](https://www.psycopg.org/psycopg3/docs/basic/usage.html).
 
+## Comptes de démonstration et bibliothèque
+
+L’interface propose une création de compte et une connexion par e-mail et mot de passe
+**fictif**. Aucun e-mail n’est envoyé ; le mot de passe reste dans le formulaire et n’est
+ni conservé, ni transmis, ni vérifié. Le compte (identifiant, prénom, e-mail) et la session
+sont locaux au navigateur. Ce prototype n’est pas une authentification : les identifiants
+de compte dans l’API sont déclaratifs, et l’administration reste sans contrôle d’accès.
+Un autre navigateur ou appareil ne retrouve donc pas automatiquement le même compte.
+
+Le premier compte créé reprend l’identité et les préférences de l’ancien lecteur anonyme.
+Les comptes suivants ont chacun leurs préférences, likes, historique et favoris séparés.
+« Sauvegarder la revue » ajoute explicitement une édition à « Ma bibliothèque » dans
+PostgreSQL (`library_editions`). La déconnexion et le redémarrage du serveur ne suppriment
+pas cette collection. Retirer une revue de la bibliothèque conserve son édition d’origine.
+
+`GET /v1/library?user_id=…` liste la collection ; `PUT` et `DELETE`
+`/v1/library/{cover_id}?user_id=…` ajoutent ou retirent une revue. Les éditions doivent
+appartenir au compte déclaré. L’historique du lecteur transmet également `user_id`.
+Le montage de couverture réutilise jusqu’à trois images des articles via le proxy existant,
+avec titre, date, rubriques et palette stable. La tranche reprend titre et date. Aucune image
+n’est générée par IA ; si les images sont absentes ou indisponibles, une composition
+typographique les remplace. Les visuels restent dépendants des images accessibles des sources.
+
 ## Likes et profil de lecture appris
 
 Un petit cœur en tête de chaque article permet d’aimer ou de retirer un like.

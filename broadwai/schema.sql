@@ -19,6 +19,15 @@ CREATE TABLE IF NOT EXISTS covers (
     payload JSONB NOT NULL
 );
 CREATE INDEX IF NOT EXISTS covers_user_id ON covers(user_id);
+CREATE TABLE IF NOT EXISTS library_editions (
+    user_id TEXT NOT NULL,
+    cover_id TEXT NOT NULL REFERENCES covers(id) ON DELETE CASCADE,
+    artwork JSONB NOT NULL,
+    saved_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, cover_id)
+);
+CREATE INDEX IF NOT EXISTS library_editions_recent
+    ON library_editions(user_id, saved_at DESC);
 CREATE TABLE IF NOT EXISTS article_likes (
     user_id TEXT NOT NULL,
     article_id TEXT NOT NULL,

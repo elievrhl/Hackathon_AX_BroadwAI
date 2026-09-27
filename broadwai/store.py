@@ -154,17 +154,68 @@ class Store:
             row = db.execute("SELECT payload FROM covers WHERE id=%s", (cover_id,)).fetchone()
         return Cover.model_validate(row[0]) if row else None
 
-    def list_covers(self, limit=30, offset=0):
+    def list_covers(self, limit=30, offset=0, user_id=None):
         with self.pool.connection() as db:
             rows = db.execute(
                 "SELECT payload->>'id', payload->>'title', payload->>'created_at', "
                 "payload->>'status', jsonb_array_length(payload->'items'), "
                 "payload->'usage', COALESCE(payload->'diagnostics'->>'version','0') "
-                "FROM covers ORDER BY payload->>'created_at' DESC, id LIMIT %s OFFSET %s",
-                (limit, offset),
+                "FROM covers "
+                + ("WHERE user_id=%s " if user_id is not None else "")
+                + "ORDER BY payload->>'created_at' DESC, id LIMIT %s OFFSET %s",
+                (user_id, limit, offset) if user_id is not None else (limit, offset),
             ).fetchall()
         keys = ("id", "title", "created_at", "status", "item_count", "usage", "audit_version")
         return [dict(zip(keys, row, strict=True)) for row in rows]
+
+    def save_edition(self, user_id: str, cover_id: str) -> None:
+        from broadwai.library import artwork
+
+        cover = self.get_cover(cover_id)
+        if cover is None or cover.user_id != user_id:
+            raise ValueError("Revue introuvable pour ce compte")
+        # Image discovery often happens after generation. Use the latest catalog
+        # metadata so older editions also get their available photographs.
+        items = []
+        for item in cover.items:
+            article = self.get_article(item.article_id)
+            if article is not None:
+                item = item.model_copy(
+                    update={
+                        "image": article.image
+                        if article.image_checked_at
+                        else article.image or item.image,
+                        "image_checked": bool(article.image_checked_at) or item.image_checked,
+                    }
+                )
+            items.append(item)
+        cover = cover.model_copy(update={"items": items})
+        with self.pool.connection() as db:
+            db.execute(
+                "INSERT INTO library_editions (user_id, cover_id, artwork) "
+                "VALUES (%s, %s, %s) ON CONFLICT DO NOTHING",
+                (user_id, cover_id, Jsonb(artwork(cover))),
+            )
+
+    def library(self, user_id: str) -> list[dict]:
+        with self.pool.connection() as db:
+            rows = db.execute(
+                "SELECT c.id, c.payload->>'title', c.payload->>'created_at', "
+                "jsonb_array_length(c.payload->'items'), l.saved_at, l.artwork "
+                "FROM library_editions l JOIN covers c ON c.id=l.cover_id "
+                "WHERE l.user_id=%s AND c.user_id=l.user_id "
+                "ORDER BY l.saved_at DESC, c.id",
+                (user_id,),
+            ).fetchall()
+        keys = ("id", "title", "created_at", "item_count", "saved_at", "artwork")
+        return [dict(zip(keys, row, strict=True)) for row in rows]
+
+    def remove_edition(self, user_id: str, cover_id: str) -> None:
+        with self.pool.connection() as db:
+            db.execute(
+                "DELETE FROM library_editions WHERE user_id=%s AND cover_id=%s",
+                (user_id, cover_id),
+            )
 
     def add_feedback(self, feedback: Feedback) -> None:
         cover = self.get_cover(feedback.cover_id)

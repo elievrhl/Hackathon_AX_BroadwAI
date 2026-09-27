@@ -29,13 +29,14 @@ function TopicChoices({
   </div>;
 }
 export function Onboarding({
+  initialName = '',
   onComplete,
   onExplore
 }) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(initialName ? 1 : 0);
   const [draft, setDraft] = useState({
     ...DEFAULT_PROFILE,
-    name: '',
+    name: initialName,
     topics: [],
     notes: ''
   });
@@ -63,7 +64,7 @@ export function Onboarding({
         <div className="step-label"><span>{step === 0 ? 'FAISONS CONNAISSANCE' : 'VOS CENTRES D’INTÉRÊT'}</span><span>0{step + 1}<span className="muted"> / 02</span></span></div>
         <div className="step-track"><span /><span className={step === 1 ? 'active' : ''} /></div>
         <h2 id="onboard-title" ref={titleRef} tabIndex={-1}>{step === 0 ? <>Votre une <br />commence ici.</> : <>Qu’est-ce qui <br />vous anime ?</>}</h2>
-        <p className="panel-intro">{step === 0 ? 'Un prénom, quelques envies. Aucun compte à créer.' : 'Choisissez vos sujets. Le premier aura plus de poids ; le rédacteur composera votre sélection.'}</p>
+        <p className="panel-intro">{step === 0 ? 'Un prénom, quelques envies. Votre journal commence ici.' : 'Choisissez vos sujets. Le premier aura plus de poids ; le rédacteur composera votre sélection.'}</p>
         {step === 0 ? <form onSubmit={event => {
           event.preventDefault();
           if (draft.name.trim()) setStep(1);

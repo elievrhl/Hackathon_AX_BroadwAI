@@ -29,7 +29,11 @@ const post = (path, body) => request(path, { method: 'POST', headers: { 'Content
 export const getHealth = () => request('/health');
 export const getLikes = userId => request(`/v1/likes?user_id=${encodeURIComponent(userId)}`);
 export const setLike = payload => request('/v1/likes', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-export const listCovers = () => request('/v1/covers?limit=100');
-export const getCover = id => request(`/v1/covers/${encodeURIComponent(id)}`);
+export const listCovers = userId => request(`/v1/covers?limit=100${userId ? `&user_id=${encodeURIComponent(userId)}` : ''}`);
+export const getCover = (id, userId) => request(`/v1/covers/${encodeURIComponent(id)}${userId ? `?user_id=${encodeURIComponent(userId)}` : ''}`);
 export const createCover = payload => post('/v1/covers', payload);
 export const sendFeedback = payload => post('/v1/feedback', payload);
+
+export const getLibrary = userId => request(`/v1/library?user_id=${encodeURIComponent(userId)}`);
+export const saveEdition = (userId, id) => request(`/v1/library/${encodeURIComponent(id)}?user_id=${encodeURIComponent(userId)}`, { method: 'PUT' });
+export const removeEdition = (userId, id) => request(`/v1/library/${encodeURIComponent(id)}?user_id=${encodeURIComponent(userId)}`, { method: 'DELETE' });

@@ -171,13 +171,36 @@ def create_app(
                 ) from exc
 
     @app.get("/v1/covers")
-    def list_covers(limit: int = Query(30, ge=1, le=100), offset: int = Query(0, ge=0)):
-        return app.state.store.list_covers(limit, offset)
+    def list_covers(
+        limit: int = Query(30, ge=1, le=100),
+        offset: int = Query(0, ge=0),
+        user_id: str | None = Query(None, min_length=1, max_length=100),
+    ):
+        if user_id is None:
+            return app.state.store.list_covers(limit, offset)
+        return app.state.store.list_covers(limit, offset, user_id=user_id)
+
+    @app.get("/v1/library")
+    def library(user_id: str = Query(min_length=1, max_length=100)):
+        return app.state.store.library(user_id)
+
+    @app.put("/v1/library/{cover_id}")
+    def save_edition(cover_id: str, user_id: str = Query(min_length=1, max_length=100)):
+        try:
+            app.state.store.save_edition(user_id, cover_id)
+        except ValueError as exc:
+            raise HTTPException(404, str(exc)) from exc
+        return {"saved": True}
+
+    @app.delete("/v1/library/{cover_id}")
+    def remove_edition(cover_id: str, user_id: str = Query(min_length=1, max_length=100)):
+        app.state.store.remove_edition(user_id, cover_id)
+        return {"saved": False}
 
     @app.get("/v1/covers/{cover_id}", response_model=Cover)
-    def get_cover(cover_id: str):
+    def get_cover(cover_id: str, user_id: str | None = Query(None, min_length=1, max_length=100)):
         cover = app.state.store.get_cover(cover_id)
-        if cover is None:
+        if cover is None or (user_id is not None and cover.user_id != user_id):
             raise HTTPException(404, "Couverture introuvable")
         # Older editions predate this metadata; enrich them from the local catalog.
         items = []
