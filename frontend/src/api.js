@@ -84,6 +84,10 @@ export const getReaderFeedback = (userId, coverId) => request(`${readerPath(user
 export const getPreferences = userId => request(`${readerPath(userId)}/preferences`);
 export const getReaderMessages = userId => request(`${readerPath(userId)}/messages`);
 export const sendReaderMessage = (userId, value) => post(`${readerPath(userId)}/messages`, value);
+export const getDictation = (userId, signal) => request(`${readerPath(userId)}/dictation`, { signal });
+export const transcribeDictation = (userId, audio, signal) => request(`${readerPath(userId)}/dictation`, {
+  method: 'POST', headers: { 'Content-Type': 'audio/wav' }, body: audio, signal,
+});
 export const createPreference = (userId, value) => post(`${readerPath(userId)}/preferences`, value);
 export const updatePreference = (userId, id, value) => request(`${readerPath(userId)}/preferences/${encodeURIComponent(id)}`, {
   method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(value),

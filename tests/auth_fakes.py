@@ -1,4 +1,3 @@
-from datetime import timedelta
 from uuid import uuid4
 
 from psycopg.errors import UniqueViolation
@@ -12,8 +11,6 @@ class AuthMemoryStore(MemoryStore):
         super().__init__(articles)
         self.accounts = {}
         self.sessions = {}
-        self.identities = {}
-        self.flows = {}
         self.attempts = {}
 
     def account_by_email(self, email):
@@ -34,17 +31,6 @@ class AuthMemoryStore(MemoryStore):
         self.accounts[account["id"]] = account
         return account
 
-    def oauth_account(self, provider, subject, email, name):
-        existing = self.identities.get((provider, subject))
-        if existing:
-            return self.accounts[existing]
-        if self.account_by_email(email):
-            raise ValueError("email_in_use")
-        account = self.create_account(email, name, None)
-        account["email_verified"] = True
-        self.identities[provider, subject] = account["id"]
-        return account
-
     def save_account_profile(self, account_id, profile):
         self.accounts[account_id]["reader_profile"] = profile
         if profile:
@@ -60,25 +46,6 @@ class AuthMemoryStore(MemoryStore):
 
     def revoke_session(self, token_hash):
         self.sessions.pop(token_hash, None)
-
-    def begin_oauth(self, state_hash, provider, browser_hash, nonce, verifier):
-        self.flows[state_hash] = dict(
-            provider=provider,
-            browser_hash=browser_hash,
-            nonce=nonce,
-            verifier=verifier,
-            expires_at=utcnow() + timedelta(minutes=10),
-        )
-
-    def consume_oauth(self, state_hash, provider, browser_hash):
-        value = self.flows.get(state_hash)
-        if (
-            value
-            and value["provider"] == provider
-            and value["browser_hash"] == browser_hash
-            and value["expires_at"] > utcnow()
-        ):
-            return self.flows.pop(state_hash)
 
     def auth_attempt(self, key, limit, seconds):
         self.attempts[key] = self.attempts.get(key, 0) + 1

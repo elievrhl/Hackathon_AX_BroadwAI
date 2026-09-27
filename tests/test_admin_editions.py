@@ -1,7 +1,8 @@
-from tests.client import TestClient
-
 from broadwai.api import create_app
 from broadwai.config import Settings
+from broadwai.daily_editions import next_edition_at
+from broadwai.models import utcnow
+from tests.client import TestClient
 from tests.fakes import (
     FakeCollector,
     FakeSearch,
@@ -24,7 +25,8 @@ def test_admin_dashboard_and_manual_generation_use_saved_profile_without_changin
     )
     with TestClient(app) as client:
         payload = request().model_dump(mode="json")
-        client.put("/v1/readers/alice/daily-edition", json=payload).raise_for_status()
+        # Seed a future schedule: first-time reader registration now prepares an edition.
+        store.save_daily_profile(request(), next_edition_at(utcnow()), utcnow())
         before = client.get("/v1/readers/alice/daily-edition").json()
         dashboard = client.get("/v1/admin/editions")
         dashboard.raise_for_status()

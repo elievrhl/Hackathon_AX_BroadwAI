@@ -1,7 +1,7 @@
 # Kiosque — interface lecteur connectée
 
-React 19 / Vite 7, API FastAPI et PostgreSQL. Comptes côté serveur avec e-mail et mot de passe,
-connexion Google/Apple configurable, sessions par cookie et préférences synchronisées.
+React 19 / Vite 7, API FastAPI et PostgreSQL. Comptes côté serveur avec connexion uniquement
+par e-mail et mot de passe, sessions par cookie et préférences synchronisées.
 Voir [la configuration de l’authentification](../AUTHENTICATION.md).
 
 ## Lancer
@@ -38,13 +38,16 @@ Les comptes sont partagés entre appareils qui se connectent au même serveur.
 
 ## Parcours
 
-1. Créer son compte ou se connecter avec e-mail et mot de passe, Google ou Apple, puis choisir ses sujets et un contexte facultatif.
+1. Créer son compte ou se connecter : Kiosque ouvre directement la dernière une.
+   Un nouveau compte commence avec une sélection généraliste ; « Mes préférences »
+   permet de choisir ses sujets et son contexte.
 2. Les intérêts, notes, langues et taille sont synchronisés via
-   `PUT /v1/readers/{user_id}/daily-edition`. La première préparation est prévue
-   au prochain 4 h, heure de Paris. L’inscription ne lance pas de préparation immédiate.
+   `PUT /v1/readers/{user_id}/daily-edition`. Si le compte n’a aucune édition,
+   le serveur lance immédiatement sa première préparation, sans la répéter lors d’une reconnexion.
 3. Le serveur prépare une édition chaque jour à 4 h, même page fermée. Le lecteur
    affiche le statut et ouvre la dernière édition disponible. Un onglet ouvert
-   vérifie les nouveautés chaque minute et lors du retour à la page.
+   vérifie les nouveautés chaque minute et lors du retour à la page, toutes les
+   2,5 secondes pendant la première préparation, puis affiche la une dès qu’elle est prête.
    **Refaire ma une** propose un commentaire facultatif avant de préparer une nouvelle sélection.
    S’il est renseigné, le motif guide aussi les sept jours suivants. Une tentative par jour civil (Paris), remise
    à disposition à minuit, y compris après un échec. La limite est persistée côté serveur et

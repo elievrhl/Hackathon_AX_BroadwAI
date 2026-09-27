@@ -25,7 +25,7 @@ class MemoryDailyStore:
         previous = self.daily_profiles.get(user, {})
         self.daily_profiles[user] = {
             "request": request.model_dump(mode="json"),
-            "first_run_at": previous.get("first_run_at", first_run_at),
+            "first_run_at": min(previous.get("first_run_at", first_run_at), first_run_at),
             "updated_at": now,
         }
 

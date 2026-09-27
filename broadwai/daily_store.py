@@ -36,7 +36,9 @@ class DailyEditionStore:
             db.execute(
                 """INSERT INTO daily_edition_profiles (user_id, request, first_run_at, updated_at)
                    VALUES (%s, %s, %s, %s) ON CONFLICT(user_id) DO UPDATE
-                   SET request=excluded.request, updated_at=excluded.updated_at""",
+                   SET request=excluded.request, updated_at=excluded.updated_at,
+                       first_run_at=LEAST(daily_edition_profiles.first_run_at,
+                                          excluded.first_run_at)""",
                 (
                     request.profile.user_id,
                     Jsonb(request.model_dump(mode="json")),

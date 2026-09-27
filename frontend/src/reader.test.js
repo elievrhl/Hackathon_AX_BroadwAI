@@ -1,7 +1,15 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { adaptCover, normalizeProfile, toCoverRequest, safeArticleUrl, articleImageUrl, DEFAULT_PROFILE, contentCount, mediaDuration, contentAction } from './reader.js';
+import { adaptCover, normalizeProfile, initialReaderProfile, toCoverRequest, safeArticleUrl, articleImageUrl, DEFAULT_PROFILE, contentCount, mediaDuration, contentAction } from './reader.js';
 import { createCover, getCover, listCovers, sendFeedback, getHealth } from './api.js';
+
+test('new accounts enter the journal with an editable default selection; existing preferences survive login', () => {
+  const initial = initialReaderProfile({ name: 'Camille', reader_profile: null });
+  assert.equal(initial.name, 'Camille');
+  assert.ok(toCoverRequest(initial, 'new-account').profile.interests.length);
+  const personalized = { ...DEFAULT_PROFILE, name: 'Camille', topics: ['science'], notes: 'Astronomie' };
+  assert.deepEqual(initialReaderProfile({ name: 'Camille', reader_profile: personalized }), personalized);
+});
 
 function fixture(size) {
   return {

@@ -56,6 +56,19 @@ dialog.reader-chat-dialog { padding: 0; width: min(1060px, calc(100vw - 64px)); 
 .chat-input-wrap textarea:focus-visible { outline: none; box-shadow: none; }
 .chat-input-wrap button { display: grid; place-items: center; height: 40px; width: 40px; border: 0; border-radius: 50%; flex-shrink: 0; color: var(--on-accent, #fffaf2); background: var(--red); }
 .chat-input-wrap button:disabled { opacity: .3; }
+.chat-input-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.chat-input-wrap .chat-mic { background: transparent; color: var(--muted); }
+.chat-input-wrap .chat-mic:hover:not(:disabled) { background: var(--accent-soft, #f2eee5); color: var(--ink); }
+.chat-input-wrap .chat-mic.is-active { background: var(--red); color: var(--on-accent, #fffaf2); }
+.chat-input-wrap.is-recording { border-color: var(--red); }
+.chat-dictation-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 4px 0; font-size: .76rem; color: var(--muted); }
+.chat-dictation-status time { font-variant-numeric: tabular-nums; }
+.chat-dictation-status button { margin-left: auto; border: 0; background: none; color: inherit; text-decoration: underline; padding: 4px; }
+.chat-dictation-status small { flex-basis: 100%; font-size: .66rem; line-height: 1.5; }
+.chat-dictation-notice, .chat-dictation-error { margin: 10px 4px 0; font-size: .76rem; line-height: 1.6; color: var(--muted); }
+.chat-dictation-error { color: var(--warning, #8d3427); }
+.dictation-spinner { animation: dictation-turn 1s linear infinite; }
+@keyframes dictation-turn { to { transform: rotate(360deg); } }
 .chat-composer-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 13px; font-size: .69rem; color: var(--text-secondary, #908a7d); line-height: 1.5; padding-inline: 4px; }
 .chat-error { color: var(--warning, #8d3427); font-size: .85rem; line-height: 1.6; margin: 0 0 16px; }
 .chat-error button { background: transparent; border: 0; padding: 7px 0; display: block; color: inherit; text-decoration: underline; }
@@ -124,5 +137,5 @@ dialog.reader-chat-dialog { padding: 0; width: min(1060px, calc(100vw - 64px)); 
   .chat-composer { padding-block: 8px 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .chat-turn, .dossier-changed, .chat-reading i { animation: none; }
+  .chat-turn, .dossier-changed, .chat-reading i, .dictation-spinner { animation: none; }
 }

@@ -12,7 +12,7 @@ test('opening the journal prefers the latest edition while explicit archive link
   assert.equal(initialEditionId(null, [], null), null);
 });
 
-test('registration saves personalization without posting a paid cover request', async () => {
+test('registration delegates initial preparation and duplicate protection to the server', async () => {
   const calls = [];
   const original = globalThis.fetch;
   globalThis.fetch = async (url, options) => {
@@ -33,9 +33,13 @@ test('registration saves personalization without posting a paid cover request', 
 });
 
 test('daily status never promises an active schedule when it is unavailable', () => {
-  assert.match(dailyEditionMessage(null), /bientôt disponible/);
+  assert.match(dailyEditionMessage(null), /Préparation/);
   assert.match(dailyEditionMessage({ enabled: false }), /indisponible/);
+  assert.match(dailyEditionMessage({ enabled: true, status: 'queued' }), /première une/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'running' }), /se prépare/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'failed' }), /n’a pas pu/);
-  assert.match(dailyEditionMessage({ enabled: true, status: 'scheduled' }), /4 h, heure de Paris/);
+  assert.equal(dailyEditionMessage({ enabled: true, status: 'scheduled' }, true), '');
+  assert.equal(dailyEditionMessage({ enabled: true, status: 'ready' }, true), '');
+  assert.doesNotMatch(dailyEditionMessage({ enabled: true, status: 'failed' }), /dernière édition/);
+  assert.match(dailyEditionMessage({ enabled: true, status: 'failed' }, true), /dernière édition/);
 });

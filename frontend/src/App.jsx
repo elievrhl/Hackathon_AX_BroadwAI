@@ -9,21 +9,20 @@ import Newspaper from './Newspaper.jsx';
 import { getArchives, getSavedArticles, saveArticle, unsaveArticle, getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
 import { readLocal, accountKey, currentAccount, leaveAccount, saveAccountProfile } from './accounts.js';
 import SavedArticles, { Archives, AccountScreen, AccountNav, SaveArticleDialog, CollectionForm } from './Library.jsx';
-import { DEFAULT_PROFILE, normalizeProfile, toCoverRequest, adaptCover } from './reader.js';
+import { DEFAULT_PROFILE, normalizeProfile, initialReaderProfile, toCoverRequest, adaptCover } from './reader.js';
 import { listCovers, getCover, registerDailyEdition, getDailyEdition, getRegeneration, regenerateEdition, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
 
 import { dailyEditionMessage, initialEditionId } from './daily-edition.js';
 
 export default function App() {
   const [account, setAccount] = useState(null);
-  const [providers, setProviders] = useState({});
   const [loading, setLoading] = useState(true);
   const [sessionError, setSessionError] = useState('');
   async function loadSession() {
     setLoading(true); setSessionError('');
     try {
       const session = await currentAccount();
-      setAccount(session.account); setProviders(session.providers || {});
+      setAccount(session.account);
     } catch (reason) { setSessionError(reason.message); }
     finally { setLoading(false); }
   }
@@ -44,7 +43,7 @@ export default function App() {
     } catch (reason) { setSessionError(reason.message); }
   }
   if (loading || (!account && sessionError)) return <SetupLayout><section className="account-panel"><p role={sessionError ? 'alert' : 'status'}>{sessionError || 'Ouverture de votre espace…'}</p>{sessionError && <button className="secondary-button" onClick={loadSession}>Réessayer</button>}</section></SetupLayout>;
-  return <>{sessionError && <p className="reader-error" role="alert">{sessionError}</p>}{account ? <ReaderApp key={account.id} account={account} onAccountChange={setAccount} onLogout={logout} /> : <AccountScreen providers={providers} onEnter={setAccount} />}</>;
+  return <>{sessionError && <p className="reader-error" role="alert">{sessionError}</p>}{account ? <ReaderApp key={account.id} account={account} onAccountChange={setAccount} onLogout={logout} /> : <AccountScreen onEnter={setAccount} />}</>;
 }
 
 function ReaderApp({ account, onAccountChange, onLogout }) {
@@ -64,7 +63,7 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
   const [libraryPending, setLibraryPending] = useState('');
   const libraryLock = useRef(false);
   const [linkedCoverId] = useState(() => new URLSearchParams(window.location.search).get('cover'));
-  const [profile, setProfile] = useState(() => normalizeProfile(account.reader_profile));
+  const [profile, setProfile] = useState(() => initialReaderProfile(account));
   const [cover, setCover] = useState(null);
   const [history, setHistory] = useState([]);
   const [preferences, setPreferences] = useState(false);
@@ -209,7 +208,7 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
       } catch {
         if (active) {
           setDailyError('Votre une sera disponible dès que possible.');
-          // Synchronizing preferences is free; paid preparation stays on the server.
+          // The server reserves the first edition once, even if this request is retried.
           retry = window.setTimeout(syncProfile, 30_000);
         }
       }
@@ -218,7 +217,7 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
     return () => { active = false; clearTimeout(retry); };
   }, [profile]);
   useEffect(() => {
-    if (!profile || !daily?.registered) return;
+    if (!profile || !daily?.registered || busy === 'loading') return;
     let active = true;
     let refreshing = false;
     async function refreshDaily() {
@@ -238,10 +237,12 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
         if (active) setNotice(`La mise à jour des éditions est momentanément indisponible : ${reason.message}`);
       } finally { refreshing = false; }
     }
-    const timer = window.setInterval(refreshDaily, 60_000);
+    refreshDaily();
+    const awaitingEdition = ['queued', 'running'].includes(daily?.status) || (!cover && daily?.status === 'ready');
+    const timer = window.setInterval(refreshDaily, awaitingEdition ? 2500 : 60_000);
     document.addEventListener('visibilitychange', refreshDaily);
     return () => { active = false; clearInterval(timer); document.removeEventListener('visibilitychange', refreshDaily); };
-  }, [profile, daily?.registered]);
+  }, [profile, daily?.registered, daily?.status, !!cover, busy === 'loading']);
 
   async function saveProfile(value) {
     if (profileLock.current) return false;
@@ -477,7 +478,7 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
         </div>
         {(busy === 'regenerating' || regeneration?.status === 'running') && <RegenerationProgress status={regeneration} />}
         {cover && !pinnedEdition.current && !regeneration?.available && busy !== 'regenerating' && regeneration?.status !== 'running' && <p className="regeneration-status" role="status">{!regeneration && regenerationError ? regenerationError : regenerationMessage(regeneration)}</p>}
-        {(!cover || daily?.status === 'running' || daily?.status === 'failed' || dailyError) && <p className="daily-edition-status" role="status">{dailyError || dailyEditionMessage(daily)}</p>}
+        {busy !== 'loading' && (dailyError || dailyEditionMessage(daily, !!cover)) && <p className="daily-edition-status" role="status">{dailyError || dailyEditionMessage(daily, !!cover)}</p>}
         {error && <p className="reader-error" role="alert">{error}</p>}
         {busy && busy !== 'regenerating' && <div className="generation-status" role="status"><span className="working-dot" /><span>Chargement des éditions…</span></div>}
       </section>

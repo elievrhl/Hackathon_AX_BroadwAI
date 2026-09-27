@@ -106,6 +106,22 @@ favoriser, réduire ou exclure un contenu, corriger une envie ou demander de l'o
 La durée et les nuances sont déduites du message ; une ambiguïté appelle une question.
 Les réglages de prénom, langue et taille de l'édition restent dans les préférences.
 
+Le bouton micro du champ de message permet une **dictée en français via Gradium**,
+jusqu’à 90 secondes. L’arrêt transcrit l’audio et ajoute le texte au brouillon existant ;
+le lecteur le relit, le modifie et l’envoie lui-même. Annuler, fermer le courrier,
+ouvrir la fiche ou quitter l’onglet coupe le micro. Le dépassement de la limite de
+2 000 caractères est signalé explicitement. La saisie au clavier reste disponible.
+
+Configurer `GRADIUM_API_KEY` dans le `.env` du backend, jamais dans le frontend.
+`GET/POST /v1/readers/{user_id}/dictation` requiert le compte du lecteur et la protection
+CSRF pour l’envoi. L’audio est normalisé en WAV mono 24 kHz, validé et envoyé à
+[l’API de transcription Gradium](https://docs.gradium.ai/guides/speech-to-text-rest)
+sans stockage dans Kiosque, ni relance automatique d’un appel payant. La transcription
+seule ne modifie ni les messages ni les préférences. Limites : une dictée simultanée
+par compte, quatre par processus et vingt essais par compte sur quinze minutes.
+L’accès au micro demande HTTPS en production (localhost fonctionne en développement),
+MediaRecorder et Web Audio ; sinon le bouton est désactivé.
+
 Les échanges et changements sont enregistrés ensemble dans PostgreSQL. La fiche n'affiche
 une confirmation qu'après enregistrement ; les changements sont atomiques, bornés à
 12 préférences actives et protégés contre les corrections concurrentes. Renvoyer le même
@@ -435,8 +451,10 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/v1/ingest `
 
 ```
 
-Ouvrir ensuite Kiosque sur <http://127.0.0.1:5173/>, choisir ses sujets et son contexte,
-le profil est alors synchronisé pour la préparation quotidienne de 4 h. Le frontend construit la requête à partir du profil synchronisé du compte ;
+Ouvrir ensuite Kiosque sur <http://127.0.0.1:5173/> et se connecter. La dernière une
+s’affiche ; si le compte n’en possède pas, sa première édition est préparée immédiatement.
+Un nouveau compte commence avec une sélection généraliste, modifiable dans « Mes préférences ».
+Le frontend construit la requête à partir du profil synchronisé du compte ;
 les thèmes utilisent des mots-clés français et anglais car BM25 ne traduit pas les intérêts.
 
 Pour un premier test réel, renseigner les trois variables LLM dans `.env`, redémarrer le serveur,
@@ -452,8 +470,10 @@ Les éditions déjà générées se consultent depuis son historique et leurs tr
 Le backend FastAPI prépare une édition par profil chaque jour à **4 h, Europe/Paris**,
 y compris lors des changements d’heure. Les sujets, langues, niveau, contexte et format
 sont synchronisés via `PUT /v1/readers/{user_id}/daily-edition`. Les profils existants
-sont inscrits lors de leur prochaine visite ; une première inscription programme le
-prochain 4 h, sans appel payant immédiat. Les modifications suivantes gardent cette échéance.
+sont inscrits lors de leur prochaine visite. Un compte sans édition est éligible immédiatement,
+y compris s’il était déjà inscrit pour une première préparation future. Le planificateur
+est réveillé dès l’inscription. Un compte qui possède déjà une édition conserve la
+préparation quotidienne ; se reconnecter ne régénère pas son journal.
 Les likes et les demandes du Courrier du lecteur sont relus lors de la préparation.
 
 PostgreSQL conserve les profils et une tentative unique par compte et date, même avec
@@ -467,8 +487,10 @@ l’édition précédente reste lisible et le statut signale l’échec.
 `GET /v1/readers/{user_id}/daily-edition` expose l’état et la prochaine échéance.
 `DAILY_EDITIONS_ENABLED=false` suspend le planificateur sans perdre les profils.
 À l’ouverture du journal, la dernière édition est chargée ; un onglet ouvert vérifie les
-nouveautés chaque minute et lors du retour à la page. Un lien explicite vers une archive
-reste sur l’édition choisie. Aucun appel payant n’est déclenché par ces consultations.
+nouveautés chaque minute et lors du retour à la page, ou toutes les 2,5 secondes pendant
+la première préparation. Un lien explicite vers une archive reste sur l’édition choisie.
+Les consultations et reconnexions réutilisent l’édition existante ; seule la première
+ouverture d’un compte sans édition déclenche sa préparation initiale.
 
 ## Fonctionnement
 
@@ -621,7 +643,7 @@ mais la récupération des liens nécessite une nouvelle collecte du contenu HTM
   L'apprentissage implicite à partir de clics répétés n'est pas activé : un avis isolé ne change
   pas les goûts. Un article présenté n'est pas considéré comme lu sans événement explicite.
 - Les sessions et contrôles d’accès sont côté serveur. Voir [AUTHENTICATION.md](AUTHENTICATION.md)
-  pour HTTPS, Google/Apple, le rôle administrateur et les limites actuelles de récupération de compte.
+  pour HTTPS, la connexion par e-mail, le rôle administrateur et les limites actuelles de récupération de compte.
 
 ## Tests
 
@@ -696,10 +718,10 @@ Références d'intégration : [OpenAI Structured Outputs](https://developers.ope
 
 ## Comptes serveur et bibliothèque
 
-Les comptes se créent avec e-mail et mot de passe, Google ou Apple. Les sessions,
+Les comptes se créent uniquement avec une adresse e-mail et un mot de passe. Les sessions,
 préférences et lectures sont persistantes dans PostgreSQL et accessibles depuis
 un autre appareil après connexion. Les accès lecteur/admin sont contrôlés côté serveur.
-[Configuration et activation Google/Apple](AUTHENTICATION.md).
+[Configuration des comptes et des sessions](AUTHENTICATION.md).
 
 Les anciens profils locaux restent conservés sans rattachement automatique à un e-mail
 non vérifié. Les nouveaux comptes ont chacun leurs préférences, likes et bibliothèques.

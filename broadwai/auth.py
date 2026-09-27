@@ -133,7 +133,13 @@ async def authorize_request(request: Request):
     if account["is_admin"]:
         return
     identities = [request.path_params.get("user_id"), *request.query_params.getlist("user_id")]
-    if request.method in {"POST", "PUT", "PATCH"}:
+    content_type = request.headers.get("content-type", "").split(";")[0].strip().lower()
+    # Match FastAPI's JSON parsing. Binary dictation is bounded by its endpoint;
+    # do not buffer the audio here merely to inspect JSON identity fields.
+    json_body = not content_type or content_type == "application/json" or (
+        content_type.startswith("application/") and content_type.endswith("+json")
+    )
+    if request.method in {"POST", "PUT", "PATCH"} and json_body:
         try:
             body = await request.json()
         except ValueError:
@@ -191,7 +197,6 @@ async def session(request: Request, response: Response):
     return {
         "account": public_account(account) if account else None,
         "csrf_token": csrf_token(request.cookies[SESSION_COOKIE]) if account else None,
-        "providers": request.app.state.oauth.providers(),
     }
 
 

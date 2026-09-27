@@ -79,7 +79,7 @@ export function Onboarding({
               name: event.target.value
             })} required maxLength={40} pattern=".*\S.*" /></label>
           <button className="primary-button full-width" type="submit">Choisir mes sujets <ArrowRight size={18} /></button>
-          <p className="prototype-note">Vos sujets sont enregistrés pour préparer votre une chaque jour à 4 h, heure de Paris.</p>
+          <p className="prototype-note">Vos sujets guident la sélection de vos prochaines lectures.</p>
         </form> : <form className="interests-form" onSubmit={event => {
           event.preventDefault();
           if (draft.topics.length) onComplete({
@@ -282,7 +282,7 @@ export function Preferences({
           notes: event.target.value
         })} placeholder="Un métier, un projet, une curiosité…" /></label>
       <label className="field">Langues des articles<select value={draft.languages.includes('en') ? 'fr-en' : 'fr'} onChange={event => setDraft({ ...draft, languages: event.target.value === 'fr-en' ? ['fr', 'en'] : ['fr'] })}><option value="fr-en">Français et anglais</option><option value="fr">Français</option></select></label>
-      <p className="field-help">Ces préférences seront utilisées pour votre prochaine une, préparée chaque jour à 4 h (heure de Paris).</p>
+      <p className="field-help">Ces préférences seront utilisées pour votre prochaine une.</p>
       {error && <p className="reader-error" role="alert">{error}</p>}
       <button className="primary-button full-width" disabled={saving || !draft.topics.length} type="submit">{saving ? 'Enregistrement…' : 'Enregistrer mes préférences'} <Check size={18} /></button>
       <p className="prototype-note">Vos préférences accompagnent vos prochaines lectures.</p>

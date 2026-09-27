@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowUp, Check, Feather, NotebookPen } from 'lucide-react';
+import { ArrowLeft, ArrowUp, Check, Feather, LoaderCircle, Mic, NotebookPen, Square } from 'lucide-react';
 import { getPreferences, getReaderMessages, sendReaderMessage } from './api.js';
 import { TOPICS, toCoverRequest } from './reader.js';
 import { preferenceSummary } from './preferences.js';
+import { appendDictation, DICTATION_SECONDS } from './dictation.js';
+import useDictation from './useDictation.js';
 import './reader-chat.css';
 
 const IDEAS = [
@@ -32,6 +34,17 @@ export default function ReaderChat({ userId, profile, generating, open }) {
   const conversation = useRef(null);
   const alive = useRef(true);
   const dossierTitle = useRef(null);
+  const [dictationNotice, setDictationNotice] = useState('');
+  const dictation = useDictation({
+    userId, open: open && !showDossier,
+    onTranscript: text => {
+      const result = appendDictation(draft, text);
+      setDraft(result.text);
+      setDictationNotice(result.truncated ? 'La limite de 2 000 caractères est atteinte : seule la partie qui tient dans le message a été ajoutée. Relisez avant d’envoyer.' : 'Dictée ajoutée. Vous pouvez la relire et la modifier avant d’envoyer.');
+      input.current?.focus({ preventScroll: true });
+    },
+  });
+  const dictating = dictation.state !== 'idle';
 
   async function load() {
     setLoading(true); setError('');
@@ -54,7 +67,7 @@ export default function ReaderChat({ userId, profile, generating, open }) {
   async function send(event) {
     event.preventDefault();
     const message = draft.trim();
-    if (lock.current || loading || loadFailed || message.length < 2) return;
+    if (lock.current || dictation.busy.current || loading || loadFailed || message.length < 2) return;
     lock.current = true;
     // Reuse the message id after an uncertain network result; the server replays it safely.
     if (attempt.current?.message !== message) attempt.current = { id: crypto.randomUUID(), message };
@@ -68,7 +81,7 @@ export default function ReaderChat({ userId, profile, generating, open }) {
       try { setRows(await getPreferences(userId)); }
       catch { setLoadFailed(true); setError('Le message est enregistré. Actualisez pour retrouver votre fiche.'); }
       setHighlighted(turn.changes.filter(change => change.kind !== 'removed').map(change => change.preference.id));
-      setDraft(''); attempt.current = null;
+      setDraft(''); setDictationNotice(''); attempt.current = null;
     } catch (e) {
       if (alive.current) setError(e.message);
     } finally {
@@ -76,7 +89,7 @@ export default function ReaderChat({ userId, profile, generating, open }) {
       if (alive.current) { setPending(null); if (input.current?.getClientRects().length) input.current.focus({ preventScroll: true }); }
     }
   }
-  function choose(text) { setDraft(text); input.current?.focus(); }
+  function choose(text) { if (dictation.busy.current) return; setDraft(text); setDictationNotice(''); input.current?.focus(); }
   function viewDossier() { setShowDossier(true); }
   useEffect(() => {
     if (open && showDossier) dossierTitle.current?.focus({ preventScroll: true });
@@ -108,7 +121,18 @@ export default function ReaderChat({ userId, profile, generating, open }) {
           {generating && <p className="chat-generation-note">Une édition est en préparation. Ce message guidera la suivante.</p>}
           {error && <div className="chat-error" role="alert">{error}{loadFailed && <button type="button" onClick={load} disabled={loading}>Actualiser la conversation</button>}</div>}
           <label className="sr-only" htmlFor="reader-message">Votre message à Kiosque</label>
-          <div className="chat-input-wrap"><textarea id="reader-message" ref={input} rows={2} maxLength={2000} value={draft} disabled={loading || loadFailed} readOnly={!!pending} onChange={e => setDraft(e.target.value)} placeholder="En ce moment, j’aimerais lire…" aria-describedby="chat-input-help" onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); e.currentTarget.form.requestSubmit(); } }} /><button type="submit" aria-label="Envoyer le message" title="Envoyer le message (Entrée)" disabled={!!pending || loading || loadFailed || draft.trim().length < 2}><ArrowUp size={21} aria-hidden="true" /></button></div>
+          <div className={`chat-input-wrap${dictation.state === 'recording' ? ' is-recording' : ''}`}>
+            <textarea id="reader-message" ref={input} rows={2} maxLength={2000} value={draft} disabled={loading || loadFailed} readOnly={!!pending || dictating} onChange={e => { setDraft(e.target.value); setDictationNotice(''); }} placeholder="En ce moment, j’aimerais lire…" aria-describedby="chat-input-help" onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); e.currentTarget.form.requestSubmit(); } }} />
+            <div className="chat-input-actions">
+              <button type="button" className={`chat-mic${dictation.state === 'recording' ? ' is-active' : ''}`} aria-label={dictation.state === 'recording' ? 'Arrêter la dictée' : 'Dicter un message'} title={dictation.state === 'recording' ? 'Arrêter et transcrire' : dictation.available ? 'Dicter un message avec Gradium' : 'Dictée indisponible dans ce navigateur ou momentanément indisponible'} aria-pressed={dictation.state === 'recording'} disabled={loading || loadFailed || !!pending || !dictation.available || ['requesting', 'transcribing'].includes(dictation.state) || (!dictating && draft.length >= 2000)} onClick={() => { setDictationNotice(''); if (dictation.state === 'recording') dictation.stop(); else dictation.start(); }}>
+                {dictation.state === 'recording' ? <Square size={15} fill="currentColor" aria-hidden="true" /> : dictating ? <LoaderCircle className="dictation-spinner" size={19} aria-hidden="true" /> : <Mic size={19} aria-hidden="true" />}
+              </button>
+              <button type="submit" aria-label="Envoyer le message" title="Envoyer le message (Entrée)" disabled={!!pending || dictating || loading || loadFailed || draft.trim().length < 2}><ArrowUp size={21} aria-hidden="true" /></button>
+            </div>
+          </div>
+          {dictating && <div className="chat-dictation-status"><span role="status">{dictation.state === 'requesting' ? 'Autorisez le micro pour commencer…' : dictation.state === 'recording' ? 'Je vous écoute…' : 'Transcription en cours…'}</span>{dictation.state === 'recording' && <time aria-label={`${dictation.seconds} secondes sur ${DICTATION_SECONDS}`}>{Math.floor(dictation.seconds / 60)}:{String(dictation.seconds % 60).padStart(2, '0')} / 1:30</time>}<button type="button" onClick={dictation.cancel}>Annuler</button><small>Votre dictée est transcrite par Gradium. Kiosque ne conserve pas l’audio.</small></div>}
+          {dictation.error && <p className="chat-dictation-error" role="alert">{dictation.error}</p>}
+          {!dictating && dictationNotice && <p className="chat-dictation-notice" role="status">{dictationNotice}</p>}
           <span className="sr-only" id="chat-input-help">Entrée pour envoyer. Maj + Entrée pour une nouvelle ligne. 2 000 caractères maximum.</span>
           <div className="chat-composer-footer"><span>Kiosque vous répond avec l’aide de l’IA</span>{draft.length > 1800 && <span>{draft.length}/2 000</span>}</div>
         </form>

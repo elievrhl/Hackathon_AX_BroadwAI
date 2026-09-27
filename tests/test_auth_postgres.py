@@ -45,19 +45,7 @@ def test_accounts_sessions_and_profiles_persist_in_postgres(pg_store):
         pg_store.create_account(account["email"], "Other", PASSWORDS.hash(PASSWORD))
 
 
-def test_oauth_single_use_limits_and_identity_isolation_in_postgres(pg_store):
-    pg_store.begin_oauth("state", "google", "browser", "nonce", "verifier")
-    assert pg_store.consume_oauth("state", "google", "other") is None
-    assert pg_store.consume_oauth("state", "apple", "browser") is None
-    assert pg_store.consume_oauth("state", "google", "browser")["nonce"] == "nonce"
-    assert pg_store.consume_oauth("state", "google", "browser") is None
+def test_login_attempt_limits_persist_in_postgres(pg_store):
     assert pg_store.auth_attempt("limit", 2, 900)
     assert pg_store.auth_attempt("limit", 2, 900)
     assert not pg_store.auth_attempt("limit", 2, 900)
-    account = pg_store.oauth_account("google", "subject", "reader@example.com", "Alice")
-    assert (
-        pg_store.oauth_account("google", "subject", "reader@example.com", "Alice")["id"]
-        == account["id"]
-    )
-    with pytest.raises(ValueError, match="email_in_use"):
-        pg_store.oauth_account("apple", "other-subject", "reader@example.com", "Other")

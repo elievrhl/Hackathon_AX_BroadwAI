@@ -11,6 +11,8 @@ from broadwai.auth import router as auth_router
 from broadwai.collections import router as collections_router
 from broadwai.config import Settings
 from broadwai.daily_editions import DailyEditions
+from broadwai.dictation import GradiumDictation
+from broadwai.dictation import router as dictation_router
 from broadwai.image_review import ImageReviewer
 from broadwai.images import ArticleImages
 from broadwai.llm import BudgetExceeded, ModelError, OpenAILanguageModel, RunBudget
@@ -24,8 +26,6 @@ from broadwai.models import (
     PreferenceUpdate,
 )
 from broadwai.network import PublicFetcher
-from broadwai.oauth import OAuth
-from broadwai.oauth import router as oauth_router
 from broadwai.pipeline import CoverPipeline
 from broadwai.preferences import PreferenceConflict
 from broadwai.reader_chat import ReaderMessage, check_replay, preference_snapshot
@@ -58,7 +58,6 @@ def create_app(
             )
         app.state.store = repository
         app.state.settings = settings
-        app.state.oauth = OAuth(settings)
         app.state.model = llm
         app.state.collector = collector or Collector(
             repository,
@@ -68,6 +67,9 @@ def create_app(
         app.state.cover_lock = asyncio.Lock()
         app.state.source_lock = asyncio.Lock()
         app.state.reader_chat_lock = asyncio.Lock()
+        app.state.dictation = GradiumDictation(
+            settings.gradium_api_key.get_secret_value() if settings.gradium_api_key else None
+        )
         app.state.images = ArticleImages(
             repository,
             PublicFetcher(settings.request_timeout, settings.max_download_bytes),
@@ -100,7 +102,6 @@ def create_app(
             with suppress(asyncio.CancelledError):
                 await daily_task
             await app.state.images.close()
-            await app.state.oauth.client.aclose()
             if model is None and llm is not None:
                 await llm.close()
             if store is None:
@@ -119,14 +120,11 @@ def create_app(
     app.include_router(collections_router)
     app.include_router(saved_articles_router)
     app.include_router(auth_router)
-    app.include_router(oauth_router)
+    app.include_router(dictation_router)
 
     @app.middleware("http")
     async def private_responses(request, call_next):
         response = await call_next(request)
-        # Authorization codes must not appear in the server's access log.
-        if request.url.path.startswith("/v1/auth/") and request.url.path.endswith("/callback"):
-            request.scope["query_string"] = b""
         if request.url.path.startswith("/v1/") and not request.url.path.endswith("/image"):
             response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"

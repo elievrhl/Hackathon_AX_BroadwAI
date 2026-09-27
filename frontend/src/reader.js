@@ -41,6 +41,10 @@ export function normalizeProfile(data) {
   };
 }
 
+export function initialReaderProfile(account) {
+  return normalizeProfile(account.reader_profile) || { ...DEFAULT_PROFILE, name: account.name || DEFAULT_PROFILE.name };
+}
+
 export function toCoverRequest(profile, userId) {
   if (!userId) throw new Error('Identifiant local manquant.');
   const valid = normalizeProfile(profile);

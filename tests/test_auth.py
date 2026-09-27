@@ -1,5 +1,4 @@
 from datetime import timedelta
-from urllib.parse import parse_qs, urlsplit
 
 import pytest
 from fastapi.testclient import TestClient
@@ -205,50 +204,12 @@ def test_login_csrf_and_attempt_limits(auth):
     assert response.headers["retry-after"] == "900"
 
 
-def test_unconfigured_providers_do_not_offer_a_fake_login(auth):
+@pytest.mark.parametrize("provider", ["google", "apple"])
+def test_external_sign_in_routes_are_removed(auth, provider):
     client, _ = auth
-    assert client.get("/v1/auth/session").json()["providers"] == {"google": False, "apple": False}
-    assert client.get("/v1/auth/google/start").status_code == 503
-    assert client.get("/v1/auth/apple/start").status_code == 503
-
-
-def test_oauth_state_is_browser_bound_single_use_and_session_is_server_owned(monkeypatch):
-    settings = Settings(
-        _env_file=None, google_client_id="google-client", google_client_secret="secret"
-    )
-    store = AuthMemoryStore()
-    app = create_app(settings, store=store)
-    with TestClient(app, base_url=ORIGIN, headers=HEADERS) as client:
-        start = client.get("/v1/auth/google/start", follow_redirects=False)
-        params = parse_qs(urlsplit(start.headers["location"]).query)
-        state = params["state"][0]
-        assert params["code_challenge_method"] == ["S256"]
-        assert len(params["nonce"][0]) > 30
-        with TestClient(app, base_url=ORIGIN) as other:
-            refused = other.get(
-                f"/v1/auth/google/callback?state={state}&code=fake", follow_redirects=False
-            )
-            assert "auth_error=oauth_failed" in refused.headers["location"]
-
-        async def exchange(provider, code, flow):
-            assert flow["nonce"] == params["nonce"][0]
-            return {"email": "google@example.com", "sub": "google-123", "name": "Camille"}
-
-        monkeypatch.setattr(app.state.oauth, "exchange", exchange)
-        callback = client.get(
-            f"/v1/auth/google/callback?state={state}&code=fake", follow_redirects=False
-        )
-        assert callback.headers["location"] == settings.auth_public_url
-        assert client.get("/v1/auth/session").json()["account"]["email"] == "google@example.com"
-        replay = client.get(
-            f"/v1/auth/google/callback?state={state}&code=fake", follow_redirects=False
-        )
-        assert "auth_error=oauth_failed" in replay.headers["location"]
-
-
-def test_oauth_never_links_an_unverified_password_account_by_email(auth):
-    client, store = auth
-    account = register(client)
-    with pytest.raises(ValueError, match="email_in_use"):
-        store.oauth_account("google", "other-subject", account["email"], "Not the same identity")
-    assert not store.identities
+    assert "providers" not in client.get("/v1/auth/session").json()
+    for method, endpoint in [("GET", "start"), ("GET", "callback"), ("POST", "callback")]:
+        response = client.request(method, f"/v1/auth/{provider}/{endpoint}", follow_redirects=False)
+        assert response.status_code == 404
+        assert "location" not in response.headers
+        assert "set-cookie" not in response.headers

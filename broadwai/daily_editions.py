@@ -30,6 +30,7 @@ class DailyEditions:
         self.lock = lock
         self.enabled = enabled
         self.clock = clock
+        self.wakeup = asyncio.Event()
 
     async def register(self, request: CoverRequest):
         now = self.clock()
@@ -44,7 +45,14 @@ class DailyEditions:
                 ),
             }
         )
-        await asyncio.to_thread(self.store.save_daily_profile, request, next_edition_at(now), now)
+        covers = await asyncio.to_thread(
+            self.store.list_covers, limit=1, user_id=request.profile.user_id
+        )
+        # A reader without an edition should not wait until tomorrow. The daily
+        # ledger still reserves a single attempt across tabs and server workers.
+        first_run = next_edition_at(now) if covers else edition_slot(now)
+        await asyncio.to_thread(self.store.save_daily_profile, request, first_run, now)
+        self.wakeup.set()
         return await self.status(request.profile.user_id)
 
     async def status(self, user_id):
@@ -54,6 +62,8 @@ class DailyEditions:
         run = saved.get("run")
         current = run if run and run["edition_date"] == edition_slot(now).date() else None
         state = "scheduled" if first_run else "unregistered"
+        if first_run and first_run <= edition_slot(now):
+            state = "queued"
         if current:
             state = {"completed": "ready"}.get(current["status"], current["status"])
             if state == "running" and current["started_at"] < now - timedelta(minutes=10):
@@ -101,8 +111,12 @@ class DailyEditions:
 
     async def serve(self):
         while True:
+            self.wakeup.clear()
             try:
                 await self.run_due()
             except Exception:
                 logger.exception("Daily edition scheduler unavailable")
-            await asyncio.sleep(30)
+            try:
+                await asyncio.wait_for(self.wakeup.wait(), timeout=30)
+            except TimeoutError:
+                pass

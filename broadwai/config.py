@@ -9,6 +9,7 @@ class Settings(BaseSettings):
 
     database_url: SecretStr = SecretStr("postgresql://broadwai:broadwai@localhost:5432/broadwai")
     openai_api_key: SecretStr | None = None
+    gradium_api_key: SecretStr | None = None
     summary_model: str = ""
     editor_model: str = ""
     image_review_enabled: bool = True
@@ -39,12 +40,6 @@ class Settings(BaseSettings):
     daily_editions_enabled: bool = True
     auth_public_url: str = "http://127.0.0.1:5173/"
     auth_session_days: int = Field(30, ge=1, le=90)
-    google_client_id: str = ""
-    google_client_secret: SecretStr | None = None
-    apple_client_id: str = ""
-    apple_team_id: str = ""
-    apple_key_id: str = ""
-    apple_private_key_path: str = ""
 
     @field_validator("auth_public_url")
     @classmethod

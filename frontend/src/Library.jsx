@@ -8,15 +8,10 @@ import { formatDate, articleImageUrl, adaptCover, contentAction } from './reader
 import ArticleSaveActions from './ArticleSaveActions.jsx';
 import './library.css';
 
-export function AccountScreen({ onEnter, providers = {} }) {
+export function AccountScreen({ onEnter }) {
   const [create, setCreate] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(() => {
-    const url = new URL(window.location.href);
-    const reason = url.searchParams.get('auth_error');
-    if (reason) { url.searchParams.delete('auth_error'); window.history.replaceState(null, '', url); }
-    return ({ oauth_failed: 'La connexion n’a pas abouti. Réessayez.', oauth_cancelled: 'Connexion annulée. Vous pouvez réessayer.', email_in_use: 'Un compte utilise déjà cette adresse. Connectez-vous avec votre méthode habituelle.' })[reason] || '';
-  });
+  const [error, setError] = useState('');
   async function submit(event) {
     event.preventDefault();
     if (busy) return;
@@ -35,11 +30,6 @@ export function AccountScreen({ onEnter, providers = {} }) {
       <p className="eyebrow">VOTRE ESPACE DE LECTURE</p>
       <h2 id="account-title">{create ? 'Bienvenue chez vous.' : 'Heureux de vous revoir.'}</h2>
       <div className="account-tabs"><button disabled={busy} aria-pressed={!create} onClick={() => { setCreate(false); setError(''); }}>Se connecter</button><button disabled={busy} aria-pressed={create} onClick={() => { setCreate(true); setError(''); }}>Créer un compte</button></div>
-      <div className="account-social" aria-label="Autres méthodes de connexion">
-        <button className="secondary-button full-width" disabled={busy || !providers.google} title={providers.google ? undefined : 'Connexion Google indisponible pour le moment'} onClick={() => { window.location.assign('/v1/auth/google/start'); }}>Continuer avec Google</button>
-        <button className="secondary-button full-width" disabled={busy || !providers.apple} title={providers.apple ? undefined : 'Connexion Apple indisponible pour le moment'} onClick={() => { window.location.assign('/v1/auth/apple/start'); }}>Continuer avec Apple</button>
-      </div>
-      <p className="account-divider">ou avec votre adresse e-mail</p>
       <form key={String(create)} onSubmit={submit}>
         {create && <label className="field">Prénom<input name="name" autoComplete="given-name" disabled={busy} required maxLength={40} placeholder="Camille" /></label>}
         <label className="field">Adresse e-mail<input name="email" type="email" autoComplete="email" disabled={busy} required maxLength={254} placeholder="camille@exemple.fr" /></label>
