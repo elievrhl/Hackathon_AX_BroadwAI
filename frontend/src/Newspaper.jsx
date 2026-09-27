@@ -3,7 +3,7 @@ import { Bookmark, ChevronDown, Clock3, SlidersHorizontal, ArrowUpRight } from '
 import { ArticleCard, Wordmark } from './components.jsx';
 import { formatDate } from './reader.js';
 
-export default function Newspaper({ profile, cover, saved, onSave, onOpen, onPreferences, busy, children }) {
+export default function Newspaper({ profile, cover, saved, onSave, onOpen, onPreferences, busy, children, liked = [], liking = [], canLike, onLike }) {
   const [filter, setFilter] = useState('all');
   useEffect(() => { setFilter('all'); }, [cover?.id]);
   const firstName = profile.name.split(' ')[0];
@@ -12,7 +12,7 @@ export default function Newspaper({ profile, cover, saved, onSave, onOpen, onPre
   const savedCount = items.filter(article => saved.includes(article.id)).length;
   const filtered = filter === 'saved' ? items.filter(article => saved.includes(article.id)) : items.filter(article => article.section === sections.find(section => section.id === filter)?.label);
   function card(article, variant = '', index) {
-    return <ArticleCard key={article.id} article={article} variant={variant} saved={saved.includes(article.id)} index={index} onSave={onSave} onOpen={onOpen} />;
+    return <ArticleCard liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={canLike} onLike={onLike} key={article.id} article={article} variant={variant} saved={saved.includes(article.id)} index={index} onSave={onSave} onOpen={onOpen} />;
   }
   return <div className={`newspaper${cover ? ' has-edition' : ''}`}>
     <div className="demo-banner"><span>VOTRE ÉDITION LOCALE</span><span className="demo-detail">Des sources réelles · une sélection personnelle</span></div>

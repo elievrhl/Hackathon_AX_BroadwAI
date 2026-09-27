@@ -179,6 +179,49 @@ class Store:
                 (feedback.user_id, feedback.cover_id, feedback.article_id, feedback.kind),
             )
 
+    def set_like(self, event) -> None:
+        cover = self.get_cover(event.cover_id)
+        if cover is None or cover.user_id != event.user_id:
+            raise ValueError("Couverture introuvable pour cet utilisateur")
+        item = next((i for i in cover.items if i.article_id == event.article_id), None)
+        if item is None:
+            raise ValueError("Article absent de cette couverture")
+        with self.pool.connection() as db:
+            if event.liked:
+                db.execute(
+                    "INSERT INTO article_likes (user_id, article_id, cover_id, payload) "
+                    "VALUES (%s, %s, %s, %s) ON CONFLICT (user_id, article_id) DO NOTHING",
+                    (
+                        event.user_id,
+                        event.article_id,
+                        event.cover_id,
+                        Jsonb(item.model_dump(mode="json")),
+                    ),
+                )
+            else:
+                db.execute(
+                    "DELETE FROM article_likes WHERE user_id=%s AND article_id=%s",
+                    (event.user_id, event.article_id),
+                )
+
+    def liked_ids(self, user_id: str) -> list[str]:
+        with self.pool.connection() as db:
+            rows = db.execute(
+                "SELECT article_id FROM article_likes WHERE user_id=%s", (user_id,)
+            ).fetchall()
+        return [row[0] for row in rows]
+
+    def reading_memory(self, user_id: str) -> dict:
+        from broadwai.reader_memory import reading_memory
+
+        with self.pool.connection() as db:
+            rows = db.execute(
+                "SELECT payload FROM article_likes WHERE user_id=%s "
+                "ORDER BY liked_at DESC, article_id LIMIT 100",
+                (user_id,),
+            ).fetchall()
+        return reading_memory([row[0] for row in rows])
+
     def consumed_ids(self, user_id: str) -> set[str]:
         with self.pool.connection() as db:
             rows = db.execute(
@@ -186,7 +229,7 @@ class Store:
                 "AND kind IN ('open', 'useful', 'already_known', 'not_interested')",
                 (user_id,),
             ).fetchall()
-        return {row[0] for row in rows}
+        return {row[0] for row in rows} | set(self.liked_ids(user_id))
 
     def stats(self) -> dict:
         with self.pool.connection() as db:

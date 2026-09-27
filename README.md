@@ -488,3 +488,36 @@ Références d'intégration : [OpenAI Structured Outputs](https://developers.ope
 [OpenAI Web Search](https://developers.openai.com/api/docs/guides/tools-web-search),
 [Trafilatura](https://trafilatura.readthedocs.io/en/latest/usage-python.html),
 [Psycopg](https://www.psycopg.org/psycopg3/docs/basic/usage.html).
+
+## Likes et profil de lecture appris
+
+Un petit cœur en tête de chaque article permet d’aimer ou de retirer un like.
+Les favoris restent séparés. Les likes sont persistés par profil local dans PostgreSQL
+(`article_likes`), sans fenêtre, questionnaire ou appel modèle au clic.
+`GET/PUT /v1/likes` lit ou modifie ce choix ; seuls les articles d’une édition du profil
+fourni sont acceptés. Comme le reste de l’API locale, ceci ne remplace pas une authentification.
+
+Les 100 derniers articles aimés composent automatiquement une mémoire de lecture :
+sujets précis pondérés par le nombre d’articles, formats, niveaux de profondeur et exemples
+avec titres/résumés. Les doublons ne renforcent pas un thème. Retirer un like retire aussi
+son influence. La mémoire est recalculée depuis les likes, sans profil obsolète en cache.
+Lors de la prochaine génération, le serveur ajoute cette mémoire au profil : elle contribue
+au classement et à l’interprétation des besoins par le rédacteur, après les préférences
+explicites. Aucun attribut personnel sensible ou accord avec les opinions des articles
+ne doit en être déduit. Le détail apparaît dans le profil de la trace de génération.
+Les anciennes affinités du nuage ne sont plus utilisées.
+
+### Préserver une une généraliste
+
+Chaque rubrique explicitement choisie reste dans le profil éditorial, même lorsque les notes
+ou les likes précisent surtout un autre sujet. Le pool de présélection réserve de la place aux
+différents intérêts et les fiches sont préparées en alternant les rubriques. Le modèle rattache
+chaque candidat à une rubrique générale (`interest_id`) selon son sujet central ; les sous-thèmes
+et les rubriques de mise en page ne créent pas de quotas supplémentaires.
+
+Pour plusieurs intérêts, une rubrique reçoit au maximum la moitié des places si deux intérêts
+sont choisis, un tiers à partir de trois (arrondi supérieur). La cible minimale est de deux
+articles par intérêt lorsque la taille de la une le permet. Les recherches privilégient les
+rubriques manquantes. Ces contrôles s'appliquent aussi à la sélection de secours ; une pénurie
+reste signalée dans les avertissements et la trace plutôt que comblée par un seul thème.
+La classification sémantique des articles repose sur le modèle ; les quotas sont appliqués en code.

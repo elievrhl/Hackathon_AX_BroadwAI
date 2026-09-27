@@ -19,6 +19,15 @@ CREATE TABLE IF NOT EXISTS covers (
     payload JSONB NOT NULL
 );
 CREATE INDEX IF NOT EXISTS covers_user_id ON covers(user_id);
+CREATE TABLE IF NOT EXISTS article_likes (
+    user_id TEXT NOT NULL,
+    article_id TEXT NOT NULL,
+    cover_id TEXT NOT NULL REFERENCES covers(id) ON DELETE CASCADE,
+    payload JSONB NOT NULL,
+    liked_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY (user_id, article_id)
+);
+CREATE INDEX IF NOT EXISTS article_likes_recent ON article_likes(user_id, liked_at DESC);
 -- Paid image decisions are shared by all editions and survive server restarts.
 CREATE TABLE IF NOT EXISTS image_reviews (
     cache_key TEXT PRIMARY KEY,

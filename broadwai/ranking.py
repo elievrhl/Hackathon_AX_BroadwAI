@@ -95,6 +95,11 @@ def rank(
             for interest in profile.interests
         ]
         relevance = sum(value for _, value in scores)
+        memory_score = sum(
+            min(topic["likes"], 3) * 0.25 * bm25(tokens(topic["topic"]), i)
+            for topic in profile.reading_memory.get("topics", [])
+        )
+        relevance += memory_score
         need_scores = {
             need["id"]: (4 if need["priority"] == "primary" else 1) * bm25(tokens(need["query"]), i)
             for need in (needs or [])
@@ -125,6 +130,7 @@ def rank(
                 [topic for topic, value in scores if value > 0],
                 {
                     "interests": dict(scores),
+                    "reading_memory": memory_score,
                     "query_bonus": 2 * query_score,
                     "freshness": freshness,
                     "age_days": age,

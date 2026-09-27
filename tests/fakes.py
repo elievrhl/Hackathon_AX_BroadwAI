@@ -12,6 +12,7 @@ class MemoryStore:
         self.briefs = {}
         self.covers = {}
         self.feedback = set()
+        self.likes = {}
         self.image_reviews = {}
 
     def put_article(self, article):
@@ -96,10 +97,30 @@ class MemoryStore:
             raise ValueError("Article absent de cette couverture")
         self.feedback.add((event.user_id, event.article_id, event.kind))
 
+    def liked_ids(self, user_id):
+        return [id_ for user, id_ in self.likes if user == user_id]
+
+    def reading_memory(self, user_id):
+        from broadwai.reader_memory import reading_memory
+
+        return reading_memory([item for (user, _), item in self.likes.items() if user == user_id])
+
+    def set_like(self, event):
+        cover = self.covers.get(event.cover_id)
+        if not cover or cover.user_id != event.user_id:
+            raise ValueError("Couverture introuvable pour cet utilisateur")
+        item = next((i for i in cover.items if i.article_id == event.article_id), None)
+        if item is None:
+            raise ValueError("Article absent de cette couverture")
+        if event.liked:
+            self.likes.setdefault((event.user_id, event.article_id), item.model_dump(mode="json"))
+        else:
+            self.likes.pop((event.user_id, event.article_id), None)
+
     def consumed_ids(self, user_id):
         return {
             id_ for user, id_, kind in self.feedback if user == user_id and kind != "impression"
-        }
+        } | set(self.liked_ids(user_id))
 
     def stats(self):
         return {"articles": len(self.rows), "briefs": len(self.briefs), "covers": len(self.covers)}

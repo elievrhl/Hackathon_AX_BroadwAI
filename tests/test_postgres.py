@@ -31,6 +31,27 @@ def pg_store():
             db.execute(sql.SQL("DROP SCHEMA {} CASCADE").format(sql.Identifier(schema)))
 
 
+async def test_likes_persist_are_idempotent_and_reversible(pg_store):
+    from broadwai.reader_memory import ArticleLike
+
+    pg_store.put_article(article())
+    cover = await pipeline(pg_store, ScriptedModel([finalize_first])).run(request())
+    event = ArticleLike(
+        user_id="alice", cover_id=cover.id, article_id=cover.items[0].article_id, liked=True
+    )
+    pg_store.set_like(event)
+    pg_store.set_like(event)
+    assert pg_store.liked_ids("alice") == [event.article_id]
+    assert pg_store.reading_memory("alice")["liked_articles_count"] == 1
+    assert pg_store.reading_memory("bob")["liked_articles_count"] == 0
+    assert event.article_id in pg_store.consumed_ids("alice")
+    with pytest.raises(ValueError):
+        pg_store.set_like(event.model_copy(update={"user_id": "bob"}))
+    pg_store.set_like(event.model_copy(update={"liked": False}))
+    assert pg_store.liked_ids("alice") == []
+    assert pg_store.reading_memory("alice")["topics"] == []
+
+
 def test_postgres_upsert_preserves_extracted_text(pg_store):
     full = article()
     pg_store.put_article(full)

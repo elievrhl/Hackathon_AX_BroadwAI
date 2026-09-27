@@ -132,6 +132,7 @@ class Interest(Model):
 
 
 class Profile(Model):
+    reading_memory: dict = Field(default_factory=dict)
     user_id: str = Field(min_length=1, max_length=100)
     interests: list[Interest] = Field(min_length=1, max_length=20)
     excluded_topics: list[str] = Field(default_factory=list, max_length=30)
@@ -243,6 +244,10 @@ class Selection(Model):
 
 class EditorialPick(Model):
     article_id: str
+    interest_id: str | None = Field(
+        None,
+        description="Rubrique générale du profil : identifiant interest-N fourni par le serveur",
+    )
     section: str = Field(min_length=1, max_length=100)
     score: int = Field(ge=0, le=100)
     reason: str = Field(min_length=1, max_length=180)

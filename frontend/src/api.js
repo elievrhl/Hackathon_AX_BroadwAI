@@ -27,6 +27,8 @@ export async function request(path, options = {}) {
 
 const post = (path, body) => request(path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 export const getHealth = () => request('/health');
+export const getLikes = userId => request(`/v1/likes?user_id=${encodeURIComponent(userId)}`);
+export const setLike = payload => request('/v1/likes', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
 export const listCovers = () => request('/v1/covers?limit=100');
 export const getCover = id => request(`/v1/covers/${encodeURIComponent(id)}`);
 export const createCover = payload => post('/v1/covers', payload);

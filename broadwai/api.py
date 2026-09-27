@@ -13,6 +13,7 @@ from broadwai.llm import ModelError, OpenAILanguageModel
 from broadwai.models import Cover, CoverRequest, Feedback, IngestRequest
 from broadwai.network import PublicFetcher
 from broadwai.pipeline import CoverPipeline
+from broadwai.reader_memory import ArticleLike
 from broadwai.retrieval import Collector
 from broadwai.sources import router as admin_router
 from broadwai.store import Store
@@ -103,6 +104,18 @@ def create_app(
             "catalog": app.state.store.stats(),
         }
 
+    @app.get("/v1/likes")
+    def likes(user_id: str = Query(min_length=1, max_length=100)):
+        return {"article_ids": app.state.store.liked_ids(user_id)}
+
+    @app.put("/v1/likes")
+    def set_like(event: ArticleLike):
+        try:
+            app.state.store.set_like(event)
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+        return {"article_id": event.article_id, "liked": event.liked}
+
     @app.post("/v1/ingest")
     async def ingest(request: IngestRequest):
         if not request.feed_urls and not request.website_urls and not request.hacker_news:
@@ -136,6 +149,12 @@ def create_app(
         if app.state.cover_lock.locked():
             raise HTTPException(429, "Une couverture est déjà en préparation ; réessayer ensuite")
         async with app.state.cover_lock:
+            memory = await asyncio.to_thread(
+                app.state.store.reading_memory, request.profile.user_id
+            )
+            request = request.model_copy(
+                update={"profile": request.profile.model_copy(update={"reading_memory": memory})}
+            )
             pipeline = CoverPipeline(
                 app.state.store, app.state.collector, app.state.search, app.state.model, settings
             )

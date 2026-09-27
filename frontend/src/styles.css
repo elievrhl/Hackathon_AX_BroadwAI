@@ -2170,3 +2170,9 @@ dialog::backdrop {
   .has-edition .edition-intro { padding: 20px 0; }
   .has-edition .reader-controls { padding: 12px 0; margin-bottom: 16px; }
 }
+
+.like-button { background: none; color: #8c8b7f; display: inline-flex; align-items: center; justify-content: center; min-width: 32px; min-height: 32px; padding: 5px; border: 0; cursor: pointer; flex-shrink: 0; }
+.article-topline .like-button { margin-left: auto; }
+.like-button:hover, .like-button.is-liked { color: var(--red); }
+.like-button:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.like-button:disabled { opacity: .4; cursor: default; }

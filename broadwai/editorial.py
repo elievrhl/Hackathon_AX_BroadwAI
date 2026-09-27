@@ -31,14 +31,40 @@ def reading_kind(candidate, pick=None):
     )
 
 
-def preview_pool(ranked, limit):
+def preview_pool(ranked, limit, interest_topics=()):
     # Leave room for recent, multilingual discoveries missed by lexical retrieval.
     relevant = diversify(ranked, limit * 2 // 3, 5)
     recent = sorted(
         ranked, key=lambda r: r.article.published_at or r.article.collected_at, reverse=True
     )
     selected = {r.article.id: r for r in relevant}
-    counts = Counter(r.article.source for r in relevant)
+    # Reserve a share of the pool for every explicit interest, regardless of likes.
+    if len(interest_topics) > 1:
+        per_topic = max(1, limit // (2 * len(interest_topics)))
+        reserved = {}
+        reserved_sources = Counter()
+        for topic in interest_topics:
+            matches = sorted(
+                (r for r in ranked if r.score_details.get("interests", {}).get(topic, 0) > 0),
+                key=lambda r: r.score_details["interests"][topic],
+                reverse=True,
+            )
+            added = 0
+            for row in matches:
+                if added >= per_topic:
+                    break
+                if row.article.id not in reserved and reserved_sources[row.article.source] < 5:
+                    reserved[row.article.id] = row
+                    reserved_sources[row.article.source] += 1
+                    added += 1
+        combined = {**reserved, **selected}
+        selected = {}
+        sources = Counter()
+        for id_, row in combined.items():
+            if len(selected) < limit and sources[row.article.source] < 5:
+                selected[id_] = row
+                sources[row.article.source] += 1
+    counts = Counter(r.article.source for r in selected.values())
     for row in recent:
         if len(selected) >= limit:
             break
@@ -81,6 +107,7 @@ def compact_candidate(c, pick=None):
         "matched_need": pick.matched_need if pick else None,
         "planned_section": pick.section if pick else None,
         "selection_kind": "exploration" if pick and pick.exploration else "focused",
+        "interest_id": pick.interest_id if pick else None,
         "exploration_reason": pick.exploration_reason if pick and pick.exploration else None,
     }
 
@@ -94,6 +121,13 @@ def coverage(candidates, picks, sections, size, source_cap):
         "source_capacity_upper_bound": sum(min(n, source_cap) for n in counts.values()),
         "by_source": dict(counts),
         "by_planned_section": dict(section_counts),
+        "by_interest": dict(
+            Counter(
+                picks[id_].interest_id
+                for id_ in candidates
+                if id_ in picks and picks[id_].interest_id
+            )
+        ),
         "empty_sections": [s for s in sections if not section_counts[s]],
         "by_need": dict(
             Counter(

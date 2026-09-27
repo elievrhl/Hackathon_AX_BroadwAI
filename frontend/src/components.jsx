@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope, Clock3 } from 'lucide-react';
+import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope, Clock3 } from 'lucide-react';
 import { TOPICS, DEFAULT_PROFILE, formatDate } from './reader.js';
 const ICONS = {
   tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen,
@@ -134,6 +134,7 @@ function ArticleVisual({ article, onOpen, priority = false }) {
 export function ArticleCard({
   article,
   variant = '',
+  liked, liking, canLike, onLike,
   onOpen,
   saved,
   onSave,
@@ -142,7 +143,7 @@ export function ArticleCard({
   return <article className={`article-card ${variant}`} data-article-id={article.id}>
     {variant === 'brief' && <span className="brief-index">{String(index + 1).padStart(2, '0')}</span>}
     <div className="article-inner">
-      <div className="article-topline"><span className={`eyebrow article-category ${article.exploration ? 'exploration-label' : ''}`}>{article.exploration ? `Exploration / ${article.kind}` : variant === 'lead' ? `${article.section} / ${article.kind}` : article.kind}</span><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`${saved ? 'Retirer des' : 'Ajouter aux'} favoris : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Retirer des favoris' : 'Garder pour plus tard'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
+      <div className="article-topline"><span className={`eyebrow article-category ${article.exploration ? 'exploration-label' : ''}`}>{article.exploration ? `Exploration / ${article.kind}` : variant === 'lead' ? `${article.section} / ${article.kind}` : article.kind}</span><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`${saved ? 'Retirer des' : 'Ajouter aux'} favoris : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Retirer des favoris' : 'Garder pour plus tard'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
       {variant !== 'brief' && <ArticleVisual key={article.imageUrl} article={article} onOpen={onOpen} priority={variant === 'lead'} />}
       <h3><button className="article-title" onClick={() => onOpen(article)}>{article.title}</button></h3>
       <ArticleMeta article={article} />
@@ -178,6 +179,7 @@ export function Modal({
   </dialog>;
 }
 export function ArticleDetail({
+  liked, liking, canLike, onLike,
   article,
   saved,
   onSave,
@@ -191,6 +193,7 @@ export function ArticleDetail({
   return <Modal className="article-dialog" labelId="article-title" onClose={onClose}>
     <Wordmark small />
     <div className="detail-kicker eyebrow">{article.section} <span>/</span> {article.kind}</div>
+    <LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} />
     <h2 id="article-title">{article.title}</h2>
     <ArticleMeta article={article} />
     <ArticleVisual key={article.imageUrl} article={article} priority />
@@ -251,4 +254,11 @@ export function Preferences({
       <button className="text-button reset-button" type="button" onClick={onReset}><LogOut size={15} /> Reconfigurer mon profil local</button>
     </form>
   </Modal>;
+}
+
+function LikeButton({ article, liked, busy, enabled, onLike }) {
+  return <button type="button" className={`like-button${liked ? ' is-liked' : ''}`} disabled={!enabled || busy}
+    aria-label={`${liked ? 'Retirer mon like' : 'J’aime'} : ${article.title}`} aria-pressed={!!liked}
+    title={enabled ? (liked ? 'Retirer ce like de mes préférences' : 'J’aime — affine mes prochaines sélections') : 'Les likes sont disponibles sur vos propres éditions après chargement.'}
+    onClick={() => onLike(article)}><Heart size={17} strokeWidth={1.5} fill={liked ? 'currentColor' : 'none'} /></button>;
 }

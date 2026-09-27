@@ -3,7 +3,7 @@ import { ArrowRight, Check, RefreshCw } from 'lucide-react';
 import { Onboarding, Preferences, ArticleDetail } from './components.jsx';
 import Newspaper from './Newspaper.jsx';
 import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover, formatDate } from './reader.js';
-import { getHealth, listCovers, getCover, createCover, sendFeedback } from './api.js';
+import { getHealth, listCovers, getCover, createCover, sendFeedback, getLikes, setLike } from './api.js';
 
 function readLocal(key, fallback = null) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
@@ -31,6 +31,10 @@ export default function App() {
     return Array.isArray(value) ? value.filter(id => typeof id === 'string') : [];
   });
   const [feedback, setFeedback] = useState({});
+  const [liked, setLiked] = useState([]);
+  const [likesReady, setLikesReady] = useState(false);
+  const [liking, setLiking] = useState([]);
+  const pendingLikes = useRef(new Set());
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('loading');
@@ -58,8 +62,10 @@ export default function App() {
   useEffect(() => {
     let active = true;
     async function initialize() {
-      const [healthResult, historyResult] = await Promise.allSettled([getHealth(), listCovers()]);
+      const [healthResult, historyResult, likesResult] = await Promise.allSettled([getHealth(), listCovers(), getLikes(userId)]);
       if (!active) return;
+      if (likesResult.status === 'fulfilled') { setLiked(likesResult.value.article_ids); setLikesReady(true); }
+      else setNotice('Les likes sont indisponibles. Rechargez la page pour réessayer.');
       if (healthResult.status === 'fulfilled') setHealth(healthResult.value);
       if (historyResult.status === 'fulfilled') setHistory(historyResult.value);
       else setError(historyResult.reason.message);
@@ -148,6 +154,16 @@ export default function App() {
     } catch (reason) { setNotice(`Retour non enregistré : ${reason.message}`); }
     finally { pendingFeedback.current.delete(key); }
   }
+  async function toggleLike(selected) {
+    if (!likesReady || cover?.userId !== userId || pendingLikes.current.has(selected.id)) return;
+    pendingLikes.current.add(selected.id);
+    setLiking([...pendingLikes.current]);
+    try {
+      const result = await setLike({ user_id: userId, cover_id: cover.id, article_id: selected.id, liked: !liked.includes(selected.id) });
+      setLiked(previous => result.liked ? [...new Set([...previous, selected.id])] : previous.filter(id => id !== selected.id));
+    } catch (reason) { setNotice(`Like non enregistré : ${reason.message}`); }
+    finally { pendingLikes.current.delete(selected.id); setLiking([...pendingLikes.current]); }
+  }
   function reset() {
     persist(STORAGE_KEY, null); setPreferences(false); setProfile(null); setArticle(null);
     // Keep the device identity, bookmarks and server editions; no account is deleted.
@@ -155,7 +171,7 @@ export default function App() {
 
   return <>
     <a className="skip-link" href="#main">Aller au contenu</a>
-    {profile ? <Newspaper profile={profile} cover={cover} saved={saved} onSave={toggleSaved} onOpen={setArticle} onPreferences={() => setPreferences(true)} busy={!!busy}>
+    {profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} profile={profile} cover={cover} saved={saved} onSave={toggleSaved} onOpen={setArticle} onPreferences={() => setPreferences(true)} busy={!!busy}>
       <section className="reader-controls" aria-label="Gestion de votre édition">
         <details className="edition-management" open={cover ? undefined : true}>
         <summary>Préparer ou retrouver une édition</summary>
@@ -170,7 +186,7 @@ export default function App() {
       </section>
     </Newspaper> : <Onboarding onComplete={saveProfile} onExplore={() => { saveProfile(DEFAULT_PROFILE); if (history.length) openCover(history[0].id); }} />}
     {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} />}
-    {article && <ArticleDetail article={article} saved={saved.includes(article.id)} onSave={toggleSaved} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} />}
+    {article && <ArticleDetail liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} article={article} saved={saved.includes(article.id)} onSave={toggleSaved} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} />}
     <div className={`toast ${notice ? 'visible' : ''}`} role="status" aria-live="polite">{notice && <><Check size={17} /><span>{notice}</span></>}</div>
   </>;
 }

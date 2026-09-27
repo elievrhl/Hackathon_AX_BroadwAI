@@ -5,6 +5,7 @@ from copy import deepcopy
 from time import perf_counter
 from urllib.parse import urlsplit
 
+from broadwai.balance import interest_balance, interleave
 from broadwai.config import Settings
 from broadwai.discovery import is_feed_directory, validate_source
 from broadwai.editorial import (
@@ -74,6 +75,7 @@ class CoverPipeline:
         self.rejected: dict[str, dict] = {}
         self.catalog_index: dict[str, Article] = {}
         self.intent = {"needs": [], "constraints": []}
+        self.balance = None
         self.search_history: list[dict] = []
         self.force_finalize = False
         self.started = perf_counter()
@@ -101,6 +103,7 @@ class CoverPipeline:
 
     async def _interpret(self, request):
         profile = request.profile
+        self.balance = interest_balance(profile, request.size)
         needs = [
             {
                 "topic": i.topic,
@@ -112,9 +115,12 @@ class CoverPipeline:
             for n, i in enumerate(profile.interests[:8])
         ]
         constraints = []
-        if profile.notes:
+        if profile.notes or profile.reading_memory.get("liked_articles_count"):
             try:
                 provided_profile = profile.model_dump(exclude={"user_id", "seen_article_ids"})
+                explicit_profile = profile.model_dump(
+                    exclude={"user_id", "seen_article_ids", "reading_memory"}
+                )
                 interpreted = await self.model.interpret(
                     {"profile": provided_profile},
                     self.budget,
@@ -132,7 +138,9 @@ class CoverPipeline:
                 valid_constraints = [
                     c
                     for c in interpreted.constraints
-                    if grounded(c.evidence, evidence_source, minimum=2)
+                    if grounded(
+                        c.evidence, json.dumps(explicit_profile, ensure_ascii=False), minimum=2
+                    )
                 ]
                 rejected_intent = [
                     n.model_dump()
@@ -148,6 +156,13 @@ class CoverPipeline:
                         "Interprétation partielle : éléments sans citation du profil écartés"
                     )
                 needs = [n.model_dump() for n in valid_needs]
+                for need in needs:
+                    if not grounded(
+                        need["evidence"],
+                        json.dumps(explicit_profile, ensure_ascii=False),
+                        minimum=2,
+                    ):
+                        need["priority"] = "secondary"
                 constraints = [c.model_dump() for c in valid_constraints]
                 # Explicit notes take precedence over broad UI categories, regardless
                 # of a model accidentally copying their numeric interest weights.
@@ -159,19 +174,33 @@ class CoverPipeline:
                         need["priority"] = "primary" if need["topic"] in note_needs else "secondary"
             except (ModelError, BudgetExceeded) as exc:
                 self.warnings.append(f"Interprétation du profil indisponible : {exc}")
-                needs.insert(
-                    0,
+                if profile.notes:
+                    needs.insert(
+                        0,
+                        {
+                            "topic": profile.notes[:150],
+                            "query": profile.notes[:200],
+                            "priority": "primary",
+                            "level": profile.level,
+                            "evidence": profile.notes[:300],
+                        },
+                    )
+        # Interpreting notes or likes must never erase another explicit rubric.
+        for interest in profile.interests:
+            if not any(n["topic"].casefold() == interest.topic.casefold() for n in needs):
+                needs.append(
                     {
-                        "topic": profile.notes[:150],
-                        "query": profile.notes[:200],
-                        "priority": "primary",
+                        "topic": interest.topic,
+                        "query": interest.topic,
+                        "priority": "secondary",
                         "level": profile.level,
-                        "evidence": profile.notes[:300],
-                    },
+                        "evidence": interest.topic,
+                    }
                 )
         self.intent = {
-            "needs": [{"id": f"need-{n + 1}", **need} for n, need in enumerate(needs[:8])],
+            "needs": [{"id": f"need-{n + 1}", **need} for n, need in enumerate(needs)],
             "constraints": constraints,
+            "interest_balance": self.balance,
         }
         self.audit["editorial_intent"] = self.intent
 
@@ -185,6 +214,13 @@ class CoverPipeline:
         if pick.exploration and not (pick.exploration_reason or "").strip():
             return "Lien d'exploration absent"
         if strict:
+            if (
+                self.balance
+                and len(self.balance["interests"]) > 1
+                and pick.interest_id
+                not in {interest["id"] for interest in self.balance["interests"]}
+            ):
+                return "Rubrique générale du profil non identifiée (interest_id)"
             if pick.matched_need not in {n["id"] for n in self.intent["needs"]}:
                 return "Besoin éditorial non identifié"
             a = row.article
@@ -424,6 +460,8 @@ class CoverPipeline:
         shortlist = (
             ranked if editorial_order else diversify(ranked, limit, max(3, request.max_per_source))
         )
+        if self.balance and len(self.balance["interests"]) > 1:
+            shortlist = interleave(shortlist, lambda row: self._interest(row.article.id))
         self.log(
             "shortlist",
             ranked_count=len(ranked),
@@ -489,6 +527,18 @@ class CoverPipeline:
                 "cherche des remplacements pertinents ou des thèmes connexes en Exploration "
                 "avant de finaliser"
             )
+        if self.balance and len(self.balance["interests"]) > 1:
+            counts = Counter(self._interest(s.article_id) for s in selections)
+            available = Counter(self._interest(id_) for id_ in self.candidates)
+            for interest in self.balance["interests"]:
+                target = self.balance["minimum_per_interest"]
+                if counts[interest["id"]] < target and (
+                    can_research or available[interest["id"]] > counts[interest["id"]]
+                ):
+                    errors.append(
+                        f"Diversité : réserver {target} articles à {interest['topic']}. "
+                        "Cherche cette rubrique manquante avant de renforcer les sujets couverts."
+                    )
         sections = Counter(s.section for s in selections if not self._is_exploration(s.article_id))
         focused_count = sum(sections.values())
         if self.plan and set(sections) - set(self.plan.sections):
@@ -553,6 +603,10 @@ class CoverPipeline:
             errors.append("Articles quasi identiques dans la sélection")
         return errors
 
+    def _interest(self, article_id):
+        pick = self.picks.get(article_id)
+        return pick.interest_id if pick else None
+
     def _allocate(self, selections: list[Selection], request: CoverRequest):
         """Apply mechanical quotas once; the model supplies editorial order and judgments."""
         has_exploration = any(self._is_exploration(s.article_id) for s in selections)
@@ -563,7 +617,15 @@ class CoverPipeline:
         counts = Counter()
         ids = set()
         exploration_count = 0
-        for s in sorted(selections, key=lambda s: self._is_exploration(s.article_id)):
+        interest_counts = Counter()
+        balanced = self.balance and len(self.balance["interests"]) > 1
+        ordered = sorted(selections, key=lambda s: self._is_exploration(s.article_id))
+        if balanced:
+            ordered = interleave(
+                [s for s in ordered if not self._is_exploration(s.article_id)],
+                lambda s: self._interest(s.article_id),
+            ) + [s for s in ordered if self._is_exploration(s.article_id)]
+        for s in ordered:
             article = self.articles.get(s.article_id)
             exploration = self._is_exploration(s.article_id)
             reason = None
@@ -575,6 +637,15 @@ class CoverPipeline:
                 reason = "Exploration réservée aux places manquantes"
             elif counts[article.source] >= request.max_per_source:
                 reason = "Quota de source"
+            elif (
+                balanced
+                and self._interest(s.article_id)
+                and (
+                    interest_counts[self._interest(s.article_id)]
+                    >= self.balance["max_per_interest"]
+                )
+            ):
+                reason = "Quota de rubrique générale : préserver les autres intérêts"
             elif len(kept) >= request.size:
                 reason = "Taille demandée atteinte"
             elif any(similarity(article, self.articles[k.article_id]) >= 0.8 for k in kept):
@@ -584,6 +655,7 @@ class CoverPipeline:
                 continue
             ids.add(s.article_id)
             counts[article.source] += 1
+            interest_counts[self._interest(s.article_id)] += 1
             if exploration:
                 exploration_count += 1
                 s = s.model_copy(update={"section": "Exploration"})
@@ -645,6 +717,22 @@ class CoverPipeline:
                 )
             )
         status = "fallback" if fallback else "complete" if len(items) == request.size else "partial"
+        if self.balance and len(self.balance["interests"]) > 1:
+            counts = Counter(self._interest(s.article_id) for s in selections)
+            missing = [
+                i["topic"]
+                for i in self.balance["interests"]
+                if counts[i["id"]] < self.balance["minimum_per_interest"]
+            ]
+            self.audit["interest_balance"] = {
+                **self.balance,
+                "selected": dict(counts),
+                "underrepresented": missing,
+            }
+            if missing:
+                self.warnings.append("Rubriques insuffisamment couvertes : " + "; ".join(missing))
+                if status == "complete":
+                    status = "partial"
         self.log("cover_completed", status=status, selected_ids=[s.article_id for s in selections])
         self.audit["candidates"] = [c.model_dump(mode="json") for c in self.candidates.values()]
         self.audit["duration_ms"] = round((perf_counter() - self.started) * 1000)
@@ -718,7 +806,9 @@ class CoverPipeline:
             consumed_count=len(seen),
             algorithm="BM25 + fraîcheur, puis diversification",
         )
-        pool = preview_pool(ranked, self.settings.editorial_pool_size)
+        pool = preview_pool(
+            ranked, self.settings.editorial_pool_size, [i.topic for i in request.profile.interests]
+        )
         selection_limit = min(28, max(request.size + 4, self.settings.shortlist_size))
         previews = [preview(r) for r in pool]
         self.log("editorial_preview", candidates=previews, selection_limit=selection_limit)
