@@ -27,8 +27,11 @@ def test_generation_and_readback_with_persisted_multimedia_fields(pg_store, cont
             (payload["id"], payload["url"], payload["collected_at"], Jsonb(payload)),
         )
     app = create_app(
-        Settings(_env_file=None), store=pg_store, model=ScriptedModel([finalize_first]),
-        collector=FakeCollector(pg_store), search=FakeSearch(),
+        Settings(_env_file=None),
+        store=pg_store,
+        model=ScriptedModel([finalize_first]),
+        collector=FakeCollector(pg_store),
+        search=FakeSearch(),
     )
     with TestClient(app) as client:
         response = client.post("/v1/covers", json=request().model_dump(mode="json"))

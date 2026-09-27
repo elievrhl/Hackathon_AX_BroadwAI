@@ -3,6 +3,14 @@
 React 19 / Vite 7, API FastAPI et PostgreSQL. Comptes de démonstration locaux au navigateur,
 sans vérification du mot de passe ni authentification serveur.
 
+## Rubrique Événements
+
+L’onglet **Événements** et l’aperçu en bas de la une proposent des sorties à Paris,
+des émissions et des podcasts issus d’un catalogue préparé de 17 références.
+La sélection suit les sujets cochés, filtre les dates et varie les formats, sans
+appel IA. Les filtres Sortir / Regarder / Écouter sont disponibles avant toute
+génération d’articles. Voir [la pipeline, les sources et l’entretien du catalogue](EVENTS.md).
+
 ## Lancer
 
 Démarrer PostgreSQL et le backend sur le port 8010 depuis la racine du projet :

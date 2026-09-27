@@ -10,16 +10,18 @@ def persisted_article(content_format):
     return {
         **article().model_dump(mode="json"),
         "format": content_format,
-        "media": None if content_format == "article" else {
+        "media": None
+        if content_format == "article"
+        else {
             "url": "https://source1.example/video.webm",
             "provider": "direct",
             "status": "ready",
             "duration_seconds": 42.5,
             "transcript_origin": "import",
         },
-        "transcript": [] if content_format == "article" else [
-            {"start": 0.0, "end": 4.0, "text": "Python", "speaker": None}
-        ],
+        "transcript": []
+        if content_format == "article"
+        else [{"start": 0.0, "end": 4.0, "text": "Python", "speaker": None}],
     }
 
 
