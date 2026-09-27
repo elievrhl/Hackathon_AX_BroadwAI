@@ -266,6 +266,8 @@ minimum obligatoire ni contenu de remplissage. Pour description_only, recommande
 sans inventer les propos de l'audio ou de la vidéo. L'absence de transcription est une limite de
 la fiche, pas un motif de rejet à elle seule lorsque validity est validée.
 finalize : title et selections dans l'ordre éditorial, size maximum, max_per_source par domaine.
+title : un titre éditorial concis et concret, lié aux sujets retenus (environ 5 à 12 mots).
+Évite les intitulés génériques comme « Votre sélection », « Votre briefing » ou « L'essentiel ».
 Chaque sélection inclut headline reprenant le titre original, sans traduction ni reformulation
 (tronqué seulement au-delà de 180 caractères), matched_need, evidence (citation EXACTE de la
 fiche ou du titre démontrant le lien : un seul passage contigu, sans coupure, traduction ni

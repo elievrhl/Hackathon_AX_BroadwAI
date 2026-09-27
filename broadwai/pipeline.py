@@ -1065,6 +1065,13 @@ class CoverPipeline:
                 )
             )
         status = "fallback" if fallback else "complete" if len(items) == request.size else "partial"
+        if fallback and not title:
+            sections = dict.fromkeys(
+                item.section for item in items if item.section not in {"À découvrir", "Exploration"}
+            )
+            title = " · ".join(list(sections)[:3])[:200]
+            if not title:
+                title = items[0].title[:200] if items else f"Édition du {utcnow():%d/%m/%Y}"
         if self.balance and len(self.balance["interests"]) > 1:
             counts = Counter(self._interest(s.article_id) for s in selections)
             missing = [
@@ -1236,6 +1243,7 @@ class CoverPipeline:
         except (ModelError, BudgetExceeded) as exc:
             self.log("editorial_plan_failed", error=str(exc))
             self.warnings.append(f"Présélection éditoriale indisponible : {exc}")
+        editorial_title = ""
         observations: list[dict] = []
         attempted: set[tuple] = set()
         for step in range(1, self.settings.max_agent_steps + 1):
@@ -1329,6 +1337,9 @@ class CoverPipeline:
                 )
                 break
             if decision.action == "finalize":
+                # A rejected selection does not invalidate its editorial title.
+                if decision.title and decision.title.strip() and len(decision.title) <= 200:
+                    editorial_title = decision.title.strip()
                 decision.selections, removed = self._allocate(decision.selections, request)
                 if removed:
                     self.log(
@@ -1441,7 +1452,9 @@ class CoverPipeline:
         for index, selection in enumerate(selections):
             if not self._is_exploration(selection.article_id):
                 selection.role = "lead" if index == 0 else "secondary" if index < 3 else "reading"
-        return self._finish(selections, request, "Votre sélection", fallback=True)
+        return self._finish(
+            selections, request, editorial_title if selections else "", fallback=True
+        )
 
     async def _find_source_articles(self, query, context, request, seen):
         if not request.discover_sources or not hasattr(self.search, "search_sources"):
