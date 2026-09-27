@@ -1,12 +1,17 @@
 import asyncio
-from datetime import timedelta
 
 import pytest
 from fastapi.testclient import TestClient
 
 from broadwai.api import create_app
 from broadwai.config import Settings
-from broadwai.images import ArticleImages, article_image, raster_type
+from broadwai.images import (
+    MAX_IMAGE_CANDIDATES,
+    ArticleImages,
+    article_image,
+    article_image_candidates,
+    raster_type,
+)
 from broadwai.models import ArticleImage, utcnow
 from broadwai.network import Download, RetrievalError
 from tests.fakes import MemoryStore, article
@@ -114,7 +119,7 @@ class Fetcher:
     async def get(self, url):
         self.calls.append(url)
         await asyncio.sleep(0)
-        response = self.responses[url]
+        response = self.responses.get(url, RetrievalError("Fixture page unavailable"))
         if isinstance(response, Exception):
             raise response
         return Download(url, *response)
@@ -145,21 +150,21 @@ async def test_old_articles_discover_images_once_without_changing_summary_identi
     await images.close()
 
 
-async def test_missing_images_are_recorded_and_recent_misses_do_not_refetch_pages():
-    item = article()
+async def test_missing_images_are_retried_after_negative_cache_even_if_recently_checked():
+    item = article().model_copy(update={"url": "https://site.example/story"})
     store = MemoryStore([item])
     fetcher = Fetcher({item.url: (b"<article>No image</article>", "text/html")})
     images = ArticleImages(store, fetcher)
     assert await images.get(item.id) is None
     assert await images.get(item.id) is None
     assert store.get_article(item.id).image_checked_at is not None
-    images.cache.clear()
-    assert await images.get(item.id) is None
     assert fetcher.calls == [item.url]
-    store.set_article_image(item.id, None, utcnow() - timedelta(days=8))
+    # A better extraction/new image can recover without changing the article date.
+    fetcher.responses[item.url] = (b'<meta property="og:image" content="/new.png">', "text/html")
+    fetcher.responses["https://site.example/new.png"] = (PNG, "image/png")
     images.cache.clear()
-    assert await images.get(item.id) is None
-    assert fetcher.calls == [item.url, item.url]
+    assert await images.get(item.id) == (PNG, "image/png")
+    assert fetcher.calls == [item.url, item.url, "https://site.example/new.png"]
 
 
 @pytest.mark.parametrize(
@@ -178,7 +183,73 @@ async def test_unavailable_or_non_raster_image_is_a_cached_miss(response):
     images = ArticleImages(MemoryStore([item]), fetcher)
     assert await images.get(item.id) is None
     assert await images.get(item.id) is None
-    assert fetcher.calls == [picture.url]
+    assert fetcher.calls == [picture.url, item.url]
+
+
+def test_responsive_picture_and_lazy_images_keep_cdn_commas_and_skip_related_content():
+    document = """<main>
+      <section class="related-posts"><img src="/related.jpg"></section>
+      <picture><source data-srcset="/small.jpg 320w,
+        https://cdn.example/image/f_auto,q_auto/photo.jpg 1200w, /huge.jpg 4000w">
+        <img src="/placeholder.svg" alt="Une illustration" data-src="/fallback.jpg">
+      </picture><img src="/tracking.jpg" width="1">
+      <img data-original="/later.jpg"><img src="/fallback.jpg">
+    </main>"""
+    candidates = article_image_candidates(document, "https://site.example/story")
+    assert [candidate.image.url for candidate in candidates] == [
+        "https://cdn.example/image/f_auto,q_auto/photo.jpg",
+        "https://site.example/small.jpg",
+        "https://site.example/huge.jpg",
+        "https://site.example/fallback.jpg",
+        "https://site.example/later.jpg",
+    ]
+    assert candidates[0].image.alt == "Une illustration"
+    assert not any(candidate.publisher_selected for candidate in candidates)
+
+
+def test_publisher_candidates_are_deduplicated_and_body_images_are_not_promoted():
+    document = """<meta property="og:image:secure_url" content="/hero.jpg">
+      <meta name="twitter:image" content="/hero.jpg">
+      <article><img src="/hero.jpg"><img src="/body.jpg"></article>"""
+    candidates = article_image_candidates(document, "https://site.example/story")
+    assert [(candidate.image.url, candidate.publisher_selected) for candidate in candidates] == [
+        ("https://site.example/hero.jpg", True),
+        ("https://site.example/body.jpg", False),
+    ]
+
+
+async def test_failed_saved_image_falls_back_to_another_publisher_candidate_and_persists_it():
+    picture = ArticleImage(url="https://site.example/expired.jpg")
+    item = article().model_copy(
+        update={"url": "https://site.example/story", "image": picture, "image_checked_at": utcnow()}
+    )
+    store = MemoryStore([item])
+    fetcher = Fetcher(
+        {
+            picture.url: RetrievalError("Expired URL"),
+            item.url: (
+                b'<meta property="og:image" content="/expired.jpg">'
+                b'<meta name="twitter:image" content="/valid.png">',
+                "text/html",
+            ),
+            "https://site.example/valid.png": (PNG, "image/png"),
+        }
+    )
+    service = ArticleImages(store, fetcher)
+    assert await service.get(item.id) == (PNG, "image/png")
+    assert fetcher.calls == [picture.url, item.url, "https://site.example/valid.png"]
+    assert store.get_article(item.id).image.url == "https://site.example/valid.png"
+    await service.close()
+
+
+async def test_candidate_downloads_are_bounded_when_every_image_fails():
+    item = article()
+    markup = "".join(f'<meta property="og:image" content="/{i}.png">' for i in range(20))
+    fetcher = Fetcher({item.url: (markup.encode(), "text/html")})
+    service = ArticleImages(MemoryStore([item]), fetcher)
+    assert await service.get(item.id) is None
+    assert len(fetcher.calls) == 1 + MAX_IMAGE_CANDIDATES
+    await service.close()
 
 
 async def test_unknown_articles_do_not_fetch_and_cache_is_bounded():

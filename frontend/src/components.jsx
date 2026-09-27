@@ -163,7 +163,7 @@ export function ArticleCard({
 }) {
   return <article className={`article-card ${variant}`} data-article-id={article.id}>
     <div className="article-inner">
-      {(variant !== 'brief' || ['video', 'podcast'].includes(article.format)) && <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority={variant === 'lead'} />}
+      <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority={variant === 'lead'} />
       <div className="article-copy">
         <MediaBadge format={article.format} />
         <h3><PublisherLink className="article-title" article={article} onRead={onRead}>{article.title}</PublisherLink></h3>

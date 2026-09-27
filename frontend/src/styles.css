@@ -687,6 +687,7 @@ input::placeholder,textarea::placeholder {
   opacity: 1;
 }
 .secondary .article-visual img,
+.brief .article-visual img,
 .section-article .article-visual img,
 .filtered-article .article-visual img {
   aspect-ratio: 16 / 9;

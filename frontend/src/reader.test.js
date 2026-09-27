@@ -108,14 +108,14 @@ test('publisher links reject executable and relative URLs', () => {
   assert.equal(safeArticleUrl('https://example.com/a'), 'https://example.com/a');
 });
 
-test('article images use the backend for legacy editions and skip known missing artwork', () => {
-  assert.equal(articleImageUrl({ article_id: 'old-edition-article' }), '/v1/articles/old-edition-article/image?v=media-3');
-  assert.equal(articleImageUrl({ article_id: 'checked', image_checked: true }), null);
+test('article images use the backend even for previously missing artwork', () => {
+  assert.equal(articleImageUrl({ article_id: 'old-edition-article' }), '/v1/articles/old-edition-article/image?v=images-4');
+  assert.equal(articleImageUrl({ article_id: 'checked', image_checked: true }), '/v1/articles/checked/image?v=images-4');
   for (const article_id of ['../private', '', 'bad/id']) assert.equal(articleImageUrl({ article_id }), null);
   const raw = fixture(1);
   raw.items[0].image = { url: 'https://publisher.example/photo.jpg', alt: 'La photo de l’article' };
   raw.items[0].image_checked = true;
-  assert.equal(adaptCover(raw).lead.imageUrl, '/v1/articles/article-0/image?v=media-3');
+  assert.equal(adaptCover(raw).lead.imageUrl, '/v1/articles/article-0/image?v=images-4');
   assert.equal(adaptCover(raw).lead.imageAlt, 'La photo de l’article');
 });
 

@@ -15,16 +15,15 @@
   --preview-art: #d8c9b5;
 }
 :root[data-theme="tech"], .theme-preview[data-preview="tech"] {
-  --paper: #101820;
-  --ink: #e5f0f5;
-  --muted: #a1b6c5;
-  --red: #70e0bc;
-  --line: #344852;
+  --paper: #edf7f4;
+  --ink: #132d2a;
+  --muted: #42655e;
+  --red: #12634e;
+  --line: #bdd8cf;
   --serif: 'DM Sans', Arial, sans-serif;
   --serif-body: 'DM Sans', Arial, sans-serif;
-  --on-accent: #10251d;
-  --preview-art: #264c51;
-  color-scheme: dark;
+  --on-accent: #fff;
+  --preview-art: #bddcd3;
 }
 :root[data-theme="finance"], .theme-preview[data-preview="finance"] {
   --paper: #f4e5d6;
@@ -70,9 +69,64 @@
   --on-accent: #fff;
   --preview-art: #f2bf58;
 }
-/* Existing surfaces keep their original colors in Éditorial. Other palettes
-   supply semantic tokens for forms, dialogs, events and reader chat as well. */
-:root[data-theme]:not([data-theme="editorial"]) {
+/* Luminosity is independent of typography/layout. Previews use the same palette. */
+:root[data-color-scheme="dark"], .theme-preview[data-color-scheme="dark"] {
+  color-scheme: dark;
+  --paper: #1c1b18;
+  --ink: #f0e9dc;
+  --muted: #b6aea0;
+  --red: #e4957c;
+  --line: #494438;
+  --on-accent: #251b15;
+  --preview-art: #655144;
+}
+:root[data-color-scheme="dark"][data-theme="tech"], .theme-preview[data-color-scheme="dark"][data-preview="tech"] {
+  --paper: #101820;
+  --ink: #e5f0f5;
+  --muted: #a1b6c5;
+  --red: #70e0bc;
+  --line: #344852;
+  --on-accent: #10251d;
+  --preview-art: #264c51;
+}
+:root[data-color-scheme="dark"][data-theme="finance"], .theme-preview[data-color-scheme="dark"][data-preview="finance"] {
+  --paper: #182229;
+  --ink: #f0e5d7;
+  --muted: #bcb3a9;
+  --red: #90c9c8;
+  --line: #455257;
+  --on-accent: #172729;
+  --preview-art: #526b65;
+}
+:root[data-color-scheme="dark"][data-theme="atelier"], .theme-preview[data-color-scheme="dark"][data-preview="atelier"] {
+  --paper: #171927;
+  --ink: #f2eee5;
+  --muted: #b8b4c5;
+  --red: #a8b4ff;
+  --line: #42465b;
+  --on-accent: #1b2149;
+  --preview-art: #bd7f5e;
+}
+:root[data-color-scheme="dark"][data-theme="minimal"], .theme-preview[data-color-scheme="dark"][data-preview="minimal"] {
+  --paper: #151619;
+  --ink: #eeeff1;
+  --muted: #a7abb2;
+  --red: #f0f1f3;
+  --line: #383b41;
+  --on-accent: #1b1c1f;
+  --preview-art: #3f434b;
+}
+:root[data-color-scheme="dark"][data-theme="playful"], .theme-preview[data-color-scheme="dark"][data-preview="playful"] {
+  --paper: #20192d;
+  --ink: #f1e9ff;
+  --muted: #c1afd6;
+  --red: #c8a3ff;
+  --line: #4e3d62;
+  --on-accent: #2f164e;
+  --preview-art: #bd9348;
+}
+/* Éditorial in light mode retains its original surface colors. */
+:root[data-theme]:not([data-theme="editorial"]), :root[data-color-scheme="dark"] {
   --surface: color-mix(in srgb, var(--paper) 94%, var(--ink));
   --surface-raised: color-mix(in srgb, var(--paper) 97%, var(--ink));
   --accent-soft: color-mix(in srgb, var(--paper) 90%, var(--red));
@@ -111,6 +165,14 @@ dialog.theme-dialog {
 .theme-heading .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--red); font-size: .65rem; }
 .theme-heading h2 { font: 400 clamp(2rem, 4vw, 2.75rem)/1.15 var(--serif); letter-spacing: -.03em; margin: 10px 0; }
 .theme-heading > p:last-child { color: var(--muted); font-size: .85rem; line-height: 1.6; }
+.color-mode-settings { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px 0; margin-top: 16px; border-block: 1px solid var(--line); }
+.color-mode-settings h3 { font-size: .83rem; font-weight: 600; }
+.color-mode-settings p { font-size: .72rem; color: var(--muted); line-height: 1.5; margin-top: 5px; }
+.color-mode-options { display: flex; gap: 3px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; flex-shrink: 0; }
+.color-mode-option { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 9px 15px; border-radius: 6px; color: var(--muted); font-size: .78rem; cursor: pointer; }
+.color-mode-option:hover { color: var(--ink); background: var(--accent-soft, #efe6dc); }
+.color-mode-option.is-selected { color: var(--on-accent, #fffaf1); background: var(--red); }
+.color-mode-option:has(input:focus-visible) { outline: 2px solid var(--red); outline-offset: 3px; }
 .theme-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 20px 0; }
 .theme-option { position: relative; min-width: 0; padding: 8px 8px 14px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer; background: var(--surface-raised, #fcfbf7); }
 .theme-option:hover { border-color: var(--red); }
@@ -228,6 +290,8 @@ dialog.theme-dialog {
   dialog.theme-dialog { width: calc(100vw - 20px); max-height: calc(100dvh - 20px); padding: 24px 16px 16px; }
   .theme-heading h2 { font-size: 2rem; }
   .theme-heading > p:last-child { font-size: .78rem; }
+  .color-mode-settings { align-items: stretch; flex-direction: column; gap: 12px; }
+  .color-mode-option { flex: 1; padding-inline: 10px; }
   .theme-options { gap: 10px; margin-block: 20px; }
   .theme-option { padding: 5px 5px 10px; }
   .theme-preview { height: 109px; padding: 8px; }

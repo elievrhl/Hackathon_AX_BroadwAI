@@ -17,11 +17,14 @@ affiche les vraies couvertures de l’API : profil local sans compte, générati
 15 à 20 articles, historique, rubriques, liens éditeurs, favoris et retours de lecture.
 La génération payante ne démarre que sur le bouton « Générer ma une ».
 
-La une affiche les visuels des articles : métadonnées Open Graph/Twitter en priorité,
-puis image structurée JSON-LD ou image principale du texte. Un clic sur le titre ou le visuel
+La une affiche les visuels des articles, y compris les brèves : métadonnées Open Graph/Twitter
+en priorité, puis images structurées JSON-LD ou images du texte. La récupération prend aussi
+en charge `picture`, `srcset` et les attributs de chargement différé. Jusqu’à cinq URLs
+distinctes sont essayées si une image échoue au téléchargement ou au contrôle ; la première
+image utilisable est conservée pour les prochaines lectures. Un clic sur le titre ou le visuel
 ouvre directement l’article chez l’éditeur dans l’onglet courant. Le bouton « Fiche & avis »
 conserve l’accès au résumé et aux retours. Les images indisponibles laissent une carte textuelle ; les
-brèves restent compactes. Les éditions déjà enregistrées sont illustrées à leur
+brèves gardent une présentation compacte. Les éditions déjà enregistrées sont illustrées à leur
 ouverture, sans régénérer les résumés.
 Le backend sert les images des articles sélectionnés via `/v1/articles/{id}/image`,
 avec contrôle des destinations publiques, de la taille et du format raster. Le cache
@@ -32,8 +35,15 @@ au titre et à 1 000 caractères de l'article. Seule une miniature JPEG sans mé
 limitée à **768 pixels et 100 Ko**, est transmise à OpenAI ; le visuel affiché conserve
 sa qualité d'origine. Réponse JSON minimale (`keep`, `reject`, `uncertain`), plafond de
 32 tokens, raisonnement désactivé, aucun outil ni relance automatique du SDK.
-Seul `keep` autorise l'image : les doutes, refus, erreurs, formats invalides et animations
-laissent la carte textuelle. Une erreur ne peut être réessayée qu'après 24 h.
+`keep` autorise l’image. Un verdict `uncertain` l’autorise aussi si la page de l’article
+confirme explicitement le choix de l’éditeur dans ses métadonnées Open Graph, Twitter,
+JSON-LD ou `image_src`. Cette règle conserve les illustrations symboliques sans exiger une
+correspondance photographique littérale avec le texte. Une image trouvée uniquement dans le
+corps reste soumise à `keep`. Les refus explicites, erreurs, formats invalides et animations
+sont toujours exclus. Une erreur de contrôle ne peut être réessayée qu’après 24 h.
+Les anciens verdicts sont réutilisés : cette nouvelle règle ne déclenche pas de réévaluation
+payante des images déjà contrôlées. Les anciennes absences d’image ne bloquent plus une
+nouvelle recherche après expiration du cache négatif de cinq minutes.
 
 La table `image_reviews` conserve les verdicts et les coûts déclarés, partagés entre
 éditions et utilisateurs, même après redémarrage. La clé inclut l'article, son contexte,

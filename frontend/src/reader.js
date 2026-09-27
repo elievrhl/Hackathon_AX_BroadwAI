@@ -69,8 +69,8 @@ export function safeArticleUrl(value) {
 export function articleImageUrl(item) {
   // Always use the local image service, never a URL supplied by an external page.
   if (!/^[a-zA-Z0-9_-]{1,100}$/.test(item.article_id || '')) return null;
-  if (item.image_checked && !item.image) return null;
-  return `/v1/articles/${encodeURIComponent(item.article_id)}/image?v=media-3`;
+  // Let the server retry old misses with its bounded negative cache.
+  return `/v1/articles/${encodeURIComponent(item.article_id)}/image?v=images-4`;
 }
 
 export function mediaDuration(seconds) {

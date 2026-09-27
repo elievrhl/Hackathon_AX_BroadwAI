@@ -34,7 +34,6 @@ export default function Newspaper({ profile, cover, saved, onSave, onOrganize, s
         <div className="sections-grid">{cover.remainingSections.map(section => <section className="topic-section" key={section.id} aria-labelledby={section.id}><div className="section-heading"><h2 id={section.id}>{section.label}</h2></div><div className="section-articles">{section.articles.map(article => card(article, 'section-article'))}</div></section>)}</div>
         {!!cover.exploration.length && <section className="exploration-section" aria-labelledby="exploration-heading"><div className="section-heading"><h2 id="exploration-heading">Exploration</h2></div><div className="exploration-grid">{cover.exploration.map(article => card(article, 'section-article'))}</div></section>}
       </div> : <section className="filtered-articles" style={{ '--content-columns': Math.max(1, Math.min(filtered.length, 3)) }} aria-label="Articles de la rubrique">{filtered.length ? filtered.map(article => card(article, 'filtered-article')) : <div className="empty-state"><h2>Aucun article dans cette rubrique.</h2><p>Retrouvez les autres lectures à la une.</p></div>}</section>)}
-      {filter === 'all' && <Events profile={profile} compact onExplore={() => { setFilter('events'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onPreferences={onPreferences} />}
       </>}
     </main>
     <footer className="paper-footer"><Wordmark small /><a className="footer-demo" href="/admin" target="_blank" rel="noreferrer">Sources et administration</a></footer>

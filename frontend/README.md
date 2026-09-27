@@ -85,9 +85,14 @@ enregistrées avant cet ajout sont enrichies depuis le catalogue lors de leur ou
 
 Les visuels sont servis par le backend après un contrôle Nano de leur pertinence.
 Cette analyse est facturée une seule fois par article/contexte/image/version, puis
-conservée en PostgreSQL pour toutes les éditions. Les images rejetées, douteuses ou
-non vérifiables disparaissent au profit d'une carte textuelle. Le paramètre
-`?v=review-1` renouvelle le cache du navigateur pour les anciennes images non contrôlées.
+conservée en PostgreSQL pour toutes les éditions. Un doute de pertinence (`uncertain`)
+ne masque plus une illustration explicitement déclarée par l’éditeur sur la page de
+l’article ; les rejets explicites et les erreurs restent exclus. Si une candidate échoue,
+le backend en essaie d’autres, jusqu’à cinq URLs distinctes, y compris `picture`, `srcset`
+et les images à chargement différé. Les brèves affichent également leur illustration.
+Le paramètre `?v=images-4` renouvelle le cache du navigateur. Même un article autrefois
+marqué sans image consulte le backend : son cache négatif de cinq minutes borne les
+nouvelles tentatives, sans bloquer définitivement les anciennes éditions.
 
 Les nouvelles éditions privilégient les actualités des dernières 24–72 heures (7 jours maximum)
 et acceptent les lectures de fond durables jusqu'à un an. Ces catégories sont consultables dans
@@ -111,7 +116,7 @@ tâche asynchrone ni de reprise automatique d’une requête interrompue.
 ## Stockage et retours
 
 Le bouton **Thèmes**, accessible dès l’accueil puis dans la navigation du lecteur,
-ouvre six aperçus : **Éditorial** (apparence d’origine), **Tech** (sombre et menthe),
+ouvre six aperçus : **Éditorial** (apparence d’origine), **Tech** (accents menthe),
 **Finance** (saumon, bleu encre, dense), **Atelier** (ivoire et bleu, grands titres),
 **Minimal** (blanc, noir, aéré) et **Playful** (lavande, cartes arrondies).
 Le choix s’applique immédiatement au journal, à la bibliothèque et aux fenêtres du
@@ -124,6 +129,14 @@ Les autres onglets de la même origine se synchronisent. Si le stockage est indi
 le thème s’applique pour la visite en cours ; une valeur inconnue rétablit Éditorial.
 Les palettes et variantes sont dans `src/themes.css`, leur catalogue et le stockage
 dans `src/themes.js`, le sélecteur dans `src/ThemePicker.jsx`.
+
+Dans cette même fenêtre, **Apparence** propose **Clair**, **Sombre** et **Auto**,
+indépendamment du thème. Les six ambiances et leurs aperçus ont une palette claire
+et sombre. **Auto**, le réglage initial, suit `prefers-color-scheme` et réagit aux
+changements du système sans rechargement. Un choix explicite Clair ou Sombre reste
+fixe. `kiosque.colorMode.v1` mémorise ce réglage et le synchronise entre onglets ;
+une valeur absente, invalide ou inaccessible revient à Auto. L’apparence est appliquée
+avant le premier rendu React pour éviter un éclair de la mauvaise palette.
 
 - `kiosque.accounts.v1`, `kiosque.session.v1` : comptes de démonstration et session locale.
 - Les clés `kiosque.reader.v1`, `kiosque.lastCover` et `kiosque.pending` sont suffixées

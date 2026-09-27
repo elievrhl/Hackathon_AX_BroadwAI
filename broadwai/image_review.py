@@ -92,8 +92,12 @@ class ImageReviewer:
     async def close(self):
         await self.client.close()
 
-    async def check(self, article, body):
-        """Only a completed keep decision allows display. No paid retries in this call."""
+    async def check(self, article, body, *, publisher_selected=False):
+        """Honor an editor's illustration despite a relevance doubt, never a rejection/error."""
+
+        def allowed(verdict):
+            return verdict == "keep" or (publisher_selected and verdict == "uncertain")
+
         try:
             thumbnail = await asyncio.to_thread(compress_for_review, body)
         except ValueError:
@@ -108,7 +112,7 @@ class ImageReviewer:
         ).hexdigest()
         cached = await asyncio.to_thread(self.store.get_image_review, cache_key)
         if cached and cached["status"] == "completed":
-            return cached.get("verdict") == "keep"
+            return not cached.get("error") and allowed(cached.get("verdict"))
         claim_id = uuid4().hex
         metadata = {
             "model": self.model,
@@ -128,7 +132,10 @@ class ImageReviewer:
             # Another worker may have finished between the lookup and the claim.
             cached = await asyncio.to_thread(self.store.get_image_review, cache_key)
             return bool(
-                cached and cached["status"] == "completed" and cached.get("verdict") == "keep"
+                cached
+                and cached["status"] == "completed"
+                and not cached.get("error")
+                and allowed(cached.get("verdict"))
             )
 
         result = {"verdict": "uncertain"}
@@ -190,4 +197,4 @@ class ImageReviewer:
             )
             raise
         await asyncio.to_thread(self.store.finish_image_review, cache_key, claim_id, result)
-        return result["verdict"] == "keep" and not result.get("error")
+        return allowed(result["verdict"]) and not result.get("error")

@@ -146,6 +146,71 @@ async def test_each_verdict_survives_a_new_reviewer_without_paying_again(verdict
     second.responses.create.assert_not_awaited()
 
 
+async def test_hames_publisher_illustration_reuses_uncertain_verdict_without_new_model_call():
+    # Minimal public markup from the reported page. Its illustration is explicitly
+    # declared, not an arbitrary image found elsewhere in the page.
+    url = "https://richardhames.com/musings/the-hames-report/everything-except-their-names"
+    image_url = (
+        "https://substackcdn.com/image/fetch/$s_!s193!,f_auto,q_auto:good,fl_progressive:steep/"
+        "https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F"
+        "2b18a6d9-b741-4c7f-8fc4-db6f71381780_1536x1024.png"
+    )
+    item = article().model_copy(
+        update={
+            "url": url,
+            "title": "Everything Except Their Names - Richard David Hames",
+            "image": ArticleImage(url=image_url),
+            "image_checked_at": utcnow(),
+        }
+    )
+    body = photo()
+    store = MemoryStore([item])
+    model = client("uncertain")
+    reviewer = ImageReviewer(store, "unused", client=model)
+    assert not await reviewer.check(item, body)
+    fetcher = Fetcher(
+        {
+            image_url: (body, "image/png"),
+            url: (f'<meta property="og:image" content="{image_url}">'.encode(), "text/html"),
+        }
+    )
+    service = ArticleImages(store, fetcher, reviewer)
+    assert await service.get(item.id) == (body, "image/png")
+    assert fetcher.calls == [image_url, url]
+    model.responses.create.assert_awaited_once()
+    assert next(iter(store.image_reviews.values()))["verdict"] == "uncertain"
+    await service.close()
+
+
+@pytest.mark.parametrize("verdict", ["reject", "uncertain"])
+async def test_rejected_publisher_or_uncertain_body_image_does_not_prevent_next_image(verdict):
+    item = article().model_copy(update={"url": "https://site.example/story"})
+    store = MemoryStore([item])
+    first, second = photo(color="red"), photo(color="green")
+    markup = (
+        '<meta property="og:image" content="/first.png">'
+        if verdict == "reject"
+        else '<article><img src="/first.png"></article>'
+    ) + '<article><img src="/second.png"></article>'
+    fetcher = Fetcher(
+        {
+            item.url: (markup.encode(), "text/html"),
+            "https://site.example/first.png": (first, "image/png"),
+            "https://site.example/second.png": (second, "image/png"),
+        }
+    )
+    model = client()
+    model.responses.create.side_effect = [
+        client(verdict).responses.create.return_value,
+        client("keep").responses.create.return_value,
+    ]
+    service = ArticleImages(store, fetcher, ImageReviewer(store, "unused", client=model))
+    assert await service.get(item.id) == (second, "image/png")
+    assert model.responses.create.await_count == 2
+    assert store.get_article(item.id).image.url.endswith("/second.png")
+    await service.close()
+
+
 async def test_content_image_model_and_version_changes_invalidate_the_decision(monkeypatch):
     item = article()
     store = MemoryStore([item])
@@ -179,6 +244,8 @@ async def test_errors_hide_images_and_do_not_repeat_paid_attempts_on_refresh(fai
     model.responses.create.assert_awaited_once()
     record = next(iter(store.image_reviews.values()))
     assert record["status"] == "error" and record["retry_after"] > utcnow()
+    assert not await reviewer.check(item, photo(), publisher_selected=True)
+    model.responses.create.assert_awaited_once()
     record["retry_after"] = utcnow() - timedelta(seconds=1)
     assert not await reviewer.check(item, photo())
     assert model.responses.create.await_count == 2
