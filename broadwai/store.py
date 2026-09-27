@@ -7,9 +7,10 @@ from psycopg.types.json import Jsonb
 from psycopg_pool import ConnectionPool
 
 from broadwai.models import Article, Brief, Cover, Feedback
+from broadwai.preference_store import PreferenceStore
 
 
-class Store:
+class Store(PreferenceStore):
     """PostgreSQL repository with a bounded connection pool."""
 
     def __init__(self, database_url: str):
@@ -142,12 +143,13 @@ class Store:
                 (article.id, article.content_hash, version, Jsonb(brief.model_dump(mode="json"))),
             )
 
-    def put_cover(self, cover: Cover) -> None:
+    def put_cover(self, cover: Cover, preferences=()) -> None:
         with self.pool.connection() as db:
             db.execute(
                 "INSERT INTO covers VALUES (%s, %s, %s)",
                 (cover.id, cover.user_id, Jsonb(cover.model_dump(mode="json"))),
             )
+            self._consume_preferences(db, cover, preferences)
 
     def get_cover(self, cover_id: str) -> Cover | None:
         with self.pool.connection() as db:
@@ -217,18 +219,53 @@ class Store:
                 (user_id, cover_id),
             )
 
-    def add_feedback(self, feedback: Feedback) -> None:
+    def add_feedback(self, feedback: Feedback):
         cover = self.get_cover(feedback.cover_id)
         if not cover or cover.user_id != feedback.user_id:
             raise ValueError("Couverture introuvable pour cet utilisateur")
         if feedback.article_id not in {item.article_id for item in cover.items}:
             raise ValueError("Article absent de cette couverture")
         with self.pool.connection() as db:
-            db.execute(
-                "INSERT INTO feedback (user_id, cover_id, article_id, kind) "
-                "VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING",
-                (feedback.user_id, feedback.cover_id, feedback.article_id, feedback.kind),
+            preference = (
+                self._create_preference(
+                    db,
+                    feedback.user_id,
+                    feedback.preference,
+                    cover_id=feedback.cover_id,
+                    article_id=feedback.article_id,
+                )
+                if feedback.preference
+                else None
             )
+            db.execute(
+                "INSERT INTO feedback "
+                "(user_id, cover_id, article_id, kind,reason,comment,preference_id) "
+                "VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT "
+                "(user_id,cover_id,article_id,kind) DO UPDATE SET reason=excluded.reason, "
+                "comment=excluded.comment,created_at=now(),"
+                "preference_id=COALESCE(excluded.preference_id,feedback.preference_id)",
+                (
+                    feedback.user_id,
+                    feedback.cover_id,
+                    feedback.article_id,
+                    feedback.kind,
+                    feedback.reason,
+                    feedback.comment,
+                    preference.id if preference else None,
+                ),
+            )
+        return preference
+
+    def feedback_for_cover(self, user_id, cover_id):
+        cover = self.get_cover(cover_id)
+        if not cover or cover.user_id != user_id:
+            raise KeyError("Couverture introuvable pour cet utilisateur")
+        with self.pool.connection() as db, db.cursor(row_factory=dict_row) as cur:
+            return cur.execute(
+                "SELECT article_id,kind,reason,comment,preference_id FROM feedback "
+                "WHERE user_id=%s AND cover_id=%s ORDER BY created_at",
+                (user_id, cover_id),
+            ).fetchall()
 
     def set_like(self, event) -> None:
         cover = self.get_cover(event.cover_id)

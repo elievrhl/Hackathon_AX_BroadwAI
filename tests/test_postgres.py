@@ -3,7 +3,9 @@ from uuid import uuid4
 
 import pytest
 
-from broadwai.models import ArticleImage, Feedback, utcnow
+from broadwai.models import ArticleImage, Feedback, PreferenceCreate, PreferenceUpdate, utcnow
+from broadwai.preferences import PreferenceConflict
+from broadwai.reader_chat import preference_snapshot
 from tests.fakes import ScriptedModel, article, finalize_first
 from tests.test_catalog_compatibility import persisted_article
 from tests.test_pipeline import pipeline, request
@@ -138,6 +140,122 @@ def test_postgres_upsert_preserves_extracted_text(pg_store):
     assert pg_store.get_article(full.id).text == full.text
     assert pg_store.stats()["articles"] == 1
     assert pg_store.articles()[0].id == full.id
+
+
+def test_postgres_chat_atomic_persistence_replay_and_race(pg_store):
+    from broadwai.reader_chat import ReaderChange
+    from tests.test_reader_chat import message, reply
+
+    request = message()
+    plan = reply()
+    first = pg_store.save_reader_message("alice", request, plan, [], {})
+    assert pg_store.get_reader_message("alice", request.id) == first
+    assert pg_store.list_reader_messages("alice") == [first]
+    assert pg_store.list_reader_messages("bob") == []
+    assert pg_store.save_reader_message("alice", request, plan, [], {}) == first
+    rows = pg_store.list_preferences("alice", active_only=True)
+    assert len(rows) == 1
+    snapshot = preference_snapshot(rows)
+    invalid = reply(id_=rows[0].id, action="less")
+    invalid.changes.append(ReaderChange(preference_id="unknown-id", preference=None))
+    with pytest.raises(ValueError):
+        pg_store.save_reader_message("alice", message(), invalid, snapshot, {})
+    assert pg_store.list_preferences("alice", active_only=True) == rows
+    assert len(pg_store.list_reader_messages("alice")) == 1
+    changed = pg_store.save_reader_message(
+        "alice",
+        message("Moins finalement"),
+        reply(id_=rows[0].id, action="less"),
+        snapshot,
+        {},
+    )
+    assert changed["changes"][0]["kind"] == "updated"
+    with pytest.raises(PreferenceConflict):
+        pg_store.save_reader_message("alice", message(), plan, snapshot, {})
+    assert pg_store.list_preferences("alice", active_only=True)[0].action == "less"
+
+
+async def test_postgres_reader_preference_lifecycle_and_feedback_are_persistent(pg_store):
+    value = PreferenceCreate(action="more", target_kind="topic", target="Python", scope="next")
+    first = pg_store.create_preference("alice", value)
+    assert pg_store.create_preference("alice", value).id == first.id
+    assert pg_store.list_preferences("bob") == []
+    with pytest.raises(PreferenceConflict):
+        pg_store.create_preference("bob", value)
+    corrected = pg_store.update_preference(
+        "alice",
+        first.id,
+        PreferenceUpdate(
+            **value.model_dump(exclude={"id", "explanation"}),
+            explanation="Les articles approfondis",
+            revision=1,
+        ),
+    )
+    with pytest.raises(PreferenceConflict):
+        pg_store.update_preference("alice", first.id, revision=1)
+    assert pg_store.list_preferences("alice")[0] == corrected
+    item = article()
+    pg_store.put_article(item)
+    cover = await pipeline(pg_store, ScriptedModel([finalize_first])).run(request())
+    applied = pg_store.list_preferences("alice")[0]
+    assert applied.status == "applied" and applied.applied_cover_id == cover.id
+    linked = PreferenceCreate(action="less", target_kind="content_type", target="analysis")
+    event = Feedback(
+        user_id="alice",
+        cover_id=cover.id,
+        article_id=item.id,
+        kind="not_interested",
+        comment="Trop de lectures de ce format",
+        reason="style",
+        preference=linked,
+    )
+    rule = pg_store.add_feedback(event)
+    pg_store.add_feedback(event)
+    assert len(pg_store.list_preferences("alice", active_only=True)) == 1
+    assert pg_store.feedback_for_cover("alice", cover.id)[0]["comment"] == event.comment
+    pg_store.update_preference("alice", rule.id, revision=1)
+    pg_store.add_feedback(event)
+    assert pg_store.list_preferences("alice", active_only=True) == []
+    # Schema migration is additive and repeatable with existing events and editions.
+    with pg_store.pool.connection() as db:
+        db.execute(files("broadwai").joinpath("schema.sql").read_text(encoding="utf-8"))
+    assert pg_store.get_cover(cover.id).id == cover.id
+    assert pg_store.feedback_for_cover("alice", cover.id)[0]["preference_id"] == linked.id
+
+
+async def test_postgres_preference_concurrent_correction_and_feedback_atomicity(
+    pg_store,
+):
+    value = PreferenceCreate(
+        action="diversify", target_kind="topic", target="Histoire", scope="next"
+    )
+    first = pg_store.create_preference("alice", value)
+    item = article()
+    pg_store.put_article(item)
+
+    class CorrectingModel(ScriptedModel):
+        async def decide(self, state, budget):
+            pg_store.update_preference(
+                "alice", first.id, PreferenceUpdate(**value.model_dump(exclude={"id"}), revision=1)
+            )
+            return finalize_first(state)
+
+    cover = await pipeline(pg_store, CorrectingModel(), max_agent_steps=1).run(request())
+    assert pg_store.list_preferences("alice", active_only=True)[0].revision == 2
+    bad = Feedback(
+        user_id="bob",
+        cover_id=cover.id,
+        article_id=item.id,
+        kind="not_interested",
+        preference=value,
+    )
+    with pytest.raises(ValueError):
+        pg_store.add_feedback(bad)
+    assert pg_store.list_preferences("bob") == []
+    replacement = pg_store.create_preference(
+        "alice", PreferenceCreate(action="exclude", target_kind="topic", target="histoire")
+    )
+    assert pg_store.list_preferences("alice", active_only=True) == [replacement]
 
 
 def test_postgres_website_upgrade_preserves_existing_sources_and_proposals(pg_store):

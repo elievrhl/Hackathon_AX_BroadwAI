@@ -1,3 +1,48 @@
+## 27 septembre 2026 — Fusion des bibliothèques avec le travail d’Elie
+
+Les bibliothèques fonctionnent comme des playlists d’articles : `/v1/collections`,
+plusieurs classements par article, création depuis le marque-page et vues couverture/tranche.
+Les anciennes revues et les favoris sont migrés. La fusion conserve le chat lecteur,
+les préférences explicites, les avis enrichis et les événements personnalisés.
+Les titres gardent leur langue d’origine et les titres/images ouvrent directement l’éditeur
+dans un nouvel onglet. « Fiche & avis » est une action distincte ; son marque-page ouvre
+le même sélecteur de bibliothèques que le journal.
+
+Validation de la fusion : 272 tests Python avec PostgreSQL isolé, 30 tests JavaScript,
+Ruff et build Vite. Parcours navigateur vérifié : avis, sauvegarde depuis la fiche,
+bibliothèque, chat et événements. Aucun appel IA pour ces contrôles.
+
+## 27 septembre 2026 — Feedback explicite et préférences contrôlables
+
+Le parcours de feedback est maintenant intégré : motif/commentaire par article, demande
+indépendante « J’aimerais lire… », et liste « Ce que Kiosque retient » pour corriger,
+réexpliquer et supprimer chaque préférence. Les anciennes notes ne sont pas modifiées.
+Aucune préférence n’est inférée d’un clic seul. Le lecteur précise action, cible, nuances
+et durée (prochaine édition non vide ou durable). Une nouvelle règle sur la même cible
+remplace l’ancienne ; suppressions et remplacements conservent une marque inactive et
+aucun traitement ne relit les vieux événements pour recréer ces préférences.
+
+`preferences.py` applique trois mécanismes : diversification plafonnée à ceil(size/6)
+places au total, classement borné pour more/less et plafond floor(size/6) pour less,
+exclusions obligatoires. Les règles sont chargées avant la recherche et transmises au
+rédacteur, aux filtres et aux recherches. Une évaluation groupée des fiches par le modèle
+économique vérifie les correspondances sémantiques, avec citations et IDs contrôlés.
+Les exclusions incertaines restent bloquantes, y compris en secours. Les jugements de
+sujet/angle restent faillibles ; les seuils devront être évalués avec de vrais lecteurs.
+Limites : 12 règles actives, 8 articles et 24 paires par appel, 10 appels maximum dans le
+budget existant. Aucun appel au modèle sur les routes de feedback ou de préférences.
+
+`preference_store.py` et migration additive dans `schema.sql` : règles par lecteur,
+révisions pour les conflits, créations idempotentes, avis enrichis et consommation atomique
+avec l’édition. Une correction concurrente reste active pour la génération suivante.
+Le bilan de chaque édition conserve les règles appliquées et compte leurs correspondances.
+Les endpoints restent locaux et sans authentification ; user_id n’est pas une identité vérifiée.
+
+UI : `FeedbackForms.jsx`, `preferences.js`, App et fiches de lecture. Les retours se
+rechargent depuis le serveur. La fixture isolée `python -m tests.serve_feedback_fixture`
+sert le build sur 8012 sans PostgreSQL ni appel payant, uniquement avec les doublures de test.
+Validation : 238 tests Python (PostgreSQL inclus), 13 tests JavaScript, Ruff et build Vite réussis. Parcours navigateur vérifié avec persistance des avis après rechargement et largeur mobile de 390 px. Le serveur habituel sur 8010 a été redémarré et les nouvelles routes répondent HTTP 200. Aucun appel modèle payant pour ces vérifications.
+
 # Kiosque — contexte et passation aux agents
 
 ## Nettoyage des visuels incertains — 27 septembre 2026

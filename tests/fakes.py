@@ -1,7 +1,17 @@
 from datetime import timedelta
 
 from broadwai.llm import ModelError
-from broadwai.models import Article, Brief, Decision, EditorialPlan, utcnow
+from broadwai.models import (
+    Article,
+    Brief,
+    Decision,
+    EditorialPlan,
+    PreferenceAssessments,
+    ReaderPreference,
+    utcnow,
+)
+from broadwai.preferences import PreferenceConflict, target_key, validate_preference
+from broadwai.reader_chat import check_replay, preference_snapshot, prepare_changes
 
 
 class MemoryStore:
@@ -14,6 +24,85 @@ class MemoryStore:
         self.feedback = set()
         self.likes = {}
         self.image_reviews = {}
+        self.preferences = {}
+        self.feedback_details = {}
+        self.reader_messages = {}
+
+    def list_reader_messages(self, user_id):
+        return [v for (user, _), v in self.reader_messages.items() if user == user_id][-30:]
+
+    def get_reader_message(self, user_id, id_):
+        return self.reader_messages.get((user_id, id_))
+
+    def save_reader_message(self, user_id, request, reply, snapshot, usage):
+        previous = self.get_reader_message(user_id, request.id)
+        if previous:
+            return check_replay(previous, request)
+        rows = self.list_preferences(user_id, active_only=True)
+        if preference_snapshot(rows) != snapshot:
+            raise PreferenceConflict("La fiche a changé")
+        changes = prepare_changes(user_id, rows, reply)
+        for change in changes:
+            value = ReaderPreference.model_validate(change["preference"])
+            self.preferences[value.id] = value
+        turn = {
+            "id": request.id,
+            "message": request.message,
+            "reply": reply.reply,
+            "changes": changes,
+            "created_at": utcnow().isoformat(),
+            "usage": usage,
+        }
+        self.reader_messages[user_id, request.id] = turn
+        return turn
+
+    def list_preferences(self, user_id, *, active_only=False):
+        return [
+            p
+            for p in self.preferences.values()
+            if p.user_id == user_id and (not active_only or p.status == "active")
+        ]
+
+    def create_preference(self, user_id, value):
+        value = validate_preference(value)
+        if value.id in self.preferences:
+            old = self.preferences[value.id]
+            if old.user_id != user_id:
+                raise PreferenceConflict("Identifiant déjà utilisé")
+            return old
+        previous = [
+            p
+            for p in self.list_preferences(user_id, active_only=True)
+            if target_key(p) == target_key(value)
+        ]
+        if len(self.list_preferences(user_id, active_only=True)) - len(previous) >= 12:
+            raise ValueError("12 préférences actives maximum")
+        for p in previous:
+            self.preferences[p.id] = p.model_copy(
+                update={"status": "replaced", "revision": p.revision + 1}
+            )
+        new = ReaderPreference(**value.model_dump(), user_id=user_id)
+        self.preferences[new.id] = new
+        return new
+
+    def update_preference(self, user_id, id_, value=None, *, revision=None):
+        if value:
+            value = validate_preference(value)
+            revision = value.revision
+        old = self.preferences.get(id_)
+        if not old or old.user_id != user_id:
+            raise KeyError("Préférence introuvable")
+        if old.revision != revision or old.status != "active":
+            raise PreferenceConflict("Préférence modifiée entre-temps")
+        changes = value.model_dump(exclude={"revision"}) if value else {"status": "deleted"}
+        new = old.model_copy(update={**changes, "revision": old.revision + 1})
+        for p in self.list_preferences(user_id, active_only=True):
+            if p.id != id_ and target_key(p) == target_key(new):
+                self.preferences[p.id] = p.model_copy(
+                    update={"status": "replaced", "revision": p.revision + 1}
+                )
+        self.preferences[id_] = new
+        return new
 
     def put_article(self, article):
         previous = self.rows.get(article.id)
@@ -68,8 +157,24 @@ class MemoryStore:
     def put_brief(self, article, version, brief):
         self.briefs[article.id, article.content_hash, version] = brief
 
-    def put_cover(self, cover):
+    def put_cover(self, cover, preferences=()):
         self.covers[cover.id] = cover
+        if cover.items:
+            for p in preferences:
+                current = self.preferences.get(p.id)
+                if (
+                    current
+                    and p.scope == "next"
+                    and current.status == "active"
+                    and current.revision == p.revision
+                ):
+                    self.preferences[p.id] = current.model_copy(
+                        update={
+                            "status": "applied",
+                            "applied_cover_id": cover.id,
+                            "revision": p.revision + 1,
+                        }
+                    )
 
     def get_cover(self, cover_id):
         return self.covers.get(cover_id)
@@ -95,7 +200,28 @@ class MemoryStore:
             raise ValueError("Couverture introuvable pour cet utilisateur")
         if event.article_id not in {item.article_id for item in cover.items}:
             raise ValueError("Article absent de cette couverture")
+        preference = (
+            self.create_preference(event.user_id, event.preference) if event.preference else None
+        )
         self.feedback.add((event.user_id, event.article_id, event.kind))
+        self.feedback_details[event.user_id, event.cover_id, event.article_id, event.kind] = {
+            "article_id": event.article_id,
+            "kind": event.kind,
+            "reason": event.reason,
+            "comment": event.comment,
+            "preference_id": preference.id if preference else None,
+        }
+        return preference
+
+    def feedback_for_cover(self, user_id, cover_id):
+        cover = self.get_cover(cover_id)
+        if not cover or cover.user_id != user_id:
+            raise KeyError("Couverture introuvable")
+        return [
+            v
+            for (user, cover, _, _), v in self.feedback_details.items()
+            if user == user_id and cover == cover_id
+        ]
 
     def liked_ids(self, user_id):
         return [id_ for user, id_ in self.likes if user == user_id]
@@ -151,6 +277,22 @@ class ScriptedModel:
                     evidence=i["topic"],
                 )
                 for i in profile["interests"]
+            ]
+        )
+
+    async def assess_preferences(self, state, budget):
+        budget.take("preferences")
+        self.states.append(state)
+        return PreferenceAssessments(
+            assessments=[
+                {
+                    "article_id": c["article_id"],
+                    "preference_id": p["id"],
+                    "match": "yes" if p["target"].casefold() in c["title"].casefold() else "no",
+                    "evidence": c["title"],
+                }
+                for c in state["candidates"]
+                for p in state["preferences"]
             ]
         )
 

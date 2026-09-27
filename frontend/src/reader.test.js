@@ -144,6 +144,12 @@ test('API round trip sends the actual payload and feedback and reads persisted e
   await sendFeedback({ user_id: 'local-test', cover_id: 'edition', article_id: 'article-0', kind: 'useful' });
   assert.equal(calls[1].path, '/v1/covers/edition');
   assert.equal(calls[3].path, '/v1/feedback');
+  assert.equal(calls[3].options.keepalive, false);
+  const opened = { user_id: 'local-test', cover_id: 'edition', article_id: 'article-0', kind: 'open' };
+  await sendFeedback(opened);
+  assert.equal(calls[4].path, '/v1/feedback');
+  assert.equal(calls[4].options.keepalive, true, 'Opening a publisher keeps feedback alive during navigation');
+  assert.deepEqual(JSON.parse(calls[4].options.body), opened);
 });
 
 test('server failures never become simulated content or automatic paid retries', async t => {

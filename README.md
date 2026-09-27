@@ -8,8 +8,9 @@ affiche les vraies couvertures de l’API : profil local sans compte, générati
 La génération payante ne démarre que sur le bouton « Générer ma une ».
 
 La une affiche les visuels des articles : métadonnées Open Graph/Twitter en priorité,
-puis image structurée JSON-LD ou image principale du texte. Un lien sous le visuel
-renvoie vers l’éditeur. Les images indisponibles laissent une carte textuelle ; les
+puis image structurée JSON-LD ou image principale du texte. Un clic sur le titre ou le visuel
+ouvre directement l’article chez l’éditeur dans l’onglet courant. Le bouton « Fiche & avis »
+conserve l’accès au résumé et aux retours. Les images indisponibles laissent une carte textuelle ; les
 brèves restent compactes. Les éditions déjà enregistrées sont illustrées à leur
 ouverture, sans régénérer les résumés.
 Le backend sert les images des articles sélectionnés via `/v1/articles/{id}/image`,
@@ -44,6 +45,74 @@ Le backend doit tourner sur le port 8010 avec PostgreSQL. Vite relaie les appels
 l’API ; aucune clé n’est envoyée au navigateur. Après `pnpm build`, FastAPI peut
 aussi servir le lecteur sur <http://127.0.0.1:8010/reader/> (redémarrer le backend).
 
+## Feedback et préférences de lecture
+
+Le bouton **Écrire à Kiosque** (anciennement « Orienter mes lectures ») ouvre le
+« Courrier du lecteur » : un message libre envoyé au chatbot et une fiche lecteur
+consultable à la demande via **Ma fiche**.
+Kiosque interprète la demande avec le modèle économique, répond et met à jour les
+préférences réellement utilisées par la génération. Le lecteur peut demander de découvrir,
+favoriser, réduire ou exclure un contenu, corriger une envie ou demander de l'oublier.
+La durée et les nuances sont déduites du message ; une ambiguïté appelle une question.
+Les réglages de prénom, langue et taille de l'édition restent dans les préférences.
+
+Les échanges et changements sont enregistrés ensemble dans PostgreSQL. La fiche n'affiche
+une confirmation qu'après enregistrement ; les changements sont atomiques, bornés à
+12 préférences actives et protégés contre les corrections concurrentes. Renvoyer le même
+identifiant de message restitue la réponse enregistrée sans réappliquer les changements.
+Les 30 derniers échanges restent consultables ; les 6 derniers sont fournis au chatbot.
+Chaque nouveau message utilise un appel IA payant, sans relance automatique, avec 2 500
+tokens de sortie maximum. Aucun article ni édition n'est généré par ce parcours.
+
+Dans une fiche, **Expliquer ou préciser pour la suite** enregistre le motif et un texte
+libre. Par défaut, l'avis porte uniquement sur cet article. La case **Ajuster aussi mes
+prochaines lectures** permet de définir explicitement une préférence associée. Les avis
+et leurs explications sont rechargés à l'ouverture de l'édition.
+
+Effet lors de la génération suivante :
+
+- `diversify` : quelques places partagées entre toutes les demandes de découverte,
+  au maximum `ceil(size / 6)` (3 pour 18 articles), en complément des intérêts habituels.
+- `more` : priorité renforcée mais bornée dans la sélection, sans supprimer les autres intérêts.
+- `less` : priorité réduite et au maximum `max(1, floor(size / 6))` articles correspondants
+  par règle (3 pour 18 articles).
+- `exclude` : rejet obligatoire, y compris en Exploration et dans la sélection de secours.
+
+Les seuils sont des choix initiaux du produit à évaluer auprès de lecteurs. Les règles
+ne dispensent jamais de la pertinence, des quotas de sources ou des contrôles de validité.
+Une édition peut rester partielle. Le bilan **Vos demandes dans cette édition** affiche
+le nombre d'articles correspondants et les demandes non couvertes ; la trace conserve
+les règles et versions réellement appliquées, ainsi que les évaluations et les retraits.
+
+Sources non qualifiées et formats/niveaux connus ont des contrôles déterministes. Les
+sujets, angles et nuances sont évalués à partir des fiches, par le modèle économique,
+avec des citations vérifiées dans les données fournies. Ce jugement sémantique reste
+faillible. Une évaluation manquante, ambiguë ou en erreur ne permet pas de contourner
+une exclusion. Les autres demandes peuvent être partiellement satisfaites et le bilan
+le signale. Au plus 12 règles sont actives ; les évaluations sont regroupées (8 articles
+et 24 paires article/règle maximum par appel), limitées à 10 appels, dans le budget de
+tokens existant. Les avis sur un article et les routes de préférences structurées ne
+déclenchent pas d'appel LLM ; les messages du Courrier du lecteur, eux, sont lus par l'IA.
+
+La migration PostgreSQL est additive au démarrage : table `reader_preferences` et champs
+`reason`, `comment`, `preference_id` de `feedback`. Les règles et éditions persistent
+côté serveur sous l'identité locale existante. Les corrections utilisent une révision
+pour refuser les écrasements concurrents (HTTP 409). La génération prend un instantané ;
+une correction pendant son exécution reste disponible pour la suivante. Une demande
+ponctuelle est marquée appliquée avec l'enregistrement atomique d'une édition non vide,
+même partielle ; un échec ou une édition vide ne la consomme pas.
+
+API : `GET/POST /v1/readers/{user_id}/preferences`,
+`GET/POST /v1/readers/{user_id}/messages`,
+`PUT/DELETE /v1/readers/{user_id}/preferences/{id}` (révision obligatoire),
+`GET /v1/readers/{user_id}/feedback/{cover_id}` et `POST /v1/feedback` enrichi.
+L'identité locale reste sans authentification : ces routes sont destinées au serveur
+local de confiance, comme le reste de l'API.
+
+Pour tester le parcours dans un environnement isolé, compiler le frontend puis lancer
+`python -m tests.serve_feedback_fixture` et ouvrir `http://127.0.0.1:8012/reader/`.
+Cette fixture utilise seulement les données simulées des tests, sans base ni modèle payant.
+
 ## Backend agentique (package `broadwai`)
 
 Première implémentation de la collecte d'articles et de la création d'une couverture personnalisée.
@@ -57,8 +126,9 @@ Pour reprendre le travail avec un autre agent : [contexte et passation du projet
 Le quota par source vaut trois par défaut (au moins six domaines pour 18 articles).
 Le profil se règle dans le frontend. Celui-ci présente la une par rubriques, avec les titres
 originaux des éditeurs, sans traduction, même pour les éditions déjà enregistrées. Les titres et
-images ouvrent directement l'article dans un nouvel onglet. Les résumés restent consultables
-dans `/admin/covers`. L’inspecteur ouvre la couverture sélectionnée dans le
+images ouvrent directement l'article dans un nouvel onglet. Le bouton « Fiche & avis »
+ouvre les détails et les retours ; les résumés sont aussi consultables dans `/admin/covers`.
+L’inspecteur ouvre la couverture sélectionnée dans le
 frontend via `/reader/?cover={id}`.
 
 La préparation se déroule ainsi :
@@ -212,6 +282,16 @@ Les schémas des sources et propositions sont mis à jour au redémarrage du bac
 les sources et historiques existants.
 
 ### Inspection des couvertures
+
+L’inspecteur présente d’abord le résultat (articles retenus/demandés, sources, durée et coût),
+puis cinq étapes expliquées : profil et catalogue, examen des titres/extraits, préparation
+des fiches, recherches et arbitrages, édition enregistrée. Chaque étape est dépliable.
+Le tableau « Que sont devenus les articles ? » permet de chercher par titre, source ou motif,
+de filtrer le résultat et d’ouvrir le parcours individuel avec les événements et la fiche.
+Les anciennes « présélections » sont nommées « files de préparation » : leurs membres ne sont
+pas forcément préparés, validés ou publiés. Les compteurs dédupliquent les articles entre
+passages, les retraits restent rattachés à leur tentative et les données absentes ne sont
+pas reconstruites. La page affiche un bilan après génération, sans suivi en direct.
 
 `/admin/covers` affiche l'historique et le déroulement enregistré de chaque couverture. Le lien
 « Couvertures & traces » est disponible dans l'admin. `GET /v1/covers?limit=30&offset=0` liste
@@ -415,8 +495,9 @@ mais la récupération des liens nécessite une nouvelle collecte du contenu HTM
   échelle, déplacer la récupération des candidats vers des requêtes/index PostgreSQL.
 - Le cache est partagé et versionné ; pas encore de verrou distribué pour éviter deux résumés
   simultanés du même article dans plusieurs processus. Les sources ne sont pas encore planifiées.
-- Le profil est fourni à chaque requête. La mémoire inférée et les préférences apprises ne sont pas
-  encore implémentées. Un article présenté n'est pas considéré comme lu sans événement explicite.
+- Le profil est fourni à chaque requête, complété par les préférences explicites enregistrées.
+  L'apprentissage implicite à partir de clics répétés n'est pas activé : un avis isolé ne change
+  pas les goûts. Un article présenté n'est pas considéré comme lu sans événement explicite.
 - API de développement locale, **sans authentification** : `user_id` n'est pas une preuve d'identité.
   Ajouter auth, quotas globaux et traitement des données personnelles avant une exposition publique.
 

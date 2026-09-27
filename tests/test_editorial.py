@@ -16,9 +16,11 @@ class PlannedModel(ScriptedModel):
     def __init__(self, plan, decisions):
         super().__init__(decisions)
         self.editorial_plan = plan
+        self.plan_states = []
 
     async def plan(self, state, budget):
         budget.take("plan")
+        self.plan_states.append(state)
         return self.editorial_plan
 
 
@@ -64,6 +66,15 @@ async def test_editorial_rejection_happens_before_paid_summary():
     assert model.summary_calls == 1
     assert [c.article_id for c in cover.items] == [items[0].id]
     assert cover.diagnostics["editorial_plan"]["picks"][1]["score"] == 25
+
+
+async def test_large_edition_keeps_two_candidates_per_requested_article():
+    items = [article(i, title=f"Python angle {i}") for i in range(36)]
+    model = PlannedModel(plan_for(items), [finalize_first])
+
+    await pipeline(MemoryStore(items), model).run(request(size=18))
+
+    assert model.plan_states[0]["selection_limit"] == 36
 
 
 async def test_newspaper_eighteen_items_three_sections_with_compact_context():

@@ -15,16 +15,20 @@ class Settings(BaseSettings):
     max_discovered_articles: int = Field(20, ge=0, le=20)
     max_source_proposals: int = Field(2, ge=0, le=5)
     shortlist_size: int = Field(12, ge=1, le=40)
-    max_agent_steps: int = Field(6, ge=1, le=12)
-    max_summary_calls: int = Field(24, ge=1, le=60)
-    max_web_searches: int = Field(2, ge=0, le=5)
-    max_fetches: int = Field(24, ge=0, le=40)
+    # A full 18-item edition needs headroom: candidates are deliberately rejected
+    # after extraction when their content, date, or editorial fit is insufficient.
+    # These defaults let the agent replace those rejections instead of finalizing a
+    # thin edition merely because the preparation quota was exhausted.
+    max_agent_steps: int = Field(10, ge=1, le=12)
+    max_summary_calls: int = Field(48, ge=1, le=60)
+    max_web_searches: int = Field(4, ge=0, le=5)
+    max_fetches: int = Field(40, ge=0, le=40)
     editorial_pool_size: int = Field(96, ge=20, le=150)
     min_editorial_score: int = Field(70, ge=0, le=100)
     max_article_age_days: int = Field(7, ge=1, le=365)
     max_research_age_days: int = Field(365, ge=1, le=3650)
     final_token_reserve: int = Field(30_000, ge=1000, le=100_000)
-    max_token_budget: int = Field(500_000, ge=1000, le=1_000_000)
+    max_token_budget: int = Field(750_000, ge=1000, le=1_000_000)
     request_timeout: float = Field(15, gt=0, le=60)
     max_download_bytes: int = Field(2_000_000, ge=1000, le=10_000_000)
     max_article_chars: int = Field(18_000, ge=1000, le=60_000)
