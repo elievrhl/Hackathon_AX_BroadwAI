@@ -1,0 +1,1531 @@
+[
+  {
+    "profile": "cuisine",
+    "id": "96dc3ac7bd9f49aeb0d7e49cfc5df052",
+    "status": "partial",
+    "error": null,
+    "count": 17,
+    "target": 18,
+    "seconds": 143.9,
+    "cost": {
+      "estimated_usd": null,
+      "known_subtotal_usd": 0.140043,
+      "unpriced_calls": 1,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 24,
+      "search_catalog": 1,
+      "screen": 3,
+      "search_web": 2,
+      "web_model": 2,
+      "hosted_web_calls": 2,
+      "source_proposal": 2,
+      "source_fetch": 4,
+      "discovered_article": 16,
+      "discovery_fetch": 16,
+      "editor": 1
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 4,
+    "uncovered_needs": [
+      {
+        "id": "need-6",
+        "topic": "fermentation, pain au levain, sourdough, culinary traditions",
+        "query": "fermentation, pain au levain, sourdough, culinary traditions",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 15,
+    "readings": [
+      {
+        "title": "How to Make Sourdough Bread: A Beginner's Guide to Starter, Levain, and Bake",
+        "url": "https://www.provenpantry.com/blog/how-to-make-sourdough-beginners",
+        "section": "Fermentation et levain",
+        "summary": "L’article « How to Make Sourdough Bread… » (Proven Pantry, équipe éditoriale) présente un guide pas-à-pas pour fabriquer du pain au levain pour débutants : construction d’un starter sur 5 à 7 jours, préparation d’un levain, autolyse, fermentation en masse, façonnage, pousse au froid 12–18 h, puis cuisson en cocotte (préchauffage à 500°F, cuisson couverte puis découverte). Il décrit aussi des ratios (starter 1:2:2:2), des critères d’activation (doublement en 4–6 h, test de flottaison) et des diagnostics de ratés, avec des temps et températures dépendants du cadre indiqué.",
+        "reason": "Mode d’emploi très accessible pour passer du starter à la cuisson, avec des repères concrets de temps, de ratios et d’étapes. C’est la meilleure base pour un lecteur qui veut faire son premier pain au levain à la maison.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les repères de fermentation (4–6 h à 75–78°F, puis 12–18 h au réfrigérateur) et la réussite attendue sont formulés pour les températures et durées du guide.",
+          "Les quantités et ratios (par ex. 1:2:2:2 pour un levain débutant, 75% d’hydratation pour la première recette) sont spécifiques au « 1 loaf » présenté.",
+          "Les diagnostics de ratés (dense/gummy, plat, fissures, croûte pâle, etc.) relient chaque symptôme à une cause suggérée dans le texte sans cadre d’essais ou de mesures supplémentaires."
+        ]
+      },
+      {
+        "title": "The Science Behind Sourdough Fermentation",
+        "url": "https://livingbreadbakeshop.substack.com/p/the-science-behind-sourdough-fermentation",
+        "section": "Fermentation et levain",
+        "summary": "L’article explique, à partir de la biologie et de la chimie, ce qui se produit lors de la fermentation au levain. Il attribue la levée aux levures sauvages produisant du CO₂, et le caractère acide au travail des bactéries lactiques produisant principalement acide lactique et acide acétique. Il décrit aussi le rôle d’enzymes (amylase, protéase) dès l’hydratation, ainsi que l’influence majeure de la température, de l’hydratation et de la durée sur l’équilibre acides/activité. Il mentionne enfin que la fermentation réduit l’acide phytique et modifie la complexité des arômes.",
+        "reason": "Explique clairement pourquoi le levain fonctionne : microbes, enzymes, pH, CO₂ et effets sur la pâte. Utile pour comprendre les mécanismes derrière les gestes du guide principal sans répéter la recette.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le texte présente des explications générales et mécanistiques (levures/bactéries, enzymes, pH, CO₂, acides) sans fournir de données expérimentales, ni quantifier précisément les effets (par exemple, proportions exactes d’acides ou seuils chiffrés).",
+          "Les conseils et “traductions pratiques” (signes à observer, fenêtres de température) sont formulés comme principes explicatifs; leur applicabilité peut varier selon la farine, les souches et les conditions de fermentation non décrites.",
+          "Les affirmations sur la “diminution de l’acide phytique” et sur une meilleure “digestibilité” sont évoquées comme une conséquence possible de la fermentation, sans préciser le contexte (type de grains, paramètres) ni les preuves associées."
+        ]
+      },
+      {
+        "title": "Quelle différence entre levain et levure ?",
+        "url": "https://painaulevain.fr/2021/10/31/quelle-difference-entre-levain-et-levure/",
+        "section": "Fermentation et levain",
+        "summary": "L’article explique que, pour faire lever une pâte, on ajoute des micro-organismes vivants qui produisent du CO₂ en se nourrissant des glucides de la farine. La levure de boulanger est présentée comme un mélange de souches de Saccharomyces cerevisiae, alors que le levain naturel provient d’une fermentation “spontanée” d’eau et de farine, portée par des bactéries lactiques et des levures sauvages. Il avance aussi des différences de fermentation (alcoolique rapide vs lactique plus lente) et justifie le passage à la levure par des raisons commerciales liées au temps de fermentation.",
+        "reason": "Donne une comparaison simple entre levain et levure, exactement le type de distinction qui aide à ne pas confondre les bases quand on débute en boulangerie maison.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les durées de fermentation annoncées (1 à 2 h pour la levure ; 8 à 10 h et plus pour le levain) dépendent des conditions de préparation, et l’article ne précise pas de protocole ni de paramètres (température, hydratation, type de farine).",
+          "Les assertions nutritionnelles concernant la “digestion” de l’acide phytique et l’effet sur la disponibilité de minéraux sont présentées comme des explications, sans quantification ni étude citée dans le texte fourni."
+        ]
+      },
+      {
+        "title": "What Does \"Confit\" Mean?",
+        "url": "https://www.youtube.com/watch?v=BkCOvd4xfGs",
+        "section": "Techniques de cuisine",
+        "summary": "L’élément central présenté par la vidéo « What Does “Confit” Mean? » (America’s Test Kitchen) est un explicatif culinaire : que signifie « confit » et en quoi cette technique française transforme viande et légumes. Le contenu annoncé indique une “breakdown” de la technique française et de ses effets, sans détailler ici les étapes ni les résultats chiffrés. Comme l’extrait ne donne pas le discours intégral, la portée exacte des explications reste limitée à ce qui est mentionné.",
+        "reason": "Une petite vidéo de vocabulaire culinaire qui aide à comprendre un terme français classique, « confit », et l’effet recherché sur viande et légumes. C’est court, accessible et utile pour lire des recettes ou descriptions de plats.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "La description fournie n’inclut pas les étapes de la méthode ni des détails techniques spécifiques : seuls la finalité (définition + transformation) et la promesse générale sont accessibles."
+        ]
+      },
+      {
+        "title": "Understanding the Fermentation Process",
+        "url": "https://deargrain.com/blogs/sourdough-recipes/understanding-the-fermentation-process",
+        "section": "Fermentation et levain",
+        "summary": "L’article explique, dans le contexte du levain, comment quatre facteurs — levain (culture vivante), pâte (eau + farine), temps et température — conditionnent la fermentation. Il relie la formation du réseau de gluten et la capacité de piéger des gaz à l’augmentation de volume de la pâte. Il attribue la levée au CO₂ produit par les levures, l’acidité au développement d’acides lactiques, et la complexité aromatique à l’évolution avec le temps et à l’action des bactéries. Il évoque aussi un excès de fermentation menant à un effondrement de la pâte (over proofing). Les explications restent qualita",
+        "reason": "Expose les rôles du temps, de la température et des micro-organismes dans la fermentation, avec une logique pédagogique simple. Cela complète bien une première approche du levain sans la noyer dans trop de détails.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les mécanismes sont décrits de façon générale (qualitative) sans protocoles chiffrés ni mesures de levée, pH ou cinétiques.",
+          "Les conséquences mentionnées (ex. “plus de saveur”, “croûte” et “fraîcheur pendant des jours”) dépendent du réglage exact des ingrédients et conditions, qui ne sont pas détaillés dans le document.",
+          "La limite “trop de temps” est formulée conceptuellement (sur-fermentation/effondrement), sans seuils ni critères objectifs fournis."
+        ]
+      },
+      {
+        "title": "For More Tender Fish, Poach in Oil",
+        "url": "https://www.youtube.com/watch?v=J32bkjlcyW4",
+        "section": "Techniques de cuisine",
+        "summary": "La vidéo « For More Tender Fish, Poach in Oil » (America’s Test Kitchen) présente l’idée que, malgré l’image d’une cuisson « agressive », l’huile serait, à température identique, plus douce que l’eau pour la cuisson du poisson. Le propos vise à expliquer que cette cuisson par pochage dans l’huile favoriserait une texture plus tendre et une chair plus feuilletée. L’extrait ne décrit pas de recette ni de paramètres chiffrés, mais annonce une logique de comparaison eau/huile et un objectif de résultats texturaux.",
+        "reason": "Propose une idée simple sur la texture du poisson selon le milieu de cuisson. C’est une lecture légère mais intéressante pour un lecteur qui veut comprendre pourquoi une méthode change la tendreté.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "L’extrait ne fournit pas de recette précise (espèces/quantités), ni de temps de cuisson, températures exactes ou choix d’assaisonnement.",
+          "Le contenu est décrit via un texte promo partiel : la portée porte sur l’affirmation générale « plus tendre et feuilleté » et la comparaison huile/eau, sans données expérimentales détaillées dans l’extrait.",
+          "Le terme « same temperature » est mentionné mais sans unité ni fourchette de température dans le texte fourni."
+        ]
+      },
+      {
+        "title": "Baltimore Yat Gaw Mein",
+        "url": "https://www.saveur.com/recipes/baltimore-yat-gaw-mein/",
+        "section": "Traditions culinaires et histoires de plats",
+        "summary": "L’article présente Baltimore Yat Gaw Mein (aussi appelé “dirty yak” ou “Baltimore yak”), un plat de nouilles sautées avec une sauce au soja foncée, décrit comme un “remix” chinois-américain de zha jiang mian de Beijing. Il relie son origine aux immigrés chinois installés à Baltimore vers la fin du XIXe siècle, avec adaptation à des ingrédients locaux. La recette à domicile (par Steve Chu, d’Ekiben) met en avant le wok très chaud, le “wok hei”, et une touche finale de ketchup.",
+        "reason": "Donne une recette structurée de nouilles inspirée d’une tradition urbaine et migrante, avec des repères de wok et d’assaisonnement. Bon complément pour découvrir comment l’histoire d’un plat se traduit en technique concrète.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les durées et réglages de cuisson (ex. wok “jusqu’à légerment fumant”, 1–4 minutes de saisie) sont donnés comme repères, sans garantie d’un résultat identique selon le type de wok et la puissance de cuisson.",
+          "L’article indique une origine historique (fin XIXe siècle, contexte migratoire) mais sans fournir de sources documentaires dans le texte, et donc sa portée dépend de l’interprétation de l’auteur.",
+          "Les ingrédients “chaque option” (graisse de canard/volaille/légumes, choix crevettes ou bœuf) ne sont pas accompagnés d’équivalences quantitatives détaillées, ce qui peut modifier texture et goût."
+        ]
+      },
+      {
+        "title": "Changing how Europe eats could save millions of lives – and countless birds",
+        "url": "https://www.birdlife.org/news/2026/09/22/changing-how-europe-eats-could-save-millions-of-lives-and-countless-birds/",
+        "section": "Systèmes alimentaires et science des aliments",
+        "summary": "L’article (BirdLife, 22 sept. 2026) relie la crise de biodiversité et environnementale en Europe aux choix humains sur l’usage des terres, l’alimentation et le gaspillage. Il cite des indicateurs : conversion des terres agricoles associée à ~70% de la perte de biodiversité terrestre, baisse de la biomasse de mammifères sauvages depuis 1900 et déclin des oiseaux des milieux agricoles de l’UE (−58% depuis 1980). Il s’appuie sur l’EAT-Lancet Commission (oct. 2025) pour proposer trois leviers—production durable, régimes flexitariens, réduction des pertes/gaspillage—et avance que leur mise en œuvre",
+        "reason": "Donne une vue d’ensemble sur l’idée qu’une transformation du régime alimentaire européen peut agir à la fois sur la santé et sur la biodiversité. C’est une bonne lecture de contexte pour relier cuisine et système alimentaire.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les chiffres cités (p. ex. −58% depuis 1980; ~70% de perte de biodiversité terrestre) ne sont pas détaillés ici (périodes, méthode de calcul, sources exactes).",
+          "L’estimation de « jusqu’à 11 millions » de décès prématurés annuels dépend d’hypothèses non explicitées dans le texte fourni.",
+          "Les « policy asks » sont donnés sous forme d’exemples; le contenu et l’étendue exacte des recommandations ne sont pas reproduits intégralement dans l’article."
+        ]
+      },
+      {
+        "title": "Un chef, sa cuisine : pour Jules Niang, le contraste relie les cultures et les mondes",
+        "url": "https://www.rfi.fr/fr/podcasts/le-go%C3%BBt-du-monde/20260919-un-chef-sa-cuisine-pour-jules-niang-le-contraste-relie-les-cultures-et-les-mondes",
+        "section": "Traditions culinaires et histoires de plats",
+        "summary": "L’article présente un entretien centré sur Jules Niang, chef né et grandi à Wothi (Mauritanie), et sur la manière dont son histoire familiale, liée aux villages jumeaux de part et d’autre du fleuve Sénégal, éclaire son approche culinaire. L’auteur décrit le contexte de la fixation des frontières à l’époque coloniale, la séparation de familles et l’existence fréquente de double nationalité. Le texte relie explicitement cette expérience au principe d’un « dialogue horizontal, d’égal à égal » entre cultures et « mondes ».",
+        "reason": "Petit portrait utile pour voir comment un chef raconte les relations entre cultures à travers sa cuisine. Le texte est fragmentaire, mais il apporte une perspective humaine et narrative sur les traditions culinaires.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Le document fourni est un extrait : les arguments sur la cuisine et le « contraste » ne sont pas détaillés au-delà de l’introduction.",
+          "Aucun exemple de plats, pratiques culinaires ou résultats concrets n’est inclus dans l’extrait cité.",
+          "Les formulations (p. ex. « dialogue horizontal ») relèvent du cadrage présenté dans l’extrait, sans précision supplémentaire fournie ici."
+        ]
+      },
+      {
+        "title": "Can this new induction stove help fuel the transition to clean cooking?",
+        "url": "https://www.canarymedia.com/articles/electrification/new-induction-stove-clean-cooking",
+        "section": "Techniques de cuisine",
+        "summary": "L’article (Canary Media, 24 septembre 2026) présente le Charlie 2.0 de Copper, une cuisinière à induction dotée d’une batterie intégrée, conçue pour faciliter le passage de la cuisson au gaz vers une “clean cooking” électrifiée. Copper annonce une puissance accrue (4 brûleurs à 3 000 W), un préchauffage du four plus rapide et une compatibilité avec des prises 120 V et 240 V. Le texte explique aussi que la batterie vise à contourner le coût et les contraintes d’équipement électrique, et rapporte un accord de fabrication avec Miele aux États-Unis.",
+        "reason": "Intéressant pour comprendre comment une nouvelle cuisinière à induction tente de faciliter la transition depuis le gaz. Cela parle à un cuisinier du week-end qui veut surtout mieux comprendre les outils et leurs contraintes.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les performances chiffrées (puissance, temps de préchauffage) et les affirmations d’usage (ventes “en milliers d’unités”, autonomie batterie) sont attribuées aux annonces de Copper dans le texte.",
+          "Les estimations de coûts d’installation électrique (fourchette $2 000 à $30 000) sont rapportées dans l’article sans fournir, dans l’extrait, la méthodologie source.",
+          "Les bénéfices sanitaires de l’induction vs gaz sont évoqués de manière générale et assortis de justifications, mais l’article ne détaille pas dans l’extrait des résultats d’études propres au Charlie 2.0."
+        ]
+      },
+      {
+        "title": "Fatmata Binta: The top chef taking fine dining from the table to the mat",
+        "url": "https://www.theafricareport.com/431513/fatmata-binta-the-top-chef-taking-fine-dining-from-the-table-to-the-mat/",
+        "section": "Traditions culinaires et histoires de plats",
+        "summary": "L’article présente Fatmata Binta, cheffe basée à Accra, préparant sa venue à Rome pour la World Food Week au siège de la FAO. Dans huit jours, elle y hébergera une exposition “Seeds to Food” centrée sur le fonio, céréale ouest-africaine associée à sa trajectoire. Le texte relie aussi son parcours (fuite de la guerre civile en Sierra Leone, refus d’un mariage à 16 ans) à sa reconnaissance comme première lauréate africaine du Basque Culinary World Prize (100 000 €), et à une manière de faire vivre la cuisine “fine dining” en contexte participatif.",
+        "reason": "Montre comment un produit local, le fonio, peut être porté par une cheffe dans un cadre international. Intéressant pour comprendre la cuisine comme mise en scène culturelle et non seulement comme technique.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les détails concrets de l’exposition Seeds to Food (contenus, calendrier, dispositifs) ne sont pas fournis dans l’extrait.",
+          "Les affirmations sur “fine dining” et sur l’“expérience” décrite relèvent de la caractérisation narrative du texte, sans exemples précis dans l’extrait.",
+          "Les informations chiffrées et biographiques sont reprises telles quelles dans l’article, sans éléments complémentaires dans le passage fourni."
+        ]
+      },
+      {
+        "title": "The science of making sourdough bread",
+        "url": "https://www.theguardian.com/science/2020/may/23/the-science-of-making-sourdough-bread",
+        "section": "Fermentation et levain",
+        "summary": "L’article explique, exemples à l’appui et avec des intervenants cités, comment le levain naturel transforme farine et eau en pain sans levure boulangère. Il attribue la pousse, l’acidité et la texture à la fermentation (acides lactique et acétique, CO₂, alcool) pilotée par les microbes du starter et influencée par le type de farine, la température et le repos au froid. Il relie aussi structure (réseau de gluten), hydratation, vapeur à la cuisson et discute l’enjeu « santé » via des acides et une étude mentionnée. Certaines affirmations nutritionnelles et mécanistiques sont présentées avec cita",
+        "reason": "Synthèse claire sur la fabrication du pain au levain, avec les variables qui influencent mie, acidité et cuisson. C’est une bonne lecture d’arrière-plan pour relier la pratique à la science.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les chiffres et observations de popularité (recherches, réseaux sociaux, adhésions) sont rapportés comme des éléments d’atmosphère, sans protocole de mesure détaillé dans le texte.",
+          "Les explications sur la contribution relative du seigle/blé à l’acidité et aux bactéries reposent sur des généralisations présentées comme issues de la fermentation; le degré d’applicabilité dépend du starter, des farines et des conditions non chiffrées.",
+          "Les affirmations « plus digestible / meilleure satiété / glycémie » sont soutenues par des études mentionnées, mais l’article ne détaille pas leurs populations complètes, tailles d’échantillon ou protocoles; la portée exacte reste celle de ces travaux cités."
+        ]
+      },
+      {
+        "title": "En Vendée, le refuge de Georges Clemenceau face à l'océan",
+        "url": "https://www.franceinfo.fr/france/pays-de-loire/vendee/en-vendee-le-refuge-de-georges-clemenceau-face-a-l-ocean_8209796.html",
+        "section": "Traditions culinaires et histoires de plats",
+        "summary": "L’article, à partir d’un extrait du JT de 13h de France 2 (25 septembre 2026), présente la maison de Georges Clemenceau à Saint-Vincent-sur-Jard (Vendée) comme un lieu conservant l’atmosphère de son retrait après la Première Guerre mondiale. Cuisine, jardin et bureau face à l’océan sont décrits à travers des détails matériels (vaisselle, cheminée, place pour les repas, lit orienté vers la mer) et des témoignages de guide et d’administratrice. Le jardin est mis en relation avec Monet, et la vie du « Tigre » est rappelée jusqu’à sa mort en novembre 1929.",
+        "reason": "Lecture patrimoniale et descriptive autour d’une maison et de son jardin, avec un regard sur les espaces de vie et de repas. Le texte convient si l’on veut un détour culturel plus large autour de la cuisine et des lieux.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le texte fourni correspond à « une partie de la retranscription » du reportage ; les affirmations sont donc limitées à ce segment.",
+          "Les citations attribuées à Patrick Stammegna et Stéphanie Gerbaud portent sur l’interprétation d’éléments observés/présentés sur place, sans chiffrage ni description exhaustive de toutes les pièces.",
+          "Le lien explicite entre les conseils de Monet et le jardin repose sur la formulation du récit ; l’étendue exacte des interventions de Monet n’est pas détaillée dans cet extrait."
+        ]
+      },
+      {
+        "title": "Cake marbré au matcha, chocolat blanc et framboise, tout moelleux",
+        "url": "https://www.undejeunerdesoleil.com/2026/09/cake-marbre-matcha-chocolat-blanc-framboise-moelleux.html",
+        "section": "Techniques de cuisine",
+        "summary": "L’article présente une recette de cake marbré au thé matcha, chocolat blanc et framboises, décrite comme “moelleuse” et “légère”. L’auteure situe la proposition dans une période dédiée aux cakes, en soulignant une base à base de yaourt (ou lait fermenté) et d’huile, inspirée d’un gâteau au yaourt. Elle rappelle avoir déjà publié un cake marbré au matcha il y a environ huit ans, et affirme préférer la version actuelle, jugée plus simple. Le matcha est présenté comme rééquilibrant le sucre et apportant une note subtilement amère, associée à la framboise.",
+        "reason": "Montre comment construire un cake moelleux en jouant sur les associations de saveurs et la texture de la base. Même sans la recette complète, le texte donne une idée concrète des choix d’ingrédients et d’équilibre gustatif.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "L’extrait fourni ne contient pas les étapes de préparation, les quantités ni les temps de cuisson, donc seuls les objectifs et la logique d’association des ingrédients sont accessibles.",
+          "Les affirmations de “plus simple”, “plus parfumé” et le ressenti gustatif sont rapportés comme opinions de l’auteure, sans détails expérimentaux.",
+          "Aucune information n’est donnée sur le type exact de matcha, de chocolat ou de framboises (frais/surgelés), ni sur la structure finale attendue au-delà des descriptions qualitatives."
+        ]
+      },
+      {
+        "title": "Libérer les plastiques de nos corps",
+        "url": "https://www.franceinfo.fr/replay-radio/le-billet-sciences-du-week-end/liberer-les-plastiques-de-nos-corps_8168984.html",
+        "section": "Fermentation et levain",
+        "summary": "L’article rapporte des travaux de chercheurs sud-coréens proposant une piste pour réduire l’absorption des microplastiques chez l’humain, en s’appuyant sur une bactérie présente dans le kimchi. Les auteurs indiquent avoir identifié Leuconostoc mesenteroides, capable de “capturer” des particules de plastique, et citent des tests sur des souris montrant une division par deux de la quantité de plastique absorbée. La diffusion vers des probiotiques ou un régime enrichi en kimchi est présentée comme prospective, sans preuve clinique humaine décrite.",
+        "reason": "Le lien avec la fermentation est indirect mais concret : le texte part d’une bactérie issue d’un aliment fermenté et d’un effet observé chez l’animal. Cela peut ouvrir une réflexion prudente sur ce que la fermentation peut ou ne peut pas promettre.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le texte ne décrit pas d’essai clinique chez l’humain et ne fournit pas de paramètres expérimentaux (dose, durée, mesures) pour étayer la transposition.",
+          "Les chiffres mentionnés sur l’exposition humaine (“plus d’une carte bleue par semaine”) ne sont pas quantifiés ni sourcés dans le contenu fourni.",
+          "La capture des microplastiques est présentée à partir de résultats chez la souris et d’une potentialité biologique, sans données directes d’efficacité ou d’innocuité chez l’humain."
+        ]
+      },
+      {
+        "title": "Global structural fiscal food policy",
+        "url": "https://www.nature.com/articles/s43016-026-01441-x",
+        "section": "Systèmes alimentaires et science des aliments",
+        "summary": "L’article discute une étude de modélisation globale sur les politiques fiscales structurelles liées à l’alimentation. Il est estimé qu’une taxe sur les émissions de gaz à effet de serre, avec réallocation de la demande et de l’offre dans et entre pays, pourrait réduire la consommation de produits ruminants et d’autres produits animaux, puis certains aliments riches en graisses, sucres et céréales. Si tous les pays sauf ceux classés “food-insecure” appliquent la taxe, les émissions de GES pourraient baisser jusqu’à 18% (auprès d’estimations liées au nombre de décès évités). Les scénarios inclue",
+        "reason": "Apporte un cadre analytique sur les politiques alimentaires, les prix, le commerce et les effets santé-climat. C’est plus théorique, mais utile pour relier cuisine domestique et système alimentaire global.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les résultats dépendent d’hypothèses de modélisation, notamment d’un pass-through complet de la taxe aux prix à la consommation, présenté comme générant des estimations possiblement à la hausse.",
+          "La construction des élasticités utilise un entraînement sur une méta-analyse (plus de 50 000 estimations) et une prédiction pour valeurs manquantes ; le texte indique que cela peut hériter des limites des données et poser des défis de comparabilité entre pays.",
+          "L’analyse signale des biais potentiels liés à l’ignorance du “censoring” (non-achat de certains groupes alimentaires) et une difficulté conceptuelle à transférer des élasticités entre groupes (niveau socioéconomique/âge) et pays.",
+          "Les effets de réallocation de production entre pays restent limités même lorsque certains paramètres de commerce sont augmentés, ce qui borne l’ampleur attendue des changements côté offre."
+        ]
+      },
+      {
+        "title": "Is sourdough starter actually alive?",
+        "url": "https://letschatphd.substack.com/p/is-sourdough-starter-actually-alive",
+        "section": "Fermentation et levain",
+        "summary": "L’article explique ce qu’est un “starter” de levain (mélange de farine et d’eau), comment l’activité microbiologique (levures sauvages et bactéries) forme des bulles et influence goût/texture, et pourquoi il faut l’entretenir (température, nourrissage, discard). Il soutient aussi, avec prudence, que les bénéfices santé du pain au levain varient et qu’il n’existe pas de preuves cliniques solides pour des effets à long terme ; des signaux suggèrent une meilleure digestibilité et un rôle potentiel via la fermentation. Il s’appuie notamment sur des sources type Frontiers in Nutrition et Mayo Clini",
+        "reason": "Bonne lecture pour démystifier le starter : qu’est-ce qu’un levain vivant, comment l’entretenir, et jusqu’où parler de bénéfices santé. Utile à un débutant qui veut comprendre avant d’agir.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les propos sur la santé rapportent l’absence de preuves cliniques solides pour des bénéfices à long terme, et les signaux mentionnés restent conditionnels (“varie” selon les sources).",
+          "La description pratique (température, préchauffage du four/du matériel, stockage) est donnée via expériences personnelles et apprentissage auprès d’autres personnes, sans protocole expérimental ni mesures systématiques."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 770,
+        "output": 228
+      },
+      "plan": {
+        "calls": 1,
+        "input": 33438,
+        "output": 2578
+      },
+      "summary": {
+        "calls": 24,
+        "input": 59439,
+        "output": 18095
+      },
+      "screen": {
+        "calls": 3,
+        "input": 21819,
+        "output": 1413
+      },
+      "web_search": {
+        "calls": 2,
+        "input": 24585,
+        "output": 763
+      },
+      "editor": {
+        "calls": 1,
+        "input": 13100,
+        "output": 2709
+      }
+    },
+    "budget_stops": [],
+    "prepared": 18,
+    "validation_errors": []
+  },
+  {
+    "profile": "jeux-independants",
+    "id": "76aedba2783b4f2f8e95a5ec62459f43",
+    "status": "partial",
+    "error": null,
+    "count": 17,
+    "target": 18,
+    "seconds": 200.0,
+    "cost": {
+      "estimated_usd": null,
+      "known_subtotal_usd": 0.152058,
+      "unpriced_calls": 1,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 28,
+      "search_catalog": 2,
+      "screen": 4,
+      "search_web": 2,
+      "web_model": 2,
+      "hosted_web_calls": 2,
+      "source_proposal": 2,
+      "source_fetch": 4,
+      "discovered_article": 13,
+      "discovery_fetch": 13,
+      "editor": 1
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 1,
+    "uncovered_needs": [
+      {
+        "id": "need-7",
+        "topic": "analyses de mécaniques de jeu",
+        "query": "analyse de mécaniques game mechanics analysis conception systémique",
+        "priority": "primary",
+        "level": "expert",
+        "origin": "notes"
+      },
+      {
+        "id": "need-9",
+        "topic": "jeux vidéo indépendants, game design, indie game development",
+        "query": "jeux vidéo indépendants, game design, indie game development",
+        "priority": "secondary",
+        "level": "expert",
+        "origin": "profile"
+      },
+      {
+        "id": "need-10",
+        "topic": "narration interactive, accessibilité, interactive storytelling, accessibility",
+        "query": "narration interactive, accessibilité, interactive storytelling, accessibility",
+        "priority": "secondary",
+        "level": "expert",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 11,
+    "readings": [
+      {
+        "title": "Making a Game Accessible - How I can help you as an accessibility consultant",
+        "url": "https://itch.io/blog/970518/making-a-game-accessible-how-i-can-help-you-as-an-accessibility-consultant",
+        "section": "Accessibilité, UI et narration",
+        "summary": "L’article présente ce que signifie rendre un jeu vidéo accessible et quel rôle peut jouer un consultant en accessibilité. Il définit un jeu accessible comme conçu pour être jouable par des personnes ayant des handicaps, via des choix de conception tenant compte de différents besoins (ex. indices visuels pour compléter l’audio). L’autrice illustre l’intérêt par des récits (Jérémy, Jessica) puis décrit des principes liés à la clarté UI et aux adaptations de mécaniques. Elle partage enfin un exemple personnel de blocage technique (export HTML non compatible avec NVDA) et évoque l’importance du ch",
+        "reason": "Le dossier donne des repères actionnables pour discuter l’accessibilité avec un consultant, avec des exemples centrés sur objectifs, contraste, choix d’engine et adaptation des mécaniques. C’est le meilleur point d’entrée pour un petit jeu narratif à moyens limités.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les “4 main principles” sont annoncés mais non listés clairement dans le texte fourni (le document ne détaille que certains éléments autour d’objectifs, contraste, et adaptation des mécaniques).",
+          "Les exemples de consultants/services et les “besoins” à fournir à l’équipe restent partiellement esquissés : des sections sont introduites, mais le contenu détaillé correspondant n’apparaît pas dans l’extrait fourni.",
+          "Les affirmations sur la faisabilité “en un mois” et les performances d’accessibilité reposent sur l’argumentation et des ressources citées (jam et listes), sans métriques ni protocole d’évaluation dans le texte."
+        ]
+      },
+      {
+        "title": "Incrementing Our Way To Glory | Yarn Spinner",
+        "url": "https://yarnspinner.dev/blog/incrementing-our-way-to-glory/",
+        "section": "Dév solo et outillage",
+        "summary": "L’article de Yarn Spinner décrit l’évolution d’un mécanisme d’invocation dynamique (dictionnaire de délégués invoqués via reflection) vers une approche générant du code C# statiquement. L’objectif annoncé est d’éviter la reflection, d’améliorer la performance et les diagnostics, et surtout d’autoriser des paramètres d’actions/fonctions de types arbitraires grâce à des convertisseurs (méthodes marquées par attribut). Le billet détaille les difficultés rencontrées avec les incremental source generators Roslyn (diagnostics, caching, workflow, analyseur, documentation, logging) et conclut sur un s",
+        "reason": "Retour technique utile sur la génération de code et les contraintes Roslyn, intéressant si tu relies narration, outillage C# et automatisation légère sans alourdir un pipeline solo.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le système décrit comme abouti est présenté comme “nearly-working” et l’article ne fixe pas de date de sortie précise, seulement un envoi dans de futures releases.",
+          "L’autorisation de paramètres arbitraires dépend de la mise en place de convertisseurs pour les types concernés (et de la disponibilité des conversions).",
+          "Les exemples détaillent un cas de type personnalisé via un convertisseur et ne quantifient pas les gains de performance ou l’étendue exacte de couverture des diagnostics.",
+          "La comparaison avec Unreal Engine et Godot (GDScript) expose l’état actuel tel que décrit dans le billet, sans démonstration de faisabilité chiffrée pour les autres moteurs."
+        ]
+      },
+      {
+        "title": "Designing the Conditions of Story",
+        "url": "https://narrativedesigner.com/blog/designing-the-conditions-of-story.html",
+        "section": "Accessibilité, UI et narration",
+        "summary": "L’article « Designing the Conditions of Story » (septembre 2026) développe l’idée que l’histoire produite par un jeu/une expérience ne dépend pas seulement de l’auteur : elle émerge des « conditions » construites par l’équipe (monde, règles, possibilités), que le participant traverse avec une histoire propre. Le récit transmis ensuite à autrui ne transfère pas l’expérience intacte : le listener reconstruit sous d’autres contraintes. L’auteur articule aussi une réflexion sur l’agence, l’amont des décisions, et des questions éthiques liées à ce qui rend des options possibles.",
+        "reason": "L’article aide à penser la narration comme un ensemble de conditions, de règles et d’états plutôt qu’un simple texte. C’est utile pour concevoir des embranchements testables et limiter la redite dans un jeu narratif solo.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "L’article ne fournit pas de protocole opérationnel complet : il s’agit d’une synthèse conceptuelle appuyée sur des travaux antérieurs et des hypothèses présentées comme à tester.",
+          "Certaines notions sont discutées en référence à des publications mentionnées (2001–2026), sans que toutes leurs définitions détaillées soient reprises dans ce texte seul.",
+          "L’assertion selon laquelle le rapport jeu/observance participerait à l’évolution de la conscience est explicitement présentée comme une hypothèse à tester, donc non démontrée ici."
+        ]
+      },
+      {
+        "title": "Why fans are digging their claws into Wolverine over its patronising gameplay",
+        "url": "https://www.theguardian.com/games/2026/sep/23/why-are-gamers-ripping-into-the-new-wolverine-game",
+        "section": "Mécaniques et design",
+        "summary": "L’article explique pourquoi les joueurs reprochent à Marvel’s Wolverine (Sony) un design jugé « patronisant », relayé et amplifié par des clips viraux de reviewers/streamers. Le texte décrit notamment des indices visuels de guidage (pulsations sonar, cibles mises en évidence, sentier vers des collectibles) et une séquence où le jeu continuerait après l’abandon du contrôleur. L’auteur oppose ensuite difficulté et « friction », défendant l’idée que supprimer la friction réduit l’agence et la satisfaction d’effort. Il cite aussi des exemples de jeux à forte ou faible friction (Hollow Knight: Silk",
+        "reason": "Donne un angle critique sur le guidage excessif, la friction et l’agence du joueur. C’est pertinent pour réfléchir à la sensation de contrôle dans des mécaniques narratives ou d’exploration.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "L’article porte sur l’interprétation critique d’un problème de design à partir d’exemples et de séquences montrées dans des clips ; il ne mesure pas systématiquement l’ampleur du phénomène sur l’ensemble du jeu.",
+          "Les exemples de « player drop the controller » et le degré de guidage sont rapportés via des extraits/vidéos évoqués dans le texte, sans analyse quantitative des causes techniques ou des conditions exactes de reproduction.",
+          "La discussion sur la difficulté (« git gud », easy modes) sert de cadre général ; l’article ne tranche pas un critère unique pour tous les cas de design à forte ou faible friction."
+        ]
+      },
+      {
+        "title": "Tips on making your VN more accessible",
+        "url": "https://itch.io/devlog/415360/tips-on-making-your-vn-more-accessible.amp",
+        "section": "Accessibilité, UI et narration",
+        "summary": "L’article de LadyIcepaw (12 août 2022) propose un ensemble de conseils pour rendre un visual novel plus accessible, avec des éléments concrets en particulier pour Ren’Py. L’autrice insiste sur la lisibilité (contraste, taille/espacement, police), l’accessibilité couleur (ex. couleur daltonienne), des indices visuels pour les contrôles, et l’usage/complément de la synthèse vocale (“self-voicing”). Elle décrit aussi des points audio (volumes, tests), la réduction des risques (flash/screen shake) et l’accessibilité via descriptions (alt text, descriptions d’images silencieuses), tout en partagean",
+        "reason": "Très concret pour un VN ou un jeu narratif : options de lisibilité, self-voicing, alt text, variations de dialogue et réglages d’effets. Le texte reste léger et réutilisable, ce qui colle bien à une contrainte de moyens.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les recommandations sont formulées comme des retours et pratiques personnelles liées à Ren’Py et à ses projets (ex. Invisible Seams) ; elles ne décrivent pas de protocole d’évaluation universel.",
+          "Les statistiques de couleur daltonienne et les pourcentages cités sont donnés comme ordres de grandeur dans le texte sans détail de méthodologie.",
+          "Les conseils audio et de compatibilité matérielle (ex. choix de version Ren’Py) dépendent du contexte matériel et de l’implémentation de chaque projet."
+        ]
+      },
+      {
+        "title": "« Les jeux vidéo modernes sont chiants » : le créateur de The Last of Us a pris peur, mais moi je l'assume",
+        "url": "https://www.jeuxvideo.com/news/2106274/les-jeux-video-modernes-sont-chiants-le-createur-de-the-last-of-us-a-pris-peur-mais-moi-je-l-assume.htm",
+        "section": "Mécaniques et design",
+        "summary": "L’article rapporte (puis développe) une polémique autour d’une déclaration de Bruce Straley (ancien directeur créatif de Naughty Dog) qualifiant l’expérience des AAA modernes d’« ennuyeuse », avant qu’il ne présente des excuses à Santa Monica Studio. L’auteur enchaîne en soutenant que l’augmentation des budgets entraîne une standardisation du gameplay et une prise de risque réduite, notamment au détriment de la découverte et d’une narration moins assistée. Il oppose cette logique à l’indépendant/AA, citant notamment Clair Obscur: Expedition 33 (Sandfall Interactive) comme exemple de viabilité,",
+        "reason": "Contient une argumentation utile sur la standardisation des AAA et la place de l’indé/AA comme espace d’originalité. Peut nourrir ta réflexion de scope et de style, même si ce n’est pas un tutoriel.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les chiffres et la catégorisation du succès (ventes, budget, GOTY) sont affirmés dans le texte sans fournir de méthode de vérification ni de sources documentaires détaillées dans l’extrait.",
+          "La critique générale de la « standardisation » repose sur l’argumentation de l’auteur et sur quelques exemples cités (p. ex. Breath of the Wild, Elden Ring), sans étude comparative exhaustive.",
+          "Les propos prêtés à Bruce Straley sont rapportés via un relais (Edge + reprise dans l’article) ; le contenu exact de ses phrases n’est pas reproduit au-delà de formulations résumées."
+        ]
+      },
+      {
+        "title": "Defining Narrative Design",
+        "url": "https://narrativedesigner.com/blog/defining-narrative-design.html",
+        "section": "Mécaniques et design",
+        "summary": "L’article propose une définition du « narrative design » à partir d’une expérience professionnelle située en 2006 : l’auteur décrit un « gap » entre des studios qui ont des écrivains et des designers, mais pas une fonction dédiée au point de jonction. Le rôle est nommé « Narrative Designer » pour refléter le travail de conception (dialogue trees, pacing, UI copy, règles d’apprentissage par le joueur). Il affirme que le cœur du métier consiste à concevoir des systèmes permettant l’émergence de l’histoire par le jeu, indépendamment du genre et du support (jeux vidéo, attractions, jeux de table, ",
+        "reason": "Une définition claire du narrative design comme architecture de systèmes, utile pour distinguer écriture, règles et émergence. Bon socle si tu conçois des choix à conséquences dans un petit projet solo.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le texte est un récit d’auteur : les dates et affirmations historiques sur « premières » et diffusion sont rapportées sans sources externes dans le contenu fourni.",
+          "Les exemples cités servent à illustrer une définition du métier, sans comparaison méthodique ni métriques établissant l’efficacité de l’approche.",
+          "La portée porte sur la définition conceptuelle et le périmètre du rôle (travail sur systèmes et règles d’émergence), pas sur une procédure exhaustive de production."
+        ]
+      },
+      {
+        "title": "Action Game Maker Massive 2.0 Beta",
+        "url": "https://gamefromscratch.com/action-game-maker-massive-2-0-beta/",
+        "section": "Dév solo et outillage",
+        "summary": "L’article présente Action Game Maker 2.0, annoncé comme une amélioration « massive » (entrée en bêta après une version 1.x jugée peu différenciante) de l’éditeur de Godot (moteur open source). Il décrit des nouveautés d’interface et d’outils intégrés : Maker Mode (avec bascule Godot Mode), tutoriel intégré, docks dédiés, templates d’environnements, recherche de références dans les variables/commutateurs, vérificateur de collisions, outils d’animations (import et hitboxes), debugger en live, imports officiels, et aperçus améliorés. Incertitude : l’article n’apporte pas de mesures chiffrées ni d",
+        "reason": "Annonce d’outillage et de flux de travail dans un moteur accessible, utile si tu veux suivre les évolutions d’édition et de prototypage autour de Godot/Action Game Maker. À lire comme signal d’éditeur, pas comme preuve de qualité.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le propos porte sur une version « beta » d’Action Game Maker 2.0 et ne couvre pas l’état final ni des comparaisons quantitatives avec Godot « vanilla ».",
+          "Les fonctionnalités décrites ne précisent pas, dans ce texte, la compatibilité exacte avec des cas d’usage spécifiques, ni les limites (performance, versions Godot ciblées, exemples de projets).",
+          "L’article ne fournit pas de résultats expérimentaux sur l’efficacité des outils (ex. debugger, collision checker) au-delà de leur description."
+        ]
+      },
+      {
+        "title": "Twenty Years of Narrative Design",
+        "url": "https://narrativedesigner.com/blog/twenty-years.html",
+        "section": "Mécaniques et design",
+        "summary": "L’article retrace, sur vingt ans, la naissance et la diffusion du poste de « Narrative Designer » dans l’industrie du jeu vidéo. L’auteur soutient que la question en 2006 n’était pas de savoir si l’histoire existe dans les jeux, mais qui la conçoit. Il décrit l’évolution d’un rôle visant à réunir décisions de récit, technologie et jeu, puis l’adoption du titre par de nombreux studios. Il avance enfin des pistes vers des systèmes narratifs adaptatifs (notamment avec IA) et évoque une « couche » quasi transcendantale de l’expérience interactive. L’auteur cite des jeux emblématiques et situe le p",
+        "reason": "Prolonge la réflexion sur le narrative design en le traitant comme discipline de production et non comme simple contenu. Intéressant pour relier structure du récit, organisation du travail et ambitions de design.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les affirmations sur l’ampleur de la diffusion (« des milliers », « centaines plus ») et les changements de processus sont présentées comme un constat de l’auteur, sans chiffres ni étude citée.",
+          "Les exemples de jeux sont utilisés pour illustrer une thèse (philosophie vs département), mais l’article ne décrit pas de critères exhaustifs permettant de vérifier que ces cas correspondent tous à la même définition.",
+          "Les perspectives sur l’IA, la génération procédurale et l’« expérience transcendentale » restent prospectives et ne détaillent pas de démonstration technique ou de résultats mesurés."
+        ]
+      },
+      {
+        "title": "Meta Horizon Create and Horizon Studio “Game Engines”",
+        "url": "https://gamefromscratch.com/meta-horizon-create-and-horizon-studio-game-engines/",
+        "section": "Dév solo et outillage",
+        "summary": "L’article, à partir d’une annonce de Meta lors de Meta Connect 2026, présente deux “game engines” à venir : Horizon Create et Horizon Studio. Le principe décrit est la génération de jeux 2D/3D jouables à partir de simples prompts textuels, avec possibilité de raffiner environnements, personnages, mécanismes et support du multijoueur. La publication serait ensuite éligible à une distribution automatique sur Facebook, Instagram et Horizon. Le billet exprime un jugement critique (“AI-slop”) sans apporter de résultats indépendants.",
+        "reason": "Donne une vue d’ensemble de la promesse de génération de jeux via prompts et de la distribution associée. Le texte sert surtout à mesurer le type de produit annoncé, pas sa fiabilité.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "La fiche décrit le pitch tel qu’annoncé dans l’article et sa source liée ; aucun détail opérationnel (spécifications techniques, coûts, limites de génération, critères d’éligibilité à la distribution) n’est fourni dans le texte fourni.",
+          "L’évaluation critique de l’auteur (“AI-slop”) reflète un avis et ne s’appuie pas sur des mesures ou comparaisons documentées dans l’extrait.",
+          "Le calendrier exact de sortie et les contraintes d’accès (pour qui, où, à quelles conditions) ne sont pas précisés dans l’extrait."
+        ]
+      },
+      {
+        "title": "On a testé ONTOS, le nouveau jeu des créateurs d’Amnesia qui s’annonce profondément dérangeant",
+        "url": "https://www.gameblog.fr/jeu-video/ed/story/ontos-preview-gamescom-2026-723848",
+        "section": "Mécaniques et design",
+        "summary": "L’article présente une preview d’ONTOS, annoncé par Frictional Games (studio derrière Amnesia et SOMA). À la Gamescom 2026, les auteurs indiquent avoir testé une démo (≈30 minutes) se déroulant dans l’hôtel Samsara, où il faut retrouver la trace de Zike via un passe détenu par Crombie. La démo met en avant des choix potentiellement mortels, l’incertitude sur la voix à suivre (Crombie ou Zike) et l’idée que l’horreur provient surtout des conséquences et de la moralité des actions. Le jeu est prévu pour 2027 sur PS5, Xbox Series et PC.",
+        "reason": "La démo décrite montre comment un jeu d’horreur peut articuler choix, tension morale et incertitude. Utile pour observer comment un design narratif met en scène les conséquences sans révéler toute sa structure.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le contenu décrit une démo limitée (annoncée comme d’environ une demi-heure) et une seule séquence mise en avant (retrouver Zike via le passe de Crombie).",
+          "Les effets des choix et leurs conséquences restent présentés comme des expériences/risques observés dans la démo et non comme la structure complète du jeu final.",
+          "Les déclarations attribuées à Thomas Grip portent sur la philosophie de conception (pas sur des mécanismes exhaustifs garantis pour l’ensemble du jeu)."
+        ]
+      },
+      {
+        "title": "Episode 164: National Virtual Forum for Digital Games in Libraries (DGIL)",
+        "url": "https://gamehistory.org/episode-164-national-virtual-forum-for-digital-games-in-libraries-dgil/",
+        "section": "Dév solo et outillage",
+        "summary": "L’épisode 164 de la Video Game History Hour présente une initiative intitulée Digital Games in Libraries (DGIL) et annonce un forum virtuel national prévu les 29–30 octobre. Phil Salvador échange avec Dr. Colin Post et Marisa Marzilli (University of North Carolina at Greensboro) au sujet de l’objectif de préservation de jeux vidéo indépendants « digital-only », de leurs origines, de modèles de collection, et de pistes pour des phases et ressources futures. La portée exacte des contenus n’est pas détaillée davantage dans l’extrait.",
+        "reason": "Intéressant comme actualité de préservation et de collection numérique, surtout si ton projet touche à la conservation de jeux ou à leur accessibilité future. Ce n’est pas directement un retour de dev, mais un contexte utile.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les éléments concrets sur les modèles de collection et les ressources futures ne sont pas fournis dans l’extrait ; ils restent à découvrir dans le contenu complet de l’épisode.",
+          "L’annonce concerne une échéance et un format d’événement (forum virtuel 29–30 octobre) sans autre détail opérationnel dans le texte fourni."
+        ]
+      },
+      {
+        "title": "Hellraiser Revival wants you to feel \"uncomfortable.\" After 30 minutes playing, it does all that and more",
+        "url": "https://www.pcgamesn.com/hellraiser-revival/gamescom-2026-interview",
+        "section": "Mécaniques et design",
+        "summary": "L’article, sous forme d’interview à Gamescom, décrit Hellraiser: Revival comme un jeu d’horreur survival cherchant intentionnellement à mettre les joueurs mal à l’aise. Le Narrative Director Antony de Fault et le Game Director Emil Esov déclarent vouloir “pousser” l’audience via la sexualité, l’intimité et un spectre de pratiques BDSM, en distinguant relations “non saines” et BDSM consentant “acceptable”. Le texte relate aussi une expérience de jeu centrée sur des espaces liminaires, un ton sans jump scares fréquents, et une violence jugée “à but” narratif. Le tout s’accompagne d’un avertissem",
+        "reason": "Approche utile si tu t’intéresses à l’usage de l’inconfort comme objectif de design, avec un cadrage sur consentement, tonalité et intention. À lire surtout comme retour critique, pas comme méthode.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le contenu reproduit un avertissement et décrit des thèmes sexuels, abus et usage de substances; l’article ne détaille pas de critères externes permettant d’évaluer comment ces thèmes sont traités par le jeu lui-même.",
+          "Les propos rapportés sont des déclarations des dirigeants et des impressions d’un journaliste; l’article ne fournit pas de données, ni de description exhaustive de toutes les scènes ou de leur fréquence.",
+          "Le texte présente des éléments observés lors d’un temps de jeu à Gamescom et mentionne le demo et une date de sortie, mais ne confirme pas le contenu final du jeu complet au-delà de ce qui est montré/expérimenté."
+        ]
+      },
+      {
+        "title": "Episode 162: Roberta Vaughn’s Retro Adventures",
+        "url": "https://gamehistory.org/episode-162-roberta-vaughns-retro-adventures/",
+        "section": "Mécaniques et design",
+        "summary": "L’épisode 162 de la chaîne “Video Game History Hour” (Game History) réunit Phil Salvador avec Heather Fryling et Daniel Greenberg pour présenter “Roberta Vaughn’s Retro Adventures” (RVRA). L’association à but non lucratif conçoit des expositions itinérantes “vivantes” centrées sur l’histoire des jeux d’aventure et du divertissement, en hommage à Roberta Vaughn. Le texte indique que RVRA se rend notamment à Portland Retro Game Expo et PAX West, avec des exhibits, interviews et invités spéciaux.",
+        "reason": "Présente un projet culturel sur l’histoire du jeu d’aventure et ses expositions itinérantes. Intérêt indirect pour la narration interactive, mais plus historique que méthodologique.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le texte fourni ne détaille pas le contenu précis des interviews, ni des exemples d’expositions au-delà des conventions citées.",
+          "Aucune métrique (taille, calendrier, impact) n’est fournie dans l’extrait.",
+          "Le document décrit un épisode et des informations associées (liens), sans preuves chiffrées dans le contenu reproduit."
+        ]
+      },
+      {
+        "title": "Qui dessine les lieux ? Dans les coulisses du design de signalétique",
+        "url": "https://www.etapes.com/2026/09/23/qui-dessine-les-lieux-dans-les-coulisses-du-design-de-signaletique/",
+        "section": "Accessibilité, UI et narration",
+        "summary": "L’article présente le design de signalétique (wayfinding) comme une discipline reliant graphisme, architecture et design d’information. Il décrit un processus commençant par la compréhension des usages et des flux, puis la traduction de l’information en codes visuels (typo, couleur, pictogrammes, numérotation, flèches). Il insiste aussi sur le test du système du point de vue de l’usager et sur l’accessibilité (contraste, taille, vocabulaire, combinaisons visuelles/tactiles/sonores). Des références sont citées, notamment Otl Aicher (JO Munich 1972) et Unimark/Vignelli/Noorda (métro de New York)",
+        "reason": "Très bon parallèle pour penser ton interface comme un système de signalisation : hiérarchie, parcours, pictogrammes, contrastes et tests. La portée est conceptuelle, mais directement transposable à une UI de jeu.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les exemples historiques cités (Munich 1972 ; métro de New York) sont mobilisés comme illustrations, sans description détaillée des choix techniques ni données d’impact.",
+          "Le propos décrit des principes et une démarche générale ; il ne fournit pas de méthode opérationnelle pas-à-pas ni de résultats mesurés sur des cas précis.",
+          "Les contraintes d’accessibilité sont évoquées au niveau conceptuel (contraste, taille, supports multiples) sans spécifications normatives ni critères chiffrés."
+        ]
+      },
+      {
+        "title": "Design Engineering with Maggie Appleton",
+        "url": "https://newsletter.pragmaticengineer.com/p/design-engineering-with-maggie-appleton",
+        "section": "Dév solo et outillage",
+        "summary": "L’épisode « Design Engineering with Maggie Appleton » (The Pragmatic Engineer, 23 septembre 2026) présente un échange décrit comme portant sur ce que des ingénieurs peuvent apprendre des designers, sur la façon de travailler avec des agents d’IA, et sur le maintien de l’importance du jugement humain. Le document n’inclut qu’un résumé de type annonce et ne fournit pas d’arguments détaillés, de preuves ou de conclusions vérifiables à partir du texte transmis. Le contenu annoncé suggère des perspectives de collaboration et de conception orientées décisions.",
+        "reason": "Le sujet annoncé — design engineering, agents d’IA et jugement humain — peut intéresser ta veille d’outillage et de méthode, mais l’absence de transcription limite la valeur concrète. À garder comme repère, pas comme source de pratiques.",
+        "reading_kind": "current",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de l’épisode, sans transcription.",
+          "La description transmise est un extrait/annonce : aucun détail de l’argumentation, aucune donnée et aucune conclusion ne sont fournis dans le document.",
+          "Les formulations « apprendre », « travailler avec des agents d’IA » et « jugement humain » ne précisent pas de méthode, de critères ou d’exemples dans le texte disponible.",
+          "La portée exacte des recommandations ou thèses n’est pas identifiable à partir du seul résumé."
+        ]
+      },
+      {
+        "title": "Peut-on vieillir dans le design ?",
+        "url": "https://www.etapes.com/2026/09/25/peut-on-vieillir-dans-le-design/",
+        "section": "Accessibilité, UI et narration",
+        "summary": "L’article interroge la possibilité de « vieillir » dans les métiers du design, dans une industrie culturellement centrée sur la nouveauté et l’émergence. Il s’appuie notamment sur des données du ministère de la Culture (âge moyen des artistes-auteurs en 2023) et sur une étude Dares (avril 2026) suggérant une discrimination à l’embauche des seniors via des stéréotypes. L’auteur relie ces constats à l’accélération liée aux outils et à l’IA générative, qui déplaceraient la valeur de la production vers des compétences plus stratégiques. Certaines sources externes sont évoquées sans démonstration s",
+        "reason": "Apporte un angle sur la longévité dans le design, les outils et la redistribution de la valeur entre production et stratégie. Intéressant pour une lecture de contexte sur les métiers et les contraintes de production.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les âges cités couvrent des « artistes-auteurs » recensés en 2023, pas l’ensemble des salariés du secteur.",
+          "La référence aux articles de Creative Boom (août 2026) repose sur des signaux recueillis auprès d’une communauté, sans établir une statistique de départs.",
+          "La synthèse Dares (avril 2026) porte sur le marché du travail en général, pas spécifiquement sur les designers ; l’article fait une mise en perspective appliquée au design."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 765,
+        "output": 363
+      },
+      "plan": {
+        "calls": 1,
+        "input": 33395,
+        "output": 2912
+      },
+      "summary": {
+        "calls": 28,
+        "input": 83532,
+        "output": 23933
+      },
+      "screen": {
+        "calls": 4,
+        "input": 27812,
+        "output": 1193
+      },
+      "web_search": {
+        "calls": 2,
+        "input": 25732,
+        "output": 728
+      },
+      "editor": {
+        "calls": 1,
+        "input": 12366,
+        "output": 2601
+      }
+    },
+    "budget_stops": [],
+    "prepared": 17,
+    "validation_errors": []
+  },
+  {
+    "profile": "jardinage",
+    "id": "1f0c08304bf241109aabb933fdaebc6f",
+    "status": "partial",
+    "error": null,
+    "count": 9,
+    "target": 18,
+    "seconds": 110.5,
+    "cost": {
+      "estimated_usd": 0.127959,
+      "known_subtotal_usd": 0.127959,
+      "unpriced_calls": 0,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 13,
+      "search_catalog": 2,
+      "screen": 4,
+      "search_web": 2,
+      "web_model": 2,
+      "hosted_web_calls": 2,
+      "source_proposal": 2,
+      "source_fetch": 4,
+      "discovered_article": 13,
+      "discovery_fetch": 13,
+      "editor": 1
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 0,
+    "uncovered_needs": [
+      {
+        "id": "need-4",
+        "topic": "biodiversité du jardin et sols vivants",
+        "query": "biodiversité jardin sols vivants compost microfaune terreau vivant explications pratiques",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      },
+      {
+        "id": "need-5",
+        "topic": "jardinage urbain, container gardening",
+        "query": "urban gardening container gardening balcony gardening French practical guide",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      },
+      {
+        "id": "need-7",
+        "topic": "jardinage urbain, potager en balcon, urban gardening, container gardening",
+        "query": "jardinage urbain, potager en balcon, urban gardening, container gardening",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 5,
+    "readings": [
+      {
+        "title": "Potager balcon nord ou à l'ombre : ce qui pousse vraiment — Le Jardin Balcon",
+        "url": "https://www.jardin-balcon.fr/potager-balcon-nord-ombre",
+        "section": "Jardinage en pots",
+        "summary": "L’article explique pourquoi un balcon orienté nord reçoit, selon la période de l’année, peu ou aucun soleil direct (attribution à l’IMCCE via des éphémérides), et propose de raisonner en “heures de ciel” plutôt qu’en heures de soleil. Il avance que la production dépend fortement des obstacles (dalle, hauteur du vis-à-vis, mur arrière) et recommande une mesure au luxmètre par comparaison. La culture serait alors surtout limitée aux végétaux à organes feuillus (feuilles et herbes aromatiques), avec des contraintes renforcées par l’humidité et l’asphyxie du substrat.",
+        "reason": "Le plus directement utile pour démarrer : l’article aide à savoir quoi cultiver sur un balcon nord ou ombragé, avec des repères de lumière, de volume et de choix de cultures adaptées au faible ensoleillement.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les indications chiffrées (durées de soleil direct, seuils au luxmètre, correspondances en “moles de photons”) sont présentées comme des ordres de grandeur et dépendent notamment de la configuration locale (obstacles, hauteur, dégagement).",
+          "Les recommandations de diagnostic (tests à l’arrosage, espacements, “test des trois semaines”) décrivent une logique de décision, sans fournir de protocole standardisé garantissant les résultats dans tous les contextes.",
+          "Le tableau de cultures (litrages, profondeurs, premières récoltes) est donné comme liste indicative et peut ne pas s’appliquer à d’autres variétés, substrats ou pratiques culturales."
+        ]
+      },
+      {
+        "title": "Quelles plantes riches en nectar (mellifères) se développent le mieux dans des pots en ville ?",
+        "url": "https://insectes.org/faq/quelles-plantes-riches-en-nectar-melliferes-se-developpent-le-mieux-dans-des-pots-en-ville/",
+        "section": "Biodiversité et pollinisateurs",
+        "summary": "Le document présente des plantes mellifères adaptées à la culture en pots en ville, en soutenant que beaucoup d’espèces à développement limité peuvent convenir sur terrasse ou balcon. Il recommande en particulier des plantes aromatiques comme le thym, le serpolet et la menthe, en citant le climat tempéré de Paris comme favorable. Il mentionne aussi des espèces plus vigoureuses demandant un pot plus grand : lavande, marjolaine et hysope. L’article associe ces choix à l’attraction d’abeilles domestiques et potentiellement d’abeilles solitaires, de bourdons et de papillons.",
+        "reason": "Bon point d’entrée pour accueillir les pollinisateurs avec peu d’espace : le texte donne une courte liste de plantes mellifères adaptées aux pots en ville.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les espèces proposées sont limitées à une liste courte (thym, serpolet, menthe, lavande, marjolaine, hysope).",
+          "Le texte associe la meilleure adaptation au climat tempéré de Paris, sans préciser d’autres zones climatiques.",
+          "Le document ne détaille ni conditions culturales (taille de pot, substrat, arrosage) ni critères permettant d’évaluer le “meilleur” développement au-delà de l’affirmation générale.",
+          "Les résultats d’attraction d’insectes (abeilles, bourdons, papillons) sont présentés comme possibles, sans quantification ni protocole."
+        ]
+      },
+      {
+        "title": "Arrosage automatique pour un balcon : quel système choisir pendant les vacances ? - Un Potager Bio sur mon Balcon",
+        "url": "https://www.unpotagerbiosurmonbalcon.fr/blog/arrosage-automatique-vacances-balcon/",
+        "section": "Eau et climat au jardin",
+        "summary": "L’article explique comment choisir un système d’arrosage automatique de balcon pendant les vacances selon la durée d’absence, le nombre de contenants et l’exposition au soleil. Il propose une graduation : oya ou bouteille DIY pour 2–3 jours, kit goutte-à-goutte avec programmateur pour 1–2 semaines, et systèmes connectés (souvent avec capteurs et réservoir) au-delà d’environ deux semaines. Il insiste aussi sur un test 4–5 jours avant le départ, la vérification du débit/goutteurs, et l’ajout d’une marge en plein soleil, avec un exemple personnel de tomates cerises abîmées.",
+        "reason": "Très pertinent pour ton objectif d’économiser l’eau pendant les absences : l’article propose un choix de système d’arrosage par durée d’absence et par configuration du balcon.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les durées (p. ex. 2–3 jours, 1–2 semaines, plus de 2 semaines) sont présentées comme des repères généraux, avec une justification centrée sur l’autonomie réelle et l’exposition au soleil, sans quantification externe.",
+          "Les prix sont donnés à titre indicatif (ex. 30–80€ pour un kit goutte-à-goutte, 140–300€ pour un système connecté) et ne tiennent pas compte des configurations ni de la disponibilité locale.",
+          "Le texte s’appuie aussi sur des expériences personnelles (ex. épisode de 3 semaines et tomates cerises) qui illustrent les choix, mais ne constituent pas une évaluation contrôlée."
+        ]
+      },
+      {
+        "title": "Diversifier la flore de mon jardin ou de mon balcon",
+        "url": "https://ofb.gouv.fr/actions-citoyennes/diversifier-la-flore-de-mon-jardin-ou-de-mon-balcon",
+        "section": "Biodiversité et pollinisateurs",
+        "summary": "L’article dresse un argumentaire pour diversifier la flore des jardins et balcons afin de soutenir la biodiversité en ville. Il propose des actions concrètes (planter des espèces locales et mellifères, réduire le gazon, créer des strates végétales, laisser un coin “sauvage”, intégrer des légumineuses, utiliser l’eau de pluie) et relie ces choix à des (é)co-bénéfices annoncés : refuge et nourriture pour la faune, réduction des pesticides, meilleure protection de l’eau et économies. Il cite aussi un chiffre sur les espèces de plantes menacées en France.",
+        "reason": "Donne le cadre général le plus accessible sur la diversification végétale : pourquoi varier les plantes sur un balcon et quels bénéfices attendre pour la biodiversité.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les bénéfices santé, eau et économies sont présentés comme des “(é)co-bénéfices” sans données chiffrées spécifiques ni conditions d’application détaillées.",
+          "Le paragraphe sur la fixation de l’azote par les légumineuses et sur le stockage du carbone/limitation des arrosages est formulé de manière générale, sans quantification ni contexte expérimental.",
+          "Les chiffres “En chiffre” (4982 espèces, 742 sur liste rouge) ne précisent pas l’année, la source ni la définition exacte de la “liste rouge” dans le texte fourni."
+        ]
+      },
+      {
+        "title": "Comment cultiver un framboisier en pot sur un balcon ? - Un Potager Bio sur mon Balcon",
+        "url": "https://www.unpotagerbiosurmonbalcon.fr/blog/cultiver-framboisier-pot-balcon/",
+        "section": "Jardinage en pots",
+        "summary": "L’article explique, à partir de l’expérience de l’autrice, comment cultiver un framboisier en pot sur un balcon. Il recommande une variété remontante (ex. ‘Autumn Bliss’, ‘Sugana’) et un contenant d’au moins 40 L (40–50 cm de profondeur), avec mi-ombre tolérée. La plantation viserait la période d’octobre à mars hors gel, suivie d’un arrosage régulier et d’un paillage. La taille dépendrait du type remontant/non remontant, puis la protection contre le gel et la surveillance des pucerons et de l’oïdium sont abordées.",
+        "reason": "Utile si tu veux une culture pérenne en contenant : l’article détaille la conduite du framboisier en pot, avec des gestes concrets sur le rempotage, l’arrosage et la taille.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les préconisations sont données dans le cadre d’un balcon (contenant, exposition et vent) et s’appuient sur un récit d’expérience personnelle de l’autrice.",
+          "Les périodes et quantités (pot 40 L, paillage 3–5 cm, arrosage 2–3 fois/semaine en été selon chaleur) sont des recommandations pratiques propres au texte, sans étude comparative citée.",
+          "Les mentions de maladies/parasites (pucerons, oïdium, vers de la framboise) décrivent des cas à surveiller et des gestes généraux, sans préciser d’incidence mesurée ni conditions d’apparition."
+        ]
+      },
+      {
+        "title": "Dans les jardins et espaces verts",
+        "url": "https://ofb.gouv.fr/dans-les-jardins-et-espaces-verts",
+        "section": "Biodiversité et pollinisateurs",
+        "summary": "Le texte explique comment jardins, balcons et parcs peuvent devenir des corridors écologiques, en favorisant la circulation et la survie de la biodiversité. Il propose 6 pratiques concrètes : tondre moins souvent (ou mosaïque), installer des points d’eau et réduire l’arrosage, recycler les déchets verts via broyat/compost, réduire la pollution lumineuse (extinction après 23 h ou détecteur), diversifier les haies avec des essences locales, et éviter de bétonner les sols. Il mentionne aussi des actions de collectivités (stratégie Écophyto 2030) et un chiffre sur la pollution lumineuse (Dark Sky ",
+        "reason": "Complément de bonnes pratiques pour aménager un espace vivant : lumière, sols perméables, eau, haies, paillage et autres gestes favorables au vivant.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les « 6 bonnes pratiques » décrivent des actions générales, sans conditions locales (climat, espèces présentes, réglementation locale) ni quantification de leur efficacité.",
+          "Le chiffre sur la pollution lumineuse (72 %) est présenté comme une donnée de Dark Sky Lab (2023) sans préciser la méthode de mesure dans le texte.",
+          "Les exemples d’actions des collectivités (Écophyto 2030, « Territoires engagés pour la nature ») sont cités de façon descriptive, sans détails de résultats ou d’évaluation dans ce document."
+        ]
+      },
+      {
+        "title": "Pot d'aromatiques du supermarché : le rempoter pour qu'il dure — Le Jardin Balcon",
+        "url": "https://www.jardin-balcon.fr/rempoter-aromatiques-supermarche",
+        "section": "Jardinage en pots",
+        "summary": "L’article explique comment augmenter la durée de vie des pots d’aromatiques achetés au supermarché en repérant leur type de culture avant de rempoter. Il distingue les pots « en touffe » (basilic, ciboulette, persil, coriandre/aneth/cerfeuil) des pots à « pied unique » (menthe, estragon, thym, romarin, sauge, laurier), et adapte le geste (division, tranchage, ou rempotage entier). La réussite est indiquée par l’apparition de feuilles neuves après environ quinze jours, et la fenêtre d’intervention est donnée comme « dans les huit jours ». Une source citée renvoie à un travail sur le seuil d’hum",
+        "reason": "Pratique pour apprendre à faire durer une plante achetée en pot sans acheter du matériel supplémentaire : le texte explique comment rempoter des aromatiques de supermarché.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les opérations et durées (ex. « dans les huit jours », « quinze jours plus tard », « trois semaines ») sont présentées comme des repères pratiques, sans préciser d’essai expérimental ni d’échantillon.",
+          "Les recommandations d’entretien (litrage, profondeur de plantation, exposition, arrosage) sont données pour des cas génériques d’aromatiques en pots, avec des effets variables selon l’espèce et les conditions locales.",
+          "L’explication sur la tourbe hydrophobe est rattachée à un seuil d’humidité « autour de 50% » mentionné via un travail cité ; l’article ne détaille pas le protocole exact appliqué au cas des pots de supermarché."
+        ]
+      },
+      {
+        "title": "Comment vider un pied de tomate en pot avant l'hiver — Le Jardin Balcon",
+        "url": "https://www.jardin-balcon.fr/pied-tomate-apres-recolte",
+        "section": "Eau et climat au jardin",
+        "summary": "L’article explique comment vider un pied de tomate en pot avant l’hiver et pourquoi certaines pratiques (garder le pot au froid/attendre, laisser des débris, ne pas nettoyer le matériel) augmenteraient le risque de maladies. Il relie la dynamique de pousse aux seuils de température mentionnés et s’appuie sur des fiches INRAE (mildiou, conservation d’oospores dans les débris, principes de protection) et sur des considérations de rotation “en contenant”. Une “exception” est proposée pour conserver une variété rare via bouturage/démarrage en intérieur, avant la fin de la saison.",
+        "reason": "Intéressant si tu cultives des tomates en pot : l’article explique comment vider et nettoyer un pied avant l’hiver, ce qui aide à limiter maladies et pertes de substrat.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les seuils de température et les durées (ex. “trois ou quatre degrés au-dessus” selon l’article, seuils +7 °C/+5 °C/-1 °C, “balcon français” en octobre) sont présentés comme repères généraux, sans préciser de conditions locales ni la variabilité climatique.",
+          "Le lien “rotation en contenant” est appliqué ici par la règle de remplacement du terreau (terreau neuf après tomate) faute de rotation possible avec plusieurs pots sur balcon, ce qui dépend du nombre de contenants et des pratiques de l’auteur.",
+          "Le plan “exception” (bouturage début septembre, racines en 5 à 15 jours à 18–20 °C, élevage sans engrais) dépend du stade végétatif et de la capacité à maintenir des conditions intérieures adaptées; l’article ne chiffre pas le taux de réussite."
+        ]
+      },
+      {
+        "title": "Changement climatique : phénomène global, impacts locaux",
+        "url": "https://theothereconomy.com/fr/fiches/changement-climatique-phenomene-global-impacts-locaux/",
+        "section": "Eau et climat au jardin",
+        "summary": "L’article défend l’idée que, malgré la nécessité d’actions globales contre le changement climatique, les impacts se manifestent à l’échelle du territoire français et exigent des initiatives locales. Il cite le GIEC pour anticiper une hausse de l’intensité et de la fréquence des fortes précipitations, ainsi que le ministère estimant que 4/5 des communes françaises sont concernées par au moins un aléa climatique. Il illustre le rôle des maires via la gestion de crises, l’adaptation (végétalisation, gestion du ruissellement, renaturation) et l’atténuation (mobilités, rénovation, cantines bio).",
+        "reason": "Utile comme contexte sur le climat local et l’adaptation des collectivités, mais moins directement pratique pour le balcon que les autres dossiers.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les données chiffrées et citations (GIEC, ministère, pourcentages d’opinion) sont rapportées telles qu’elles apparaissent dans l’article, sans détail méthodologique supplémentaire dans le texte fourni.",
+          "Les exemples locaux (villes et mesures) sont présentés comme illustrations et ne constituent pas une évaluation comparative de leur efficacité globale.",
+          "Certaines affirmations chiffrées (ex. « 43 fois moins de CO2 » pour Mouans-Sartoux) ne sont pas accompagnées dans le texte de la méthode de calcul ni du périmètre exact."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 775,
+        "output": 282
+      },
+      "plan": {
+        "calls": 1,
+        "input": 37718,
+        "output": 3383
+      },
+      "summary": {
+        "calls": 13,
+        "input": 41799,
+        "output": 11466
+      },
+      "screen": {
+        "calls": 4,
+        "input": 33302,
+        "output": 1332
+      },
+      "web_search": {
+        "calls": 2,
+        "input": 24330,
+        "output": 659
+      },
+      "editor": {
+        "calls": 1,
+        "input": 9655,
+        "output": 2000
+      }
+    },
+    "budget_stops": [],
+    "prepared": 11,
+    "validation_errors": []
+  },
+  {
+    "profile": "musique",
+    "id": "077120e287124cc8a296c2c13646d276",
+    "status": "complete",
+    "error": null,
+    "count": 18,
+    "target": 18,
+    "seconds": 134.3,
+    "cost": {
+      "estimated_usd": null,
+      "known_subtotal_usd": 0.12507,
+      "unpriced_calls": 1,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 23,
+      "search_catalog": 1,
+      "screen": 2,
+      "search_web": 1,
+      "web_model": 1,
+      "hosted_web_calls": 1,
+      "discovered_article": 10,
+      "discovery_fetch": 10,
+      "editor": 1
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 0,
+    "uncovered_needs": [
+      {
+        "id": "need-7",
+        "topic": "sound engineering",
+        "query": "sound engineering prise de son acoustics recording techniques",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-8",
+        "topic": "musique, composition, music production, songwriting",
+        "query": "musique, composition, music production, songwriting",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-9",
+        "topic": "prise de son, acoustique, home recording, sound engineering",
+        "query": "prise de son, acoustique, home recording, sound engineering",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 17,
+    "readings": [
+      {
+        "title": "Flying Lotus: From the Sketchbook to the Stage",
+        "url": "https://www.ableton.com/en/blog/flying-lotus-from-the-sketchbook-to-the-stage/",
+        "section": "Création musicale / entretiens",
+        "summary": "L’article (Ableton, billet “Flying Lotus: From the Sketchbook to the Stage”) rapporte une discussion avec Flying Lotus (“Fly Lo”) sur ses méthodes de création. Il décrit un “sketchbook mode” fondé sur l’accumulation de clips et de sons (souvent classés par projets/mois), puis leur exploitation en sessions. Il insiste sur le travail “9 to 5” même sans inspiration, l’usage de Push et de contrôleurs Novation en live, et une réduction de l’échantillonnage due aux risques de droits. Il évoque aussi la conception de palettes sonores pour des bandes originales, la réalisation en temps réel de visuels",
+        "reason": "Entretien très concret sur le workflow de Flying Lotus, de l’archive de sons au passage scène/studio : c’est le meilleur point d’entrée pour ton besoin de méthode en composition électronique.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les propos rapportés sont des déclarations directes de l’artiste dans une conversation ; l’article ne fournit pas de protocole général vérifiable ni de mesures objectives sur l’efficacité des méthodes décrites.",
+          "Les chiffres cités (p.ex. “maybe 20%”, fréquence d’utilisation de certains modes) correspondent à ses estimations personnelles, sans contextualisation chiffrée ni comparaison avec d’autres périodes ou productions.",
+          "Les éléments juridiques liés au sampling sont formulés comme une inquiétude et un changement de pratique personnelle (“can’t sample anyone… without worrying about getting sued”), sans détail de cas, de juridiction ou de source documentaire dans le texte."
+        ]
+      },
+      {
+        "title": "Le jazz est centenaire 6 : il y a cent ans Jelly Roll Morton enregistrait avec ses Red Hot Peppers.",
+        "url": "https://www.jazzmagazine.com/les-news/actus/le-jazz-est-centenaire-6-il-y-a-cent-ans-jelly-roll-morton-enregistrait-avec-ses-red-hot-peppers/",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article rappelle qu’“il y a cent ans”, les 15 et 21 septembre à Chicago, Jelly Roll Morton enregistre avec ses Red Hot Peppers au Webster Hotel, dans le cadre d’une installation de la Victor Talking Machine Company de matériel Orthophonic (Western Electric). Il décrit l’effectif et les titres de ces séances (notamment The Chant le 15, puis Sidewalk Blues, Dead Man Blues et Steamboat Stomp le 21), ainsi que des “mises en scène” et effets bruitistes. Une critique de Melody Maker (janvier 1927) juge l’approche datée et l’orchestration médiocre, tandis qu’au recul Gunther Schuller évoque une “fu",
+        "reason": "Le dossier historique sur Jelly Roll Morton relie contexte technique d’enregistrement et lecture de la séance, ce qui éclaire la relation entre captation et arrangement.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "La datation “centenaire” est explicitement relative à la formulation de l’article et s’appuie sur des dates historiques mentionnées (15/21 septembre), sans fournir de preuves primaires supplémentaires dans le texte.",
+          "Les détails d’effectif et de répertoire sont ceux rapportés par l’article ; aucune autre source discutable (discographie, matrice, liste officielle) n’est citée directement pour les confirmer dans l’extrait.",
+          "La critique et l’interprétation citent des points de vue (Melody Maker, Gunther Schuller) et reflètent donc des jugements, pas une évaluation neutre des enregistrements."
+        ]
+      },
+      {
+        "title": "Gilla Band : “Écouter de la no wave a complètement bouleversé notre perception de la musique”",
+        "url": "https://www.lesinrocks.com/musique/gilla-band-ecouter-de-la-no-wave-a-completement-bouleverse-notre-perception-de-la-musique-702808-25-09-2026/",
+        "section": "Composition / arrangement",
+        "summary": "L’article présente Gilla Band (groupe irlandais) à l’occasion de son nouvel album, « Pugnello ». Les membres expliquent pourquoi ils ont pu revenir comme groupe (l’album a été finalisé), comment leurs méthodes de composition ont changé (co-présence moins systématique, recherche d’un équilibre entre éléments sonores) et l’influence d’esthétiques comme le krautrock, la techno et la no wave sur leur perception musicale. Ils décrivent aussi l’écriture (répétition recherchée, surréalisme comme catharsis) et évoquent des contraintes matérielles de la scène irlandaise. L’article mentionne « Pugnello ",
+        "reason": "L’entretien avec Gilla Band apporte une vraie matière sur les processus d’écriture, la répétition et la façon dont des influences radicales changent la perception d’un groupe.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les propos sur les influences, la perception musicale et le processus d’écriture sont rapportés comme déclarations des membres du groupe, sans données externes.",
+          "Le compte exact des versions (« une trentaine » pour « The Megazord ») correspond au souvenir tel que formulé dans l’entretien, sans traçabilité méthodique.",
+          "Les informations de calendrier (sortie du 25 septembre, concert au Trabendo le 20 janvier 2027) sont présentées telles qu’indiquées dans l’article, sans précision supplémentaire sur le fuseau/édition."
+        ]
+      },
+      {
+        "title": "Home Recording Microphone Placement: A Practical Room-by-Room Guide",
+        "url": "https://ftsmusic.com/articles/home-recording-mic-placement",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article propose un guide pratique de placement de microphones pour l’enregistrement à domicile, en insistant sur le fait que le micro capte à la fois la source et la pièce. Il recommande d’évaluer le bruit de fond (circulation, VMC, ordinateurs), la présence de réflexions (murs nus) et l’accumulation des basses près des coins. La méthode repose sur des tests courts en déplaçant d’abord la distance, puis l’angle et la position dans la pièce, avec des réglages spécifiques pour voix, guitare acoustique, amplis et comparaisons nivelées.",
+        "reason": "Guide clair et reproductible pour placer un micro en home studio en tenant compte de la pièce, parfait pour tes prises de guitare chez toi.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les recommandations sont présentées comme un guide pratique général : elles ne fournissent pas de mesures chiffrées, de modèles de réponse en fréquence, ni de protocoles uniques garantis pour tous les espaces et toutes les configurations.",
+          "Les conseils impliquent des choix “à l’oreille” (par ex. écoute des réflexions, validation sur plusieurs systèmes) et reposent sur des enregistrements de test courts, dont les conditions réelles peuvent varier selon le contexte.",
+          "Les sections par source (voix, guitare, ampli) décrivent des directions et points de départ, sans couvrir tous les types de micros, toutes les pièces ni les usages (p. ex. stéréo multicanale) au-delà de l’optique “placement initial”."
+        ]
+      },
+      {
+        "title": "RECORDING: Mario Mattia’s \"Metamorphosis\"—Improvisation Without A Map",
+        "url": "https://www.allaboutjazz.com/news/mario-mattias-metamorphosisimprovisation-without-a-map",
+        "section": "Composition / arrangement",
+        "summary": "L’article présente « Metamorphosis » de Mario Mattia comme une improvisation pianistique libre d’environ sept minutes. Il y est décrit un parcours « à sens unique » : départ dans un territoire tonal reconnaissable, puis fragmentation et instabilité harmonique jusqu’à une traversée vers le non-tonal, sans retour. La démarche est présentée comme une composition issue de l’écoute et des décisions en temps réel, plutôt que comme un accompagnement d’une pièce préexistante. L’article mentionne aussi d’autres travaux et un projet de transcription lié à « Odyssey ».",
+        "reason": "Le texte sur Mario Mattia donne un exemple net de trajectoire formelle et de composition en temps réel, utile pour penser l’improvisation comme architecture.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "La durée et le schéma formel (tonal puis non-tonal, sans retour) sont donnés pour « Metamorphosis » dans le cadre de cette présentation ; aucune analyse formelle détaillée ni relevé musical n’est fourni dans le texte.",
+          "Les affirmations sur les influences et la méthode relèvent de la description éditoriale et des propos attribués à Mattia, sans données expérimentales ou citations supplémentaires.",
+          "Le statut de la transcription de « Odyssey » (pages terminées, partition à venir) correspond à l’information rapportée au moment de l’article."
+        ]
+      },
+      {
+        "title": "Micing an acoustic at home: a simple two-mic approach that works",
+        "url": "https://www.guitargear.net.au/articles/micing-acoustic-at-home-two-mic-approach",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article propose une méthode simple pour capter une guitare acoustique à domicile avec deux micros : un petit micro à diaphragme pour les détails près du 12e fret (12–15 cm, légèrement éloigné de la rosace) et un second micro pour le corps près de la caisse (bas de la guitare, 30–40 cm). Il attribue les meilleurs résultats surtout au placement, à la phase et au traitement/qualité de la pièce, plutôt qu’au coût des micros, et souligne l’importance des cordes neuves et de la main (jeu au médiator vs fingerstyle).",
+        "reason": "Approche très pratique du duo de micros sur guitare acoustique, avec une vraie logique de détail/corps et des vérifications de phase utiles en enregistrement domestique.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les distances et angles indiqués (12–15 cm, 30–40 cm, 12e fret, bas de caisse) sont présentés comme des points de départ et varient selon la forme/volume de la guitare, avec un exemple implicite : dreadnought plus “muddy” si le micro corps est trop proche.",
+          "Les recommandations sur la pièce (ex. doona sur une porte d’armoire, face à la pièce plutôt qu’en coin, couper le ventilateur) dépendent du contexte acoustique domestique visé et ne quantifient pas les résultats.",
+          "Les conseils “ne pas corriger au mix” portent sur des cas où le défaut vient d’un mauvais son à la source ou de réflexions de pièce, mais l’article ne définit pas de critères précis pour trancher quand l’EQ devient acceptable."
+        ]
+      },
+      {
+        "title": "RECORDING: Macedonian Saxophonist Hristijan Risteski Releases Debut Album 'waters Dance'",
+        "url": "https://www.allaboutjazz.com/news/macedonian-saxophonist-hristijan-risteski-releases-debut-album-waters-dance",
+        "section": "Composition / arrangement",
+        "summary": "L’article annonce la sortie en octobre 2026 du premier album solo du saxophoniste/clarinettiste macédonien installé à Graz, Hristijan Risteski, intitulé Waters Dance. L’album serait enregistré à ArteSuono Studio (Italie) avec l’ingénieur Stefano Amerio et mettrait en avant un quartet réunissant Marko Churnchetz (piano), Hrvoje Kralj (contrebasse) et Chris Smith (batterie). Le texte décrit une musique centrée sur thèmes d’identité, de changement et de mouvement, mêlant précision “classique”, rythmes macédoniens et jazz contemporain.",
+        "reason": "Récit de production et de mise en place d’un quartet, utile pour voir comment un répertoire se construit progressivement avant l’enregistrement.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le document est une annonce de sortie : l’existence, le contenu exact final et la réception critique de l’album ne sont pas démontrés dans le texte.",
+          "Les informations de processus (dates, durée “9–10 mois”, “10 jours” avant l’enregistrement) sont rapportées sans détails méthodologiques supplémentaires."
+        ]
+      },
+      {
+        "title": "Recording Acoustic Guitar: Mic Placement That Actually Works — HomeRecordingPro",
+        "url": "https://homerecordingpro.com/how-to-record-acoustic-guitar/",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article explique que, pour enregistrer une guitare acoustique, la captation dépend surtout du placement du micro (orientation, distance) et du contexte (instrument, pièce, interprète) plutôt que du choix d’un micro haut de gamme. Il propose un point de départ “fiable” : micro cardioïde pointé vers la jonction manche/caisse (12e–14e frette), à 6–12 pouces, légèrement orienté vers le soundhole. Il détaille aussi les effets du soundhole, l’ajustement “à l’oreille”, les options mono/stéréo et la gestion des problèmes de phase, ainsi que des repères de niveau d’enregistrement et des réglages de m",
+        "reason": "Très adapté à ton usage : repères concrets pour enregistrer la guitare acoustique, avec priorités sur la pièce, le placement et les tests courts.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les recommandations portent sur l’enregistrement d’une guitare acoustique dans un contexte home studio (interface, au moins un micro, DAW) et s’appuient sur des repères généraux ; l’article précise que le “bon” point de départ dépend de la guitare, de la partie jouée et de l’arrangement.",
+          "Les valeurs (6–12 pouces, 20 secondes de test, niveaux -12 à -6 dBFS, 24 bits) sont proposées comme cibles pratiques ; le texte indique que de petits ajustements sont nécessaires (ex. proximité, proximité effective avant ~6 pouces, comportement du soundhole).",
+          "Les principes de phase (règle du 3:1, test en mono, inversion de polarité ou déplacement) sont décrits comme défenses opérationnelles pour deux micros ; ils ne couvrent pas tous les scénarios possibles (miking complexes, traitement de pièce, positions multiples)."
+        ]
+      },
+      {
+        "title": "5 Questions to Andrea Clearfield (composer, curator)",
+        "url": "https://icareifyoulisten.com/2026/09/5-questions-to-andrea-clearfield-composer-curator/",
+        "section": "Création musicale / entretiens",
+        "summary": "L’article présente Andrea Clearfield, compositrice et fondatrice de la série de concerts Szalon à Philadelphie, et relie ses choix de curation à la construction d’une communauté artistique. Il décrit l’origine du Szalon (septembre 1986), son format multi-genres (10 ensembles/10 minutes), l’installation dans un loft en 2003, puis la transition à un modèle hybride pendant la pandémie via le Zalon (Zoom) à partir d’avril 2020. À l’occasion du 40e anniversaire (27 septembre, captation Zoom), le texte annonce une programmation mêlant répertoires classiques, jazz, hip-hop et traditions mondiales.",
+        "reason": "Entretien de fond sur la programmation et la curation : intéressant si tu veux comprendre comment un projet musical se pense sur la durée et en communauté.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les chiffres cités (p. ex. « plus de 20 000 participants » et « 10 000 interprètes ») relèvent de l’affirmation de l’interviewée dans ce texte, sans méthodologie de comptage décrite.",
+          "La programmation et les œuvres mentionnées sont celles annoncées dans l’article pour l’événement du 27 septembre ; aucune liste exhaustive complète n’est fournie dans l’extrait.",
+          "Les impacts attribués à l’hybridation (« plus grande joie », « mission approfondie », messages du public) sont formulés comme retours et intentions rapportés par Clearfield, sans données quantitatives présentées."
+        ]
+      },
+      {
+        "title": "How to Record Acoustic Guitar at Home | HomeRecordingSetup.com",
+        "url": "https://homerecordingsetup.com/guides/how-to-record-acoustic-guitar-at-home/",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article présente une méthode pour enregistrer une guitare acoustique à domicile en minimisant la résonance du corps et l’influence de la pièce. L’auteur recommande un placement de micro à 12–14 pouces (30–36 cm) du 12e frette, légèrement orienté vers le manche et volontairement pas vers la rosace, car la rosace agit comme un résonateur (autour de 90–110 Hz sur une guitare de type dreadnought) qui rend souvent l’enregistrement “boomy”. Il traite aussi du choix du type de micro (petite capsule vs grande capsule vs dynamique), des techniques stéréo, du gain/filtre passe-haut, et de facteurs méc",
+        "reason": "Donne un cadre plus large sur l’enregistrement de guitare à la maison, utile si tu veux comparer prise acoustique, direct et niveaux de base.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les valeurs (12–14 pouces, 90–110 Hz, -18 dBFS/-10 à -6 dBFS, passe-haut à 80 Hz) sont présentées comme des repères génériques et peuvent dépendre du type de guitare, du micro et de la pièce.",
+          "Les recommandations de technique stéréo (mono check, 3:1 rule, description des configurations) s’appliquent aux placements décrits par l’auteur et nécessitent d’être adaptés à l’espace et aux instruments.",
+          "Les conseils de micro/placement et de gain visent l’enregistrement “à domicile” tel que défini dans l’article; ils ne couvrent pas explicitement tous les setups possibles (distance de chaise, bruit ambiant particulier, acoustique extrême, etc.)."
+        ]
+      },
+      {
+        "title": "Book Review: Music Sets You Free",
+        "url": "https://www.jazztimes.com/reviews/books/book-review-music-sets-you-free/",
+        "section": "Création musicale / entretiens",
+        "summary": "L’article (JazzTimes) présente la publication en anglais de Music Sets You Free, traduite pour la première fois depuis deux mémoires antérieurs de Ryuichi Sakamoto. Il relie la trajectoire du compositeur — de l’apprentissage du piano et des questions sur “ce qu’est la musique” jusqu’à ses écrits pendant son cancer — aux influences multiples qu’il cite (notamment gamelan javanais, Debussy/Satie et des références au jazz). L’autrice évoque aussi le spectacle KAGAMI à The Shed comme hommage “en dispositif” et conclut que la lecture vise une expérience émotionnelle intense, avec une perspective te",
+        "reason": "Lecture critique des mémoires de Sakamoto qui relie esthétique, biographie et temporalité, utile si tu cherches des démarches créatives vues par le prisme de l’écriture.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les affirmations biographiques, l’interprétation des thèmes et l’intensité émotionnelle (“préparez-vous à pleurer”) reflètent l’angle de l’autrice/du critique, pas un résumé neutre de contenu.",
+          "Le détail sur KAGAMI est narratif (expérience décrite) : il ne fournit pas, dans l’extrait, une documentation technique ou une analyse évaluative indépendante du spectacle.",
+          "L’article ne présente pas l’intégralité du livre : il condense des thèmes et des exemples d’œuvres et cite quelques formulations, sans parcourir systématiquement tout le texte."
+        ]
+      },
+      {
+        "title": "How to Record Guitar at Home: The Complete Guide (2026)",
+        "url": "https://recordingguidebook.com/how-to-record-guitar-at-home/",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article « How to Record Guitar at Home: The Complete Guide (2026) » explique comment enregistrer une guitare à domicile, en posant une chaîne de base « guitare → interface (ou DI) → DAW ». Il distingue les cas électriques (mic d’un ampli vs en direct avec simulation d’ampli), acoustiques (placement micro et traitement de pièce) et ajouts de traitement/gain staging. Les recommandations incluent des repères chiffrés (impédance d’entrée, niveaux -18 à -12 dBFS, fréquences de filtrage), et cite des marques/modèles (ex. Focusrite Scarlett, Shure SM57, AT2020, Rode NT1).",
+        "reason": "Guide complet et opérationnel pour structurer tes sessions guitare à la maison, avec des cas d’usage distincts et des repères techniques pratiques.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les réglages et exemples (niveaux en dBFS, fréquences de filtres, placements micro, buffers) sont présentés comme des repères typiques, sans garantie d’adaptation à toutes les pièces, micros, micros/cordes ou styles.",
+          "Les modèles et spécifications cités (ex. impédance 1 MΩ vs 470 kΩ, 24-bit/96 kHz, exemples de plugins) concernent des cas mentionnés par l’article et peuvent varier selon versions matérielles/logiciels.",
+          "La comparaison « direct vs miced » dépend explicitement de la pièce et de l’ampli/du volume jouable, et la portée des conclusions est donc limitée à ces conditions décrites."
+        ]
+      },
+      {
+        "title": "Sova Beautifully Reinvents Her Sound on ‘Alight!’",
+        "url": "https://www.popmatters.com/sova-sophia-vastek-alight",
+        "section": "Création musicale / entretiens",
+        "summary": "L’article présente le projet musical Sova, porté par Sophia Vastek, et son album « Alight! ». Il décrit un élargissement naturel d’un style combinant déjà néoclassique, ambient et jazz vers une esthétique sonore plus ouverte, rendue possible par un petit ensemble de musiciens (piano, saxophone, violoncelle, basse, batterie). Plusieurs morceaux sont brièvement caractérisés (tempo lent et “cinématique” pour « Heavy Shit », groove et interlacs pour « Hum », contraste néoclassique pour « Quarry », retour au piano seul sur « Vast »). L’inspiration est attribuée notamment à Hania Rani et Keith Jarre",
+        "reason": "Bonne entrée critique pour comprendre comment un album hybride est perçu et décrit, avec un regard sur l’interplay et l’évolution stylistique.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Portée limitée : l’article propose des descriptions et interprétations esthétiques de quelques titres, sans données chiffrées, analyse musicale détaillée ni comparaison discographique systématique.",
+          "Incertitude : les “inspirations” (Hania Rani, Keith Jarrett) sont attribuées par le texte à l’artiste, sans citations directes reproduites ici.",
+          "Angle : l’évaluation (“réinvention”, “expansion”, “imprévisible”) relève d’un jugement critique, non d’un protocole de recherche."
+        ]
+      },
+      {
+        "title": "Acoustic Guitar Mic Techniques: Getting the Best Recorded Sound",
+        "url": "https://guitarwiz.app/articles/acoustic-guitar-mic-techniques/",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article « Acoustic Guitar Mic Techniques: Getting the Best Recorded Sound » explique comment obtenir un meilleur enregistrement de guitare acoustique en agissant sur la technique micro, la prise stéréo, l’acoustique de la pièce et la gestion des bruits parasites des doigts/du médiator. L’auteur recommande notamment un placement à 12–14 pouces visant la 12e frette avec une inclinaison ~45°, et compare des approches XY, paire espacée et mid-side (M‑S). Il aborde aussi le choix des types de micros (condensateur/dynamique/ruban) et des solutions en amont (jeu, cordes propres, traitement temporai",
+        "reason": "Donne une palette de techniques et de réglages pour obtenir un son de guitare acoustique propre, avec des solutions concrètes contre les bruits de jeu.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les distances, angles et plages (p. ex. 12–14 pouces, HPF 60–80 Hz, EQ 1–3 kHz, niveaux -6 à -3 dB) sont présentés comme des repères généraux, sans validation chiffrée pour tous les modèles de micros, guitares ou pièces.",
+          "Les recommandations sur l’acoustique (pièce dure vs douce, coin vs centre, « placards/cloths ») décrivent des effets attendus, mais l’article ne précise pas de protocole expérimental ni de mesures objectives.",
+          "Les conseils de post‑production (HPF/EQ/de‑clicker) supposent que le problème est localisable en fréquence et que l’artefact n’est pas trop imbriqué au signal de guitare, condition variable selon les prises."
+        ]
+      },
+      {
+        "title": "10 œuvres pour découvrir Prokofiev et sa musique instrumentale",
+        "url": "https://classica.fr/prokofiev-10-oeuvres-musique-instrumentale/",
+        "section": "Composition / arrangement",
+        "summary": "L’article propose un parcours de 10 œuvres de Sergueï Prokofiev pour découvrir sa musique instrumentale, organisée par zones géographiques (« La Russie », « L’Occident », « L’URSS »). Il associe à chaque œuvre une brève caractérisation (style, époque, rôle dans l’imaginaire du compositeur), puis cite une ou plusieurs versions enregistrées. Le texte relie aussi plusieurs partitions à des contextes de création (ballets, cinéma, “sonates de guerre”, collaborations), en conservant des attributions et des précisions datées.",
+        "reason": "Sélection accessible pour réécouter Prokofiev avec une lecture orientée style, contraste et organisation des œuvres, utile pour nourrir ton oreille d’arrangeur.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "La liste et les interprétations proposées sont cadrées comme un “parcours de découverte” et ne couvrent pas exhaustivement l’ensemble de la musique instrumentale de Prokofiev.",
+          "Les “versions recommandées” renvoient à des enregistrements précis (interprètes, labels, dates), mais l’article ne compare pas systématiquement plusieurs interprétations ni ne justifie le choix autrement que par la pertinence descriptive."
+        ]
+      },
+      {
+        "title": "Portrait sonore – La Philharmonie Paris",
+        "url": "https://www.rfi.fr/fr/podcasts/%C3%A9couter-le-monde/20260925-portrait-sonore-%E2%80%93-la-philharmonie-paris",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "Le document présente un portrait sonore de la Philharmonie de Paris (projet musical et culturel), reliant ses espaces publics (concerts, spectacles, conférences, ateliers de pratique) à des coulisses dédiées à la fabrication et à l’étude de la musique. Il mentionne l’existence du Musée de la musique, des expositions et des Éditions, ainsi que des formations résidentes (Orchestre de Paris, Ensemble intercontemporain, Arts florissants, Orchestre de chambre de Paris, Orchestre national d’Île-de-France). L’épisode rassemble des archives sonores : visite du laboratoire de restauration avec Stéphane",
+        "reason": "Portrait sonore utile comme écoute de contexte institutionnel et d’archives, mais plutôt bref et descriptif que méthodique.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le texte ne décrit pas le contenu sonore détaillé des extraits (durées, procédés d’assemblage, passages exacts) et se limite à en donner les thèmes et intervenants.",
+          "Les formations résidentes et activités sont présentées de manière générale, sans programme daté ni éléments chiffrés.",
+          "Le document est une présentation de l’épisode (incluant équipe de production) plutôt qu’une analyse approfondie des pratiques décrites."
+        ]
+      },
+      {
+        "title": "The Aquarium Drunkard Guide to Across the Horizon",
+        "url": "https://aquariumdrunkard.com/2026/09/25/the-aquarium-drunkard-guide-to-across-the-horizon/",
+        "section": "Création musicale / entretiens",
+        "summary": "L’article de Aquarium Drunkard présente Across the Horizon comme un projet difficile à catégoriser (podcast, émission radio, label/“imprint” ou même genre), et le décrit surtout à travers ses collaborations et des titres qui font évoluer la musique dite ambient. Il annonce une sélection de “10 standout songs” (10 morceaux marquants) illustrant la diversité de la série, avec une citation de Bob Holmes sur l’idée d’une “communauté musicale” en croissance. L’article est cependant interrompu après un message d’accès réservé.",
+        "reason": "Article de curation sur Across the Horizon, intéressant pour saisir une logique de sélection et d’évolution de l’ambient, même si l’extrait est limité.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le document fourni ne contient que l’introduction : la liste des 10 morceaux et leur description ne figurent pas dans l’extrait accessible.",
+          "Les informations sur Bob Holmes et sur les collaborations/morceaux ne sont pas développées dans le contenu reçu."
+        ]
+      },
+      {
+        "title": "Jeff Mills Shares New York Club Recording via Apple Music",
+        "url": "https://thequietus.com/news/jeff-mills-shares-new-york-club-recording-via-apple-music/",
+        "section": "Prise de son / acoustique / home recording",
+        "summary": "L’article annonce que Jeff Mills a sorti un nouvel enregistrement de set via Apple Music, capturant une performance jouée en mars au Knockdown Center de New York. Le concert, décrit comme “all-vinyl”, s’inscrit dans une tournée liée au 30e anniversaire de la réédition de Live At The Liquid Room, Tokyo. La captation est faite en Spatial Audio avec 14 microphones. Le set est divisé en deux parties : la première est disponible maintenant (avec aussi un mix de Ken Ishii), et la seconde le 9 octobre, avec également un enregistrement de Joey Beltram. Une citation de Mills insiste sur l’ambiance et l",
+        "reason": "Le focus sur la captation live en Spatial Audio et l’usage de nombreux micros peut t’intéresser pour la dimension prise de son, même si le texte reste surtout une news.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les détails de la liste exhaustive des morceaux et l’étendue exacte des contributions d’autres artistes ne sont pas précisés au-delà des exemples donnés.",
+          "Le texte ne décrit pas comment la captation Spatial Audio a été mixée/maîtrisée, seulement le dispositif (14 microphones) et le fait que c’est un enregistrement live.",
+          "Les informations sur la partie 2 (contenu et interaction avec l’enregistrement de Joey Beltram) restent conditionnées à une date de sortie annoncée (9 octobre)."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 758,
+        "output": 276
+      },
+      "plan": {
+        "calls": 1,
+        "input": 34761,
+        "output": 3569
+      },
+      "summary": {
+        "calls": 23,
+        "input": 72678,
+        "output": 18673
+      },
+      "screen": {
+        "calls": 2,
+        "input": 15766,
+        "output": 869
+      },
+      "web_search": {
+        "calls": 1,
+        "input": 12643,
+        "output": 429
+      },
+      "editor": {
+        "calls": 1,
+        "input": 12884,
+        "output": 2378
+      }
+    },
+    "budget_stops": [],
+    "prepared": 18,
+    "validation_errors": []
+  },
+  {
+    "profile": "maths-sciences",
+    "id": "fb2f79e2418448d6b4b57e181197be2a",
+    "status": "partial",
+    "error": null,
+    "count": 14,
+    "target": 18,
+    "seconds": 180.6,
+    "cost": {
+      "estimated_usd": 0.154637,
+      "known_subtotal_usd": 0.154637,
+      "unpriced_calls": 0,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 21,
+      "search_catalog": 2,
+      "screen": 4,
+      "search_web": 2,
+      "web_model": 2,
+      "hosted_web_calls": 2,
+      "discovered_article": 20,
+      "discovery_fetch": 20,
+      "editor": 1
+    },
+    "cache_hits": 1,
+    "violations": [],
+    "excerpt_only": 0,
+    "uncovered_needs": [
+      {
+        "id": "need-3",
+        "topic": "raisonnement mathématique et géométrie",
+        "query": "mathematical reasoning; geometry; démonstrations et intuition géométrique; problèmes",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-6",
+        "topic": "mathématiques, mathematical reasoning, geometry, probability",
+        "query": "mathématiques, mathematical reasoning, geometry, probability",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-7",
+        "topic": "sciences, physique, physics, scientific methods",
+        "query": "sciences, physique, physics, scientific methods",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 12,
+    "readings": [
+      {
+        "title": "Dominique Pradelle : Intuition et idéalités. Phénoménologie des objets mathématiques (I/IV)",
+        "url": "https://www.actu-philosophia.com/dominique-pradelle-intuition-et-idealites-phenomenologie-des-objets-mathematiques-i-iv/",
+        "section": "Mathématiques",
+        "summary": "L’article « Dominique Pradelle : Intuition et idéalités. Phénoménologie des objets mathématiques (I/IV) » propose une lecture synthétique et critique des deux ouvrages de Dominique Pradelle, en articulant deux déplacements : (1) l’intuition catégoriale est réinterprétée comme un processus de « remplissement » théoriquement médié ; (2) la constitution des idéalités mathématiques est réinterprétée comme une constitution intra-théorique. Le texte défend aussi un transcendantalisme méthodologique anti-copernicien et une historicité constitutive, pour analyser comment les idéalités se donnent sans ",
+        "reason": "Le dossier donne une lecture conceptuelle de l’objet mathématique chez Pradelle : il éclaire comment intuition, idéalité et remplissement se relient à la pratique des mathématiques, ce qui correspond bien à votre intérêt pour le raisonnement derrière les résultats.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Le texte est présenté comme une série (I/IV) et ne fournit qu’une partie de la discussion ; certains raisonnements annoncés comme « techniques » ne sont pas intégralement exposés dans l’extrait fourni.",
+          "Le document explore des ouvertures vers des mathématiques ultérieures et vers la psychologie/psychanalyse, mais l’élaboration annoncée n’apparaît pas dans la portion fournie.",
+          "L’article mentionne explicitement plusieurs concepts et références (ex. Husserl, Desanti, Par-delà la révolution copernicienne, Généalogie de la raison) sans exposer ici l’ensemble des arguments des ouvrages de Pradelle."
+        ]
+      },
+      {
+        "title": "Sophie Adenot reviendra de l’ISS légèrement plus jeune que si elle était restée sur Terre, et il y a une explication physique à cela",
+        "url": "https://www.numerama.com/sciences/2339787-sophie-adenot-reviendra-de-liss-legerement-plus-jeune-que-si-elle-etait-restee-sur-terre-et-il-y-a-une-explication-physique-a-cela.html",
+        "section": "Physique",
+        "summary": "L’article explique, à partir de la relativité restreinte, pourquoi l’astronaute Sophie Adenot (ISS) reviendrait légèrement plus jeune que des personnes restées sur Terre. Il relie cet effet à deux thèmes physiques : la dilatation du temps illustrée par le « paradoxe des jumeaux » (Langevin/Feynman) et la survie des muons produits par les rayons cosmiques dans l’atmosphère, dont la portée serait sinon incompatible avec leur temps de vie. L’article attribue à l’ISS un facteur de dilatation conduisant à un écart annoncé d’environ six millisecondes.",
+        "reason": "Le texte explique de façon pédagogique pourquoi le temps propre diffère entre Terre et ISS, puis relie ce mécanisme à un exemple célèbre avec les muons. Vous y trouverez une explication claire, accessible et concrète d’un effet relativiste souvent mal compris.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les valeurs chiffrées et l’ampleur de l’écart (six millisecondes) sont présentées telles quelles par l’article pour un séjour en ISS, sans détailler ici les paramètres orbitaux exacts du vol concerné.",
+          "Les ordres de grandeur sur les muons (2,2 microsecondes, distance maximale ~660 m) sont utilisés pour l’argument ; l’article ne reconstruit pas l’intégralité de la chaîne cinématique complète dans le texte fourni.",
+          "La mention de mesures « affinées en 1963 » est citée sans présenter, dans l’extrait fourni, le protocole expérimental ou les incertitudes associées."
+        ]
+      },
+      {
+        "title": "Geometric probability - Wikipedia",
+        "url": "https://en.wikipedia.org/wiki/Geometric_probability",
+        "section": "Mathématiques",
+        "summary": "L’article présente la probabilité géométrique comme un ensemble de problèmes et méthodes apparus dès le XVIIe siècle, où la chance est modélisée par des objets géométriques. Il illustre le sujet par des classiques (aiguille de Buffon, paradoxe de Bertrand, problème de l’« allumette brisée », problème de Sylvester) et situe l’un des premiers traitements attribués à Newton (1664–1666) via le principe « proportionnel à la fraction d’aire ». Il distingue ensuite deux branches modernes : géométrie intégrale (invariance sous groupes de transformations) et géométrie stochastique (objets géométriques ",
+        "reason": "Cette entrée situe la probabilité géométrique comme champ à part entière, avec ses problèmes classiques et sa distinction utile d’avec la géométrie stochastique. C’est un bon point d’orientation pour un lecteur qui veut des idées et non seulement des résultats isolés.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les détails mathématiques et les résultats exacts des problèmes cités ne sont pas fournis dans l’extrait : il s’agit surtout de présentation et de cadrage conceptuel.",
+          "L’attribution à Newton est formulée dans le texte comme « earliest known problem » avec référence à un manuscrit privé daté ; le contenu précis du manuscrit n’est pas reproduit."
+        ]
+      },
+      {
+        "title": "How Scientific Research Works | Evidence, Methods, Replication & Correction",
+        "url": "https://edukatesg.com/2026/08/29/how-scientific-research-works/",
+        "section": "Méthodes scientifiques et IA",
+        "summary": "L’article explique que la recherche scientifique consiste à transformer une incertitude en une question investigable, à concevoir une voie disciplinée vers des preuves, puis à analyser ces preuves en gardant le lien entre la force de la conclusion et la route d’obtention. Il insiste sur l’absence de « méthode unique », sur l’importance des limites (échantillonnage, mesure, contre-factuels) et sur la correction par la critique, la réplication et la synthèse. La notion s’appuie sur une description des Académies nationales (mode d’enquête et vérification communautaire).",
+        "reason": "Ce texte fournit une grille robuste pour lire une recherche : question, preuve, mesure, contre-factuel, robustesse et correction. Il correspond bien à votre attente d’une compréhension du travail scientifique lui-même, au-delà des slogans.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Le texte est tronqué (une partie de la section « Data is a recorded representation… Once evidence is recorded… Now there are files » n’apparaît pas), donc certains développements sur la suite des étapes ne sont pas inclus.",
+          "Les exemples (p. ex. musique de fond et concentration, exercices et santé) servent à illustrer des principes et ne fournissent pas de résultats expérimentaux dans le document.",
+          "Les références à des ressources externes (p. ex. National Academies, articles « How X Works ») sont annoncées comme des approfondissements, sans résumé détaillé dans l’extrait fourni."
+        ]
+      },
+      {
+        "title": "Adaptive Parallel Reasoning: The Next Paradigm in Efficient Inference Scaling",
+        "url": "http://bair.berkeley.edu/blog/2026/05/08/adaptive-parallel-reasoning/",
+        "section": "Mathématiques",
+        "summary": "L’article présente le concept d’Adaptive Parallel Reasoning (APR) comme un paradigme visant à rendre la parallélisation du raisonnement « adaptative » : le modèle décide quand décomposer, combien de branches exécuter et comment les coordonner, plutôt que de recevoir une structure fixe. L’autrice/autreur relie la motivation à l’augmentation du coût et de la latence du raisonnement séquentiel (contexte, « context-rot ») et décrit des familles d’approches (fork-and-join, recherche structurée, variantes). Il distingue ensuite deux approches d’exécution (modif. moteur vs orchestration client) et di",
+        "reason": "Le billet cartographie l’inférence parallèle adaptative et montre les problèmes de contrôle, d’entraînement et d’orchestration qu’elle soulève. Pour votre profil, l’intérêt est surtout dans l’architecture des raisonnements et des compromis algorithmiques.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Le texte est un billet de type survey/perspective : il synthétise des travaux cités et discute des mécanismes, sans fournir de résultats expérimentaux propres détaillés pour l’APR en tant que méthode unique.",
+          "Les limitations d’exécution (fragilité, décalage distributionnel, contraintes de batch size, besoin de masques) sont décrites comme caractéristiques des approches citées ; la portée exacte dépend des implémentations de ces systèmes.",
+          "Les chiffres et observations chiffrées (ex. amélioration de l’usage de la structure de 13,6% à 63%) concernent spécifiquement l’étude citée et le protocole mentionné, sans généralisation chiffrée à d’autres contextes dans le document."
+        ]
+      },
+      {
+        "title": "What Is the Scientific Method and Why Does It Still Matter in 2026? - Sources.org.uk",
+        "url": "https://sources.org.uk/blog/2026/05/25/what-is-the-scientific-method-and-why-does-it-still-matter-in-2026/",
+        "section": "Méthodes scientifiques et IA",
+        "summary": "L’article présente le « méthode scientifique » comme une pratique disciplinée consistant à confronter des idées à des preuves, généralement à travers observation, question, hypothèse, test, résultats et révision, tout en soulignant que la réalité de la recherche est plus « désordonnée » que le schéma scolaire. Il affirme que la méthode demeure importante en 2026 car la vie publique regorge de revendications confiantes assimilées à tort à du savoir. L’auteur insiste aussi sur l’idée que la confiance se gagne par des éléments pouvant, en principe, montrer une idée fausse, et propose quatre quest",
+        "reason": "Le texte reformule la méthode scientifique comme une discipline de test et de réduction d’erreur, avec une visée très lisible. Il complète utilement les autres dossiers plus analytiques par une synthèse générale et critique.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le document ne détaille ni protocole ni exemple empirique ; il s’agit d’une présentation générale et normative de la méthode.",
+          "Les « quatre questions » sont présentées comme un cadre d’évaluation, sans métriques ni critères opérationnels définis pour juger la qualité des preuves.",
+          "Les domaines cités comme usages de langage scientifique (santé, marketing, politique, IA, etc.) ne sont pas étayés par des cas précis dans le texte fourni."
+        ]
+      },
+      {
+        "title": "Effectiveness of community-based delivery of mass dog vaccination to prevent rabies: A cluster randomized controlled trial",
+        "url": "https://journals.plos.org/plosntds/article?id=10.1371%2Fjournal.pntd.0014704",
+        "section": "Physique",
+        "summary": "L’article (PLOS Neglected Tropical Diseases) rapporte un essai contrôlé randomisé en grappes (Tanzanie, 2020–2023) comparant deux stratégies de vaccination antirabique canine de masse : « Team-based delivery » (équipes non locales, conservation en chaîne du froid) versus « Community-based delivery » (vaccins gérés et stockés localement, personnel local). La couverture moyenne atteint 55% (IC95% 45–65) avec la stratégie communautaire contre 37% (IC95% 28–46) en équipe. La probabilité de passer sous le seuil critique (40%) est 18% vs 60%. L’impact direct sur l’élimination de la rage n’est pas me",
+        "reason": "Même si l’objet est de santé publique, le dossier repose sur un essai randomisé en grappes et sur la lecture d’une couverture seuil. Il apporte une bonne illustration de ce qu’est une preuve expérimentale en contexte réel.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "L’étude mesure la couverture vaccinale et une probabilité liée au seuil, mais ne collecte pas de données directes sur l’impact d’élimination de la rage humaine.",
+          "La généralisation à d’autres contextes socioculturels/agroécologiques est présentée comme nécessitant des preuves supplémentaires.",
+          "Le dispositif « fried-egg » suppose limiter les contaminations inter-branches en ne mesurant la couverture que dans le village le plus central par ward (approche de mesure spécifique)."
+        ]
+      },
+      {
+        "title": "Claude Opus 5.5 vs. Opus 5 on reasoning tasks: Cheaper, faster, but not better",
+        "url": "https://thenewstack.io/claude-opus-5-5-vs-opus-5/",
+        "section": "Mathématiques",
+        "summary": "L’article compare Claude Opus 5.5 à Claude Opus 5 sur trois tâches de raisonnement (grille logique, reordonnancement contraint, jeu de pierres) via l’API Anthropic, en utilisant des prompts identiques et un niveau d’effort par défaut avec “thinking” adaptatif. L’auteur rapporte que Opus 5.5 est moins coûteux et un peu plus rapide (jusqu’à ~43% moins cher sur la grille, ~69% sur le jeu de pierres), mais que les deux modèles échouent à la tâche de reordonnancement; sur un essai, Opus 5.5 s’arrête aussi pour “refusal”. Les gains de vitesse restent inférieurs à la promesse marketing (+30%).",
+        "reason": "L’article propose une comparaison concrète de tâches de raisonnement et de leurs limites, avec des mesures de coût, de temps et d’échec. Il intéressera surtout pour la forme du raisonnement expérimental et la manière de juger des performances.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les résultats proviennent de trois problèmes précis, chacun exécuté une seule fois par modèle; une différence de réponse n’a jamais été observée dans cette série, mais aucune répétition systématique n’est décrite.",
+          "Les conclusions sur le reordonnancement dépendent fortement des paramètres annoncés (limite de sortie 48k puis 128k, et l’arrêt “refusal” sur Opus 5.5).",
+          "L’auteur rapporte des coûts “au prix catalogue” et des temps mesurés sur ses appels; ces chiffres sont propres à sa configuration et ne sont pas généralisés au-delà des tâches décrites."
+        ]
+      },
+      {
+        "title": "A collaborative agent with two lightweight synergistic models for autonomous crystal materials research",
+        "url": "https://www.nature.com/articles/s42256-026-01298-6",
+        "section": "Méthodes scientifiques et IA",
+        "summary": "L’article présente MatBrain, un agent collaboratif « léger » à deux modèles pour la recherche autonome de matériaux cristallins. Mat-R1 (30B) sert de modèle analytique orienté raisonnement et validation de contraintes cristallographiques, tandis que Mat-T1 (14B) est un modèle exécutif orchestrant des outils via un entraînement par renforcement sur des interactions formatées MCP. L’auteur rapporte une analyse d’entropie différenciant planification d’outils et raisonnement, et indique une capacité compétitive avec des LLM “frontier”, avec déploiement local sur workstation (RTX 4090). En démonstr",
+        "reason": "Le dossier montre une architecture à deux modèles pour la recherche en matériaux, avec séparation entre raisonnement et exécution d’outils. C’est pertinent si vous aimez comprendre comment une recherche se structure méthodologiquement.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Les résultats quantifiés (p.ex. 30 000/38 en 48 h, scores métriques) proviennent des configurations de l’article (jeu de données, budgets d’appels d’outils, paramètres d’évaluation) ; l’exactitude de ces chiffres ne s’étend pas automatiquement à d’autres tâches ou autres implémentations.",
+          "Le texte fourni est tronqué au milieu de la section “Results and discussion”, limitant l’accès à une partie des résultats et discussions détaillées.",
+          "La comparaison à d’autres modèles dépend de la stratégie d’évaluation décrite (désactivation/restrictions de certains outils de récupération, benchmark avec audit de recouvrement), ce qui peut limiter la généralisation à des scénarios non alignés."
+        ]
+      },
+      {
+        "title": "Generic Methods",
+        "url": "https://go.dev/blog/generic-methods",
+        "section": "Mathématiques",
+        "summary": "L’article du Go Blog « Generic Methods » présente l’évolution de Go 1.27 : ajout de paramètres de type aux méthodes dites concrètes (sur types non-interface), permettant d’écrire plus lisiblement des opérations paramétrées localement (ex. transformation et chaînage sur List[E]). Il rappelle qu’en Go 1.18, cette capacité n’existait pas et qu’on utilisait des fonctions génériques. L’article explique aussi pourquoi des méthodes génériques d’interface restent impossibles : le compilateur devrait gérer des instanciations impraticables à travers les frontières de paquet, avec des compromis de généra",
+        "reason": "Le dossier explique une contrainte de conception sur les méthodes génériques en Go, en reliant ergonomie et instanciation. Ce n’est pas un texte de mathématiques au sens strict, mais il mobilise un raisonnement formel intéressant et clair sur les structures de type.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le document expose un raisonnement de conception et des exemples ; il ne fournit pas de mesures de performance quantifiées ni de benchmark concernant les coûts d’implémentation évoqués (génération/boîtes/calls indirects).",
+          "Les exemples de code illustrent le mécanisme et l’ergonomie (List, Map, ToString) mais ne couvrent pas tous les cas possibles d’usage des méthodes génériques concrètes.",
+          "L’explication sur l’impossibilité des méthodes génériques d’interface s’appuie sur une description du modèle de compilation et d’instanciation ; elle ne détaille pas toutes les implications techniques possibles en dehors des scénarios décrits."
+        ]
+      },
+      {
+        "title": "But Mum, psychology IS a real science!",
+        "url": "https://blogs.lse.ac.uk/psychologylse/2026/09/23/but-mum-psychology-is-a-real-science/",
+        "section": "Méthodes scientifiques et IA",
+        "summary": "L’article de Marta Vercic défend l’idée que la psychologie est une science « réelle », contre les critiques la qualifiant de “soft”. Elle explique que la notion de science ne se réduit pas au caractère mesurable des phénomènes, et discute : (1) l’“imprécision” supposée du langage psychologique via des distinctions de Wundt entre expériences immédiates et médiates ; (2) la mesure par des échelles construites et validées ; (3) la crise de réplication, tout en la replaçant dans un contexte interdisciplinaire. Les exemples cités incluent des résultats non répliqués et des taux de réplication rappo",
+        "reason": "Cet essai défend la scientificité de la psychologie en traitant de la mesure, de la réplication et des modèles. Il est intéressant comme débat sur la robustesse des sciences humaines expérimentales, sans exiger un bagage technique lourd.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Les exemples chiffrés et comparaisons inter-domaines (taux de réplication, résultats d’études particulières) sont mobilisés pour illustrer un argument et ne remplacent pas une synthèse exhaustive des preuves.",
+          "Les prédictions attribuées à des instruments psychologiques (p. ex. échelles de personnalité/dépression/solitude) sont mentionnées sans détailler, dans le texte fourni, la nature exacte des études, leurs populations ou l’ampleur des effets."
+        ]
+      },
+      {
+        "title": "How Science Works | Physics | eduKateSG",
+        "url": "https://edukatesg.com/2026/09/05/how-science-works-physics/",
+        "section": "Physique",
+        "summary": "L’article « How Science Works | Physics | eduKateSG » présente la physique comme un système discipliné pour transformer l’observation en explication contrainte. Il insiste sur la construction et le test de modèles (avec leurs limites), l’importance de relier chaque grandeur à une mesure, et le rôle des unités, de l’incertitude et des conditions expérimentales. Il distingue lois, modèles et théories, défend l’idéalisation, puis illustre ces principes à travers des thèmes clés (mouvement, forces, énergie, champs, ondes, thermodynamique, électromagnétisme, relativité, quantique, causalité). Le pr",
+        "reason": "Ce texte pédagogique explique comment la physique relie observation, modèle, unités et incertitude. Il convient bien à votre souhait de comprendre les méthodes derrière les résultats, sans confondre vulgarisation et démonstration.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Le texte est une synthèse pédagogique : il ne fournit pas d’exemples numériques détaillés ni de résultats d’études, donc certaines affirmations restent générales.",
+          "L’extrait fourni s’interrompt pendant l’exemple « Falling Ball », de sorte que la discussion sur l’intégration de la résistance de l’air et la suite du raisonnement ne sont pas incluses.",
+          "La structure « A CivDJ Lens » est présentée comme un outil d’organisation du raisonnement, sans démonstration formelle de son efficacité ni cadre méthodologique complet."
+        ]
+      },
+      {
+        "title": "Accelerated calculation of impurity Green’s functions exploiting the extreme Mpemba effect",
+        "url": "https://www.nature.com/articles/s42005-026-02787-1",
+        "section": "Physique",
+        "summary": "L’article (Communications Physics, 2026) propose une méthode pour calculer efficacement les fonctions de corrélation à deux temps d’un modèle d’impureté quantique. Il s’appuie sur l’« extreme Mpemba effect » non-Markovien (NMQMpE) combiné à un cadre fondé sur des cartes dynamiques pour systèmes ouverts. Les auteurs déclarent une validation sur des modèles d’impureté canoniques avec environnements fermioniques et bosoniques, en comparant à des résultats exacts et/ou très précis, avec des économies de calcul par rapport à des méthodes de pointe.",
+        "reason": "Cette recherche sur les fonctions de Green d’impuretés quantiques montre un usage méthodologique avancé d’un effet de Mpemba non markovien pour accélérer le calcul. Le dossier est plus technique, mais pertinent pour un lecteur de sciences intéressé par la structure d’un résultat de recherche.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le résumé fourni ne décrit pas l’algorithme au niveau de détail permettant de reproduire la méthode (hypothèses, étapes, conditions de domaine) ni les métriques exactes du gain de calcul.",
+          "L’« amélioration significative » et la nature des références « exactes et connues » ne sont pas détaillées dans l’extrait ; elles dépendent des modèles et benchmarks précis non fournis ici.",
+          "La portée exacte (types d’environnements, paramètres, régimes non-Markoviens couverts) n’est pas spécifiée dans le texte disponible."
+        ]
+      },
+      {
+        "title": "Libérer les plastiques de nos corps",
+        "url": "https://www.franceinfo.fr/replay-radio/le-billet-sciences-du-week-end/liberer-les-plastiques-de-nos-corps_8168984.html",
+        "section": "Physique",
+        "summary": "L’article rapporte des travaux de chercheurs sud-coréens proposant une piste pour réduire l’absorption des microplastiques chez l’humain, en s’appuyant sur une bactérie présente dans le kimchi. Les auteurs indiquent avoir identifié Leuconostoc mesenteroides, capable de “capturer” des particules de plastique, et citent des tests sur des souris montrant une division par deux de la quantité de plastique absorbée. La diffusion vers des probiotiques ou un régime enrichi en kimchi est présentée comme prospective, sans preuve clinique humaine décrite.",
+        "reason": "Le sujet est surtout biomédical, mais l’article présente un résultat expérimental rapporté sur la captation de microplastiques par une bactérie de fermentation. Il peut convenir comme lecture courte de science appliquée, tout en gardant à l’esprit qu’il s’agit d’un résultat préclinique.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le texte ne décrit pas d’essai clinique chez l’humain et ne fournit pas de paramètres expérimentaux (dose, durée, mesures) pour étayer la transposition.",
+          "Les chiffres mentionnés sur l’exposition humaine (“plus d’une carte bleue par semaine”) ne sont pas quantifiés ni sourcés dans le contenu fourni.",
+          "La capture des microplastiques est présentée à partir de résultats chez la souris et d’une potentialité biologique, sans données directes d’efficacité ou d’innocuité chez l’humain."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 768,
+        "output": 299
+      },
+      "plan": {
+        "calls": 1,
+        "input": 37112,
+        "output": 4111
+      },
+      "summary": {
+        "calls": 21,
+        "input": 86709,
+        "output": 20508
+      },
+      "screen": {
+        "calls": 4,
+        "input": 31189,
+        "output": 1501
+      },
+      "web_search": {
+        "calls": 2,
+        "input": 24911,
+        "output": 535
+      },
+      "editor": {
+        "calls": 1,
+        "input": 12709,
+        "output": 2343
+      }
+    },
+    "budget_stops": [],
+    "prepared": 17,
+    "validation_errors": []
+  }
+]

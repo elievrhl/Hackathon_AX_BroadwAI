@@ -5,8 +5,25 @@ from unittest.mock import AsyncMock
 import pytest
 
 from broadwai.llm import BudgetExceeded, ModelError, OpenAILanguageModel, RunBudget
-from broadwai.models import ArticleLink, Brief, CitedSource
+from broadwai.models import ArticleLink, Brief, CitedSource, PreparedBrief, ReadingDossier
 from tests.fakes import article
+
+
+def prepared(brief):
+    return PreparedBrief(
+        **brief.model_dump(exclude={"headline", "validity", "dossier"}),
+        dossier=ReadingDossier(
+            contribution="Comprendre une méthode",
+            angle="Mécanisme et exemple",
+            prerequisites="Notions de programmation",
+            integrity="clear",
+            support="method",
+            central_risk=False,
+            temporal_kind="evergreen",
+            temporal_dependency=None,
+            obsolete_explicit=False,
+        ),
+    )
 
 
 def test_budget_rejects_before_spending_and_counts_each_kind():
@@ -40,17 +57,24 @@ async def test_openai_adapter_structured_output_limits_and_usage():
     parse = AsyncMock(
         return_value=SimpleNamespace(
             status="completed",
-            output_parsed=brief,
+            output_parsed=prepared(brief),
             usage=SimpleNamespace(input_tokens=120, output_tokens=80),
         )
     )
     model.client.responses.parse = parse
     budget = RunBudget(limits={"summary": 1}, max_tokens=50000)
     try:
-        assert await model.summarize(article(), budget) == brief
+        result = await model.summarize(article(), budget)
+        assert result.summary == brief.summary
+        assert result.headline == article().title
+        assert result.dossier == prepared(brief).dossier
+        assert result.validity is None
         kwargs = parse.call_args.kwargs
         assert kwargs["model"] == "summary-test"
-        assert kwargs["text_format"] is Brief
+        assert kwargs["text_format"] is PreparedBrief
+        assert "today" not in json.loads(kwargs["input"])
+        assert "headline" not in kwargs["text_format"].model_fields
+        assert "validity" not in kwargs["text_format"].model_fields
         assert kwargs["store"] is False
         assert kwargs["max_output_tokens"] == 2400
         assert budget.input_tokens == 120
@@ -159,7 +183,7 @@ async def test_summary_sources_without_quotes_are_deduplicated_and_urls_observed
         cited_sources=citations,
     )
     model.client.responses.parse = AsyncMock(
-        return_value=SimpleNamespace(status="completed", output_parsed=brief, usage=None)
+        return_value=SimpleNamespace(status="completed", output_parsed=prepared(brief), usage=None)
     )
     try:
         result = await model.summarize(item, RunBudget(limits={"summary": 1}, max_tokens=50000))
@@ -184,7 +208,7 @@ async def test_summary_sources_without_quotes_are_deduplicated_and_urls_observed
         data = json.loads(model.client.responses.parse.call_args.kwargs["input"])
         assert data["article_url"] == item.url
         assert data["content_links"] == [link.model_dump() for link in item.content_links]
-        assert model.summary_version.startswith("brief-v6:")
+        assert model.summary_version.startswith("brief-v7-dossier:")
         # Source lists were absent in older briefs.
         old = brief.model_dump(exclude={"cited_sources"})
         assert Brief.model_validate(old).cited_sources == []
@@ -207,12 +231,14 @@ def test_saved_briefs_ignore_legacy_quotes_and_keep_their_content():
             "reason": "Méthode durable",
             "evidence": "Ancienne citation absente du texte actuel",
         },
-        cited_sources=[{
-            "name": "Laboratoire",
-            "url": "https://lab.example/study",
-            "relevance": "Étude utile",
-            "evidence": "Ancienne attribution",
-        }],
+        cited_sources=[
+            {
+                "name": "Laboratoire",
+                "url": "https://lab.example/study",
+                "relevance": "Étude utile",
+                "evidence": "Ancienne attribution",
+            }
+        ],
     )
     assert "evidence" not in json.dumps(brief.model_dump())
     assert brief.summary == "Résumé conservé"

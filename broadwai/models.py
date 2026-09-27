@@ -188,7 +188,8 @@ class ReaderNeed(EditorialRecord):
     priority: Literal["primary", "secondary"]
     level: Literal["beginner", "intermediate", "expert"]
     origin: Literal["profile", "notes", "reading_memory"] = Field(
-        "profile", description="Origine du besoin : profil explicite, notes ou historique de likes",
+        "profile",
+        description="Origine du besoin : profil explicite, notes ou historique de likes",
     )
 
 
@@ -211,7 +212,21 @@ class CitedSource(EditorialRecord):
     )
 
 
-class Brief(Model):
+class ReadingDossier(Model):
+    """Stable observations about the document, not a verdict about today's reader."""
+
+    contribution: str = Field(min_length=1, max_length=350)
+    angle: str = Field(min_length=1, max_length=200)
+    prerequisites: str = Field(min_length=1, max_length=250)
+    integrity: Literal["clear", "fragmentary", "unusable"]
+    support: Literal["reported", "argument", "method", "research", "announcement", "unclear"]
+    central_risk: bool
+    temporal_kind: Literal["news", "research", "evergreen", "event"]
+    temporal_dependency: str | None = Field(None, max_length=250)
+    obsolete_explicit: bool
+
+
+class FactualContent(Model):
     summary: str = Field(min_length=1, max_length=1800)
     key_points: list[str] = Field(min_length=1, max_length=5)
     topics: list[str] = Field(max_length=8)
@@ -219,14 +234,24 @@ class Brief(Model):
     level: Literal["beginner", "intermediate", "expert", "unknown"]
     language: str
     caveats: list[str] = Field(max_length=5)
-    validity: ReadingValidity | None = None
-    headline: str | None = Field(None, max_length=180)
     cited_sources: list[CitedSource] = Field(default_factory=list, max_length=8)
 
     @field_validator("language")
     @classmethod
     def normalized_language(cls, value):
         return normalize_language(value)
+
+
+class PreparedBrief(FactualContent):
+    """Wire format: neither copied headlines nor cached, date-dependent verdicts."""
+
+    dossier: ReadingDossier
+
+
+class Brief(FactualContent):
+    validity: ReadingValidity | None = None  # Historical editions remain readable.
+    headline: str | None = Field(None, max_length=180)
+    dossier: ReadingDossier | None = None
 
 
 class Candidate(Model):

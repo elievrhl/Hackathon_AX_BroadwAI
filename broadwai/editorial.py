@@ -8,6 +8,10 @@ from broadwai.youtube import evidence_kind
 
 
 def reading_kind(candidate, pick=None):
+    if candidate.brief.dossier:
+        return {"evergreen": "evergreen", "research": "research"}.get(
+            candidate.brief.dossier.temporal_kind, "current"
+        )
     validity = candidate.brief.validity
     if validity:
         return {"evergreen": "evergreen", "research": "research"}.get(validity.kind, "current")
@@ -79,7 +83,7 @@ def preview(row, access=None):
         "date": a.published_at.isoformat() if a.published_at else None,
         "language": a.language,
         "lexical_score": round(row.score, 3),
-        "excerpt": (a.excerpt or a.text)[:320],
+        "excerpt": (a.text or a.excerpt)[:1400],
         "extraction_status": a.extraction_status,
         "access": access,
     }
@@ -88,7 +92,7 @@ def preview(row, access=None):
 def compact_candidate(c, pick=None):
     # The full, cached brief remains available in diagnostics. Send it only once,
     # without redundant key points, lexical scores or long URL query strings.
-    return {
+    context = {
         "article_id": c.article_id,
         "title": c.title,
         "source": c.source,
@@ -111,6 +115,14 @@ def compact_candidate(c, pick=None):
         "interest_id": pick.interest_id if pick else None,
         "exploration_reason": pick.exploration_reason if pick and pick.exploration else None,
     }
+    if c.brief.dossier:
+        # Composition needs the contribution, angle and prerequisites, not a second
+        # copy of the reader-facing summary or a model-copied original headline.
+        for key in ("summary", "validity", "headline"):
+            context.pop(key)
+        context["dossier"] = c.brief.dossier.model_dump()
+        context["caveats"] = c.brief.caveats
+    return context
 
 
 def coverage(candidates, picks, sections, size, source_cap):

@@ -1,0 +1,14 @@
+{
+  "limit_usd": 3.0,
+  "baseline_call_count": 158,
+  "total_dispatched_calls": 308,
+  "responses_with_usage": 304,
+  "unknown_charge_calls": 4,
+  "known_standard_uncached_usd": 1.7285452,
+  "safety_margin_fraction": 0.2,
+  "unknown_reserved_usd": 0.24376296,
+  "total_accounted_usd": 2.3180172,
+  "remaining_under_limit_usd": 0.6819828,
+  "reported_discounted_known_subtotal_usd": 1.6653,
+  "note": "Conservative request ledger, not a provider invoice; unknown calls keep their reservations. No API credentials or prompts."
+}

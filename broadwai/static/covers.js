@@ -36,6 +36,9 @@ const labels = {
   search_screen_completed: "Résultats de recherche évalués", exploration_opened: "Ouverture aux thèmes connexes",
   selection_allocated: "Application des quotas", layout_roles_adjusted: "Ajustement des rôles dans la une",
   temporal_review_requested: "Vérification de la validité temporelle", final_reserve_used: "Budget réservé à la finalisation",
+  controller_decision: "Recherche ciblée décidée par le serveur",
+  research_completed: "Recherches terminées : passage à la composition",
+  reserve_opened: "Préparation d’alternatives déjà présélectionnées",
   reader_preferences_assessed: "Préférences évaluées", reader_preferences_failed: "Évaluation des préférences en échec",
   intent_items_rejected: "Interprétation du profil corrigée", intent_failed: "Interprétation du profil indisponible",
 };
@@ -95,6 +98,20 @@ function renderBrief(parent, item) {
   for (const point of brief.key_points || []) points.append(n("li", point));
   parent.append(points); paragraphs(parent, brief.caveats, "notice");
   if (brief.validity) parent.append(n("p", `Validité du contenu : ${brief.validity.reason}`, "small"));
+  if (brief.dossier) {
+    const d = brief.dossier;
+    const integrity = {clear: "Propos isolable", fragmentary: "Contenu partiel", unusable: "Inexploitable"};
+    const support = {reported: "Reportage", argument: "Argument / opinion", method: "Méthode", research: "Résultat de recherche", announcement: "Sujet annoncé", unclear: "Base indéterminée"};
+    table(parent, ["Dossier réutilisable", "Observation"], [
+      ["Apport concret", d.contribution], ["Angle", d.angle], ["Prérequis", d.prerequisites],
+      ["État du texte", integrity[d.integrity] || d.integrity],
+      ["Nature du propos", support[d.support] || d.support],
+      ["Temporalité", {evergreen: "Fond durable", research: "Recherche datée", news: "Actualité", event: "Événement"}[d.temporal_kind]],
+      ["Dépendance temporelle", d.temporal_dependency || "Aucune identifiée"],
+      ["Risque sur le propos central", d.central_risk ? "Signalé" : "Non signalé"],
+    ]);
+    parent.append(n("p", "Ces observations décrivent le document, pas une certification. L’adéquation au lecteur est jugée à la composition ; l’âge est vérifié par le serveur.", "small"));
+  }
   appendCitedSources(parent, brief.cited_sources);
 }
 function articleDetails(row) {
@@ -227,7 +244,7 @@ function renderPlan(parent, data) {
   panel.append(n("p", `Le premier examen porte sur ${preview ? preview.candidates.length : "un nombre non enregistré de"} titres et extraits. Le classement lexical rapproche les mots du profil et des articles ; la diversification élargit les sources.`));
   if (!plan) { panel.append(n("p", "Plan éditorial non enregistré ou indisponible.", "muted")); return; }
   panel.append(n("p", `Rubriques envisagées : ${(plan.sections || []).join(" · ")}`));
-  panel.append(n("p", `Le score éditorial est un avis du modèle sur 100. ${audit.settings?.min_editorial_score == null ? "Seuil de passage non enregistré." : `Seuil utilisé : ${audit.settings.min_editorial_score}/100.`} Un score suffisant ne garantit pas la sélection : le contexte et les contrôles suivants comptent aussi.`, "small"));
+  panel.append(n("p", plan.contract_version >= 3 ? "Le score sur 100 sert à ordonner les pistes plausibles, sans seuil éliminatoire. La pertinence, les prérequis et l’apport sont réévalués à la composition. Les rubriques ci-dessus sont provisoires." : `Le score éditorial est un avis du modèle sur 100. ${audit.settings?.min_editorial_score == null ? "Seuil de passage non enregistré." : `Seuil utilisé : ${audit.settings.min_editorial_score}/100.`} Un score suffisant ne garantit pas la sélection : le contexte et les contrôles suivants comptent aussi.`, "small"));
   const picks = section(panel, `${(plan.picks || []).length} propositions dans le plan initial`, "Inclut les propositions ensuite rejetées et les réserves d’Exploration.");
   picksTable(picks, plan.picks, data);
   paragraphs(panel, (plan.gaps || []).map(g => `Manque repéré : ${g}`), "notice");
@@ -260,13 +277,15 @@ function renderPreparation(parent, data) {
   });
 }
 function renderDecisions(parent, cover, data) {
-  const panel = section(parent, "4. Compléter, arbitrer et contrôler la sélection", "Le rédacteur alterne recherches, lectures et tentatives de finalisation. Chaque résultat peut modifier l’étape suivante.", {id: "stage-decisions"});
+  const controlled = data.events.some(e => e.kind === "research_completed");
+  const panel = section(parent, "4. Compléter, arbitrer et contrôler la sélection", controlled ? "Le serveur cherche seulement si des besoins manquent ou si moins de 80 % de la cible est disponible. Il réutilise les réserves, puis limite les recherches. Le rédacteur compare les apports et compose : 18 est une cible, pas un minimum obligatoire." : "Le rédacteur alterne recherches, lectures et tentatives de finalisation. Chaque résultat peut modifier l’étape suivante.", {id: "stage-decisions"});
   const trace = cover.trace || [];
   if (!trace.length) panel.append(n("p", "Aucune décision enregistrée.", "muted"));
   for (const event of trace) {
     const out = event.outcome || {}, issues = [...(out.errors || []), ...(out.error ? [out.error] : [])];
     const result = issues.length ? `${issues.length} difficulté(s) signalée(s)` : event.action === "finalize" ? `${fmt(out.selected)} articles validés` : Array.isArray(out.added_ids) ? `${out.added_ids.length} candidats ajoutés` : "Résultat disponible";
-    const d = section(panel, `Étape ${event.step} · ${actionNames[event.action] || event.action}`, result);
+    const actor = out.actor === "controller" ? `Serveur · recherche ${Math.abs(event.step)}` : `Rédacteur · étape ${event.step}`;
+    const d = section(panel, `${actor} · ${actionNames[event.action] || event.action}`, result);
     if (issues.length) d.classList.add("has-issues");
     d.append(n("p", event.justification));
     const request = data.events.find(e => e.kind === "tool_requested" && e.step === event.step), query = out.query || request?.query;

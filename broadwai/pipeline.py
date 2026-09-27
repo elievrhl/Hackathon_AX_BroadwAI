@@ -68,6 +68,7 @@ class CoverPipeline:
         self.discovered: dict[str, Article] = {}
         self.plan = None
         self.picks = {}
+        self.reserve_pool: list[Ranked] = []
         self.exploration_pool: dict[str, Ranked] = {}
         self.exploration_active = False
         self.failed_domains: Counter = Counter()
@@ -134,9 +135,7 @@ class CoverPipeline:
                 constraints = [c.model_dump() for c in interpreted.constraints]
                 # Explicit notes take precedence over broad UI categories, regardless
                 # of a model accidentally copying their numeric interest weights.
-                note_needs = {
-                    n["topic"] for n in needs if profile.notes and n["origin"] == "notes"
-                }
+                note_needs = {n["topic"] for n in needs if profile.notes and n["origin"] == "notes"}
                 if note_needs:
                     for need in needs:
                         need["priority"] = "primary" if need["topic"] in note_needs else "secondary"
@@ -351,8 +350,12 @@ class CoverPipeline:
     def _preview(self, row):
         return preview(row, self.fetch_checks.get(row.article.id))
 
+    @property
+    def composition_mode(self):
+        return bool(self.plan and self.plan.contract_version >= 3)
+
     def _pick_error(self, pick, row, sections, strict=False):
-        if pick.score < self.settings.min_editorial_score:
+        if not self.composition_mode and pick.score < self.settings.min_editorial_score:
             return "Score éditorial insuffisant"
         if not pick.matches_profile:
             return "Sujet central hors profil"
@@ -500,10 +503,24 @@ class CoverPipeline:
                 "candidate_skipped", article_id=article.id, reason="Exclu après lecture/langue"
             )
             return False
+        dossier = brief.dossier
         validity = brief.validity
-        if validity and (
-            validity.status in {"outdated", "uncertain"}
-            or (validity.kind == "evergreen" and validity.status != "durable")
+        if dossier and (
+            dossier.integrity == "unusable" or dossier.central_risk or dossier.obsolete_explicit
+        ):
+            self.log(
+                "candidate_skipped",
+                article_id=article.id,
+                reason="Dossier inexploitable, propos central à risque ou obsolescence explicite",
+            )
+            return False
+        if (
+            not dossier
+            and validity
+            and (
+                validity.status in {"outdated", "uncertain"}
+                or (validity.kind == "evergreen" and validity.status != "durable")
+            )
         ):
             self.log(
                 "candidate_skipped",
@@ -514,7 +531,7 @@ class CoverPipeline:
         if self._dated_out(
             article,
             allow_evergreen=bool(pick and pick.evergreen and brief.content_type != "news"),
-            kind=validity.kind if validity else None,
+            kind=dossier.temporal_kind if dossier else validity.kind if validity else None,
         ):
             self.log(
                 "candidate_skipped",
@@ -623,7 +640,122 @@ class CoverPipeline:
             "replacement_requested_after_validation": self.replacement_needed,
         }
 
+    def _useful_gap(self, request):
+        research = self._research_state(request)
+        return bool(
+            research["missing_needs"]
+            or research["missing_interests"]
+            or research["uncovered_diversification"]
+            or self._focused_capacity(request) < (request.size * 4 + 4) // 5
+        )
+
+    async def _complete_research(self, request, seen):
+        """Bound mechanical retrieval before spending on whole-edition composition."""
+        if self._useful_gap(request):
+            remaining = [r for r in self.reserve_pool if r.article.id not in self.prepared_ids]
+            if remaining:
+                self.log("reserve_opened", count=len(remaining))
+                await self._add_candidates(remaining, request, seen, 6, editorial_order=True)
+        # At most two local and two external passes; each pass recomputes the gap.
+        # An 80%-sized pool with all priority needs covered is sufficient to compose.
+        for index in range(4):
+            if not self._useful_gap(request) or self.force_finalize or not self.budget.can_explore:
+                break
+            if (
+                self.budget.counts["screen"] >= self.budget.limits["screen"]
+                or self.budget.counts["summary"] >= self.settings.max_summary_calls
+            ):
+                break
+            research = self._research_state(request)
+            needs = [*research["missing_needs"], *self.intent["needs"]]
+            queries = list(dict.fromkeys(n["query"] for n in needs if n.get("query")))
+            if not queries:
+                queries = self.plan.queries
+            if self.budget.counts["search_catalog"] < 1:
+                action = "search_catalog"
+            elif (
+                request.discover_web
+                and self.search.enabled
+                and self.budget.counts["search_web"] < min(2, self.settings.max_web_searches)
+                and self.budget.counts["discovered_article"] < self.settings.max_discovered_articles
+            ):
+                source_poor = any(
+                    len(research["sources_by_need"].get(n["id"], [])) < 2 for n in needs[:1]
+                )
+                action = (
+                    "search_sources"
+                    if (
+                        source_poor
+                        and request.discover_sources
+                        and hasattr(self.search, "search_sources")
+                        and self.budget.counts["source_proposal"]
+                        < self.settings.max_source_proposals
+                    )
+                    else "search_web"
+                )
+            elif self.budget.counts["search_catalog"] < 2:
+                action = "search_catalog"
+            else:
+                break
+            previous_queries = {
+                row["query"] for row in self.search_history if row["action"] == action
+            }
+            if request.profile.languages == ["fr"] and action != "search_catalog":
+                queries = [q[:280] + " en français" for q in queries]
+            query = next((q[:300] for q in queries if q[:300] not in previous_queries), None)
+            if not query:
+                break
+            decision = Decision(
+                action=action,
+                query=query,
+                article_id=None,
+                title=None,
+                selections=[],
+                justification=(
+                    "Recherche ciblée par le serveur : besoins ou diversité insuffisants."
+                ),
+            )
+            step = -(index + 1)  # Distinct from the editor's composition turns.
+            self.log(
+                "controller_decision", step=step, research=research, decision=decision.model_dump()
+            )
+            self.log("tool_requested", step=step, action=action, query=query)
+            try:
+                outcome = await self._act(decision, request, seen)
+            except (RetrievalError, BudgetExceeded, ValueError) as exc:
+                outcome = {"error": str(exc), "added_ids": []}
+            outcome["actor"] = "controller"
+            self.log("tool_result", step=step, action=action, outcome=outcome)
+            self.trace.append(
+                TraceEvent(
+                    step=step,
+                    action=action,
+                    justification=decision.justification,
+                    outcome=outcome,
+                )
+            )
+            self.search_history.append(
+                {
+                    "action": action,
+                    "query": query,
+                    "added": len(outcome.get("added_ids", [])),
+                    "error": outcome.get("error"),
+                }
+            )
+            if outcome.get("error") and "USD" in outcome["error"]:
+                self.warnings.append(outcome["error"])
+                break
+        self.log(
+            "research_completed",
+            research=self._research_state(request),
+            target_is_maximum=True,
+            ready=len(self.candidates),
+        )
+
     async def _complete_with_exploration(self, request, seen):
+        if self.composition_mode:
+            # Adjacent subjects are optional, not an automatic way to reach 18.
+            return
         if self.force_finalize or not self.budget.can_explore:
             return
         missing = request.size - self._focused_capacity(request)
@@ -702,11 +834,12 @@ class CoverPipeline:
     def _validate(self, selections: list[Selection], request: CoverRequest) -> list[str]:
         errors = []
         if not selections:
-            return ["La sélection ne doit pas être vide"]
+            return [] if self.composition_mode else ["La sélection ne doit pas être vide"]
         if len(selections) > request.size:
             errors.append("Trop d'articles")
         can_research = (
-            not self.force_finalize
+            not self.composition_mode
+            and not self.force_finalize
             and self.budget.can_explore
             and self.budget.counts["editor"] < self.settings.max_agent_steps
             and self.budget.counts["summary"] < self.settings.max_summary_calls
@@ -724,7 +857,7 @@ class CoverPipeline:
                 "cherche des remplacements pertinents ou des thèmes connexes en Exploration "
                 "avant de finaliser"
             )
-        if self.balance and len(self.balance["interests"]) > 1:
+        if not self.composition_mode and self.balance and len(self.balance["interests"]) > 1:
             counts = Counter(self._interest(s.article_id) for s in selections)
             available = Counter(self._interest(id_) for id_ in self.candidates)
             for interest in self.balance["interests"]:
@@ -738,9 +871,9 @@ class CoverPipeline:
                     )
         sections = Counter(s.section for s in selections if not self._is_exploration(s.article_id))
         focused_count = sum(sections.values())
-        if self.plan and set(sections) - set(self.plan.sections):
+        if not self.composition_mode and self.plan and set(sections) - set(self.plan.sections):
             errors.append("Utilise les rubriques prévues dans editorial_plan")
-        if request.size >= 15 and len(selections) == request.size:
+        if not self.composition_mode and request.size >= 15 and len(selections) == request.size:
             if focused_count >= 15 and (
                 not 3 <= len(sections) <= 5 or min(sections.values(), default=0) < 2
             ):
@@ -1173,16 +1306,26 @@ class CoverPipeline:
                         self.exploration_pool[pick.article_id] = by_id[pick.article_id]
                     else:
                         selected.append(by_id[pick.article_id])
-            await self._add_candidates(
-                selected, request, seen, selection_limit, editorial_order=True
+            selected.sort(key=lambda row: self.picks[row.article.id].score, reverse=True)
+            self.reserve_pool = selected
+            initial_limit = (
+                min(selection_limit, request.size + 6) if self.composition_mode else selection_limit
             )
+            await self._add_candidates(selected, request, seen, initial_limit, editorial_order=True)
         except (ModelError, BudgetExceeded) as exc:
             self.log("editorial_plan_failed", error=str(exc))
             self.warnings.append(f"Présélection éditoriale indisponible : {exc}")
         editorial_title = ""
+        if self.composition_mode:
+            await self._complete_research(request, seen)
         observations: list[dict] = []
         attempted: set[tuple] = set()
-        for step in range(1, self.settings.max_agent_steps + 1):
+        editor_steps = (
+            min(3, self.settings.max_agent_steps)
+            if self.composition_mode
+            else self.settings.max_agent_steps
+        )
+        for step in range(1, editor_steps + 1):
             self.force_finalize = (
                 self.force_finalize
                 or not self.budget.can_explore
@@ -1190,6 +1333,7 @@ class CoverPipeline:
             )
             await self._complete_with_exploration(request, seen)
             state = {
+                "composition_mode": self.composition_mode,
                 "profile": request.profile.model_dump(exclude={"seen_article_ids"}),
                 "size": request.size,
                 "discover_web": request.discover_web,
@@ -1205,8 +1349,13 @@ class CoverPipeline:
                 "min_editorial_score": self.settings.min_editorial_score,
                 "force_finalize": self.force_finalize,
                 "budget_remaining_tokens": self.budget.remaining_tokens,
-                "search_history": self.search_history,
-                "rejected": list(self.rejected.values())[-30:],
+                "search_history": [
+                    {k: v for k, v in row.items() if k != "rejections"}
+                    for row in self.search_history
+                ]
+                if self.composition_mode
+                else self.search_history,
+                "rejected": [] if self.composition_mode else list(self.rejected.values())[-30:],
                 "preference_matches": self.preference_policy.matches,
                 "candidates": [
                     compact_candidate(c, self.picks.get(c.article_id))
@@ -1242,6 +1391,10 @@ class CoverPipeline:
                 ),
                 "discovered_sources": list(self.discovered_sources.values()),
             }
+            if self.composition_mode:
+                state["remaining_steps"] = max(1, min(3, self.settings.max_agent_steps) - step + 1)
+                if state["remaining_steps"] == 1:
+                    state["force_finalize"] = self.force_finalize = True
             try:
                 self.log(
                     "editor_requested",
@@ -1495,6 +1648,12 @@ class CoverPipeline:
             }
 
         if decision.action in {"search_catalog", "search_web", "search_sources"}:
+            if self.composition_mode and (
+                self.budget.counts["screen"] >= self.budget.limits["screen"]
+                or self.budget.counts["summary"] >= self.settings.max_summary_calls
+                or not self.budget.can_explore
+            ):
+                raise BudgetExceeded("Recherche arrêtée : résultats impossibles à préparer")
             if decision.action != "search_catalog" and not self._research_state(request)["needed"]:
                 raise ValueError("Les candidats couvrent la demande : finalise sans recherche web")
             if not decision.query or not 2 <= len(decision.query) <= 300:
