@@ -145,7 +145,10 @@ frontend via `/reader/?cover={id}`.
 La préparation se déroule ainsi :
 
 1. Interprétation des besoins, puis classement lexical et pool diversifié de 96 candidats.
-   Les notes précisent le contexte ; elles ne deviennent pas des intérêts généraux inventés.
+   Le catalogue lu passe à 10 000 entrées par défaut (`MAX_CATALOG_ARTICLES`), sans augmenter
+   le nombre d'aperçus envoyés au modèle. Les intérêts sont des points de départ : sous-domaines,
+   méthodes, instruments, histoire et synthèses du domaine restent des lectures ciblées.
+   Les notes précisent les priorités ; seules les restrictions explicites ferment le périmètre.
 2. Test d'accès avant présélection : trois téléchargements simultanés, 40 maximum et délai
    de lot `PREFETCH_TIMEOUT`. Texte/extrait et échecs sont réutilisés. L'aperçu atteint
    1 400 caractères du texte récupéré. Le score ordonne les pistes plausibles, sans seuil
@@ -162,6 +165,9 @@ La préparation se déroule ainsi :
    exigent l'autorisation de la requête. Si les sources manquent, il peut chercher des blogs,
    auteurs ou revues spécialisées, importer quelques articles et proposer les sources validées.
    Leur activation pour les collectes futures reste manuelle.
+   La présélection propose jusqu'à six angles (sujet, approfondissement, voisinage) dans son
+   appel existant. Le contrôleur change d'angle entre recherches, avant les sujets voisins ;
+   il ne répète pas une recherche externe infructueuse en passant d'articles à sources.
 5. Le **rédacteur compose** : comparaison des contributions, complémentarité, adéquation au
    niveau/contexte et sélection personnalisée. Il peut approfondir un article connu,
    mais ne gère plus les recherches et quotas techniques. Trois tours maximum, rubriques
@@ -169,9 +175,14 @@ La préparation se déroule ainsi :
 
 **18 est une cible maximale, pas un minimum obligatoire.** Une sélection courte (voire vide
 si aucun contenu ne convient) est enregistrée comme partielle, avec ses manques explicites.
-Ni rubriques artificielles ni ouverture automatique d'Exploration pour remplir des places.
-Langues, exclusions, quotas par source/intérêt/format, identifiants connus et déduplication
-restent impératifs ; les objectifs minimums par thème et la mise en page restent souples.
+Le contrat de sélection v4 assouplit le plafond par intérêt : des lectures pertinentes
+peuvent reprendre les places inutilisées, tout en entrelaçant les intérêts représentés.
+Après les lectures ciblées, une petite réserve connexe peut être préparée si le profil
+l'autorise. Chaque article exige un lien concret confirmé sur sa fiche et reste étiqueté
+Exploration. Maximum : 25 % de la taille demandée ET de la sélection effectivement publiée
+(arrondi inférieur) ; aucune édition entièrement connexe. Aucun quota minimum d'exploration.
+Langues, exclusions, quotas par source/format, identifiants connus et déduplication restent
+impératifs. Les budgets d'appels et les modèles ne changent pas ; le cache factuel reste valide.
 
 Les fiches `brief-v7-dossier` ne mettent plus en cache un verdict « valable aujourd'hui ».
 Elles décrivent le document ; le serveur applique à chaque sélection l'âge des actualités

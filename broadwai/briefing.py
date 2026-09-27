@@ -57,10 +57,17 @@ Un dossier est indépendant du lecteur ; juge maintenant contribution, angle et 
 Ne reprends pas aveuglément l'avis de la présélection. Les contraintes du profil et les exclusions
 sont impératives. Privilégie les besoins primary ; conserve les autres intérêts explicites,
 sans inventer de besoin pour rendre un article pertinent. Respecte les langues et max_per_source,
-max_videos, max_podcasts et max_per_interest. Les minima d'intérêt sont des objectifs,
-pas du remplissage.
+max_videos et max_podcasts. Si interest_balance.maximum_is_target=true, max_per_interest
+est un repère souple : redistribue les places aux lectures pertinentes disponibles, en
+gardant représentés les autres intérêts quand leur contenu le permet. Sinon respecte le plafond.
+Les minima d'intérêt sont des objectifs, pas du remplissage.
+Un intérêt est un point de départ, pas un filtre littéral : sous-domaines, méthodes,
+instruments, histoire et synthèses dans son périmètre sont des lectures focused légitimes.
+Une priorité précise ne ferme pas le domaine, sauf restriction explicitement demandée.
 Les lectures d'exploration exigent un lien concret ET une ouverture réellement utile,
 sous Exploration ; jamais parce qu'il reste des places. Zéro exploration est tout à fait normal.
+Respecte exploration_limit et vérifie le pont proposé contre la contribution réelle du dossier.
+« C'est aussi de la science/recherche » n'est pas un pont. Aucune exploration si non autorisée.
 
 Pour chaque sélection : article_id connu, matched_need justifié, reason concrète et personnalisée
 sur ce que le lecteur y trouvera, section libre adaptée au contenu. Les rubriques du plan sont

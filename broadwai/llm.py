@@ -29,6 +29,12 @@ from broadwai.reader_chat import CHAT_PROMPT, ReaderReply
 from broadwai.youtube import evidence_kind
 
 INTENT_PROMPT = """Transforme uniquement le profil fourni en besoins éditoriaux structurés.
+Les intérêts sont des points de départ, pas une liste fermée de mots autorisés. Un domaine
+large couvre ses sous-domaines, méthodes, enjeux et lectures de fond. Une précision indique
+une priorité, pas une interdiction des autres lectures du domaine. allow_adjacent=true par
+défaut ; false seulement pour une demande explicite de rester exclusivement sur ces sujets.
+« surtout », « j'aime » ou un métier ne signifient pas « uniquement ». Les exclusions
+spécifiques restent des contraintes ciblées, sans fermer tous les autres sujets connexes.
 Conserve chacun des intérêts
 explicites : une précision sur la littérature ne supprime ni technologie ni IA.
 Ne généralise pas un besoin précis pour remplir un journal : une demande pratique n'implique
@@ -80,13 +86,18 @@ contourner un quota. Les sous-thèmes d'une même rubrique partagent son quota :
 ou genres littéraires ne constituent pas plusieurs grands intérêts.
 Si deux intérêts se recouvrent, utilise toujours le plus précis : la littérature relève de
 Livres/littérature lorsqu'il est choisi, pas alternativement de Culture pour doubler son quota.
-Respecte max_per_interest et vise minimum_per_interest pour chaque intérêt explicite.
+Vise minimum_per_interest pour chaque intérêt explicite. max_per_interest est un objectif
+d'équilibre souple : les places inutilisées peuvent revenir à un autre intérêt pertinent.
 Les likes affinent les choix À L'INTÉRIEUR de cet équilibre ; ils ne suppriment pas les rubriques.
 editorial_intent.reader_preferences contient les dernières demandes explicites du lecteur.
 Applique leur cible ET leur explication sans élargir leur portée. Une diversification ajoute
 quelques lectures aux intérêts habituels ; elle ne les remplace pas. Respecte les exclusions.
-Le sujet CENTRAL doit répondre à un besoin de editorial_intent. matched_need reprend son id.
-reason explique le lien.
+Le sujet CENTRAL doit apporter quelque chose à un besoin de editorial_intent, pas forcément
+reprendre ses mots. matched_need reprend son id ; reason nomme cet apport concret.
+Cherche largement DANS le domaine : sous-disciplines, mécanismes, méthodes, instruments,
+histoire, débats et grandes synthèses. Ces approfondissements sont focused, pas exploration.
+Une application ou méthode est pertinente si le texte explique réellement son lien au domaine.
+Le simple fait d'être « scientifique », « innovant » ou « de la recherche » ne suffit jamais.
 Respecte contraintes, exclusions et profondeur attendue. Les mots communs ne prouvent pas le lien.
 Évalue séparément le lien et la temporalité. Ne crée aucun intérêt ou lieu absent du profil.
 Le score sert uniquement à ordonner les candidats plausibles, pas de seuil éliminatoire.
@@ -122,6 +133,13 @@ Couvre d'abord les différentes rubriques générales, puis approfondis les beso
 à l'intérieur de chacune. N'épuise pas les places sur un seul thème.
 Les rubriques principales excluent Exploration. Donne des gaps précis par besoin non couvert et
 0 à 2 queries courtes, UNE par besoin ; ne combine pas toutes les préférences dans une requête.
+search_angles : jusqu'à 6 pistes de recherche réellement distinctes, chacune liée à un need_id
+existant et une connection concrète. Commence par direct (sujet demandé), puis depth
+(sous-domaine, méthode, histoire ou synthèse), puis éventuellement adjacent (discipline voisine
+avec un pont précis). Pas six reformulations de la même actualité. Prévois des pistes depth
+même si le profil ne les énumère pas. N'impose pas « récent » aux lectures de fond.
+Les pistes ne créent pas de nouveaux besoins ; elles explorent ceux fournis. Aucun adjacent
+si exploration_allowed=false. Elles ne seront exécutées que si un manque utile persiste.
 Recherche ouverte sans site:, sans liste de médias, sans mois imposé aux lectures de fond.
 """
     + PICK_RULES
@@ -559,7 +577,7 @@ le texte intégral ou vérifier des faits. Une ligne par paire, identifiants inc
             self.editor_model, PLAN_PROMPT, state, schema, budget, "plan", 6000
         )
         return EditorialPlan.model_validate(result.model_dump()).model_copy(
-            update={"contract_version": 3}
+            update={"contract_version": 4}
         )
 
     async def screen(self, state: dict, budget: RunBudget) -> EditorialPlan:
@@ -580,7 +598,7 @@ le texte intégral ou vérifier des faits. Une ligne par paire, identifiants inc
             3000,
         )
         return EditorialPlan(
-            contract_version=3,
+            contract_version=4,
             sections=state.get("sections") or ["À découvrir"],
             picks=result.picks,
             gaps=[],

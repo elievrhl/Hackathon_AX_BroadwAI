@@ -36,3 +36,36 @@ test('legacy briefs still display their old validity without manufacturing a dos
   assert.equal(result.tables.length, 0);
   assert.ok(result.texts.some(t => t.includes('Méthode durable')));
 });
+
+function renderDecisions(events, trace = []) {
+  const code = fs.readFileSync(require.resolve('../broadwai/static/covers.js'), 'utf8');
+  const start = code.indexOf('function renderDecisions(');
+  const end = code.indexOf('function renderEdition(', start);
+  const texts = [];
+  const parent = {append(...nodes) { texts.push(...nodes.map(n => n.text).filter(Boolean)); }};
+  vm.runInNewContext(code.slice(start, end) + '\nrenderDecisions(parent, cover, data);', {
+    parent, cover: {trace}, data: {events},
+    section: () => parent, n: (_tag, text) => ({text}),
+    actionNames: {}, paragraphs() {}, jsonDetails: () => ({}),
+  });
+  return texts.join(' ');
+}
+
+test('admin explains broad scope and labels the actual search angle', () => {
+  const text = renderDecisions([
+    {kind: 'research_completed'}, {kind: 'selection_policy', allow_adjacent: true},
+  ], [{step: -1, action: 'search_web', justification: 'Changer de piste', outcome: {
+    actor: 'controller', query: 'spectroscopie stellaire', added_ids: [],
+    search_angle: {scope: 'depth', connection: 'Comprendre les mesures stellaires'},
+  }}]);
+  assert.match(text, /25 % des articles effectivement retenus/);
+  assert.match(text, /Approfondissement du domaine · Comprendre les mesures stellaires/);
+  assert.match(text, /plafonds entre intérêts sont souples/);
+});
+
+test('admin does not claim a closed or legacy profile permits adjacent topics', () => {
+  const closed = renderDecisions([{kind: 'selection_policy', allow_adjacent: false}]);
+  assert.match(closed, /Exploration désactivée/);
+  assert.doesNotMatch(closed, /25 %/);
+  assert.doesNotMatch(renderDecisions([]), /Périmètre élargi/);
+});

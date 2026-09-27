@@ -200,6 +200,10 @@ class ReaderConstraint(EditorialRecord):
 class EditorialIntent(Model):
     needs: list[ReaderNeed] = Field(min_length=1, max_length=8)
     constraints: list[ReaderConstraint] = Field(default_factory=list, max_length=8)
+    allow_adjacent: bool = Field(
+        True,
+        description="False seulement si le lecteur exige un périmètre thématique exclusif",
+    )
 
 
 class CitedSource(EditorialRecord):
@@ -308,6 +312,13 @@ class EditorialPick(EditorialRecord):
     )
 
 
+class SearchAngle(Model):
+    need_id: str
+    query: str = Field(min_length=2, max_length=200)
+    scope: Literal["direct", "depth", "adjacent"]
+    connection: str = Field(min_length=1, max_length=200)
+
+
 class EditorialPlan(Model):
     contract_version: int = 1
     sections: list[str] = Field(min_length=1, max_length=5)
@@ -316,6 +327,7 @@ class EditorialPlan(Model):
     picks: list[EditorialPick] = Field(max_length=40)
     gaps: list[str] = Field(max_length=5)
     queries: list[str] = Field(max_length=2)
+    search_angles: list[SearchAngle] = Field(default_factory=list, max_length=6)
 
 
 class SearchScreen(Model):

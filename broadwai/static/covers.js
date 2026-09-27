@@ -38,6 +38,7 @@ const labels = {
   temporal_review_requested: "Vérification de la validité temporelle", final_reserve_used: "Budget réservé à la finalisation",
   controller_decision: "Recherche ciblée décidée par le serveur",
   research_completed: "Recherches terminées : passage à la composition",
+  selection_policy: "Périmètre de sélection et ouvertures autorisées",
   reserve_opened: "Préparation d’alternatives déjà présélectionnées",
   reader_preferences_assessed: "Préférences évaluées", reader_preferences_failed: "Évaluation des préférences en échec",
   intent_items_rejected: "Interprétation du profil corrigée", intent_failed: "Interprétation du profil indisponible",
@@ -279,6 +280,8 @@ function renderPreparation(parent, data) {
 function renderDecisions(parent, cover, data) {
   const controlled = data.events.some(e => e.kind === "research_completed");
   const panel = section(parent, "4. Compléter, arbitrer et contrôler la sélection", controlled ? "Le serveur cherche seulement si des besoins manquent ou si moins de 80 % de la cible est disponible. Il réutilise les réserves, puis limite les recherches. Le rédacteur compare les apports et compose : 18 est une cible, pas un minimum obligatoire." : "Le rédacteur alterne recherches, lectures et tentatives de finalisation. Chaque résultat peut modifier l’étape suivante.", {id: "stage-decisions"});
+  const policy = data.events.find(e => e.kind === "selection_policy");
+  if (policy) panel.append(n("p", `Périmètre élargi : sous-domaines, méthodes, histoire et synthèses du sujet sont des lectures ciblées. Les plafonds entre intérêts sont souples ; les sources, langues et exclusions restent contrôlées. ${policy.allow_adjacent ? "Des sujets voisins avec un lien concret peuvent compléter la sélection, dans la limite de 25 % des articles effectivement retenus." : "Exploration désactivée pour ce profil : pas de sujets voisins."}`, "notice"));
   const trace = cover.trace || [];
   if (!trace.length) panel.append(n("p", "Aucune décision enregistrée.", "muted"));
   for (const event of trace) {
@@ -290,6 +293,10 @@ function renderDecisions(parent, cover, data) {
     d.append(n("p", event.justification));
     const request = data.events.find(e => e.kind === "tool_requested" && e.step === event.step), query = out.query || request?.query;
     if (query) d.append(n("blockquote", query));
+    if (out.search_angle) {
+      const labels = {direct: "Sujet demandé", depth: "Approfondissement du domaine", adjacent: "Sujet connexe"};
+      d.append(n("p", `${labels[out.search_angle.scope] || out.search_angle.scope} · ${out.search_angle.connection}`, "small"));
+    }
     if (out.returned_count != null) d.append(n("p", `${out.returned_count} liens trouvés ; ${(out.added_ids || []).length} candidats ajoutés après import et préparation.`));
     if (out.sources?.length) {
       table(d, ["Source vérifiée", "Type", "Articles repérés"], out.sources.map(s => [link(s.name, s.url), s.kind === "rss" ? "Flux RSS/Atom" : "Site web", s.article_ids?.length ?? "Non enregistré"]));

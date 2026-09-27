@@ -5,6 +5,7 @@ from time import perf_counter
 from urllib.parse import urlsplit
 
 from broadwai.balance import interest_balance, interleave
+from broadwai.broadening import exploration_limit, next_angle, research_angles
 from broadwai.config import Settings
 from broadwai.discovery import is_feed_directory, source_article_candidates, validate_source
 from broadwai.editorial import (
@@ -121,6 +122,7 @@ class CoverPipeline:
             for n, i in enumerate(profile.interests[:8])
         ]
         constraints = []
+        allow_adjacent = True
         if profile.notes or profile.reading_memory.get("liked_articles_count"):
             try:
                 provided_profile = profile.model_dump(exclude={"user_id", "seen_article_ids"})
@@ -133,6 +135,7 @@ class CoverPipeline:
                     if need["origin"] == "reading_memory":
                         need["priority"] = "secondary"
                 constraints = [c.model_dump() for c in interpreted.constraints]
+                allow_adjacent = interpreted.allow_adjacent
                 # Explicit notes take precedence over broad UI categories, regardless
                 # of a model accidentally copying their numeric interest weights.
                 note_needs = {n["topic"] for n in needs if profile.notes and n["origin"] == "notes"}
@@ -141,6 +144,8 @@ class CoverPipeline:
                         need["priority"] = "primary" if need["topic"] in note_needs else "secondary"
             except (ModelError, BudgetExceeded) as exc:
                 self.warnings.append(f"Interprétation du profil indisponible : {exc}")
+                # Unknown restrictions must not open adjacent topics by default.
+                allow_adjacent = not bool(profile.notes)
                 if profile.notes:
                     needs.insert(
                         0,
@@ -168,6 +173,7 @@ class CoverPipeline:
             "needs": [{"id": f"need-{n + 1}", **need} for n, need in enumerate(needs)],
             "constraints": constraints,
             "interest_balance": self.balance,
+            "allow_adjacent": allow_adjacent,
         }
         if self.preference_policy.rules:
             self.intent["reader_preferences"] = self.preference_policy.context()
@@ -354,6 +360,15 @@ class CoverPipeline:
     def composition_mode(self):
         return bool(self.plan and self.plan.contract_version >= 3)
 
+    @property
+    def broad_selection(self):
+        return bool(self.plan and self.plan.contract_version >= 4)
+
+    def _exploration_limit(self, request):
+        return exploration_limit(
+            request.size, self._focused_capacity(request), self.intent.get("allow_adjacent", True)
+        )
+
     def _pick_error(self, pick, row, sections, strict=False):
         if not self.composition_mode and pick.score < self.settings.min_editorial_score:
             return "Score éditorial insuffisant"
@@ -363,6 +378,8 @@ class CoverPipeline:
             return "Rubrique inconnue"
         if pick.exploration and not (pick.exploration_reason or "").strip():
             return "Lien d'exploration absent"
+        if pick.exploration and not self.intent.get("allow_adjacent", True):
+            return "Le lecteur a demandé un périmètre exclusif"
         if strict:
             if (
                 self.balance
@@ -700,9 +717,20 @@ class CoverPipeline:
             previous_queries = {
                 row["query"] for row in self.search_history if row["action"] == action
             }
-            if request.profile.languages == ["fr"] and action != "search_catalog":
-                queries = [q[:280] + " en français" for q in queries]
-            query = next((q[:300] for q in queries if q[:300] not in previous_queries), None)
+            angle = None
+            if self.broad_selection:
+                angle = next_angle(
+                    research_angles(self.plan, self.intent, research["missing_needs"]),
+                    self.search_history,
+                    action,
+                    adjacent_allowed=bool(index and self._exploration_limit(request)),
+                    french_only=request.profile.languages == ["fr"],
+                )
+                query = angle["query"] if angle else None
+            else:
+                if request.profile.languages == ["fr"] and action != "search_catalog":
+                    queries = [q[:280] + " en français" for q in queries]
+                query = next((q[:300] for q in queries if q[:300] not in previous_queries), None)
             if not query:
                 break
             decision = Decision(
@@ -712,7 +740,9 @@ class CoverPipeline:
                 title=None,
                 selections=[],
                 justification=(
-                    "Recherche ciblée par le serveur : besoins ou diversité insuffisants."
+                    f"Recherche {angle['scope']} : {angle['connection']}"
+                    if angle
+                    else "Recherche ciblée par le serveur : besoins ou diversité insuffisants."
                 ),
             )
             step = -(index + 1)  # Distinct from the editor's composition turns.
@@ -725,6 +755,8 @@ class CoverPipeline:
             except (RetrievalError, BudgetExceeded, ValueError) as exc:
                 outcome = {"error": str(exc), "added_ids": []}
             outcome["actor"] = "controller"
+            if angle:
+                outcome["search_angle"] = angle
             self.log("tool_result", step=step, action=action, outcome=outcome)
             self.trace.append(
                 TraceEvent(
@@ -740,6 +772,7 @@ class CoverPipeline:
                     "query": query,
                     "added": len(outcome.get("added_ids", [])),
                     "error": outcome.get("error"),
+                    **({"scope": angle["scope"], "need_id": angle["need_id"]} if angle else {}),
                 }
             )
             if outcome.get("error") and "USD" in outcome["error"]:
@@ -753,6 +786,33 @@ class CoverPipeline:
         )
 
     async def _complete_with_exploration(self, request, seen):
+        if self.broad_selection:
+            limit = self._exploration_limit(request)
+            if not limit or self.force_finalize or not self.budget.can_explore:
+                return
+            remaining = [
+                row for id_, row in self.exploration_pool.items() if id_ not in self.prepared_ids
+            ]
+            selected, _ = self._allocate(self._available_selections(), request)
+            prepared = sum(self._is_exploration(s.article_id) for s in selected)
+            if not remaining or prepared >= limit:
+                return
+            remaining.sort(key=lambda row: self.picks[row.article.id].score, reverse=True)
+            self.exploration_active = True
+            self.log("exploration_opened", limit=limit, max_share=0.25)
+            # Small, explicit allowance; never summarize the entire adjacent reserve.
+            attempts = sum(id_ in self.prepared_ids for id_ in self.exploration_pool)
+            for row in remaining:
+                if prepared >= limit or attempts >= limit + 2 or not self.budget.can_explore:
+                    break
+                if self.budget.counts["summary"] >= self.settings.max_summary_calls:
+                    break
+                attempts += 1
+                await self._prepare(row, request, seen)
+                await self._assess_preferences()
+                selected, _ = self._allocate(self._available_selections(), request)
+                prepared = sum(self._is_exploration(s.article_id) for s in selected)
+            return
         if self.composition_mode:
             # Adjacent subjects are optional, not an automatic way to reach 18.
             return
@@ -964,6 +1024,8 @@ class CoverPipeline:
         exploration_limit = (
             max(0, request.size - self._focused_capacity(request)) if has_exploration else 0
         )
+        if self.broad_selection and has_exploration:
+            exploration_limit = self._exploration_limit(request)
         kept, removed = [], []
         counts = Counter()
         ids = set()
@@ -1019,12 +1081,23 @@ class CoverPipeline:
                 reason = "Quota de diversification demandé par le lecteur"
             elif any(reduced_counts[id_] >= self.preference_policy.less_limit for id_ in reduced):
                 reason = "Présence réduite à la demande du lecteur"
-            elif exploration and exploration_count >= exploration_limit:
-                reason = "Exploration réservée aux places manquantes"
+            elif exploration and (
+                exploration_count >= exploration_limit
+                or (
+                    self.broad_selection
+                    and exploration_count >= (len(kept) - exploration_count) // 3
+                )
+            ):
+                reason = (
+                    "Exploration limitée à 25 % de la sélection réelle"
+                    if self.broad_selection
+                    else "Exploration réservée aux places manquantes"
+                )
             elif counts[article.source] >= request.max_per_source:
                 reason = "Quota de source"
             elif (
                 balanced
+                and not self.broad_selection
                 and self._interest(s.article_id)
                 and (
                     interest_counts[self._interest(s.article_id)]
@@ -1282,10 +1355,19 @@ class CoverPipeline:
                     "max_research_age_days": self.settings.max_research_age_days,
                     "editorial_intent": self.intent,
                     "min_editorial_score": self.settings.min_editorial_score,
-                    "exploration_allowed": True,
+                    "exploration_allowed": self.intent.get("allow_adjacent", True),
                 },
                 self.budget,
             )
+            if self.broad_selection:
+                self.balance["maximum_is_target"] = True
+                self.log(
+                    "selection_policy",
+                    within_domain="broad",
+                    interest_cap="soft",
+                    allow_adjacent=self.intent.get("allow_adjacent", True),
+                    max_adjacent_share=0.25,
+                )
             self.audit["editorial_plan"] = self.plan.model_dump()
             self.log("editorial_plan", plan=self.plan.model_dump())
             by_id = {r.article.id: r for r in pool}
@@ -1342,6 +1424,9 @@ class CoverPipeline:
                 "max_videos": request.max_videos,
                 "max_podcasts": request.max_podcasts,
                 "exploration_allowed": self.exploration_active,
+                "exploration_limit": self._exploration_limit(request)
+                if self.broad_selection
+                else None,
                 "focused_capacity": self._focused_capacity(request),
                 "max_article_age_days": self.settings.max_article_age_days,
                 "max_research_age_days": self.settings.max_research_age_days,
@@ -1526,6 +1611,8 @@ class CoverPipeline:
                 role="reading",
             )
             for r in fallback
+            # A related-topic bridge must have been reviewed by the composer.
+            if not (self.broad_selection and self._is_exploration(r.article_id))
         ]
         for s in selections:
             if s.article_id in self.picks:
@@ -1662,7 +1749,14 @@ class CoverPipeline:
             for previous in self.search_history:
                 prior = set(tokens(previous.get("query") or ""))
                 if (
-                    previous["action"] == decision.action
+                    (
+                        previous["action"] == decision.action
+                        or (
+                            self.broad_selection
+                            and previous["action"] in {"search_web", "search_sources"}
+                            and decision.action in {"search_web", "search_sources"}
+                        )
+                    )
                     and not previous["added"]
                     and len(words & prior) / max(1, len(words | prior)) >= 0.8
                 ):
@@ -1689,7 +1783,11 @@ class CoverPipeline:
                     "editorial_intent": self.intent,
                     "search_history": self.search_history,
                     "rejected": list(self.rejected.values())[-30:],
-                    "exploration_allowed": self.exploration_active,
+                    "exploration_allowed": (
+                        self.intent.get("allow_adjacent", True)
+                        if self.broad_selection
+                        else self.exploration_active
+                    ),
                     "research": self._research_state(request),
                 }
                 if decision.action == "search_sources":
@@ -1776,6 +1874,9 @@ class CoverPipeline:
                 for a in articles
                 if a.id not in self.prepared_ids
                 and a.id not in self.rejected
+                # Reuse initial reserves: re-screening could silently relabel an
+                # adjacent pick as focused and circumvent its bounded allowance.
+                and not (self.broad_selection and a.id in self.picks)
                 and not self._dated_out(a, allow_evergreen=True)
             ]
             ranked = rank(
@@ -1808,7 +1909,11 @@ class CoverPipeline:
                             "max_research_age_days": self.settings.max_research_age_days,
                             "editorial_intent": self.intent,
                             "min_editorial_score": self.settings.min_editorial_score,
-                            "exploration_allowed": self.exploration_active,
+                            "exploration_allowed": (
+                                self.intent.get("allow_adjacent", True)
+                                if self.broad_selection
+                                else self.exploration_active
+                            ),
                         },
                         self.budget,
                     )
