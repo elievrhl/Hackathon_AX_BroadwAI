@@ -45,6 +45,10 @@ export const removeEdition = (userId, id) => request(`/v1/library/${encodeURICom
 
 const collectionPath = (userId, id = '') => `/v1/collections${id ? `/${encodeURIComponent(id)}` : ''}?user_id=${encodeURIComponent(userId)}`;
 const jsonRequest = (path, method, body) => request(path, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+export const getArchives = userId => request(`/v1/archives?user_id=${encodeURIComponent(userId)}`);
+export const getSavedArticles = userId => request(`/v1/saved-articles?user_id=${encodeURIComponent(userId)}`);
+export const saveArticle = (userId, articleId, coverId) => jsonRequest(`/v1/saved-articles/${encodeURIComponent(articleId)}?user_id=${encodeURIComponent(userId)}`, 'PUT', { cover_id: coverId || null });
+export const unsaveArticle = (userId, articleId) => request(`/v1/saved-articles/${encodeURIComponent(articleId)}?user_id=${encodeURIComponent(userId)}`, { method: 'DELETE' });
 export const getCollections = userId => request(collectionPath(userId));
 export const getCollection = (userId, id) => request(collectionPath(userId, id));
 export const createCollection = (userId, data) => jsonRequest(collectionPath(userId), 'POST', data);

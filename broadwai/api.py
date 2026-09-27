@@ -25,6 +25,7 @@ from broadwai.preferences import PreferenceConflict
 from broadwai.reader_chat import ReaderMessage, check_replay, preference_snapshot
 from broadwai.reader_memory import ArticleLike
 from broadwai.retrieval import Collector
+from broadwai.saved_articles import router as saved_articles_router
 from broadwai.sources import router as admin_router
 from broadwai.store import Store
 from broadwai.web_search import OpenAIWebSearch
@@ -89,6 +90,7 @@ def create_app(
     app.mount("/admin/assets", StaticFiles(directory=static), name="admin-assets")
     app.include_router(admin_router)
     app.include_router(collections_router)
+    app.include_router(saved_articles_router)
 
     # Optional production build. API/admin still work when the frontend is not built.
     reader_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
@@ -194,6 +196,10 @@ def create_app(
         if user_id is None:
             return app.state.store.list_covers(limit, offset)
         return app.state.store.list_covers(limit, offset, user_id=user_id)
+
+    @app.get("/v1/archives")
+    def archives(user_id: str = Query(min_length=1, max_length=100)):
+        return app.state.store.archives(user_id)
 
     @app.get("/v1/library")
     def library(user_id: str = Query(min_length=1, max_length=100)):

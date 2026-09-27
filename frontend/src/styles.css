@@ -66,7 +66,6 @@ select { font: inherit; color: var(--ink); border: 1px solid var(--line); backgr
 }
 .nav-topics { min-width: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
 .nav-topics button { flex-shrink: 0; }
-.saved-tab { flex-shrink: 0; }
 .edition-intro > div { min-width: 0; }
 .edition-intro h1 { max-width: 40ch; }
 .article-title { overflow-wrap: anywhere; }
@@ -617,16 +616,6 @@ input::placeholder,textarea::placeholder {
 }
 .paper-navigation button:hover {
   color: var(--red);
-}
-.saved-tab {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.save-count {
-  font-size: .625rem;
-  border: 1px solid var(--line);
-  padding: 1px 5px;
 }
 .edition-intro {
   display: flex;
@@ -1381,13 +1370,6 @@ dialog::backdrop {
   .paper-navigation button {
     font-size: .75rem;
   }
-  .saved-tab {
-    border-left: 1px solid var(--line);
-    padding-left: 15px!important;
-  }
-  .saved-tab>span:not(.save-count) {
-    display: none;
-  }
   .edition-intro {
     padding: 25px 0;
   }
@@ -1586,9 +1568,6 @@ dialog::backdrop {
   }
   .paper-navigation button {
     padding: 12px 0;
-  }
-  .saved-tab {
-    padding-left: 12px!important;
   }
   .edition-intro {
     display: block;
@@ -1813,6 +1792,137 @@ dialog::backdrop {
     padding: 12px 15px;
     font-size: .75rem;
     line-height: 1.5;
+  }
+}
+/* Account creation and interests share the same two-step frame. */
+.setup-page .account-header {
+  height: 72px;
+  padding: 0 max(24px, calc((100vw - 1320px) / 2));
+}
+.setup-page .account-main {
+  max-width: 1400px;
+  grid-template-columns: minmax(260px, .85fr) minmax(0, 1.15fr);
+  align-items: start;
+  gap: clamp(32px, 4vw, 64px);
+  padding: 28px 40px;
+}
+.setup-page .account-editorial {
+  padding-top: 8px;
+}
+.setup-page .account-editorial h1 {
+  font-size: clamp(3rem, 4.4vw, 4.3rem);
+  margin: 16px 0;
+}
+.setup-page .account-book-art {
+  margin-top: 28px;
+}
+.setup-page .account-panel, .setup-page .onboard-panel {
+  min-width: 0;
+  max-width: none;
+  width: 100%;
+  padding: 0;
+}
+.setup-page .step-track {
+  margin: 10px 0 16px;
+}
+.setup-page .account-panel h2, .setup-page .onboard-panel h2 {
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  line-height: 1.05;
+  margin: 0;
+}
+.setup-page .account-panel h2 {
+  margin-bottom: 20px;
+}
+.onboarding--interests .panel-intro {
+  max-width: none;
+  margin: 10px 0 16px;
+}
+.interests-form {
+  display: grid;
+  gap: 12px;
+}
+.interests-selection, .interests-context {
+  min-width: 0;
+}
+.onboarding--interests .topic-choices {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+.onboarding--interests .topic-choice {
+  min-width: 0;
+  min-height: 44px;
+  padding: 6px 8px;
+  gap: 6px;
+  font-size: .8125rem;
+  line-height: 1.25;
+}
+.onboarding--interests .topic-choice > span:not(.choice-check) {
+  overflow-wrap: anywhere;
+}
+.interests-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 4px;
+}
+.interests-context.field {
+  margin: 0 0 12px;
+  gap: 8px;
+  font-size: .8125rem;
+}
+.interests-context textarea {
+  min-height: 64px;
+  padding: 10px 12px;
+  font-size: .875rem;
+}
+.interests-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+@media(max-width:900px) {
+  .setup-page .account-main {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 720px;
+    padding: 24px;
+    gap: 0;
+  }
+  .setup-page .account-editorial {
+    display: none;
+  }
+}
+@media(max-width:600px) {
+  .setup-page .account-main {
+    padding: 20px 22px;
+  }
+  .setup-page .account-header .text-button {
+    font-size: .6875rem;
+    gap: 5px;
+  }
+  .setup-page .step-label {
+    font-size: .625rem;
+  }
+  .onboarding--interests .topic-choices {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .onboarding--interests .topic-choice {
+    min-height: 44px;
+    padding: 6px 8px;
+    gap: 6px;
+    font-size: .75rem;
+  }
+  .interests-form {
+    gap: 12px;
+  }
+  .interests-footer {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .interests-actions {
+    justify-content: space-between;
+    gap: 12px;
   }
 }
 @media(prefers-reduced-motion:reduce) {

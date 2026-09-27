@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
+import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
 import { TOPICS, DEFAULT_PROFILE, formatDate } from './reader.js';
 import { ArticleFeedback } from './FeedbackForms.jsx';
+import ArticleSaveActions from './ArticleSaveActions.jsx';
 const ICONS = {
   tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen,
   history: Landmark, philosophy: Lightbulb, books: Library, cinema: Clapperboard, music: Music2,
@@ -12,6 +13,21 @@ export function Wordmark({
   small = false
 }) {
   return <span className={`wordmark ${small ? 'wordmark-small' : ''}`}>Kiosque<span className="brand-dot">.</span></span>;
+}
+export function SetupLayout({ children, className = '', onExplore }) {
+  return <div className={`account-page setup-page ${className}`}>
+    <header className="account-header"><Wordmark small />{onExplore ? <button className="text-button" onClick={onExplore}>Feuilleter une édition <ArrowUpRight size={16} /></button> : <span>LE MONDE, À VOTRE MESURE.</span>}</header>
+    <main id="main" className="account-main">
+      <section className="account-editorial"><p className="eyebrow">LE PLAISIR DE DÉCOUVRIR</p><h1>Des lectures.<br />Des regards.<br /><em>Votre journal.</em></h1><p>Une sélection qui suit vos curiosités et élargit vos horizons.<br />Prenez le temps de lire ce qui vous intéresse.</p><div className="account-book-art" aria-hidden="true"><div>Kiosque<span>LE MONDE<br />S’OUVRE.</span><small>VOTRE JOURNAL PERSONNEL</small></div><i>Le monde à portée de page.</i></div></section>
+      {children}
+    </main>
+  </div>;
+}
+export function SetupProgress({ step }) {
+  return <>
+    <div className="step-label"><span>{step === 1 ? 'FAISONS CONNAISSANCE' : 'DERNIÈRE ÉTAPE'}</span><span aria-label={`Étape ${step} sur 2`}>0{step}<span className="muted"> / 02</span></span></div>
+    <div className="step-track" aria-hidden="true"><span /><span className={step === 2 ? 'active' : ''} /></div>
+  </>;
 }
 function TopicChoices({
   value,
@@ -43,29 +59,13 @@ export function Onboarding({
   });
   const titleRef = useRef(null);
   useEffect(() => {
-    if (step) titleRef.current?.focus();
+    if (step) titleRef.current?.focus({ preventScroll: true });
   }, [step]);
-  return <div className="onboarding">
-    <header className="welcome-header"><Wordmark small /><span className="header-note">Le monde, à votre mesure.</span><button className="text-button" onClick={onExplore}>Feuilleter une édition <ArrowUpRight size={16} /></button></header>
-    <main id="main" className="welcome-main">
-      <section className="welcome-editorial" aria-label="Bienvenue chez Kiosque">
-        <div className="eyebrow"><span className="red-rule" />VOTRE JOURNAL PERSONNEL</div>
-        <h1>Moins de bruit. <br />Plus de <em>sens.</em></h1>
-        <p className="welcome-description">Le plaisir d’ouvrir un journal. <br />Avec une une qui vous ressemble.</p>
-        <div className="sample-paper" aria-label="Aperçu d’une édition fictive">
-          <div className="sample-meta"><span>UNE ÉDITION, PLUSIEURS REGARDS</span><span>Nº 001</span></div>
-          <div className="sample-name">Kiosque<span>.</span></div>
-          <div className="sample-rule" />
-          <div className="sample-columns"><div><span className="eyebrow">LE GRAND ANGLE</span><h2>Le monde change.<br />Votre regard aussi.</h2><p>Technologie, société, culture : les idées se croisent, l’essentiel se dessine.</p></div><div className="sample-side"><span className="eyebrow">ET AUSSI</span><h3>L’économie à hauteur de vie</h3><hr /><h3>La science ouvre de nouvelles fenêtres</h3></div></div>
-          <div className="sample-bottom">18 articles · une sélection personnelle · de nouveaux horizons</div>
-        </div>
-        <div className="edition-mark"><span>01 —</span> Une autre façon de prendre le temps.</div>
-      </section>
+  return <SetupLayout className={step === 1 ? 'onboarding--interests' : ''} onExplore={onExplore}>
       <section className="onboard-panel" aria-labelledby="onboard-title">
-        <div className="step-label"><span>{step === 0 ? 'FAISONS CONNAISSANCE' : 'VOS CENTRES D’INTÉRÊT'}</span><span>0{step + 1}<span className="muted"> / 02</span></span></div>
-        <div className="step-track"><span /><span className={step === 1 ? 'active' : ''} /></div>
-        <h2 id="onboard-title" ref={titleRef} tabIndex={-1}>{step === 0 ? <>Votre une <br />commence ici.</> : <>Qu’est-ce qui <br />vous anime ?</>}</h2>
-        <p className="panel-intro">{step === 0 ? 'Un prénom, quelques envies. Votre journal commence ici.' : 'Choisissez vos sujets. Le premier aura plus de poids ; le rédacteur composera votre sélection.'}</p>
+        <SetupProgress step={step + 1} />
+        <h2 id="onboard-title" ref={titleRef} tabIndex={-1}>{step === 0 ? <>Votre une <br />commence ici.</> : 'Vos centres d’intérêt'}</h2>
+        <p className="panel-intro">{step === 0 ? 'Un prénom, quelques envies. Votre journal commence ici.' : 'Choisissez vos sujets, votre favori en premier.'}</p>
         {step === 0 ? <form onSubmit={event => {
           event.preventDefault();
           if (draft.name.trim()) setStep(1);
@@ -76,31 +76,36 @@ export function Onboarding({
             })} required maxLength={40} pattern=".*\S.*" /></label>
           <button className="primary-button full-width" type="submit">Choisir mes sujets <ArrowRight size={18} /></button>
           <p className="prototype-note">Votre profil est conservé dans ce navigateur. Les éditions sont enregistrées sur votre serveur local.</p>
-        </form> : <form onSubmit={event => {
+        </form> : <form className="interests-form" onSubmit={event => {
           event.preventDefault();
           if (draft.topics.length) onComplete({
             ...draft,
             name: draft.name.trim()
           });
         }}>
-          <fieldset><legend className="sr-only">Choisissez au moins un centre d’intérêt</legend><TopicChoices value={draft.topics} onChange={topics => setDraft({
-              ...draft,
-              topics
-            })} /></fieldset>
-          <div className="selection-hint" aria-live="polite">{draft.topics.length ? `${draft.topics.length} sujet${draft.topics.length > 1 ? 's' : ''} sélectionné${draft.topics.length > 1 ? 's' : ''}` : 'Un sujet suffit pour commencer.'}</div>
-          <label className="field optional-field">Un peu de contexte ? <span className="optional">Facultatif</span><textarea rows={2} maxLength={500} placeholder="Je lance un projet et je m’intéresse à l’IA, sans être spécialiste…" value={draft.notes} onChange={event => setDraft({
-              ...draft,
-              notes: event.target.value
-            })} /></label>
-          <p className="field-help">Le rédacteur utilisera vos sujets et ce contexte pour choisir les articles. La génération se lance à l’étape suivante.</p>
-          <button className="primary-button full-width" type="submit" disabled={!draft.topics.length}>Ouvrir mon journal <ArrowRight size={18} /></button>
-          <button className="text-button back-button" type="button" onClick={() => setStep(0)}><ArrowLeft size={15} /> Retour</button>
+          <div className="interests-selection">
+            <fieldset><legend className="sr-only">Choisissez au moins un centre d’intérêt</legend><TopicChoices value={draft.topics} onChange={topics => setDraft({
+                ...draft,
+                topics
+              })} /></fieldset>
+            <p className="sr-only" role="status">{draft.topics.length ? `${draft.topics.length} sujet${draft.topics.length > 1 ? 's' : ''} sélectionné${draft.topics.length > 1 ? 's' : ''}` : 'Choisissez au moins un sujet.'}</p>
+          </div>
+          <div className="interests-footer">
+            <label className="field interests-context">Votre contexte <span className="optional">Facultatif</span>
+              <textarea rows={2} maxLength={500} placeholder="Un métier, un projet, une envie…" value={draft.notes} onChange={event => setDraft({
+                  ...draft,
+                  notes: event.target.value
+                })} />
+            </label>
+            <div className="interests-actions">
+              <button className="text-button" type="button" onClick={() => setStep(0)}><ArrowLeft size={15} /> Retour</button>
+              <button className="primary-button" type="submit" disabled={!draft.topics.length}>Ouvrir mon journal <ArrowRight size={18} /></button>
+            </div>
+          </div>
         </form>}
-        <div className="panel-footnote"><span className="small-star">✳</span><span>Vos goûts évoluent. Votre journal aussi.<br />Vous pourrez tout ajuster à tout moment.</span></div>
+        {step === 0 && <div className="panel-footnote"><span className="small-star">✳</span><span>Vos goûts évoluent. Votre journal aussi.<br />Vous pourrez tout ajuster à tout moment.</span></div>}
       </section>
-    </main>
-    <footer className="welcome-footer"><span>UN PEU DE RECUL SUR UN MONDE QUI AVANCE.</span><span>Kiosque · Prototype du hackathon</span></footer>
-  </div>;
+  </SetupLayout>;
 }
 function ArticleMeta({
   article
@@ -130,7 +135,7 @@ function ArticleVisual({ article, onRead, priority = false }) {
       if (event.currentTarget.naturalWidth < 120 || event.currentTarget.naturalHeight < 90) setFailed(true);
       else setLoaded(true);
     }} onError={() => setFailed(true)} />;
-  return <figure className={`article-visual${loaded ? ' is-loaded' : ''}`}>
+  return <figure className={`article-visual${loaded ? ' is-loaded' : ''}`} inert={!loaded}>
     {article.url ? <PublisherLink className="article-image-button" article={article} onRead={onRead} aria-label={`Lire : ${article.title}`}>{picture}</PublisherLink> : picture}
   </figure>;
 }
@@ -141,14 +146,18 @@ export function ArticleCard({
   onOpen,
   onRead,
   saved,
-  onSave
+  onSave,
+  onOrganize,
+  saving
 }) {
   return <article className={`article-card ${variant}`} data-article-id={article.id}>
     <div className="article-inner">
       {variant !== 'brief' && <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority={variant === 'lead'} />}
-      <h3><PublisherLink className="article-title" article={article} onRead={onRead}>{article.title}</PublisherLink></h3>
-      <ArticleMeta article={article} />
-      <div className="article-actions"><button className="article-details-button" onClick={() => onOpen(article)} aria-label={`Fiche et avis : ${article.title}`}>Fiche & avis</button><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`Enregistrer dans une bibliothèque : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Organiser dans mes bibliothèques' : 'Enregistrer dans une bibliothèque'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
+      <div className="article-copy">
+        <h3><PublisherLink className="article-title" article={article} onRead={onRead}>{article.title}</PublisherLink></h3>
+        <ArticleMeta article={article} />
+        <div className="article-actions"><button className="article-details-button" onClick={() => onOpen(article)} aria-label={`Fiche et avis : ${article.title}`}>Fiche & avis</button><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><ArticleSaveActions article={article} saved={saved} busy={saving} onSave={onSave} onOrganize={onOrganize} /></div>
+      </div>
     </div>
   </article>;
 }
@@ -185,6 +194,8 @@ export function ArticleDetail({
   article,
   saved,
   onSave,
+  onOrganize,
+  saving,
   canFeedback,
   feedback,
   notice,
@@ -210,7 +221,7 @@ export function ArticleDetail({
     </details>
     {article.reason && <div className="relevance"><Sparkles size={18} strokeWidth={1.5} /><div><h3>Pourquoi cet article ?</h3><p>{article.reason}</p></div></div>}
     {canFeedback ? <ArticleFeedback article={article} feedback={feedback} onFeedback={onFeedback} onMemory={onMemory} size={size} /> : <p className="prototype-note">Cette édition a été créée avec un autre profil local. Les retours seront disponibles sur vos propres éditions.</p>}
-    <div className="detail-actions"><button className="secondary-button" onClick={() => onSave(article.id)}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} />{saved ? 'Organiser dans mes bibliothèques' : 'Enregistrer dans une bibliothèque'}</button><button className="text-button" onClick={onClose}>Retour au journal <ArrowRight size={16} /></button></div>
+    <div className="detail-actions"><ArticleSaveActions article={article} saved={saved} busy={saving} onSave={onSave} onOrganize={onOrganize} labelled /><button className="text-button" onClick={onClose}>Retour au journal <ArrowRight size={16} /></button></div>
     <p className="prototype-note detail-disclaimer">La lecture complète se fait sur le site de l’éditeur, qui peut demander un abonnement.</p>
     {notice && <p className="feedback-notice" role="status">{notice}</p>}
   </Modal>;

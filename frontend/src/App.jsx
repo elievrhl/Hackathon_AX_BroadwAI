@@ -4,9 +4,9 @@ import { Onboarding, Preferences, ArticleDetail, Modal } from './components.jsx'
 import ReaderChat from './ReaderChat.jsx';
 import { preferenceSummary } from './preferences.js';
 import Newspaper from './Newspaper.jsx';
-import { getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
+import { getArchives, getSavedArticles, saveArticle, unsaveArticle, getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
 import { readLocal, accountKey, currentAccount, leaveAccount } from './accounts.js';
-import Library, { AccountScreen, AccountNav, SaveArticleDialog, CollectionForm } from './Library.jsx';
+import SavedArticles, { Archives, AccountScreen, AccountNav, SaveArticleDialog, CollectionForm } from './Library.jsx';
 import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover, formatDate } from './reader.js';
 import { getHealth, listCovers, getCover, createCover, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
 
@@ -29,6 +29,10 @@ function ReaderApp({ account, onLogout }) {
   const read = (key, fallback = null) => readLocal(accountKey(userId, key), fallback);
   const [view, setView] = useState('journal');
   const [collections, setCollections] = useState([]);
+  const [savedArticles, setSavedArticles] = useState({ article_ids: [], items: [] });
+  const [archives, setArchives] = useState([]);
+  const [archivesLoading, setArchivesLoading] = useState(false);
+  const [archivesError, setArchivesError] = useState('');
   const [selectedCollection, setSelectedCollection] = useState(null);
   const [savingArticle, setSavingArticle] = useState(null);
   const [collectionForm, setCollectionForm] = useState(null);
@@ -45,7 +49,7 @@ function ReaderApp({ account, onLogout }) {
   const [memory, setMemory] = useState(false);
   const [article, setArticle] = useState(null);
   const [feedback, setFeedback] = useState({});
-  const saved = [...new Set(collections.flatMap(collection => collection.article_ids))];
+  const saved = savedArticles.article_ids;
   const [liked, setLiked] = useState([]);
   const [likesReady, setLikesReady] = useState(false);
   const [liking, setLiking] = useState([]);
@@ -79,7 +83,7 @@ function ReaderApp({ account, onLogout }) {
     async function initialize() {
       const [healthResult, historyResult, likesResult, libraryResult] = await Promise.allSettled([getHealth(), listCovers(userId), getLikes(userId), loadCollections()]);
       if (!active) return;
-      if (libraryResult.status === 'fulfilled') setCollections(libraryResult.value);
+      if (libraryResult.status === 'fulfilled') acceptLibrary(libraryResult.value);
       else setLibraryError(libraryResult.reason.message);
       setLibraryLoading(false);
       if (likesResult.status === 'fulfilled') { setLiked(likesResult.value.article_ids); setLikesReady(true); }
@@ -166,7 +170,7 @@ function ReaderApp({ account, onLogout }) {
       // Preserve the result even if the next history refresh fails.
       setHistory(rows => [{ id: raw.id, title: raw.title, created_at: raw.created_at, status: raw.status, item_count: raw.items.length }, ...rows.filter(row => row.id !== raw.id)]);
       persist('kiosque.pending', null);
-      setNotice(`${raw.items.length} articles reçus. Classez les articles à garder dans vos bibliothèques.`);
+      setNotice(`${raw.items.length} articles reçus. Bonne lecture !`);
     } catch (reason) { setError(reason.message); }
     finally { inFlight.current = false; setBusy(''); }
   }
@@ -179,7 +183,23 @@ function ReaderApp({ account, onLogout }) {
     setSavingArticle({ ...selected, coverId: articleOrigin(selected) });
     refreshLibrary();
   }
-  function saveFromJournal(id) { chooseSave(cover?.items.find(item => item.id === id)); }
+  async function toggleSavedArticle(selected) {
+    if (!selected || libraryLoading || libraryLock.current) return;
+    const removing = saved.includes(selected.id);
+    const result = await mutateCollection(async () => {
+      const next = removing
+        ? await unsaveArticle(userId, selected.id)
+        : await saveArticle(userId, selected.id, articleOrigin(selected));
+      setSavedArticles(next);
+      if (removing) {
+        const withoutArticle = collection => ({ ...collection, article_ids: collection.article_ids.filter(id => id !== selected.id), item_count: collection.article_ids.filter(id => id !== selected.id).length });
+        setCollections(rows => rows.map(withoutArticle));
+        setSelectedCollection(previous => previous ? withoutArticle(previous) : null);
+      }
+      return next;
+    }, removing ? 'Article retiré des sauvegardes et des collections.' : 'Article sauvegardé. Retrouvez-le dans « Articles sauvegardés ».');
+    if (!result) setNotice('La sauvegarde n’a pas pu être mise à jour. Réessayez.');
+  }
   async function recordFeedback(value, selected = article) {
     const payload = typeof value === 'string' ? { kind: value } : value;
     const { kind } = payload;
@@ -221,12 +241,18 @@ function ReaderApp({ account, onLogout }) {
       await importBookmarks(userId, old.filter(id => typeof id === 'string'));
       persist('kiosque.collectionsMigrated', true);
     }
-    return getCollections(userId);
+    const [nextCollections, nextSaved] = await Promise.all([getCollections(userId), getSavedArticles(userId)]);
+    return { collections: nextCollections, savedArticles: nextSaved };
+  }
+  function acceptLibrary(data) {
+    setCollections(data.collections);
+    setSavedArticles(data.savedArticles);
   }
   async function refreshLibrary(includeSelected = true) {
+    if (libraryLock.current) return;
     setLibraryLoading(true); setLibraryError('');
     try {
-      setCollections(await loadCollections());
+      acceptLibrary(await loadCollections());
       if (includeSelected && selectedCollection) setSelectedCollection(await getCollection(userId, selectedCollection.id));
     } catch (reason) { setLibraryError(reason.message); }
     finally { setLibraryLoading(false); }
@@ -234,6 +260,10 @@ function ReaderApp({ account, onLogout }) {
   function acceptCollection(collection) {
     setCollections(rows => [collection, ...rows.filter(row => row.id !== collection.id)]);
     setSelectedCollection(previous => previous?.id === collection.id ? collection : previous);
+    if (collection.items?.length) setSavedArticles(previous => {
+      const additions = collection.items.filter(item => !previous.article_ids.includes(item.article_id));
+      return { article_ids: [...additions.map(item => item.article_id), ...previous.article_ids], items: [...additions, ...previous.items] };
+    });
   }
   async function mutateCollection(action, message) {
     if (libraryLock.current) return null;
@@ -262,7 +292,7 @@ function ReaderApp({ account, onLogout }) {
         acceptCollection(collection);
       }
       return collection;
-    }, collectionForm?.id ? 'Bibliothèque mise à jour.' : 'Bibliothèque créée.');
+    }, collectionForm?.id ? 'Collection mise à jour.' : 'Collection créée.');
     if (result) setCollectionForm(null);
     return !!result;
   }
@@ -280,7 +310,7 @@ function ReaderApp({ account, onLogout }) {
     await mutateCollection(async () => {
       const result = await removeFromCollection(userId, id, articleId);
       acceptCollection(result); return result;
-    }, 'Article retiré de cette bibliothèque.');
+    }, 'Article retiré de cette collection. Il reste dans vos articles sauvegardés.');
   }
   async function removeCollection(id) {
     await mutateCollection(async () => {
@@ -288,17 +318,25 @@ function ReaderApp({ account, onLogout }) {
       setCollections(rows => rows.filter(row => row.id !== id));
       setSelectedCollection(null);
       return true;
-    }, 'Bibliothèque supprimée.');
+    }, 'Collection supprimée. Vos articles sauvegardés sont conservés.');
+  }
+  async function refreshArchives() {
+    setArchivesLoading(true); setArchivesError('');
+    try { setArchives(await getArchives(userId)); }
+    catch (reason) { setArchivesError(reason.message); }
+    finally { setArchivesLoading(false); }
   }
   function navigate(next) {
+    if (libraryLock.current) return;
     setView(next); setArticle(null); setError(''); setLibraryError('');
-    if (next === 'library') { setSelectedCollection(null); refreshLibrary(false); }
+    if (next === 'saved') { setSelectedCollection(null); refreshLibrary(false); }
+    if (next === 'archives') refreshArchives();
   }
 
   return <>
     <a className="skip-link" href="#main">Aller au contenu</a>
-    <AccountNav account={account} view={view} onView={navigate} onLogout={onLogout} disabled={!!busy || !!libraryPending} />
-    {view === 'library' ? <Library collections={collections} selected={selectedCollection} loading={libraryLoading} error={libraryError} pending={libraryPending} onRetry={refreshLibrary} onOpen={openCollection} onBack={() => { setSelectedCollection(null); setLibraryError(''); }} onCreate={() => { setLibraryError(''); setCollectionForm({}); }} onEdit={collection => { setLibraryError(''); setCollectionForm(collection); }} onDelete={removeCollection} onRemoveArticle={removeCollectionArticle} onSaveArticle={chooseSave} onRead={recordOpen} onJournal={() => navigate('journal')} /> : profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} profile={profile} cover={cover} saved={saved} onSave={saveFromJournal} onOpen={setArticle} onRead={recordOpen} onPreferences={() => setPreferences(true)} busy={!!busy}>
+    {(profile || view !== 'journal') && <AccountNav account={account} view={view} onView={navigate} onLogout={onLogout} disabled={!!busy || !!libraryPending} />}
+    {view === 'archives' ? <Archives editions={archives} loading={archivesLoading} error={archivesError || error} busy={!!busy} onRetry={refreshArchives} onOpen={openCover} onView={navigate} /> : view === 'saved' ? <SavedArticles savedArticles={savedArticles} collections={collections} selected={selectedCollection} loading={libraryLoading} error={libraryError} pending={libraryPending} onRetry={refreshLibrary} onOpen={openCollection} onBack={() => { setSelectedCollection(null); setLibraryError(''); }} onCreate={() => { setLibraryError(''); setCollectionForm({}); }} onEdit={collection => { setLibraryError(''); setCollectionForm(collection); }} onDelete={removeCollection} onRemoveArticle={removeCollectionArticle} onSaveArticle={toggleSavedArticle} onOrganize={chooseSave} onRead={recordOpen} onView={navigate} /> : profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} profile={profile} cover={cover} saved={saved} onSave={toggleSavedArticle} onOrganize={chooseSave} saving={libraryLoading || !!libraryPending} onOpen={setArticle} onRead={recordOpen} onPreferences={() => setPreferences(true)} busy={!!busy}>
       <section className="reader-controls" aria-label="Gestion de votre édition">
         <div className="reader-actions">
         <button className="text-button" onClick={openMemory}><MessageCircle size={16} aria-hidden="true" /> Écrire à Kiosque</button>
@@ -307,7 +345,7 @@ function ReaderApp({ account, onLogout }) {
         <details className="edition-management" open={cover ? undefined : true}>
         <summary>Préparer ou retrouver une édition</summary>
         <div className="generation-row"><div><strong>{cover ? 'La prochaine édition vous attend.' : 'Composez votre première une.'}</strong><p>{profile.size} articles souhaités · recherche web et découverte de sources activées</p><p className="field-help">La génération consomme des crédits. À leur premier affichage, les nouvelles images font aussi l’objet d’une vérification facturée ; son résultat est ensuite réutilisé.</p></div><button className="primary-button" disabled={!!busy || health?.llm_configured === false} onClick={generate}>{busy === 'generating' ? 'Préparation en cours…' : 'Générer ma une'}<ArrowRight size={18} /></button></div>
-        <div className="history-row"><label htmlFor="edition-history">Mon historique de revues</label><select id="edition-history" value={cover?.id || ''} disabled={!!busy} onChange={event => openCover(event.target.value)}><option value="" disabled>Choisir une édition déjà générée</option>{history.map(row => <option key={row.id} value={row.id}>{formatDate(row.created_at)} · {row.item_count} articles · {STATUS_LABELS[row.status] || row.status} · {row.title}</option>)}</select><button className="text-button" onClick={refreshHistory} disabled={!!busy}><RefreshCw size={15} /> Actualiser</button></div>
+        <div className="history-row"><label htmlFor="edition-history">Éditions récentes</label><select id="edition-history" value={cover?.id || ''} disabled={!!busy} onChange={event => openCover(event.target.value)}><option value="" disabled>Choisir une édition déjà générée</option>{history.map(row => <option key={row.id} value={row.id}>{formatDate(row.created_at)} · {row.item_count} articles · {STATUS_LABELS[row.status] || row.status} · {row.title}</option>)}</select><button className="text-button" onClick={refreshHistory} disabled={!!busy}><RefreshCw size={15} /> Actualiser</button></div>
         {!history.length && !busy && <p className="field-help">Aucune édition générée pour ce compte pour le moment.</p>}
         {cover && <a className="audit-link" href={`/admin/covers?id=${encodeURIComponent(cover.id)}`} target="_blank" rel="noreferrer">Voir la construction de cette édition : sélection, résumés, outils et coût ↗</a>}
         </details>
@@ -318,9 +356,9 @@ function ReaderApp({ account, onLogout }) {
     </Newspaper> : <Onboarding initialName={account.name} onComplete={saveProfile} onExplore={() => { saveProfile({ ...DEFAULT_PROFILE, name: account.name }); if (history.length) openCover(history[0].id); }} />}
     {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} onMemory={openMemory} />}
     {savingArticle && <SaveArticleDialog article={savingArticle} collections={collections} loading={libraryLoading} busy={!!libraryPending} error={libraryError} onToggle={toggleCollectionArticle} onCreate={saveCollection} onRetry={refreshLibrary} onClose={() => setSavingArticle(null)} />}
-    {collectionForm && <Modal className="collection-dialog" labelId="collection-form-title" onClose={() => { if (!libraryPending) setCollectionForm(null); }}><p className="eyebrow">VOS ARTICLES, VOS ENVIES</p><h2 id="collection-form-title">{collectionForm.id ? 'Modifier la bibliothèque' : 'Nouvelle bibliothèque'}</h2><CollectionForm key={collectionForm.id || 'new'} collection={collectionForm.id ? collectionForm : null} busy={!!libraryPending} error={libraryError} onSubmit={saveCollection} onCancel={() => setCollectionForm(null)} /></Modal>}
+    {collectionForm && <Modal className="collection-dialog" labelId="collection-form-title" onClose={() => { if (!libraryPending) setCollectionForm(null); }}><p className="eyebrow">VOS ARTICLES, VOS ENVIES</p><h2 id="collection-form-title">{collectionForm.id ? 'Modifier la collection' : 'Nouvelle collection'}</h2><CollectionForm key={collectionForm.id || 'new'} collection={collectionForm.id ? collectionForm : null} busy={!!libraryPending} error={libraryError} onSubmit={saveCollection} onCancel={() => setCollectionForm(null)} /></Modal>}
     {profile && <Modal className="reader-chat-dialog" labelId="memory-title" open={memory} onClose={() => setMemory(false)}><ReaderChat userId={userId} profile={profile} generating={busy === 'generating'} open={memory} /></Modal>}
-    {article && <ArticleDetail key={`${cover.id}:${article.id}`} liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} article={article} saved={saved.includes(article.id)} onSave={() => { setArticle(null); chooseSave(article); }} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} onMemory={openMemory} size={profile?.size || 18} />}
+    {article && <ArticleDetail key={`${cover.id}:${article.id}`} liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} article={article} saved={saved.includes(article.id)} onSave={toggleSavedArticle} saving={libraryLoading || !!libraryPending} onOrganize={() => { setArticle(null); chooseSave(article); }} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} onMemory={openMemory} size={profile?.size || 18} />}
     <div className={`toast ${notice ? 'visible' : ''}`} role="status" aria-live="polite">{notice && <><Check size={17} /><span>{notice}</span></>}</div>
   </>;
 }

@@ -1,6 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
+import { getArchives, getSavedArticles, saveArticle, unsaveArticle } from './api.js';
+
+test('archives and one-click bookmarks use separate APIs and preserve the article origin', async t => {
+  const calls = [];
+  t.mock.method(globalThis, 'fetch', async (url, options) => {
+    calls.push({ url, method: options.method || 'GET', body: options.body && JSON.parse(options.body) });
+    return new Response(JSON.stringify({ article_ids: ['article'], items: [] }));
+  });
+  await getArchives('alice');
+  await getSavedArticles('alice');
+  await saveArticle('alice', 'article', 'edition');
+  await unsaveArticle('alice', 'article');
+  assert.deepEqual(calls, [
+    { url: '/v1/archives?user_id=alice', method: 'GET', body: undefined },
+    { url: '/v1/saved-articles?user_id=alice', method: 'GET', body: undefined },
+    { url: '/v1/saved-articles/article?user_id=alice', method: 'PUT', body: { cover_id: 'edition' } },
+    { url: '/v1/saved-articles/article?user_id=alice', method: 'DELETE', body: undefined },
+  ]);
+});
 
 test('article collections keep the account, memberships and creation data in every request', async t => {
   const calls = [];

@@ -157,3 +157,20 @@ WHERE NOT EXISTS (SELECT 1 FROM library_collection_migrations m
 ON CONFLICT DO NOTHING;
 INSERT INTO library_collection_migrations (user_id,cover_id)
 SELECT user_id,cover_id FROM library_editions ON CONFLICT DO NOTHING;
+
+-- Bookmarks exist independently of their optional collection memberships.
+CREATE TABLE IF NOT EXISTS saved_articles (
+    user_id TEXT NOT NULL,
+    article_id TEXT NOT NULL,
+    payload JSONB NOT NULL,
+    saved_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY(user_id, article_id)
+);
+CREATE TABLE IF NOT EXISTS reader_data_migrations (id TEXT PRIMARY KEY);
+INSERT INTO saved_articles (user_id,article_id,payload,saved_at)
+SELECT DISTINCT ON (c.user_id,m.article_id) c.user_id,m.article_id,m.payload,m.added_at
+FROM collection_articles m JOIN article_collections c ON c.id=m.collection_id
+WHERE NOT EXISTS (SELECT 1 FROM reader_data_migrations WHERE id='saved-articles-v1')
+ORDER BY c.user_id,m.article_id,m.added_at DESC
+ON CONFLICT DO NOTHING;
+INSERT INTO reader_data_migrations VALUES ('saved-articles-v1') ON CONFLICT DO NOTHING;

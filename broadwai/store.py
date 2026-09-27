@@ -170,6 +170,23 @@ class Store(PreferenceStore):
         keys = ("id", "title", "created_at", "status", "item_count", "usage", "audit_version")
         return [dict(zip(keys, row, strict=True)) for row in rows]
 
+    def archives(self, user_id: str) -> list[dict]:
+        from broadwai.library import artwork
+
+        with self.pool.connection() as db:
+            rows = db.execute(
+                "SELECT payload FROM covers WHERE user_id=%s "
+                "ORDER BY payload->>'created_at' DESC, id", (user_id,),
+            ).fetchall()
+        result = []
+        for row in rows:
+            cover = Cover.model_validate(row[0])
+            result.append({
+                "id": cover.id, "title": cover.title, "created_at": cover.created_at,
+                "status": cover.status, "item_count": len(cover.items), "artwork": artwork(cover),
+            })
+        return result
+
     def save_edition(self, user_id: str, cover_id: str) -> None:
         from broadwai.library import artwork
 

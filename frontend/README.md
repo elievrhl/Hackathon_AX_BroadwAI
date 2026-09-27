@@ -53,11 +53,16 @@ utiliser la même adresse pour retrouver son profil local.
 4. Cliquer sur un titre ou une image pour lire directement l’article chez son éditeur,
    dans un nouvel onglet. Le bouton **Fiche & avis** donne accès au résumé, à la raison
    de sélection et aux retours, sans quitter le journal.
-5. Retrouver les éditions enregistrées dans l’historique, sans nouvelle génération.
-   L’inspecteur fournit la sélection, les scores, résumés, outils et coût après génération.
-6. Utiliser le marque-page pour ranger un article dans une ou plusieurs bibliothèques,
-   ou en créer une sur le moment. **Ma bibliothèque** conserve les vues couvertures et
-   tranches et permet de renommer les collections et d’en retirer des articles.
+5. **Archives** (icône de boîte dans la barre du haut) retrouve toutes les éditions du compte, conservées
+   automatiquement avec leurs couvertures et leur vue en tranches. Une couverture
+   ouvre l’édition existante, sans nouvelle génération.
+6. Le marque-page sauvegarde immédiatement un article, sans fenêtre intermédiaire.
+   **Articles sauvegardés** (icône marque-page dans la barre du haut) rassemble ces lectures. Le menu **… → Ajouter
+   à une collection** permet un classement facultatif ; un article peut appartenir à
+   plusieurs collections. Classer un article le sauvegarde aussi automatiquement.
+   Retirer un article d’une collection ou supprimer cette collection conserve sa sauvegarde.
+   Désactiver le marque-page retire l’article des sauvegardes et de toutes ses collections,
+   sans modifier les éditions archivées.
 
 Un lien `/reader/?cover=<identifiant>` ouvre directement une édition, notamment depuis
 l’inspecteur. Le paramètre de l’URL est prioritaire sur la dernière édition du navigateur.
@@ -65,6 +70,13 @@ l’inspecteur. Le paramètre de l’URL est prioritaire sur la dernière éditi
 La une privilégie les titres, les visuels et les sources : les bandeaux décoratifs,
 slogans, numéros de rubrique et appels à l’action redondants ont été retirés. La sauvegarde
 et le Courrier du lecteur restent disponibles dans une barre d’actions compacte.
+
+La mise en page s’adapte aux éditions courtes et aux images manquantes : le sujet principal
+utilise la largeur disponible, puis les rubriques se suivent avec une à trois colonnes
+selon leur nombre d’articles et la largeur de l’écran. Les cartes coulent de haut en bas
+dans chaque colonne, sans lignes de hauteur imposée. Un visuel en attente, rejeté ou en
+erreur ne réserve aucun emplacement vide. Les éditions enregistrées bénéficient aussi
+de cette composition, sans nouvelle génération.
 
 Les cartes et fiches affichent le temps de lecture estimé à 200 mots par minute,
 arrondi à la minute supérieure, à partir du texte extrait de l’article. Si seul un
@@ -101,9 +113,11 @@ tâche asynchrone ni de reprise automatique d’une requête interrompue.
 - `kiosque.accounts.v1`, `kiosque.session.v1` : comptes de démonstration et session locale.
 - Les clés `kiosque.reader.v1`, `kiosque.lastCover` et `kiosque.pending` sont suffixées
   par l’identifiant du compte pour isoler le profil, la dernière édition et une génération en cours.
-- Les bibliothèques et leurs articles sont enregistrés dans PostgreSQL via `/v1/collections`.
-  Les anciennes revues sauvegardées sont migrées une fois ; les anciens marque-pages locaux
-  (`kiosque.saved`) sont repris dans « À lire ».
+- Les archives lisent toutes les éditions du compte via `/v1/archives`.
+- Les articles sauvegardés sont persistés dans PostgreSQL via `/v1/saved-articles`,
+  indépendamment de leur classement facultatif via `/v1/collections`. Les articles
+  des collections existantes sont repris une seule fois, sans réapparaître après retrait.
+  Les anciens marque-pages locaux (`kiosque.saved`) sont repris dans « À lire ».
 
 Les couvertures, résumés et événements sont enregistrés par le backend dans PostgreSQL.
 Le clic vers l’éditeur envoie `open` ; les boutons d’avis envoient `useful`,

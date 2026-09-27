@@ -40,7 +40,7 @@ class Collections:
             (collection_id, user_id),
         ).fetchone()
         if row is None:
-            raise ValueError("Bibliothèque introuvable pour ce compte")
+            raise ValueError("Collection introuvable pour ce compte")
         return row
 
     def list(self, user_id, collection_id=None):
@@ -52,7 +52,7 @@ class Collections:
                 (user_id, collection_id) if collection_id else (user_id,),
             ).fetchall()
             if collection_id and not rows:
-                raise ValueError("Bibliothèque introuvable pour ce compte")
+                raise ValueError("Collection introuvable pour ce compte")
             members = (
                 cur.execute(
                     "SELECT m.*, a.payload AS current_article FROM collection_articles m "
@@ -135,6 +135,7 @@ class Collections:
 
     def delete(self, user_id, collection_id):
         with self.pool.connection() as db:
+            self.lock_reader(db, user_id)
             self.owned(db, user_id, collection_id, lock=True)
             db.execute("DELETE FROM article_collections WHERE id=%s", (collection_id,))
 
@@ -149,6 +150,13 @@ class Collections:
             return {**item.model_dump(mode="json"), "cover_id": cover_id}
         article = self.store.get_article(article_id)
         if article is None:
+            with self.pool.connection() as db:
+                row = db.execute(
+                    "SELECT payload FROM saved_articles WHERE user_id=%s AND article_id=%s",
+                    (user_id, article_id),
+                ).fetchone()
+            if row:
+                return row[0]
             raise ValueError("Article introuvable")
         return {
             "article_id": article.id,
@@ -177,12 +185,15 @@ class Collections:
     def add(self, user_id, collection_id, article_id, cover_id=None):
         payload = self.snapshot(user_id, article_id, cover_id)
         with self.pool.connection() as db:
+            self.lock_reader(db, user_id)
             self.owned(db, user_id, collection_id, lock=True)
+            self.insert_saved(db, user_id, article_id, payload)
             self.insert_member(db, collection_id, article_id, payload)
         return self.get(user_id, collection_id)
 
     def remove(self, user_id, collection_id, article_id):
         with self.pool.connection() as db:
+            self.lock_reader(db, user_id)
             self.owned(db, user_id, collection_id, lock=True)
             row = db.execute(
                 "DELETE FROM collection_articles WHERE collection_id=%s AND article_id=%s "
@@ -204,6 +215,7 @@ class Collections:
                 continue
         if snapshots:
             with self.pool.connection() as db:
+                self.lock_reader(db, user_id)
                 row = db.execute(
                     "INSERT INTO article_collections (id,user_id,name,import_key) "
                     "VALUES (%s,%s,'À lire','browser-bookmarks-v1') "
@@ -212,8 +224,69 @@ class Collections:
                     (uuid4().hex, user_id),
                 ).fetchone()
                 for article_id, payload in snapshots.items():
+                    self.insert_saved(db, user_id, article_id, payload)
                     self.insert_member(db, row[0], article_id, payload)
         return {"imported_ids": list(snapshots)}
+
+    @staticmethod
+    def lock_reader(db, user_id):
+        # Serialize a bookmark removal with collection additions for the same reader.
+        db.execute("SELECT pg_advisory_xact_lock(hashtextextended(%s, 1))", (user_id,))
+
+    @staticmethod
+    def insert_saved(db, user_id, article_id, payload):
+        db.execute(
+            "INSERT INTO saved_articles (user_id,article_id,payload) VALUES (%s,%s,%s) "
+            "ON CONFLICT DO NOTHING",
+            (user_id, article_id, Jsonb(payload)),
+        )
+
+    def saved(self, user_id):
+        with self.pool.connection() as db, db.cursor(row_factory=dict_row) as cur:
+            rows = cur.execute(
+                "SELECT s.*, a.payload AS current_article FROM saved_articles s "
+                "LEFT JOIN articles a ON a.id=s.article_id WHERE s.user_id=%s "
+                "ORDER BY s.saved_at DESC, s.article_id",
+                (user_id,),
+            ).fetchall()
+        items = []
+        for row in rows:
+            item = {**row["payload"], "saved_at": row["saved_at"]}
+            if row["current_article"]:
+                article = Article.model_validate(row["current_article"])
+                item.update(
+                    title=article.title,
+                    url=article.url,
+                    source=article.source,
+                    image=article.image.model_dump() if article.image else None,
+                    image_checked=bool(article.image_checked_at),
+                    reading_time_minutes=article.reading_time_minutes,
+                )
+            items.append(item)
+        return {"article_ids": [item["article_id"] for item in items], "items": items}
+
+    def save(self, user_id, article_id, cover_id=None):
+        payload = self.snapshot(user_id, article_id, cover_id)
+        with self.pool.connection() as db:
+            self.lock_reader(db, user_id)
+            self.insert_saved(db, user_id, article_id, payload)
+        return self.saved(user_id)
+
+    def unsave(self, user_id, article_id):
+        with self.pool.connection() as db:
+            self.lock_reader(db, user_id)
+            db.execute(
+                "WITH removed AS (DELETE FROM collection_articles m USING article_collections c "
+                "WHERE m.collection_id=c.id AND c.user_id=%s AND m.article_id=%s "
+                "RETURNING m.collection_id) UPDATE article_collections SET updated_at=now() "
+                "WHERE id IN (SELECT collection_id FROM removed)",
+                (user_id, article_id),
+            )
+            db.execute(
+                "DELETE FROM saved_articles WHERE user_id=%s AND article_id=%s",
+                (user_id, article_id),
+            )
+        return self.saved(user_id)
 
 
 def repository(request):
