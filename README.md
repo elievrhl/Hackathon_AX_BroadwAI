@@ -1,5 +1,15 @@
 # Kiosque — presse personnalisée
 
+## Événements — catalogue de démonstration
+
+Le lecteur propose désormais **Événements · À voir, à écouter, à vivre**, avec
+17 références préparées : sorties à Paris, émissions et podcasts. Jusqu’à six
+suggestions suivent les sujets cochés ; les sorties terminées sont écartées et
+les prochaines sont limitées à 14 jours. Les filtres Sortir / Regarder / Écouter
+et un aperçu dans la une fonctionnent sans génération d’articles ni appel IA.
+Les sources ont été consultées le 27 septembre 2026 ; billets, annulations et
+droits de diffusion ne sont pas actualisés en direct. [Pipeline et catalogue](frontend/EVENTS.md).
+
 ## Interface lecteur — React connecté au backend
 
 Le projet s’appelle **Kiosque**. L’interface [`frontend/`](frontend/README.md)
