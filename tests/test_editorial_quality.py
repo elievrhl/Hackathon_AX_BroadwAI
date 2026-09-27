@@ -93,7 +93,6 @@ async def test_decades_old_essays_depend_on_validity_not_age(status, accepted):
                         kind="evergreen",
                         status=status,
                         reason="Évaluation de l'apport historique du texte",
-                        evidence="Python systèmes distribués",
                     ),
                 }
             )
@@ -124,7 +123,6 @@ async def test_old_research_is_dated_and_not_turned_into_today_news(age, kind, a
                         kind=kind,
                         status="time_sensitive",
                         reason="Résultat daté à lire dans son contexte",
-                        evidence="Python systèmes distribués",
                     ),
                 }
             )
@@ -238,7 +236,6 @@ async def test_full_text_can_correct_preview_temporality_without_relaxing_final_
                         kind=kind,
                         status=status,
                         reason="Évaluation du texte intégral",
-                        evidence="Python systèmes distribués",
                     )
                 }
             )
@@ -364,7 +361,6 @@ async def test_layout_overflow_preserves_articles_and_editor_order_without_fallb
             headline=a.title,
             role=role,
             matched_need="need-1",
-            evidence=a.title,
             story_key=a.title,
         )
         for a, role in zip(items, roles, strict=True)
@@ -417,7 +413,6 @@ async def test_partial_editions_also_reject_wrong_sections_and_duplicate_story_w
             headline=a.title,
             role="lead" if n == 0 else "secondary",
             matched_need="need-1",
-            evidence=a.title,
             story_key="même annonce",
         )
         for n, a in enumerate(items)

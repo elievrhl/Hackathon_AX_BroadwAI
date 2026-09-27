@@ -52,7 +52,9 @@
 .newspaper .edition-flow :is(.section-heading, .briefs-heading) h2 { font-size: 1.3rem; line-height: 1.15; }
 .newspaper :is(.edition-flow, .filtered-articles) .article-card {
   break-inside: avoid;
-  display: block;
+  /* An atomic card prevents column balancing from fragmenting its flex content. */
+  display: inline-block;
+  vertical-align: top;
   width: 100%;
   max-width: none;
   padding: 12px 0;

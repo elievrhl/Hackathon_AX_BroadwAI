@@ -2,7 +2,6 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
-from tests.client import TestClient
 
 from broadwai.api import create_app
 from broadwai.config import Settings
@@ -14,6 +13,7 @@ from broadwai.models import (
     ReaderPreference,
 )
 from broadwai.preferences import PreferencePolicy, validate_preference
+from tests.client import TestClient
 from tests.fakes import MemoryStore, ScriptedModel, article, finalize_first
 from tests.test_pipeline import pipeline, request
 

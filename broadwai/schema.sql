@@ -140,6 +140,20 @@ CREATE TABLE IF NOT EXISTS source_articles (
 );
 CREATE INDEX IF NOT EXISTS source_articles_article ON source_articles(article_id);
 
+CREATE TABLE IF NOT EXISTS source_collection_schedule (
+    id BOOLEAN PRIMARY KEY DEFAULT TRUE CHECK (id),
+    first_run_at TIMESTAMPTZ NOT NULL
+);
+CREATE TABLE IF NOT EXISTS source_collection_runs (
+    slot_at TIMESTAMPTZ PRIMARY KEY,
+    status TEXT NOT NULL CHECK (status IN ('running','interrupted','completed')),
+    token TEXT NOT NULL,
+    started_at TIMESTAMPTZ NOT NULL,
+    heartbeat_at TIMESTAMPTZ NOT NULL,
+    finished_at TIMESTAMPTZ,
+    report JSONB
+);
+
 CREATE TABLE IF NOT EXISTS source_proposals (
     id TEXT PRIMARY KEY,
     url TEXT UNIQUE NOT NULL,

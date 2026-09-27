@@ -34,10 +34,10 @@
   {"name": "The Guardian — économie", "kind": "rss", "url": "https://www.theguardian.com/business/rss"},
   {"name": "FRED — analyses de données économiques", "kind": "rss", "url": "https://fredblog.stlouisfed.org/feed/"},
   {"name": "Our World in Data — économie et société", "kind": "rss", "url": "https://ourworldindata.org/atom.xml"},
-  {"name": "ARTE — vidéos culture et société", "kind": "rss", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCwI-JbGNsojunnHbFAc0M4Q", "limit_per_source": 15},
-  {"name": "Le Monde — vidéos d’actualité", "kind": "rss", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYpRDnhk5H8h16jpS84uqsA", "limit_per_source": 15},
-  {"name": "Veritasium — vidéos scientifiques", "kind": "rss", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA", "limit_per_source": 15},
-  {"name": "La Science CQFD — podcast scientifique", "kind": "podcast", "url": "https://radiofrance-podcast.net/podcast09/rss_14312.xml", "limit_per_source": 15},
-  {"name": "Les Pieds sur terre — récits et société", "kind": "podcast", "url": "https://radiofrance-podcast.net/podcast09/rss_10078.xml", "limit_per_source": 15},
-  {"name": "Chaleur humaine — climat et société", "kind": "podcast", "url": "https://feeds.acast.com/public/shows/68db9a016d92c33f9c2eff83", "limit_per_source": 15}
+  {"name": "ARTE — vidéos culture et société", "kind": "rss", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCwI-JbGNsojunnHbFAc0M4Q", "limit_per_source": 50},
+  {"name": "Le Monde — vidéos d’actualité", "kind": "rss", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYpRDnhk5H8h16jpS84uqsA", "limit_per_source": 50},
+  {"name": "Veritasium — vidéos scientifiques", "kind": "rss", "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA", "limit_per_source": 50},
+  {"name": "La Science CQFD — podcast scientifique", "kind": "podcast", "url": "https://radiofrance-podcast.net/podcast09/rss_14312.xml", "limit_per_source": 50},
+  {"name": "Les Pieds sur terre — récits et société", "kind": "podcast", "url": "https://radiofrance-podcast.net/podcast09/rss_10078.xml", "limit_per_source": 50},
+  {"name": "Chaleur humaine — climat et société", "kind": "podcast", "url": "https://feeds.acast.com/public/shows/68db9a016d92c33f9c2eff83", "limit_per_source": 50}
 ]

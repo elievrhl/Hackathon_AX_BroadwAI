@@ -12,7 +12,7 @@ import SavedArticles, { Archives, AccountScreen, AccountNav, SaveArticleDialog, 
 import { DEFAULT_PROFILE, normalizeProfile, initialReaderProfile, toCoverRequest, adaptCover } from './reader.js';
 import { listCovers, getCover, registerDailyEdition, getDailyEdition, getRegeneration, regenerateEdition, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
 
-import { dailyEditionMessage, initialEditionId } from './daily-edition.js';
+import { dailyEditionMessage, dailyEditionRefreshMs, initialEditionId } from './daily-edition.js';
 
 export default function App() {
   const [account, setAccount] = useState(null);
@@ -82,6 +82,7 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('loading');
   const [daily, setDaily] = useState(null);
+  const dailyRefreshMs = dailyEditionRefreshMs(daily, !!cover);
   const [dailyError, setDailyError] = useState('');
   const [regeneration, setRegeneration] = useState(null);
   const [regeneratingCover, setRegeneratingCover] = useState(null);
@@ -238,11 +239,10 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
       } finally { refreshing = false; }
     }
     refreshDaily();
-    const awaitingEdition = ['queued', 'running'].includes(daily?.status) || (!cover && daily?.status === 'ready');
-    const timer = window.setInterval(refreshDaily, awaitingEdition ? 2500 : 60_000);
+    const timer = window.setInterval(refreshDaily, dailyRefreshMs);
     document.addEventListener('visibilitychange', refreshDaily);
     return () => { active = false; clearInterval(timer); document.removeEventListener('visibilitychange', refreshDaily); };
-  }, [profile, daily?.registered, daily?.status, !!cover, busy === 'loading']);
+  }, [profile, daily?.registered, dailyRefreshMs, busy === 'loading']);
 
   async function saveProfile(value) {
     if (profileLock.current) return false;

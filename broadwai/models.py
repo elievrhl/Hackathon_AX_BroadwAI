@@ -382,7 +382,7 @@ class IngestRequest(Model):
     feed_urls: list[str] = Field(default_factory=list, max_length=10)
     website_urls: list[str] = Field(default_factory=list, max_length=10)
     hacker_news: bool = False
-    limit_per_source: int = Field(15, ge=1, le=50)
+    limit_per_source: int = Field(50, ge=1, le=50)
 
     @field_validator("feed_urls", "website_urls")
     @classmethod

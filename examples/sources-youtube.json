@@ -1,0 +1,1402 @@
+[
+  {
+    "name": "Science Étonnante",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCaNlbnghtwlsGF-KzAFThqA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Le Réveilleur",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC1EacOJoqsKaYxaDomTCTEQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "3Blue1Brown",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYO_jab_esuFRV4b17AJtAw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "PBS Space Time",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC7_gcs09iThXybpVgjHZ_7g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Collège de France",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCzZiy3EANVAx7h2XYqXsVbw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Monsieur Phi",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCqA8H22FwgBVcF3GJpp0MQw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Computerphile",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC9-y-6csu5WGm29I7JiwpnA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Le Vortex — ARTE",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZxLew-WXWm5dhRZBgEFl-Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Histony",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCt8ctlakIflnSG0ebFps7cw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Passé sauvage",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLhOJJbPciPdocXTaAk2SdA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Linguisticae",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCofQxJWd4qkqc7ZgaLkZfcw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Heu?reka",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC7sXGI8p8PvKosLWagkK9wQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Stupid Economics",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCyJDHgrsUKuWLe05GvC2lng",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Nota Bene",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCP46_MXP_WG_auH88FnfS1A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Scilabus",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCeR8BYZS7IHYjk_9Mh5JgkA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Fouloscopie",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLXDNUOO3EQ80VmD9nQBHPg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Smarthistory",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3R-xanNgtoa8b7gpVexVlA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The National Gallery",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCrPOgNsUldOtQsTf9Kjlm_A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "BFI",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC9dGqMAPJRpA7M0oSdgtQgg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "David Bennett Music Theory",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCz2iUx-Imr6HgDC3zAFpjOw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Ben Eater",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCS0N5baNlQWJCUrhCEo8WlA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Dr. Becky",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYNbYGl89UUowy8oXkipC-Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Royal Institution",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYeF244yNGuFefuFKqxIAXw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Numberphile",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCoxcjq-8xIDTYp3uz647V5A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "PBS Eons",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCzR-rom72PHN9Zg7RML9EbA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "America's Test Kitchen",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCxAS_aK7sS2x_bqnlJHDSHw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Veritasium",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHnyfMqiRRG1u-2MsSQLbXA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Science4All",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC0NCbj8CxzeCGIF6sODJ-7A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "CNRS",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCRHBpvcASQs852H0t4mt1zA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "CNES",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCOixknKUV8AaCA5uaaBY0Bw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "CEA",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCpTMWY8NRQby8zXUKhHznfg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Inserm",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCIqFi2jwZI4TIs1hNZz18Mw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "INRAE",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCQxx5pTHLCoxjrr6VhLznRw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Inrap",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6Yhg_Phtz-RHX0CBFhU8pA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Ifremer",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLgt_wd7yKySEXdWAbbNE3Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "brgmTV",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCFbyTjw0EdnxVsHrVIcibxg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "IRD",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCoV6J24qg5SZKVHAQzqhIUg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Ined, Institut national d’études démographiques",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCEzNx_wUFabIgVXZ9oO_Rsw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Insee - Institut national de la Statistique et des Études économiques",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UChCCvJTbZEYsCXyfu27eQ6g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Muséum national d'Histoire naturelle",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCyQuKkNt-Jiqw45eNfXWBXw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Espace des sciences",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UClDk0iyj99stPxD9NQUaVSQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut Pasteur",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC7o7xRfm-MEAMMwES2crk5Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut Curie",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCJgWorcJtnNsecn-42aS84g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut du Cerveau - Paris Brain Institute",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCdvPnbYIv4bHKsqgFxS2k3w",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "École normale supérieure - PSL",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCbn8O8WwMeoZsPRxgumfvAQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "EPFL",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UClMJeVIVyGp-3_kWtspkS0Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Université de Lausanne",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCMRwzZJguCyzvveznZBrFgQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Université de Genève (UNIGE)",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLVD78-qZV06ULrJ6eKJIiQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Bibliothèque nationale de France BnF",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC4qeHjCTm6etgMiHXzbTd0A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Bibliothèque publique d'information",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCc6F_5d78VvaFc07XNRBrdw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Archives nationales de France",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCKw0Svhe0P4eiJW-i4PrTwQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut national d'histoire de l'art (INHA)",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCvWtEiy6IYIJLQhIWlohhkQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut national du patrimoine",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCmw7JXA9zlAxDjBT8pSLEcg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Musée du Louvre",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCafm6w_rPndqAtokQy04Jdw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Musée du quai Branly - Jacques Chirac",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCdaJzoQGIUnfCTlezN4Fv0A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Château de Versailles",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC4wIrWebH5ljiEnYOXMYiZg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Musée de l'Armée",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCaPr4ZvxHm97X4c7QTeVyeQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Musée des Confluences",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCIcbAOr6uT9cewyySUCwm3A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Cité de l'architecture et du patrimoine",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCp9mx8ZyM9Hv-4IOgvi5cyQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Philharmonie de Paris",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCVfFL9vrBX6IrDiP_vcTz2w",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "France Culture",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCd5DKToXYTKAQ6khzewww2g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "ARTE",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCwI-JbGNsojunnHbFAc0M4Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Le Forum des images",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZjNTKdpbkfzGCwXAFZTYNA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Le Monde",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYpRDnhk5H8h16jpS84uqsA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "AFP",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCckz6n8QccTd6K_xdwKqa0A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "FRANCE 24",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCCCPCZNChQdGa9EkATeye4g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Conversation France",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCvXTZl2jMdxduGygHY72qMw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Météo-France",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCnBToLuuyq7Qn5j7e5BRhaw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Banque de France",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCiL5cr7kZyfhQmfspVPCdOQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Cité de l'Économie (Citéco)",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCaViDbhP5cqvonHb0SgyGvA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Paris School of Economics",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCeVUAfawaJIfNUZCHiLCTVQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "INSEP",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCtzNqITLz5T0XDi-EuK2pWA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "MIT OpenCourseWare",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCEBb1b_L6zDS3xTUrIALZOw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Gresham College",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC1t6kKXoBvjdr8m9KJ2Fx7A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "LSE",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCK08_B5SZwoEUk2hDPMOijQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "UCL",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC4jcptjdFE31PnI7a2yfXIw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Imperial College London",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCcRV5FPxxWFdS4Fjnk9FQvA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "TED-Ed",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsooa4yRKGN_zEE8iknghZA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "CrashCourse",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCX6b17PVsYBQ0ip5gyeme-Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Royal Society",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC5MOW8BO3dH38Fo3Rau17KQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Physics World",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCjGqxn7_-dqXmS6MAITkmTw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Quanta Magazine",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCTpmmkp1E4nmZqWPS-dl5bg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "NOVA PBS Official",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCjHz5SVHeMT0AViCYZvsGDA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "NASA",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLA_DiR1FfKNvjuUpBHmylQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "NASA Goddard",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCAY-SMFNfynqz1bdoaV8BeQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "European Space Agency, ESA",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCIBaDdAbGlFDeS33shmlD0A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "European Southern Observatory (ESO)",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCIhYoC2VIAJqCkoIWNHBQ3Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Space Telescope Science Institute",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCQXVf-94-RV7NVTOhVCNTiQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "HubbleWebbESA",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCllDaJE5yvO0PbjqvIn3iCw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Planetary Society",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCi0TZmFfgS4oQPcRQ6-KRXg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "CERN",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCrHXK2A9JtiexqwHuWGeSMg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "SLAC National Accelerator Laboratory",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCKzqyRUej9BI5dhdjwF09vQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Brookhaven Lab",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCCyMSf0BuLAuPADasB-zdVA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Oak Ridge National Laboratory",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCmXb5EVu1Zmi02Lcv1LAf4w",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Los Alamos National Lab",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCbWmiA_pHk9DE62BaSUFFRw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Perimeter Institute for Theoretical Physics",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCpHvNclapYpq8b0ZnGRoMeg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Kavli Institute for Theoretical Physics",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6S-TJHOZnwXRhvBd8Ol_1A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "International Centre for Theoretical Physics",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UChFTAv9bS-LJjXSVkFBkK5g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Simons Foundation",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZVjCmJOQRpAQ_EruAIPqXg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Simons Institute for the Theory of Computing",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCW1C2xOfXsIzPgjXyuhkw9g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Santa Fe Institute",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC9rHXgUE9pikzYcGrAujMXQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Fields Institute",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCSzx-qTK2639JBWgrb6mTmw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Science Communication Lab",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCsvqEZBO-kNmwuDBbKbfL6A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Cold Spring Harbor Laboratory",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCeMUZN7Q0zIaseLQUSZzqpA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "DNA Learning Center",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC8wZzNSXUHzv3QijdOzeELA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "allen institute",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCGkP8eCPut_4mW-KEKKnzqw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "USGS",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCeXH8GZyV3sVqAr45AvupOA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Woods Hole Oceanographic Institution",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCfxsF5U3pXBZFuXc9vY9nPw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Schmidt Ocean Institute",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC1m5LdKP0m64n8nY3NhK6Zg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "EVNautilus",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC1KOOWHthbQVXH2kZue3_xA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "British Geological Survey",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC0JCbQti3FlTIzrJGZqzh3Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Carbon Brief",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCiXgvmQ2jUgUjRpJzvga5Tg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "International Energy Agency",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCiMPkzrVSCEDm3TatvdVylw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "RMI",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCtMVIFDBDTHbJK8A0HPdNqA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Tate",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC2isDei-lrNSrgGYE4Np3PA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Museum of Modern Art",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC9CswYtb5rL31CHwyVoyJvQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Victoria and Albert Museum",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCmaflrfppKNfq8uuZVZZxQg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Getty Museum",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCH-nCEzazXpn6q4iCapzl9Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Rijksmuseum",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCEXuPfYt1M3e8DT1LDeSfVg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Frick Collection",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCjx-NLdfwSepWIkDuED_TRA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Courtauld",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCBlpsLsQi9TrCI0a_iJVfTg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Art Institute of Chicago",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXflF3_PL_QuDX1CsCImuFA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Louisiana Channel",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCY2mhw-XNZSxrUynsI5K8Zw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Art21",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6Z_Gbfo7xwSMs6Ahkv-m3Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Natural History Museum",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC7zosc8-0T6Dfyo1bg0w7KA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Field Museum",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC32ZWrUYSWXzupp2SiYw9mQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The National Archives UK",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCUuzebc1yADDJEnOLA5P9xw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "English Heritage",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHwNa3lAjzbxRR2pbbZUE2A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Royal Museums Greenwich",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCBGUNkjHmqG97y-tucAzj-A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "World History Encyclopedia",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXjB5CYw3yCS8soFozLhPFQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Royal Geographical Society",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCGdL1D-WfrXFdlcmnC7EfEg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "FRONTLINE PBS | Official",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC3ScyryU9Oy9Wse3a8OAmYQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "PBS NewsHour",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6ZFN9Tx6xh-skXCuRHCDpQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Al Jazeera English",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCNye-wNBqNL5ZzHSJj3l8Bg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Guardian",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHpw8xwDNhU9gdohEcJu4aA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Vox",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCLXo7UDZvByw2ixzpQCufnA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Chatham House",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCWrBgaGjj6k5ZrTxbZzd0Og",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut français des relations internationales",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCpfLNjG97sWjGSKYiveWz3w",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "IRIS",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCCCf90jjhSxgkR6_Fb-u30g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "European Central Bank",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCXB8fM4VyQubRu3UVGhd3wA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Bank of England",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCY70MMJ8Rj4wtwt7bVN6hIA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Peterson Institute for International Economics",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCRnLlxwOaxeplsJ8On583Vw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Stanford Graduate School of Business",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCGwuxdEeCf0TIA2RbPOj-8g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "MIT Sloan School of Management",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCaUvoQTl3-vcwSgcHQlvGKg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Y Combinator",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCcefcZRL2oaA_uBNeo5UOWg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Royal Ballet and Opera",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHS5XKgf2FCBF8pZllE_bjw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "London Symphony Orchestra",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCY1yTIi-DaxPbNtLCnwAM1g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Berliner Philharmoniker",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCtRkmSO4PrhJ4TzNOmFIwjw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Royal College of Music",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCjUQsk6a-IvdSeUboCifDxQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Berklee College of Music",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCS3dfr0uOIC6OP-rSECVPMA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Opéra national de Paris",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCe-z28nNBebn0zxrOYgb7JA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "La Monnaie De Munt",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC4p8p4g9Z2I64Y9gwerEvCQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "American Film Institute",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCmO_WjaWDwimv8Kl7GHFxAA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Film at Lincoln Center",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCOzFilLNcgrGzAeECAbUFCQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "GDC Festival of Gaming",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC0JB7TSe49lg56u6qH8y_MQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Game Maker's Toolkit",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCqJ-Xo29CKyLTjn6z2XwYAw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Digital Foundry",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC9PBzalIcEQCsiIkq36PyUA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "People Make Games",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCZB6V9fUov0Mx_us3MWWILg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Ars Technica",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCCDU1fsmgvWljcW2aodfJsA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Computer History Museum",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCHDr4RtxwA1KqKGwxgdK4Vg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "TNMoC",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCq2d2c_u0Lat0SL9P4LEPlg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Coding Train",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCvjgXvBlbQiydffZU7m1_aw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "StatQuest with Josh Starmer",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCtYLUTtgS3k1Fg4y5tAhLbw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Steve Brunton",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCm5mt-A4w61lknZ9lCsZtBw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "ESPCI Paris - PSL",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCTCggStOnKIwWK1G9FV2wpA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut Henri Poincaré",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCrKGv5WY5ryaIXEmnxKVxOQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Institut des Hautes Etudes Scientifiques (IHES)",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC4R1IsRVKs_qlWKTm9pT82Q",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Jacques Pépin Foundation",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCB2XJXj7dDhK7HscFIJf_UQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "J. Kenji López-Alt",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCqqJQ_cXSat0KIAVfIfKkVA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Pasta Grannies",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCedsqpl7jaIb8BiaUFuC9KQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "SmarterEveryDay",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC6107grRI4m0o2-emgoDnAA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "minutephysics",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCUHW94eEFW7hkUMVaZz4eDg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "MinuteEarth",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCeiYXex_fwgYDonaTcSIk6w",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Physics Girl",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC7DdEm33SyaTDtWYGO2CwdA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Steve Mould",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCEIwxahdLz7bap-VDs9h35A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Practical Engineering",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCMOqf8ab-42UUQIdVoKwjlQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Thought Emporium",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCV5vCi3jPJdURZwAOO_FNfQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "NileRed",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCFhXFikryT4aFcLkLw2LBLA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Stand-up Maths",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCSju5G2aFaWMqn-_0YBtq5A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Welch Labs",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UConVfxXodg78Tzh5nNu85Ew",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Primer",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCKzJFdi57J53Vr_BkTfN3uQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Questions d'Histoire",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCCGRtSqLfljpX9mzCYDsQIg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Histoire Appliquée",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCcT7B4zCzrfywO2Q19OJIzA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Monsieur Bidouille",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCSULDz1yaHLVQWHpm4g_GHA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Coeur des sciences - UQAM",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCqAAS9LPYSjnRfRCexcbgLg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Calmos",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCYBr8enT5x4-JIxcPY6y-_A",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Thomas Flight",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCUyvQV2JsICeLZP4c_h40kA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Adam Neely",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCnkp4xDOwqqJD7sSM3xdUiQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "8-bit Music Theory",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCeZLO2VgbZHeDcongKzzfOw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Nahre Sol",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC8R8FRt1KcPiR-rtAflXmeg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Early Music Sources",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCJOiqToQ7kiakqTLE7Hdd5g",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "David Bruce Composer",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCh-PyMficPzVAihCJkFJVAA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Strong Towns",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCTeYrzSQ3YCp3RovGH4y8Ew",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Climate Town",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCuVLG9pThvBABcYCm7pkNkA",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Simon Clark",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCRRr_xrOm66qaigIbwFLvbQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "ClimateAdam",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCCu5wtZ5uOWZp_roz7wHPfg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Carneades.org",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UC1VzCyqpmCaRh8_BnijbOvg",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "Closer To Truth",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCl9StMQ79LtEvlrskzjoYbQ",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "The Royal Institute of Philosophy",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCEQRhXQwUe-1ZKIJmnBvHsw",
+    "enabled": true,
+    "limit_per_source": 50
+  },
+  {
+    "name": "LSE Philosophy",
+    "kind": "rss",
+    "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCTQ4AEtoPpGXYojT9Ei5P8w",
+    "enabled": true,
+    "limit_per_source": 50
+  }
+]

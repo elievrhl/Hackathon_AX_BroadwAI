@@ -1,3 +1,93 @@
+## 27 septembre 2026 — Version commune Elie / Jad
+
+`main` intègre le dernier commit de Jad, `99a8761` (supports de présentation), ainsi
+que les améliorations locales : catalogue de 200 chaînes YouTube, collecte quotidienne
+à 3 h, limite de 50 contenus par source et durées visibles avant ouverture des médias.
+L’authentification, la dictée et les régénérations de Jad sont conservées. La configuration
+locale du lecteur reste `http://127.0.0.1:8010/reader/` ; chaque installation règle
+`AUTH_PUBLIC_URL` sur sa propre adresse, sans partager son `.env` ni ses journaux.
+
+Validation finale : 468 tests Python réussis, 42 ignorés dans cette passe sans
+`TEST_DATABASE_URL` ; les 83 tests PostgreSQL ciblés de la fusion avaient réussi dans
+des schémas isolés. Les 54 tests JavaScript, le build Vite, Ruff sur le code concerné
+et la vérification du diff réussissent. Le lecteur, la santé du serveur, la session
+et l’annuaire public répondent HTTP 200. Le contrôle d’origine accepte l’adresse 8010
+et rejette une origine tierce ; la protection CSRF reste active.
+
+## 27 septembre 2026 — Origine du lecteur local
+
+Le lecteur utilisé est `http://127.0.0.1:8010/reader/`. Le `.env` définit désormais
+`AUTH_PUBLIC_URL` sur cette adresse ; le défaut 5173 rejetait les connexions et inscriptions
+depuis le build servi par FastAPI après la synchronisation. Serveur redémarré, contrôles
+d’origine et CSRF conservés. Vérification en mémoire : inscription, session et déconnexion
+acceptées sur 8010, origine tierce refusée. Vérification du serveur réel sans session :
+l’origine 8010 franchit le contrôle d’origine, l’origine tierce reste bloquée.
+Journaux actuels : `data/auth-origin-api.log` et `data/auth-origin-api.error.log`.
+Si l’on utilise Vite (5173) à la place, modifier explicitement cette configuration et
+redémarrer le serveur ; ne pas alterner les adresses pour la même session.
+
+## 27 septembre 2026 — Synchronisation amont
+
+`main` avancée de `2449e0a` à `2060cb5` (cinq commits de `origin/main`). Les changements
+locaux ont été réconciliés avec l’authentification, la dictée, les régénérations et la
+collecte vidéo de l’amont. Le catalogue de 200 chaînes, la collecte de 3 h et les badges
+de durée sont conservés. L’annuaire public utilise `/v1/source-directory`, compatible
+avec les nouvelles permissions. Les durées utilisent le format lisible de l’amont
+(« 33 min », « 2 h 1 min 30 s »), avec le badge local avant le titre et le cache de 24 h.
+La collecte vidéo conserve les transcriptions importées et limite les requêtes à quatre
+simultanées et trois secondes chacune. Les directs ne récupèrent pas de durée de secours.
+Les noms des tests audio ont été raccourcis pour respecter la limite Windows des variables
+d’environnement. Les modifications restent non committées. Sauvegarde Git :
+`safety: local work before upstream sync 2026-09-27` ; archive complémentaire :
+`data/sync-upstream-backup-20260927-202028.zip`.
+
+Validation de la fusion : 54 tests JavaScript, 117 tests Python ciblés (deux tests
+PostgreSQL sautés dans cette passe), puis 83 tests avec PostgreSQL réel dans des schémas
+isolés réussis. Build Vite, Ruff sur le code concerné et `git diff --check` réussis.
+Serveur local redémarré ; `/health`, `/v1/auth/session` et `/v1/source-directory` répondent
+HTTP 200. Journaux actuels : `data/upstream-sync-api.log` et `data/upstream-sync-api.error.log`.
+
+## 27 septembre 2026 — Durées des podcasts et vidéos
+
+Le badge au-dessus du titre affiche désormais « Podcast · 33:00 » ou « Vidéo · 2:01:30 »
+dans le journal, la fiche et les articles sauvegardés. Si la source ne fournit pas la
+durée, il affiche « Durée non renseignée ». Aucun temps n’est déduit de la description.
+
+La collecte YouTube lit la durée du flux Media RSS, ou à défaut celle du lecteur de
+la page publique, en vérifiant l’identifiant de la vidéo et en excluant les directs.
+La vidéo n’est pas téléchargée ni transcrite. Durées connues conservées aux collectes
+suivantes ; échecs mis en cache 24 h ; cinq requêtes simultanées maximum par flux,
+huit secondes maximum par page. Les durées iTunes des podcasts restent utilisées.
+Les six vidéos déjà présentées dans les éditions locales ont été complétées avec
+leurs durées vérifiées. Les deux podcasts présentés sans durée dans leur flux restent
+explicitement non renseignés. Serveur rechargé ; journaux `data/media-duration-api.*.log`.
+
+Validation : tests ciblés de collecte, métadonnées et lecteur, build Vite et contrôle
+visuel des badges courts, longs et sans durée, dans le journal et les sauvegardes.
+
+## 27 septembre 2026 — Collecte à 3 h et limite de 50 contenus
+
+Les 1 223 sources existantes, dont 200 chaînes YouTube, ont été passées à 50 contenus
+par collecte via l’API en conservant leurs états d’activation. Sauvegarde préalable :
+`data/source-limits-before-50-20260927T172221Z.json`. Les défauts API, administration,
+propositions approuvées, script de semis et catalogues d’import utilisent également 50.
+Les flux peuvent en proposer moins : essai réel 3Blue1Brown, 15 vidéos récupérées sans
+aucune erreur (5 auparavant). Aucune pagination des archives YouTube n’a été ajoutée.
+
+Le serveur lance maintenant la collecte des sources actives chaque jour à 3 h,
+`Europe/Paris`, via `DailySourceCollection`. Première activation au prochain créneau ;
+rattrapage du dernier créneau après un arrêt, avec reprise des sources restantes.
+Cinq sources simultanées, timeout de 120 secondes par source, rapports indépendants.
+La réservation est persistée dans `source_collection_schedule` / `source_collection_runs`,
+avec bail de cinq minutes et renouvellement au démarrage de chaque source. Désactivation :
+`DAILY_SOURCE_COLLECTION_ENABLED=false`. État : `GET /v1/sources/collection-schedule`.
+Le serveur et PostgreSQL doivent rester disponibles. Aucune automatisation Codex nécessaire.
+Les éditions de 4 h gardent leur propre horaire ; une collecte longue peut les chevaucher.
+
+Validation : 54 tests ciblés avec PostgreSQL réel réussis ; 51 autres exécutions ciblées
+réussies (dont des recouvrements), Ruff et vérifications HTTP du serveur redémarré sur 8010.
+Journaux actuels : `data/source-schedule-api.log` et `data/source-schedule-api.error.log`.
+
 ## 27 septembre 2026 — Fusion des bibliothèques avec le travail d’Elie
 
 Les bibliothèques fonctionnent comme des playlists d’articles : `/v1/collections`,

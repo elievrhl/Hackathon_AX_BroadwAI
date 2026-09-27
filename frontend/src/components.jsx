@@ -69,7 +69,7 @@ export function Onboarding({
       <section className="onboard-panel" aria-labelledby="onboard-title">
         <SetupProgress step={step + 1} />
         <h2 id="onboard-title" ref={titleRef} tabIndex={-1}>{step === 0 ? <>Votre une <br />commence ici.</> : 'Vos centres d’intérêt'}</h2>
-        <p className="panel-intro">{step === 0 ? 'Un prénom, quelques envies. Votre journal commence ici.' : 'Choisissez vos sujets, votre favori en premier.'}</p>
+        <p className="panel-intro">{step === 0 ? 'Un prénom, quelques envies. Votre journal commence ici.' : 'Choisissez vos sujets, votre favori en premier. Votre première une se préparera dès la validation.'}</p>
         {step === 0 ? <form onSubmit={event => {
           event.preventDefault();
           if (draft.name.trim()) setStep(1);
@@ -120,7 +120,6 @@ function ArticleMeta({
     {article.format === 'video' && <span className="video-label"><Play size={11} fill="currentColor" aria-hidden="true" /> YouTube</span>}
     {article.publishedAt && <><span className="meta-dot" aria-hidden="true">·</span><time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time></>}
     {!!article.readingTimeMinutes && <><span className="meta-dot" aria-hidden="true">·</span><span className="reading-time" title="Temps de lecture estimé à 200 mots par minute.">≈ {article.readingTimeMinutes} min</span></>}
-    {article.duration && <><span className="meta-dot" aria-hidden="true">·</span><span className="reading-time" title={article.format === 'podcast' ? 'Durée de l’épisode' : 'Durée de la vidéo'}>{article.duration}</span></>}
   </div>;
 }
 
@@ -147,10 +146,10 @@ function ArticleVisual({ article, onRead, priority = false }) {
     {article.url ? <PublisherLink className="article-image-button" article={article} onRead={onRead} aria-label={`${contentAction(article.format)} : ${article.title}`}>{content}</PublisherLink> : content}
   </figure>;
 }
-export function MediaBadge({ format }) {
+export function MediaBadge({ format, duration }) {
   if (!['video', 'podcast'].includes(format)) return null;
   const Icon = format === 'podcast' ? Headphones : Video;
-  return <span className="media-format-badge"><Icon size={15} strokeWidth={1.8} aria-hidden="true" /><span>{format === 'podcast' ? 'Podcast' : 'Vidéo'}</span></span>;
+  return <span className="media-format-badge"><Icon size={15} strokeWidth={1.8} aria-hidden="true" /><span>{format === 'podcast' ? 'Podcast' : 'Vidéo'}</span><span aria-hidden="true">·</span><span className="media-duration" aria-label={duration ? `Durée : ${duration}` : undefined}>{duration || 'Durée non renseignée'}</span></span>;
 }
 
 export function ArticleCard({
@@ -168,7 +167,7 @@ export function ArticleCard({
     <div className="article-inner">
       <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority={variant === 'lead'} />
       <div className="article-copy">
-        <MediaBadge format={article.format} />
+        <MediaBadge format={article.format} duration={article.duration} />
         <h3><PublisherLink className="article-title" article={article} onRead={onRead}>{article.title}</PublisherLink></h3>
         <ArticleMeta article={article} />
         <div className="article-actions"><button className="article-details-button" onClick={() => onOpen(article)} aria-label={`Fiche et avis : ${article.title}`}>Fiche & avis</button><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><ArticleSaveActions article={article} saved={saved} busy={saving} onSave={onSave} onOrganize={onOrganize} /></div>
@@ -224,7 +223,7 @@ export function ArticleDetail({
     <Wordmark small />
     <div className="detail-kicker eyebrow">{article.section} <span>/</span> {article.kind}</div>
     <LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} />
-    <MediaBadge format={article.format} />
+    <MediaBadge format={article.format} duration={article.duration} />
     <h2 id="article-title">{article.title}</h2>
     <ArticleMeta article={article} />
     <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority />

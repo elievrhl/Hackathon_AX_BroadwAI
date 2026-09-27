@@ -78,7 +78,7 @@ export function articleImageUrl(item) {
 }
 
 export function mediaDuration(seconds) {
-  if (!Number.isFinite(seconds) || seconds <= 0) return '';
+  if (!Number.isFinite(seconds) || seconds < 1) return '';
   const value = Math.max(1, Math.floor(seconds));
   const hours = Math.floor(value / 3600), minutes = Math.floor(value / 60) % 60, remainder = value % 60;
   return [hours && `${hours} h`, minutes && `${minutes} min`, remainder && `${remainder} s`].filter(Boolean).join(' ');

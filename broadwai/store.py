@@ -11,9 +11,12 @@ from broadwai.daily_store import DailyEditionStore
 from broadwai.models import Article, Brief, Cover, Feedback
 from broadwai.preference_store import PreferenceStore
 from broadwai.regeneration_store import RegenerationStore
+from broadwai.source_collection_store import SourceCollectionStore
 
 
-class Store(AuthStore, PreferenceStore, DailyEditionStore, RegenerationStore):
+class Store(
+    AuthStore, PreferenceStore, DailyEditionStore, RegenerationStore, SourceCollectionStore
+):
     """PostgreSQL repository with a bounded connection pool."""
 
     def __init__(self, database_url: str):
@@ -424,7 +427,7 @@ class Store(AuthStore, PreferenceStore, DailyEditionStore, RegenerationStore):
             if approve:
                 source = cur.execute(
                     "INSERT INTO sources (id,name,kind,url,enabled,limit_per_source) "
-                    "VALUES (%s,%s,%s,%s,TRUE,20) ON CONFLICT(kind,url) DO UPDATE "
+                    "VALUES (%s,%s,%s,%s,TRUE,50) ON CONFLICT(kind,url) DO UPDATE "
                     "SET url=excluded.url RETURNING id",
                     (uuid4().hex, proposal["name"], proposal["kind"], proposal["url"]),
                 ).fetchone()

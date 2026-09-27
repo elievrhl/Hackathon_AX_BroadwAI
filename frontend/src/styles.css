@@ -1945,6 +1945,7 @@ dialog::backdrop {
 /* YouTube shares the editorial card, with a compact format cue. */
 .media-format-badge { display:flex; align-items:center; gap:5px; width:fit-content; margin-bottom:8px; padding:3px 7px; border-radius:4px; background:var(--accent-soft, #f2e7df); color:var(--red); font-family:'DM Sans',Arial,sans-serif; font-size:10px; font-weight:600; line-height:1.4; letter-spacing:.06em; text-transform:uppercase; }
 .media-format-badge svg { flex-shrink:0; }
+.media-duration { text-transform:none; letter-spacing:normal; font-variant-numeric:tabular-nums; }
 .video-label { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
 .video-visual { position:relative; }
 .video-visual .article-image-button { position:relative; }

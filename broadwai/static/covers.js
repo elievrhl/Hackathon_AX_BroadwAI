@@ -367,7 +367,7 @@ function renderHistory() {
     b.addEventListener("click", () => showCover(cover.id)); list.append(b);
   }
 }
-const scheduleNames = { scheduled: "Programmée", running: "En préparation", ready: "Terminée", failed: "Échec · prochaine tentative automatique à 4 h", disabled: "Désactivée", unregistered: "Non inscrite" };
+const scheduleNames = { scheduled: "Programmée", queued: "En attente de préparation", running: "En préparation", ready: "Terminée", failed: "Échec · prochaine tentative automatique à 4 h", disabled: "Désactivée", unregistered: "Non inscrite" };
 const parisDate = value => value ? new Date(value).toLocaleString("fr-FR", { timeZone: "Europe/Paris", dateStyle: "short", timeStyle: "short" }) : "—";
 function selectedProfile() { return state.operations?.profiles.find(row => row.user_id === $("reader-profile").value); }
 function operationControls() {

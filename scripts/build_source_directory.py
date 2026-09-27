@@ -81,6 +81,7 @@ def build_data(catalog, registered, *, generated_at=None):
                 ),
                 "provenanceNote": entry.get("provenance_note", ""),
                 "qualityNotes": entry.get("quality_notes", []),
+                "reviewScope": entry.get("quality_review", {}).get("scope", ""),
                 "status": verification.get("status", "pending"),
                 "selected": (
                     verification.get("status") == "ok"
@@ -90,7 +91,10 @@ def build_data(catalog, registered, *, generated_at=None):
                 "checkedAt": verification.get("checked_at"),
                 "latestAt": verification.get("latest_published_at"),
                 "error": verification.get("error", ""),
-                "samples": verification.get("sample_urls", []),
+                "samples": [
+                    sample["url"]
+                    for sample in entry.get("quality_review", {}).get("sample_titles", [])
+                ] or verification.get("sample_urls", []),
                 "sampleTitles": {
                     sample["url"]: sample["title"]
                     for sample in entry.get("quality_review", {}).get("sample_titles", [])

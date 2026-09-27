@@ -13,7 +13,7 @@ from broadwai.extraction import extract_content
 from broadwai.images import article_image
 from broadwai.models import Article, IngestRequest, utcnow
 from broadwai.network import PublicFetcher, RetrievalError, validate_destination
-from broadwai.podcasts import episode_metadata, public_url
+from broadwai.podcasts import duration_seconds, episode_metadata, public_url
 from broadwai.videos import known_duration
 from broadwai.website import article_links, website_article
 from broadwai.youtube import (
@@ -23,6 +23,7 @@ from broadwai.youtube import (
     thumbnail,
     video_id,
     video_metadata,
+    watch_duration,
 )
 
 
@@ -74,6 +75,14 @@ def parse_feed(body: bytes, base_url: str, limit: int) -> list[Article]:
                     "video_id": youtube_id,
                     "channel_id": entry.get("yt_channelid"),
                     "channel_title": plain(entry.get("author", feed.feed.get("title", "YouTube"))),
+                    "duration_seconds": next(
+                        (
+                            duration_seconds(media.get("duration"))
+                            for media in entry.get("media_content", [])
+                            if duration_seconds(media.get("duration"))
+                        ),
+                        None,
+                    ),
                 }
                 article.image = thumbnail(article)
                 article.image_checked_at = utcnow()
@@ -102,31 +111,7 @@ class Collector:
                     article = article.model_copy(
                         update={"media": {**(article.media or {}), "duration_seconds": duration}}
                     )
-            if known_duration(article) is None:
-                try:
-                    async with self.video_slots, asyncio.timeout(3):
-                        page = await self.fetcher.get(
-                            f"https://www.youtube.com/watch?v={youtube_id}"
-                        )
-                        if video_id(page.url) == youtube_id and page.content_type in {
-                            "text/html",
-                            "application/xhtml+xml",
-                        }:
-                            duration = await asyncio.to_thread(
-                                metadata_duration, page.body, youtube_id
-                            )
-                            if duration is not None:
-                                article = article.model_copy(
-                                    update={
-                                        "media": {
-                                            **(article.media or {}),
-                                            "duration_seconds": duration,
-                                        }
-                                    }
-                                )
-                except (RetrievalError, TimeoutError, ValueError):
-                    # Unavailable duration means ineligible, not a failed RSS collection.
-                    pass
+            article = await self.enrich_media_duration(article)
         return self.store.put_article(article)
 
     async def ingest(self, request: IngestRequest) -> dict:
@@ -181,6 +166,41 @@ class Collector:
             except (RetrievalError, ValueError, TypeError) as exc:
                 errors.append({"source": "hacker_news", "error": type(exc).__name__})
         return {"article_ids": sorted(ids), "collected": len(ids), "errors": errors}
+
+    async def enrich_media_duration(self, article: Article) -> Article:
+        """Best-effort YouTube metadata, cached across daily feed refreshes."""
+        id_ = video_id(article.url) if article.format == "video" else None
+        if not id_ or known_duration(article) is not None:
+            return article
+        media = dict(article.media or {})
+        existing = self.store.get_article(article.id)
+        cached = (existing.media or {}) if existing else {}
+        known = known_duration(existing) if existing else None
+        if known is not None:
+            return article.model_copy(update={"media": {**media, "duration_seconds": known}})
+        checked_at = cached.get("duration_checked_at")
+        if checked_at:
+            try:
+                if utcnow() - datetime.fromisoformat(checked_at) < timedelta(days=1):
+                    return article.model_copy(
+                        update={"media": {**media, "duration_checked_at": checked_at}}
+                    )
+            except (ValueError, TypeError):
+                pass
+        try:
+            async with self.video_slots, asyncio.timeout(3):
+                page = await self.fetcher.get(f"https://www.youtube.com/watch?v={id_}")
+                if video_id(page.url) == id_ and page.content_type in {
+                    "text/html",
+                    "application/xhtml+xml",
+                }:
+                    seconds = watch_duration(page.body, id_) or metadata_duration(page.body, id_)
+                    if seconds:
+                        media["duration_seconds"] = seconds
+        except (RetrievalError, TimeoutError, ValueError):
+            pass
+        media["duration_checked_at"] = utcnow().isoformat()
+        return article.model_copy(update={"media": media})
 
     async def collect_website(self, url, limit, ids, errors):
         found = set()

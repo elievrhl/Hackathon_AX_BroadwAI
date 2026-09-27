@@ -94,6 +94,10 @@ Prérequis : Node.js 22.12+ et pnpm 11. Ouvrir <http://127.0.0.1:5173/>.
 Le backend doit tourner sur le port 8010 avec PostgreSQL. Vite relaie les appels à
 l’API ; aucune clé n’est envoyée au navigateur. Après `pnpm build`, FastAPI peut
 aussi servir le lecteur sur <http://127.0.0.1:8010/reader/> (redémarrer le backend).
+Dans le `.env`, régler `AUTH_PUBLIC_URL` sur l’adresse utilisée :
+`http://127.0.0.1:5173/` avec Vite, ou `http://127.0.0.1:8010/reader/` avec le build
+servi par FastAPI, puis redémarrer le backend. Une adresse différente provoque
+« Origine de la requête non autorisée » lors de la connexion ou de l’inscription.
 
 ## Feedback et préférences de lecture
 
@@ -152,7 +156,7 @@ les règles et versions réellement appliquées, ainsi que les évaluations et l
 
 Sources non qualifiées et formats/niveaux connus ont des contrôles déterministes. Les
 sujets, angles et nuances sont évalués à partir des fiches, par le modèle économique,
-avec des citations vérifiées dans les données fournies. Ce jugement sémantique reste
+sans citation justificative à produire. Ce jugement sémantique reste
 faillible. Une évaluation manquante, ambiguë ou en erreur ne permet pas de contourner
 une exclusion. Les autres demandes peuvent être partiellement satisfaites et le bilan
 le signale. Au plus 12 règles sont actives ; les évaluations sont regroupées (8 articles
@@ -224,7 +228,7 @@ La préparation se déroule ainsi :
 
 Les défauts permettent 48 nouveaux résumés, 10 décisions, 4 passes de recherche web et ajoutent
 une interprétation des notes si présentes, une planification et au plus 4 filtres de recherche.
-Les besoins interprétés doivent citer le profil, puis alimentent le classement avant le plan.
+Les besoins interprétés indiquent leur origine (profil, notes ou likes), puis alimentent le classement avant le plan.
 Le filtre a un prompt autonome et un seuil cohérent avec `MIN_EDITORIAL_SCORE`. Le rédacteur utilise
 le raisonnement `low` sur GPT-5 ; le modèle de résumé conserve son réglage économique.
 Les téléchargements préalables sont limités à 40, les imports web à 20 tentatives.
@@ -232,7 +236,7 @@ Les actualités privilégient les dernières 24–72 heures ; celles de plus de 
 (`MAX_ARTICLE_AGE_DAYS`) ou sans date sont écartées, quelle que soit leur provenance. Les essais,
 analyses et autres lectures de fond n'ont **aucune limite d'âge**, y compris plusieurs décennies,
 si leur contenu reste valable. L'ancien réglage `MAX_EVERGREEN_AGE_DAYS` est ignoré.
-Une fiche évalue la temporalité et cite le texte : durable, sensible au temps, périmé ou incertain.
+Une fiche évalue la temporalité : durable, sensible au temps, périmé ou incertain, avec une justification.
 Les contenus périmés ou dont la validité est incertaine sont écartés ; l'âge seul ne suffit pas.
 Cette évaluation éditoriale n'est pas une vérification externe exhaustive des faits.
 Les résultats scientifiques ont une fenêtre distincte (`MAX_RESEARCH_AGE_DAYS`, 365 par défaut).
@@ -260,7 +264,7 @@ désigne les réservations non réconciliées et `remaining_tokens` le budget r�
 
 Les recherches ciblent un besoin à la fois et conservent l'historique et les motifs de rejet.
 Un article écarté ne repasse pas dans les filtres à chaque reformulation. Les finalisations sont
-contrôlées aussi en mode partiel : rubriques connues, besoin cité, preuve dans la fiche, titre,
+contrôlées aussi en mode partiel : rubriques connues, besoin identifié, titre,
 rôle éditorial et absence de reprise du même événement sans angle distinct. Le lecteur respecte les
 rôles (sujet principal, secondaire, brève, lecture), avec compatibilité pour les éditions anciennes.
 Les fiches `brief-v6` comprennent validité et titre. Le titre affiché et celui des nouvelles
@@ -317,6 +321,26 @@ historique d'articles. Les collectes directes via `/v1/ingest` ne sont pas ratta
 
 L'admin n'appelle pas de LLM et ne génère pas de fiches : elle affiche les données disponibles.
 
+La limite par défaut est **50 contenus par source et par collecte**, également pour les
+chaînes vidéo ; les contenus déjà stockés sont conservés. Un flux peut fournir moins de
+contenus que cette limite (notamment les flux YouTube), sans pagination des archives.
+
+Les sources actives sont collectées automatiquement **chaque jour à 3 h, heure de Paris**,
+avant les éditions de 4 h. Le serveur et PostgreSQL doivent rester démarrés ; aucun navigateur
+ni Codex n'est nécessaire. `DAILY_SOURCE_COLLECTION_ENABLED=false` désactive cette tâche.
+La première activation attend le prochain créneau. Après une interruption, le serveur
+rattrape le dernier créneau dû et ignore les sources déjà collectées depuis ce créneau.
+Cinq sources sont traitées simultanément, avec 120 secondes maximum par source ; les erreurs
+individuelles sont enregistrées et les autres sources continuent. Les dates et changements
+d'heure sont gérés en `Europe/Paris`. L'horaire ne garantit pas une fin avant 4 h si les
+sources sont lentes. Aucun appel LLM n'est effectué par la collecte.
+
+`GET /v1/sources/collection-schedule` expose la prochaine échéance et le dernier bilan.
+La réservation nocturne et sa reprise sont persistées dans `source_collection_schedule`
+et `source_collection_runs`. Le verrou des collectes manuelles reste local au processus :
+conserver un seul worker pour cette administration.
+
+
 ### Blogs et journaux sans flux
 
 Dans `/admin`, choisir **Ajouter → Site web (blog ou journal)** et coller l'URL de la page
@@ -332,7 +356,7 @@ Exemple de source via `POST /v1/sources` :
   "name": "Mon blog",
   "kind": "website",
   "url": "https://exemple.com/blog/",
-  "limit_per_source": 20,
+  "limit_per_source": 50,
   "enabled": true
 }
 ```
@@ -407,11 +431,13 @@ Routes associées : `GET/POST /v1/sources`, `PUT/DELETE /v1/sources/{id}`,
 `POST /v1/sources/collect`, `POST /v1/sources/{id}/collect`,
 `GET /v1/admin/articles` (pagination/filtres) et `GET /v1/admin/articles/{id}`.
 
-Le catalogue complet `examples/sources-all-topics.json` propose **1 019 sources vérifiées** pour les
-**20 sujets de l'inscription**, sur 508 domaines éditeurs (285 francophones et 734 anglophones).
-Chaque sujet dispose de 26 à 147 sources. La sélection associe institutions, recherche, rédactions,
-praticiens, **huit chaînes YouTube** et **six émissions Radio France**, avec leur provenance officielle.
-Une source est un flux ou une rubrique : ce chiffre ne représente pas 1 019 médias indépendants.
+Le catalogue complet `examples/sources-all-topics.json` propose **1 211 sources vérifiées** pour les
+**20 sujets de l'inscription**, sur 508 domaines éditeurs (350 avec du français, 867 avec de l'anglais,
+dont 6 bilingues). Chaque sujet dispose de 31 à 236 sources. La sélection associe institutions,
+recherche, rédactions, praticiens, **200 chaînes YouTube** et **six émissions Radio France**,
+avec leur provenance. Une source est un flux ou une rubrique : ce chiffre ne représente pas
+1 211 médias indépendants. [La liste des 200 chaînes](examples/YOUTUBE.md) détaille leurs sujets
+et motifs de sélection ; `examples/sources-youtube.json` permet de les réimporter séparément.
 
 L'[annuaire lisible](http://127.0.0.1:8010/admin/assets/sources.html), accessible depuis **Nos sources**
 dans le journal, offre recherche, filtres, cartes, tableau, fiches de provenance et export CSV.
@@ -432,7 +458,7 @@ uv run python -m scripts.build_source_directory --base-url http://127.0.0.1:8010
 
 Le script importe uniquement les entrées actives au statut `ok`, conserve les sources déjà remplies
 et respecte leur mise en pause. Il reprend les sources enregistrées mais restées sans contenu après
-une interruption. Les ajouts de cette extension collectent jusqu'à cinq contenus par source.
+une interruption. Les ajouts collectent jusqu'à 50 contenus par source, selon la disponibilité du flux ou du site.
 Le rapport progressif est écrit dans `data/catalog-import.jsonl`. Pour ajouter des candidats,
 exécuter d'abord `scripts.validate_source_catalog --pending-only`, puis revoir les résultats.
 L'ancien `scripts.seed_sources` reste compatible avec les listes JSON simples.
@@ -477,7 +503,8 @@ préparation quotidienne ; se reconnecter ne régénère pas son journal.
 Les likes et les demandes du Courrier du lecteur sont relus lors de la préparation.
 
 PostgreSQL conserve les profils et une tentative unique par compte et date, même avec
-plusieurs serveurs. Le planificateur vérifie les échéances toutes les 30 secondes ; les
+plusieurs serveurs. L’inscription réveille immédiatement le planificateur, qui vérifie
+également les échéances toutes les 30 secondes ; les
 éditions sont mises en file et peuvent se terminer après 4 h. Le backend et PostgreSQL
 doivent rester actifs ; en local, l’ordinateur doit être allumé et éveillé. Après un arrêt,
 seule la dernière échéance manquée est rattrapée, sans produire tout un historique.
@@ -605,15 +632,18 @@ reste possible si aucun contenu exploitable n'est disponible. Ce statut ne prouv
 
 Les fiches de lecture se terminent par `cited_sources` : jusqu'à huit sources citées que le
 modèle juge pertinentes pour approfondir le sujet ou découvrir de futures lectures. Chaque piste
-contient un nom, un motif de pertinence, un passage du texte qui justifie l'attribution et une URL
+contient un nom, un motif de pertinence et une URL
 uniquement si elle est disponible dans le contenu fourni. Une simple mention ou un lien anecdotique
 ne suffit pas ; la liste reste vide si aucune source ne convient. Les liens du corps de l'article
 sont conservés lors des nouvelles extractions pour aider cette identification.
-Les citations sans passage justificatif sont écartées ; les URL non observées sont retirées.
+Les URL non observées sont retirées ; aucun passage justificatif ni contrôle de citation exacte
+n’est demandé pour les sources, les fiches ou les décisions éditoriales.
 Ces pistes figurent à la fin des fiches dans `/admin` et dans la section « Sources citées pertinentes »
 de `/admin/covers`, avec leur article d'origine, y compris pour les fiches réutilisées depuis le cache.
 Elles sont enregistrées dans le journal sans déclencher de collecte ni d'ajout automatique de source.
 Le cache des résumés est versionné (`brief-v6`) ; les anciennes éditions restent consultables.
+Les anciens champs `evidence` sont ignorés à la lecture ; les fiches déjà en cache restent
+réutilisables sans nouvelle génération. Les prompts et schémas ne demandent plus ces champs.
 Pour les articles déjà extraits sans liens, le modèle peut encore relever des sources nommées,
 mais la récupération des liens nécessite une nouvelle collecte du contenu HTML.
 

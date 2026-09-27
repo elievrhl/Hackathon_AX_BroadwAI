@@ -55,6 +55,9 @@ test('mixed editions keep original video titles, channel, duration and every car
   assert.equal(cover.remainingSections.flatMap(section => section.articles).filter(row => row.id === item.id).length, 1);
   assert.equal(mediaDuration(undefined), '');
   assert.equal(mediaDuration(-1), '');
+  assert.equal(mediaDuration(0.5), '');
+  assert.equal(mediaDuration(Infinity), '');
+  assert.equal(mediaDuration(NaN), '');
   assert.equal(mediaDuration('45'), '');
   assert.equal(mediaDuration(622), '10 min 22 s');
   assert.equal(mediaDuration(3600), '1 h');

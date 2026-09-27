@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { dailyEditionMessage, initialEditionId } from './daily-edition.js';
+import { dailyEditionMessage, dailyEditionRefreshMs, initialEditionId } from './daily-edition.js';
 import { registerDailyEdition, getDailyEdition } from './api.js';
 import { DEFAULT_PROFILE, toCoverRequest } from './reader.js';
 
@@ -37,9 +37,20 @@ test('daily status never promises an active schedule when it is unavailable', ()
   assert.match(dailyEditionMessage({ enabled: false }), /indisponible/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'queued' }), /première une/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'running' }), /se prépare/);
+  assert.match(dailyEditionMessage({ enabled: true, status: 'queued' }), /apparaîtra ici automatiquement/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'failed' }), /n’a pas pu/);
   assert.equal(dailyEditionMessage({ enabled: true, status: 'scheduled' }, true), '');
   assert.equal(dailyEditionMessage({ enabled: true, status: 'ready' }, true), '');
   assert.doesNotMatch(dailyEditionMessage({ enabled: true, status: 'failed' }), /dernière édition/);
   assert.match(dailyEditionMessage({ enabled: true, status: 'failed' }, true), /dernière édition/);
+});
+
+test('pending editions are refreshed promptly until preparation ends', () => {
+  assert.equal(dailyEditionRefreshMs({ status: 'queued' }), 2_500);
+  assert.equal(dailyEditionRefreshMs({ status: 'running' }), 2_500);
+  assert.equal(dailyEditionRefreshMs({ status: 'ready' }, false), 2_500);
+  for (const status of ['ready', 'failed', 'disabled', 'scheduled']) {
+    assert.equal(dailyEditionRefreshMs({ status }), 60_000);
+  }
+  assert.equal(dailyEditionRefreshMs(null), 60_000);
 });

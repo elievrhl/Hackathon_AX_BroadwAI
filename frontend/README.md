@@ -112,7 +112,7 @@ Les éditions déjà enregistrées conservent leur sélection.
 
 Les préférences permettent de choisir 15, 18 ou 20 articles et les langues français
 ou français/anglais. Le premier sujet reçoit davantage de poids. Enregistrer des
-préférences ne lance pas de génération. `discover_web` et `discover_sources` sont
+préférences après l’inscription ne relance pas de génération. `discover_web` et `discover_sources` sont
 activés ; le rédacteur choisit ses actions et les propositions de sources restent à
 approuver dans l’administration.
 

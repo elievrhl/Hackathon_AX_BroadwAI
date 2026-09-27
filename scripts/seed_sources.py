@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser.add_argument("--base-url", default="http://127.0.0.1:8000")
     parser.add_argument("--collect", action="store_true")
     parser.add_argument("--source-file", type=Path, default=Path("examples/sources.json"))
-    parser.add_argument("--limit", type=int, choices=range(1, 51), default=20, metavar="1-50")
+    parser.add_argument("--limit", type=int, choices=range(1, 51), default=50, metavar="1-50")
     parser.add_argument("--only-new", action="store_true")
     args = parser.parse_args()
     main(args.base_url, args.collect, args.source_file, args.limit, args.only_new)

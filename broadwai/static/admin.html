@@ -17,6 +17,7 @@
       <p class="muted">Choisissez vos sources, lancez une collecte et explorez les contenus récupérés.</p></div>
       <button id="collect-all" class="primary">Collecter les sources actives</button></div>
     <div id="notice" role="status" aria-live="polite" hidden></div>
+    <p id="collection-schedule" class="hint" role="status">Vérification de la collecte automatique…</p>
     <div class="stats"><div><strong id="stat-sources">—</strong><span>sources actives</span></div>
       <div><strong id="stat-articles">—</strong><span>articles au catalogue</span></div>
       <div><strong id="stat-briefs">—</strong><span>fiches en cache</span></div></div>
@@ -56,7 +57,7 @@
       <label>Type<select name="kind"><option value="website">Site web (blog ou journal)</option><option value="rss">Flux RSS / Atom</option><option value="podcast">Podcast (flux RSS)</option><option value="hacker_news">Hacker News</option></select></label>
       <label id="url-label"><span id="url-caption">URL du site ou de la rubrique</span><input name="url" type="url" required maxlength="2000" placeholder="https://exemple.com/blog"></label>
       <p id="website-hint" class="hint">Collez la page qui liste les articles à suivre. Les pages nécessitant JavaScript ne sont pas prises en charge ; les accès réservés aux abonnés restent limités.</p>
-      <label>Articles maximum par collecte<input name="limit_per_source" type="number" min="1" max="50" value="20" required></label>
+      <label>Contenus maximum par collecte<input name="limit_per_source" type="number" min="1" max="50" value="50" required></label>
       <label class="checkbox"><input name="enabled" type="checkbox" checked> Inclure dans les collectes groupées</label>
       <p id="form-error" class="error" role="alert"></p>
       <div class="dialog-actions"><button type="button" data-close="source-dialog">Annuler</button><button class="primary" type="submit">Enregistrer</button></div>

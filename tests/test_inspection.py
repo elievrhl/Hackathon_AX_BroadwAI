@@ -1,9 +1,9 @@
 import pytest
-from tests.client import TestClient
 
 from broadwai.api import create_app
 from broadwai.config import Settings
 from broadwai.models import CitedSource, Cover
+from tests.client import TestClient
 from tests.fakes import MemoryStore, ScriptedModel, article, finalize_first
 from tests.test_pipeline import pipeline, request
 
@@ -58,7 +58,6 @@ async def test_cited_sources_survive_cache_and_are_exposed_in_admin_audit():
         name="Rapport Python",
         url="https://research.example/report",
         relevance="Travail original sur les systèmes distribués.",
-        evidence="Python systèmes distribués",
     )
 
     class ModelWithSources(ScriptedModel):

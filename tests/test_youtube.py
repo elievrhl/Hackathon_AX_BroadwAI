@@ -1,9 +1,9 @@
+import json
 from datetime import timedelta
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
-from tests.client import TestClient
 
 from broadwai.api import create_app
 from broadwai.collections import CollectionInput, Collections
@@ -14,8 +14,9 @@ from broadwai.network import Download, RetrievalError
 from broadwai.reader_memory import ArticleLike
 from broadwai.retrieval import Collector, parse_feed, refresh_media_sources
 from broadwai.sources import SourceInput
-from broadwai.youtube import channel_feed, thumbnail, video_id
+from broadwai.youtube import channel_feed, thumbnail, video_id, watch_duration
 from tests.admin_fakes import AdminStore
+from tests.client import TestClient
 from tests.fakes import (
     FakeCollector,
     FakeSearch,
@@ -50,6 +51,83 @@ def video(index=0):
     )
 
 
+def watch_page(id_=ID, seconds="1488", *, live=False, status="OK"):
+    player = {
+        "videoDetails": {"videoId": id_, "lengthSeconds": seconds},
+        "playabilityStatus": {"status": status},
+        "microformat": {"playerMicroformatRenderer": {"liveBroadcastDetails": {"isLiveNow": live}}},
+    }
+    return ("<script>var ytInitialPlayerResponse = " + json.dumps(player) + ";</script>").encode()
+
+
+def test_watch_duration_uses_main_video_identity_and_exact_seconds():
+    body = b'<script>var recommendation = {"lengthSeconds":"999"};</script>' + watch_page()
+    assert watch_duration(body, ID) == 1488
+    assert watch_duration(body, "abcdefghijk") is None
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        b"<html>Consent required</html>",
+        b"ytInitialPlayerResponse = {broken json}",
+        b"ytInitialPlayerResponse = null;",
+        watch_page(seconds=""),
+        watch_page(seconds="0"),
+        watch_page(seconds="-2"),
+        watch_page(live=True),
+        watch_page(status="LOGIN_REQUIRED"),
+    ],
+)
+def test_watch_duration_never_guesses_when_missing_unavailable_or_live(body):
+    assert watch_duration(body, ID) is None
+
+
+async def test_duration_enrichment_is_cached_without_changing_the_description():
+    item = video().model_copy(update={"media": {"provider": "youtube", "channel_title": "Science"}})
+    fetcher = SimpleNamespace(
+        get=AsyncMock(return_value=Download(item.url, watch_page(video_id(item.url)), "text/html"))
+    )
+    store = MemoryStore([item])
+    collector = Collector(store, fetcher)
+    enriched = store.put_article(await collector.enrich_media_duration(item))
+    assert enriched.media["duration_seconds"] == 1488
+    assert enriched.media["channel_title"] == "Science"
+    assert enriched.content_hash == item.content_hash
+    assert enriched.text == "" and enriched.extraction_status == "excerpt"
+    assert (await collector.enrich_media_duration(item)).media["duration_seconds"] == 1488
+    fetcher.get.assert_awaited_once_with(item.url)
+
+
+async def test_duration_failure_does_not_block_collection_and_is_cached_for_a_day():
+    item = video().model_copy(update={"media": {"provider": "youtube"}})
+    fetcher = SimpleNamespace(get=AsyncMock(side_effect=RetrievalError("offline")))
+    store = MemoryStore([item])
+    collector = Collector(store, fetcher)
+    enriched = store.put_article(await collector.enrich_media_duration(item))
+    assert not enriched.media.get("duration_seconds")
+    assert enriched.media["duration_checked_at"]
+    await collector.enrich_media_duration(item)
+    assert fetcher.get.await_count == 1
+    enriched.media["duration_checked_at"] = (utcnow() - timedelta(days=2)).isoformat()
+    store.put_article(enriched)
+    await collector.enrich_media_duration(item)
+    assert fetcher.get.await_count == 2
+
+
+async def test_known_durations_and_non_youtube_media_do_not_trigger_requests():
+    fetcher = SimpleNamespace(get=AsyncMock(side_effect=AssertionError("Unexpected download")))
+    collector = Collector(MemoryStore(), fetcher)
+    for item in [
+        video(),
+        article(),
+        video().model_copy(update={"format": "podcast"}),
+        video().model_copy(update={"url": "https://other.example/watch"}),
+    ]:
+        assert await collector.enrich_media_duration(item) == item
+    fetcher.get.assert_not_awaited()
+
+
 def test_youtube_atom_becomes_video_with_description_and_thumbnail():
     xml = f"""<feed xmlns="http://www.w3.org/2005/Atom"
       xmlns:yt="http://www.youtube.com/xml/schemas/2015"
@@ -59,6 +137,7 @@ def test_youtube_atom_becomes_video_with_description_and_thumbnail():
       <link href="https://www.youtube.com/shorts/{ID}"/>
       <published>2026-09-27T10:00:00Z</published><author><name>ARTE</name></author>
       <media:group><media:description>A documented subject, not a transcript.</media:description>
+      <media:content url="https://www.youtube.com/v/{ID}" duration="622" type="video/mp4"/>
       <media:thumbnail url="http://localhost/spoofed"/></media:group>
       </entry></feed>"""
     item = parse_feed(xml.encode(), FEED, 15)[0]
@@ -66,6 +145,7 @@ def test_youtube_atom_becomes_video_with_description_and_thumbnail():
     assert item.url == f"https://www.youtube.com/watch?v={ID}"
     assert item.image.url == f"https://i.ytimg.com/vi/{ID}/hqdefault.jpg"
     assert item.media["channel_title"] == "ARTE"
+    assert item.media["duration_seconds"] == 622
     assert item.extraction_status == "excerpt" and item.text == "" and not item.transcript
     assert item.reading_time_minutes is None
     assert item.excerpt == "A documented subject, not a transcript."

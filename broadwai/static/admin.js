@@ -80,6 +80,10 @@ async function loadStats() {
   const health = await api("/health");
   $("stat-articles").textContent = health.catalog.articles;
   $("stat-briefs").textContent = health.catalog.briefs;
+  const schedule = await api("/v1/sources/collection-schedule");
+  $("collection-schedule").textContent = schedule.enabled
+    ? "Collecte automatique chaque jour à 3 h, heure de Paris · jusqu’à 50 contenus par source selon les disponibilités. Le serveur doit rester démarré."
+    : "Collecte automatique désactivée.";
 }
 async function loadArticles() {
   const sequence = ++state.sequence;
@@ -141,7 +145,7 @@ function editSource(source = null) {
   form.elements.name.value = source?.name || "";
   form.elements.kind.value = source?.kind || "website";
   form.elements.url.value = source?.url || "";
-  form.elements.limit_per_source.value = source?.limit_per_source || 20;
+  form.elements.limit_per_source.value = source?.limit_per_source || 50;
   form.elements.enabled.checked = source?.enabled ?? true;
   sourceKind(); $("form-error").textContent = ""; $("source-dialog").showModal();
 }

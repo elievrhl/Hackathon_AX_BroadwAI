@@ -91,6 +91,7 @@ def test_dictation_requires_owner_session_and_csrf(dictation):
         (b"x" * (MAX_BYTES + 1), "audio/wav", 413),
         (b"invalid", "audio/webm", 415),
     ],
+    ids=["invalid", "truncated", "too-short", "wrong-rate", "too-large", "wrong-format"],
 )
 def test_invalid_recordings_never_reach_provider(dictation, body, kind, status):
     client, user_id, service, _ = dictation
@@ -153,6 +154,7 @@ async def test_gradium_request_and_complete_ndjson_transcription():
         (200, '{"type":"end_text"}', 422),
         (200, "x" * 128001, 503),
     ],
+    ids=["unauthorized", "provider-error", "incomplete", "invalid-json", "empty", "too-large"],
 )
 async def test_provider_failures_are_sanitized_and_never_retried(status, body, expected):
     calls = []

@@ -10,7 +10,7 @@ from broadwai.retrieval import Collector
 from broadwai.youtube import metadata_duration
 from tests.fakes import FakeSearch, MemoryStore, ScriptedModel, article, decision, finalize_first
 from tests.test_pipeline import pipeline, request
-from tests.test_youtube import FEED, video
+from tests.test_youtube import FEED, video, watch_page
 
 
 @pytest.mark.parametrize(
@@ -82,6 +82,17 @@ def test_duration_from_another_video_or_consent_page_is_ignored():
     body = page_for(item, canonical=video(1).url).body
     assert metadata_duration(body, item.url.split("=")[1]) is None
     assert metadata_duration(b'<meta itemprop="duration" content="PT30M">', "unknown") is None
+
+
+@pytest.mark.parametrize("player_options", [{"live": True}, {"status": "LOGIN_REQUIRED"}])
+async def test_html_fallback_cannot_restore_an_unavailable_or_live_player_duration(player_options):
+    item = video().model_copy(update={"media": {"provider": "youtube"}})
+    id_ = item.url.split("=")[1]
+    body = page_for(item).body + watch_page(id_, **player_options)
+    assert metadata_duration(body, id_) is None
+    fetcher = SimpleNamespace(get=AsyncMock(return_value=Download(item.url, body, "text/html")))
+    enriched = await Collector(MemoryStore(), fetcher).enrich_media_duration(item)
+    assert not enriched.media.get("duration_seconds")
 
 
 def feed_for(item):

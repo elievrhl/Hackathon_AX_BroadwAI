@@ -7,6 +7,7 @@ from html.parser import HTMLParser
 from urllib.parse import parse_qs, urlsplit
 
 from broadwai.models import ArticleImage
+from broadwai.podcasts import duration_seconds
 
 VIDEO_ID = re.compile(r"[A-Za-z0-9_-]{11}\Z")
 CHANNEL_ID = re.compile(r"UC[A-Za-z0-9_-]{22}\Z")
@@ -92,8 +93,28 @@ def video_metadata(body: bytes, expected_id: str) -> dict | None:
 
 def metadata_duration(body: bytes, expected_id: str) -> float | None:
     """Read only the primary video's published duration, never recommendation durations."""
+    text = body.decode("utf-8", errors="replace")
+    player_match = re.search(r"\bytInitialPlayerResponse\s*=\s*", text)
+    if player_match:
+        try:
+            player, _ = json.JSONDecoder().raw_decode(text, player_match.end())
+            details = player.get("videoDetails", {})
+            live = (
+                player.get("microformat", {})
+                .get("playerMicroformatRenderer", {})
+                .get("liveBroadcastDetails", {})
+            )
+            if (
+                details.get("videoId") != expected_id
+                or details.get("isLive")
+                or live.get("isLiveNow")
+                or player.get("playabilityStatus", {}).get("status", "OK") != "OK"
+            ):
+                return None
+        except (ValueError, TypeError, AttributeError):
+            return None
     metadata = _DurationMetadata()
-    metadata.feed(body.decode("utf-8", errors="replace"))
+    metadata.feed(text)
     if not metadata.canonical or video_id(metadata.canonical) != expected_id:
         return None
     match = re.fullmatch(
@@ -105,6 +126,30 @@ def metadata_duration(body: bytes, expected_id: str) -> float | None:
     hours, minutes, seconds = (float(value or 0) for value in match.groups())
     duration = hours * 3600 + minutes * 60 + seconds
     return duration if duration > 0 else None
+
+
+def watch_duration(body: bytes, expected_id: str) -> int | None:
+    """Read only the main player's duration, never a recommendation or a live clock."""
+    text = body.decode("utf-8", errors="replace")
+    for match in re.finditer(r"\bytInitialPlayerResponse\s*=\s*", text):
+        try:
+            player, _ = json.JSONDecoder().raw_decode(text, match.end())
+            details = player.get("videoDetails", {})
+            live = (
+                player.get("microformat", {})
+                .get("playerMicroformatRenderer", {})
+                .get("liveBroadcastDetails", {})
+            )
+            if (
+                details.get("videoId") == expected_id
+                and player.get("playabilityStatus", {}).get("status") == "OK"
+                and not live.get("isLiveNow")
+                and not details.get("isLive")
+            ):
+                return duration_seconds(details.get("lengthSeconds"))
+        except (ValueError, TypeError, AttributeError):
+            continue
+    return None
 
 
 def video_id(url: str) -> str | None:

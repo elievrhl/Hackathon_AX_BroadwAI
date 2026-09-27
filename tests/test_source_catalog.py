@@ -115,11 +115,25 @@ def test_curated_videos_and_podcasts_have_auditable_provenance():
     selected = [e for e in catalog["sources"] if e["verification"]["status"] == "ok"]
     assert len(selected) >= 1000
     videos = [e for e in selected if e.get("format") == "youtube"]
-    assert len(videos) == 8
+    assert len(videos) >= 200
+    youtube_export = json.loads(
+        (ROOT / "examples/sources-youtube.json").read_text(encoding="utf-8")
+    )
+    assert youtube_export == [entry["source"] for entry in videos]
+    channel_ids = [entry["source"]["url"].split("channel_id=")[-1] for entry in videos]
+    assert len(set(channel_ids)) == len(videos)
+    assert all(re.fullmatch(r"UC[\w-]{22}", channel_id) for channel_id in channel_ids)
     for entry in videos:
         assert entry["provenance_url"].startswith("https://")
         assert len(entry["quality_notes"]) >= 2
         assert entry["verification"]["feed_title"] == entry["expected_feed_title"]
+        assert len(entry["quality_review"]["sample_titles"]) >= 2
+        if entry["id"].startswith("youtube-UC"):
+            proof = entry["provenance_verification"]
+            assert proof["method"] in {"official_site_link", "official_site_channel_id"}
+            assert proof["matches_feed"]
+            assert proof["channel_id"] in entry["source"]["url"]
+            assert proof["canonical_channel_url"] == entry["homepage_url"]
     podcasts = [e for e in selected if e["source"]["kind"] == "podcast"]
     assert len(podcasts) == 6
     for entry in podcasts:

@@ -14,7 +14,7 @@ class SourceInput(Model):
     kind: Literal["rss", "hacker_news", "website", "podcast"] = "rss"
     url: str = Field("", max_length=2000)
     enabled: bool = True
-    limit_per_source: int = Field(20, ge=1, le=50)
+    limit_per_source: int = Field(50, ge=1, le=50)
 
     @model_validator(mode="after")
     def validate_source(self):
@@ -101,8 +101,17 @@ async def collect_sources(request: Request, source_id: str | None = None):
                 raise HTTPException(404, "Source introuvable")
         else:
             sources = [s for s in sources if s["enabled"]]
-        results = []
-        for source in sources:
+        results = await collect_source_batch(store, request.app.state.collector, sources)
+        return {"results": results}
+
+
+async def collect_source_batch(store, collector, sources, *, heartbeat=None):
+    semaphore = asyncio.Semaphore(5)
+
+    async def collect(source):
+        async with semaphore:
+            if heartbeat:
+                await heartbeat()
             body = IngestRequest(
                 feed_urls=[source["url"]] if source["kind"] in {"rss", "podcast"} else [],
                 website_urls=[source["url"]] if source["kind"] == "website" else [],
@@ -111,16 +120,25 @@ async def collect_sources(request: Request, source_id: str | None = None):
             )
             try:
                 async with asyncio.timeout(120):
-                    report = await request.app.state.collector.ingest(body)
-            except (TimeoutError, RetrievalError) as exc:
+                    report = await collector.ingest(body)
+            except Exception as exc:
                 report = {
                     "article_ids": [],
                     "collected": 0,
                     "errors": [{"error": f"Collecte interrompue : {type(exc).__name__}"}],
                 }
-            store.record_collection(source["id"], report)
-            results.append({"source_id": source["id"], "name": source["name"], **report})
-        return {"results": results}
+            await asyncio.to_thread(store.record_collection, source["id"], report)
+            return {"source_id": source["id"], "name": source["name"], **report}
+
+    # TaskGroup also cancels sibling tasks on DB/lease errors or server shutdown.
+    async with asyncio.TaskGroup() as group:
+        tasks = [group.create_task(collect(source)) for source in sources]
+    return [task.result() for task in tasks]
+
+
+@router.get("/sources/collection-schedule")
+async def collection_schedule(request: Request):
+    return await request.app.state.daily_sources.status()
 
 
 @router.post("/sources/collect")

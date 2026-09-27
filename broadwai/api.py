@@ -11,6 +11,7 @@ from broadwai.auth import router as auth_router
 from broadwai.collections import router as collections_router
 from broadwai.config import Settings
 from broadwai.daily_editions import DailyEditions
+from broadwai.daily_sources import DailySourceCollection
 from broadwai.dictation import GradiumDictation
 from broadwai.dictation import router as dictation_router
 from broadwai.image_review import ImageReviewer
@@ -94,10 +95,21 @@ def create_app(
             app.state.cover_lock,
             enabled=llm is not None,
         )
+        app.state.daily_sources = DailySourceCollection(
+            repository,
+            app.state.collector,
+            app.state.source_lock,
+            enabled=settings.daily_source_collection_enabled and store is None,
+        )
+        await app.state.daily_sources.initialize()
         daily_task = asyncio.create_task(app.state.daily_editions.serve())
+        source_task = asyncio.create_task(app.state.daily_sources.serve())
         try:
             yield
         finally:
+            source_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await source_task
             daily_task.cancel()
             with suppress(asyncio.CancelledError):
                 await daily_task
@@ -155,6 +167,7 @@ def create_app(
             "web_search_configured": app.state.search.enabled,
             "catalog": app.state.store.stats(),
             "daily_editions_enabled": app.state.daily_editions.enabled,
+            "daily_source_collection_enabled": app.state.daily_sources.enabled,
         }
 
     @app.get("/v1/likes")

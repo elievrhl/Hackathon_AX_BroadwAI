@@ -55,8 +55,9 @@ if (typeof document !== "undefined") {
     if (safeURL(source.homepage)) links.append(link(source.format === "youtube" ? "Voir la chaîne ↗" : source.format === "podcast" ? "L’émission officielle ↗" : "Visiter la publication ↗", source.homepage));
     if (source.provenance && safeURL(source.provenance)) links.append(link("Vérifier la provenance ↗", source.provenance));
     target.append(links, el("h3", "Pourquoi cette source ?"), el("p", source.description));
-    if (source.qualityNotes?.length) { const list = el("ul"); source.qualityNotes.forEach(note => list.append(el("li", note))); target.append(list); }
+    if (source.qualityNotes?.length) { const list = el("ul"); source.qualityNotes.filter(note => note !== source.description).forEach(note => list.append(el("li", note))); target.append(list); }
     target.append(el("h3", "Provenance & contexte"), el("p", source.provenanceNote || source.editorialNote), el("p", source.accessNote));
+    if (source.reviewScope) target.append(el("h3", "Ce qui a été examiné"), el("p", source.reviewScope));
     if (source.format === "youtube") target.append(el("p", "Le catalogue utilise les titres et descriptions publiés par la chaîne. Une description ne constitue pas une transcription de la vidéo."));
     if (source.format === "podcast") target.append(el("p", "Les épisodes proviennent du flux public de l’émission. Les résumés disponibles sont ceux publiés par le producteur ; aucun épisode n’est généré par Kiosque."));
     target.append(el("h3", "Dans Kiosque"), el("p", sourceState(source)), el("p", `${statuses[source.status] || source.status} · contrôle du ${date(source.checkedAt)}${source.latestAt ? ` · dernière publication observée : ${date(source.latestAt)}` : ""}`));
@@ -83,11 +84,11 @@ if (typeof document !== "undefined") {
     if (!sources.length) target.append(el("p", "Aucune source ne correspond à ces filtres. Essayez un autre sujet ou réinitialisez la recherche.", "empty"));
     else if (state.view === "cards") visible.forEach(source => target.append(card(source))); else target.append(table(visible));
     const publisherCount = new Set(sources.map(source => source.publisher)).size;
-    $("result-count").textContent = `${number(sources.length)} source${sources.length === 1 ? "" : "s"} · ${number(publisherCount)} éditeur${publisherCount === 1 ? "" : "s"} identifié${publisherCount === 1 ? "" : "s"}`;
+    $("result-count").textContent = state.format === "youtube" ? `${number(sources.length)} chaîne${sources.length === 1 ? "" : "s"} YouTube` : `${number(sources.length)} source${sources.length === 1 ? "" : "s"} · ${number(publisherCount)} éditeur${publisherCount === 1 ? "" : "s"} identifié${publisherCount === 1 ? "" : "s"}`;
     $("page-info").textContent = `Page ${state.page + 1} / ${maxPage + 1}`; $("previous").disabled = state.page === 0; $("next").disabled = state.page >= maxPage; $("download").disabled = !sources.length;
     document.querySelectorAll("[data-format]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.format === state.format)));
     const note = $("format-note"); note.replaceChildren(); note.hidden = !["youtube", "podcast"].includes(state.format);
-    if (state.format === "youtube") note.append(el("strong", "Peu de chaînes. Des choix argumentés."), el("p", "Expertise identifiable, explications approfondies et références consultables : chaque chaîne a sa propre fiche de sélection. Le nombre d’abonnés n’est pas notre critère de qualité."));
+    if (state.format === "youtube") note.append(el("strong", "Des chaînes choisies. Des raisons consultables."), el("p", "Cours, recherche, enquêtes, collections et savoir-faire : chaque fiche présente la provenance officielle, les motifs du choix, les exemples examinés et les limites. Plusieurs chaînes peuvent relever du même organisme."));
     if (state.format === "podcast") note.append(el("strong", "Des émissions, avec leur producteur."), el("p", "La première sélection réunit six émissions de Radio France : quatre de France Culture, deux de France Inter. Ouvrez une fiche pour retrouver la page de l’émission, son flux officiel et les raisons du choix."));
   }
   function stats() {
