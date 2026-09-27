@@ -41,10 +41,19 @@ utiliser la même adresse pour retrouver son profil local.
 1. Créer ou retrouver son profil sur cet appareil, puis choisir ses sujets et un contexte facultatif.
 2. Les intérêts, notes, langues et taille sont synchronisés via
    `PUT /v1/readers/{user_id}/daily-edition`. La première préparation est prévue
-   au prochain 4 h, heure de Paris. Aucun bouton ni appel payant immédiat.
+   au prochain 4 h, heure de Paris. L’inscription ne lance pas de préparation immédiate.
 3. Le serveur prépare une édition chaque jour à 4 h, même page fermée. Le lecteur
    affiche le statut et ouvre la dernière édition disponible. Un onglet ouvert
    vérifie les nouveautés chaque minute et lors du retour à la page.
+   **Refaire ma une** propose un commentaire facultatif avant de préparer une nouvelle sélection.
+   S’il est renseigné, le motif guide aussi les sept jours suivants. Une tentative par jour civil (Paris), remise
+   à disposition à minuit, y compris après un échec. La limite est persistée côté serveur et
+   affichée après rechargement. Le bouton concerne l’édition actuelle ; les archives restent
+   intactes. Fermer la fenêtre pendant la préparation n’annule pas la demande.
+   Une barre affiche la progression estimée et le temps restant approximatif, également
+   visibles dans le journal après fermeture de la fenêtre ou rechargement. Seule la fin
+   confirmée par le serveur permet d’atteindre 100 %. L’administrateur peut redonner une
+   tentative avec **Réinitialiser « Refaire ma une »** dans **Éditions & planification**.
 4. Cliquer sur un titre ou une image pour lire directement l’article chez son éditeur,
    dans un nouvel onglet. Le bouton **Fiche & avis** donne accès au résumé, à la raison
    de sélection et aux retours, sans quitter le journal.

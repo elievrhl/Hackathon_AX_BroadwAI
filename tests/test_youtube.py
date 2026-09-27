@@ -147,7 +147,19 @@ def test_generation_api_collects_registered_channel_before_editor_selection():
     <entry><title>Python explained</title><link href="https://youtube.com/watch?v={ID}"/>
     <published>{utcnow().isoformat()}</published><summary>{article().excerpt}</summary>
     <author><name>ARTE</name></author></entry></feed>"""
-    fetcher = SimpleNamespace(get=AsyncMock(return_value=Download(FEED, xml.encode(), "text/xml")))
+    watch_url = f"https://www.youtube.com/watch?v={ID}"
+    metadata = (
+        f'<link rel="canonical" href="{watch_url}">'
+        '<meta itemprop="duration" content="PT10M22S">'
+    )
+    fetcher = SimpleNamespace(
+        get=AsyncMock(
+            side_effect=[
+                Download(FEED, xml.encode(), "text/xml"),
+                Download(watch_url, metadata.encode(), "text/html"),
+            ]
+        )
+    )
     app = create_app(
         Settings(_env_file=None),
         store=store,
@@ -161,7 +173,8 @@ def test_generation_api_collects_registered_channel_before_editor_selection():
         assert response.status_code == 200
         assert response.json()["items"][0]["format"] == "video"
         assert response.json()["items"][0]["media"]["channel_title"] == "ARTE"
-    assert fetcher.get.await_count == 1
+        assert response.json()["items"][0]["media"]["duration_seconds"] == 622
+    assert fetcher.get.await_count == 2
 
 
 async def test_thumbnail_uses_canonical_video_id_without_paid_image_review():

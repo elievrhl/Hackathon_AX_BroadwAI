@@ -15,6 +15,7 @@ from broadwai.llm import BudgetExceeded, ModelError, OpenAILanguageModel, RunBud
 from broadwai.models import (
     Cover,
     CoverRequest,
+    EditionFeedback,
     Feedback,
     IngestRequest,
     PreferenceCreate,
@@ -25,6 +26,7 @@ from broadwai.pipeline import CoverPipeline
 from broadwai.preferences import PreferenceConflict
 from broadwai.reader_chat import ReaderMessage, check_replay, preference_snapshot
 from broadwai.reader_memory import ArticleLike
+from broadwai.regeneration import RegenerationRequest, Regenerations
 from broadwai.retrieval import Collector, refresh_media_sources
 from broadwai.saved_articles import router as saved_articles_router
 from broadwai.sources import router as admin_router
@@ -73,8 +75,16 @@ def create_app(
             require_review=settings.image_review_enabled,
         )
         app.state.daily_editions = DailyEditions(
-            repository, prepare_cover, app.state.cover_lock,
+            repository,
+            prepare_cover,
+            app.state.cover_lock,
             enabled=settings.daily_editions_enabled and llm is not None,
+        )
+        app.state.regenerations = Regenerations(
+            repository,
+            prepare_cover,
+            app.state.cover_lock,
+            enabled=llm is not None,
         )
         daily_task = asyncio.create_task(app.state.daily_editions.serve())
         try:
@@ -179,11 +189,23 @@ def create_app(
             return await prepare_cover(request)
 
     async def prepare_cover(request: CoverRequest):
-        memory = await asyncio.to_thread(
-            app.state.store.reading_memory, request.profile.user_id
+        memory = await asyncio.to_thread(app.state.store.reading_memory, request.profile.user_id)
+        feedback = await asyncio.to_thread(
+            app.state.store.recent_edition_feedback,
+            request.profile.user_id,
+            app.state.regenerations.clock(),
         )
         request = request.model_copy(
-            update={"profile": request.profile.model_copy(update={"reading_memory": memory})}
+            update={
+                "profile": request.profile.model_copy(
+                    update={
+                        "reading_memory": memory,
+                        "edition_feedback": [
+                            EditionFeedback.model_validate(row) for row in feedback
+                        ],
+                    }
+                )
+            }
         )
         pipeline = CoverPipeline(
             app.state.store, app.state.collector, app.state.search, app.state.model, settings
@@ -229,6 +251,14 @@ def create_app(
     async def daily_edition_status(user_id: str):
         return await app.state.daily_editions.status(user_id)
 
+    @app.get("/v1/readers/{user_id}/regeneration")
+    async def regeneration_status(user_id: str):
+        return await app.state.regenerations.status(user_id)
+
+    @app.post("/v1/readers/{user_id}/regeneration", response_model=Cover)
+    async def regenerate_edition(user_id: str, request: RegenerationRequest):
+        return await app.state.regenerations.regenerate(user_id, request)
+
     @app.get("/v1/admin/editions")
     async def admin_editions(
         limit: int = Query(100, ge=1, le=200), offset: int = Query(0, ge=0)
@@ -236,12 +266,17 @@ def create_app(
         rows = await asyncio.to_thread(app.state.store.list_daily_profiles, limit, offset)
         for row in rows:
             row["schedule"] = await app.state.daily_editions.status(row["user_id"])
+            row["regeneration"] = await app.state.regenerations.status(row["user_id"])
         return {
             "profiles": rows,
             "llm_configured": app.state.model is not None,
             "daily_editions_enabled": app.state.daily_editions.enabled,
             "preparing": app.state.cover_lock.locked(),
         }
+
+    @app.post("/v1/admin/readers/{user_id}/regeneration/reset")
+    async def admin_reset_regeneration(user_id: str):
+        return await app.state.regenerations.reset(user_id)
 
     @app.post("/v1/admin/readers/{user_id}/covers", response_model=Cover)
     async def admin_generate_cover(user_id: str):

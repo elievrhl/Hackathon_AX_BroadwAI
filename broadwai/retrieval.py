@@ -14,8 +14,9 @@ from broadwai.images import article_image
 from broadwai.models import Article, IngestRequest, utcnow
 from broadwai.network import PublicFetcher, RetrievalError, validate_destination
 from broadwai.podcasts import episode_metadata, public_url
+from broadwai.videos import known_duration
 from broadwai.website import article_links, website_article
-from broadwai.youtube import channel_feed, thumbnail, video_id
+from broadwai.youtube import channel_feed, metadata_duration, thumbnail, video_id
 
 
 def plain(text: str) -> str:
@@ -79,6 +80,47 @@ class Collector:
     def __init__(self, store, fetcher: PublicFetcher):
         self.store = store
         self.fetcher = fetcher
+        self.video_slots = asyncio.Semaphore(4)
+
+    async def _store_feed_article(self, article: Article) -> Article:
+        youtube_id = video_id(article.url) if article.format == "video" else None
+        if youtube_id:
+            previous = self.store.get_article(article.id)
+            if previous and previous.format == "video":
+                # Preserve explicitly imported transcripts and previously verified durations.
+                if previous.extraction_status == "extracted":
+                    article = previous
+                duration = known_duration(previous)
+                if duration is not None:
+                    article = article.model_copy(
+                        update={"media": {**(article.media or {}), "duration_seconds": duration}}
+                    )
+            if known_duration(article) is None:
+                try:
+                    async with self.video_slots, asyncio.timeout(3):
+                        page = await self.fetcher.get(
+                            f"https://www.youtube.com/watch?v={youtube_id}"
+                        )
+                        if (
+                            video_id(page.url) == youtube_id
+                            and page.content_type in {"text/html", "application/xhtml+xml"}
+                        ):
+                            duration = await asyncio.to_thread(
+                                metadata_duration, page.body, youtube_id
+                            )
+                            if duration is not None:
+                                article = article.model_copy(
+                                    update={
+                                        "media": {
+                                            **(article.media or {}),
+                                            "duration_seconds": duration,
+                                        }
+                                    }
+                                )
+                except (RetrievalError, TimeoutError, ValueError):
+                    # Unavailable duration means ineligible, not a failed RSS collection.
+                    pass
+        return self.store.put_article(article)
 
     async def ingest(self, request: IngestRequest) -> dict:
         ids: set[str] = set()
@@ -92,9 +134,8 @@ class Collector:
                     download.url,
                     request.limit_per_source,
                 )
-                for article in articles:
-                    self.store.put_article(article)
-                    ids.add(article.id)
+                saved = await asyncio.gather(*(self._store_feed_article(a) for a in articles))
+                ids.update(article.id for article in saved)
             except RetrievalError as exc:
                 errors.append({"source": url, "error": str(exc)})
         for url in request.website_urls:

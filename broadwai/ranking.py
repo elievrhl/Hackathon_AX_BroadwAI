@@ -6,6 +6,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from broadwai.models import Article, Profile, utcnow
+from broadwai.videos import duration_allowed
 
 STOPWORDS = set(
     "a au aux avec ce ces dans de des du en et est la le les pour par sur un une "
@@ -31,6 +32,8 @@ def similarity(a: Article, b: Article) -> float:
 
 
 def eligible(article: Article, profile: Profile, seen: set[str]) -> bool:
+    if not duration_allowed(article):
+        return False
     if article.discovery.get("kind") == "source_directory":
         return False
     if article.id in seen or article.id in profile.seen_article_ids:

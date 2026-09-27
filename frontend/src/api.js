@@ -65,6 +65,8 @@ export const importBookmarks = (userId, articleIds) => jsonRequest(`/v1/collecti
 const readerPath = userId => `/v1/readers/${encodeURIComponent(userId)}`;
 export const registerDailyEdition = (userId, payload) => jsonRequest(`${readerPath(userId)}/daily-edition`, 'PUT', payload);
 export const getDailyEdition = userId => request(`${readerPath(userId)}/daily-edition`);
+export const getRegeneration = userId => request(`${readerPath(userId)}/regeneration`);
+export const regenerateEdition = (userId, coverId, reason = '') => post(`${readerPath(userId)}/regeneration`, { cover_id: coverId, reason: reason.trim() });
 export const getReaderFeedback = (userId, coverId) => request(`${readerPath(userId)}/feedback/${encodeURIComponent(coverId)}`);
 export const getPreferences = userId => request(`${readerPath(userId)}/preferences`);
 export const getReaderMessages = userId => request(`${readerPath(userId)}/messages`);

@@ -20,10 +20,12 @@
       <form id="generation-form" class="generation-controls">
         <label for="reader-profile">Profil lecteur<select id="reader-profile"><option value="">Tous les lecteurs · historique</option></select></label>
         <button id="generate-cover" class="primary" type="submit" disabled>Générer une une maintenant</button>
+        <button id="reset-regeneration" type="button" disabled>Réinitialiser « Refaire ma une »</button>
       </form>
       <div id="profile-schedule" class="profile-schedule" aria-live="polite"><p class="muted">Choisissez un profil pour consulter sa planification ou préparer une édition.</p></div>
       <p class="small">La préparation automatique démarre chaque jour à 4 h, heure de Paris. Le serveur doit rester actif. Une génération manuelle utilise les crédits des modèles et ne modifie pas ce rendez-vous.</p>
       <p id="generation-notice" role="status" aria-live="polite" hidden></p>
+      <p id="reset-notice" role="status" aria-live="polite" hidden></p>
     </section>
     <div class="inspection-layout">
       <aside class="panel history-panel" aria-label="Historique des couvertures"><div class="panel-heading"><h2>Éditions enregistrées</h2></div><div id="covers-list"></div><button id="more" hidden>Afficher davantage</button></aside>

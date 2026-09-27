@@ -1,6 +1,6 @@
 "use strict";
 const $ = id => document.getElementById(id);
-const state = {rows: [], selected: new URLSearchParams(location.search).get("id"), sequence: 0, listSequence: 0, operations: null, generating: false};
+const state = {rows: [], selected: new URLSearchParams(location.search).get("id"), sequence: 0, listSequence: 0, operations: null, generating: false, resetting: false};
 const n = (tag, text, cls) => {
   const element = document.createElement(tag);
   if (text !== undefined) element.textContent = text;
@@ -370,9 +370,11 @@ const parisDate = value => value ? new Date(value).toLocaleString("fr-FR", { tim
 function selectedProfile() { return state.operations?.profiles.find(row => row.user_id === $("reader-profile").value); }
 function operationControls() {
   const profile = selectedProfile();
-  $("generate-cover").disabled = !profile || !state.operations?.llm_configured || state.operations?.preparing || state.generating;
+  $("generate-cover").disabled = !profile || !state.operations?.llm_configured || state.operations?.preparing || state.generating || state.resetting;
   $("generate-cover").textContent = state.generating ? "Préparation en cours…" : "Générer une une maintenant";
-  $("reader-profile").disabled = state.generating;
+  $("reader-profile").disabled = state.generating || state.resetting;
+  $("reset-regeneration").disabled = !profile?.regeneration?.can_reset || state.generating || state.resetting;
+  $("reset-regeneration").textContent = state.resetting ? "Réinitialisation…" : "Réinitialiser « Refaire ma une »";
 }
 function renderSchedule() {
   const profile = selectedProfile(), parent = $("profile-schedule");
@@ -384,6 +386,10 @@ function renderSchedule() {
     parent.append(n("p", request.profile.interests.map(interest => interest.topic).join(" · ")));
     parent.append(n("p", `${request.size} contenus · langues : ${request.profile.languages.join(", ") || "toutes"} · profil mis à jour le ${parisDate(profile.updated_at)}`, "small"));
     parent.append(n("p", `Préparation quotidienne : ${scheduleNames[schedule.status] || schedule.status} · prochaine échéance : ${parisDate(schedule.next_run_at)} (Paris)`));
+    const regeneration = profile.regeneration;
+    const regenerationLabels = { available: "Disponible", unavailable: "Service indisponible", running: "Préparation en cours · réinitialisation indisponible", completed: "Tentative du jour utilisée", failed: "Tentative du jour en échec" };
+    parent.append(n("p", `Refaire ma une : ${regenerationLabels[regeneration?.status] || "État indisponible"}`));
+    parent.append(n("p", "Réinitialiser redonne une tentative pour aujourd’hui sans lancer de génération. Les commentaires et les éditions sont conservés.", "small"));
     if (schedule.cover_id) parent.append(link("Ouvrir la trace de la dernière préparation quotidienne", `/admin/covers?id=${encodeURIComponent(schedule.cover_id)}`));
   }
   operationControls();
@@ -455,8 +461,26 @@ async function generate(event) {
     catch (e) { error(new Error(`L’édition est enregistrée. Actualisation incomplète : ${e.message}`)); }
   }
 }
+async function resetRegeneration() {
+  if ($("reset-regeneration").disabled) return;
+  const profile = selectedProfile();
+  state.resetting = true; operationControls();
+  $("error").hidden = true; $("reset-notice").hidden = true;
+  try {
+    const result = await api(`/v1/admin/readers/${encodeURIComponent(profile.user_id)}/regeneration/reset`, {method: "POST"});
+    profile.regeneration = result.regeneration;
+    $("reset-notice").textContent = result.reset ? "Demande réinitialisée. Ce lecteur peut refaire sa une aujourd’hui." : "Ce lecteur dispose déjà d’une tentative pour aujourd’hui.";
+    $("reset-notice").hidden = false;
+  } catch (e) { error(e); }
+  finally {
+    state.resetting = false; renderSchedule();
+    loadOperations().catch(error);
+  }
+}
+$("reset-regeneration").addEventListener("click", resetRegeneration);
 $("generation-form").addEventListener("submit", generate);
 $("reader-profile").addEventListener("change", () => {
+  $("reset-notice").hidden = true;
   state.selected = null; state.sequence++;
   history.replaceState(null, "", location.pathname);
   renderSchedule(); load().catch(error);
@@ -464,4 +488,4 @@ $("reader-profile").addEventListener("change", () => {
 $("reload").addEventListener("click", () => Promise.all([load(), loadOperations()]).catch(error));
 $("more").addEventListener("click", () => load(true).catch(error));
 Promise.all([load(), loadOperations()]).catch(error);
-setInterval(() => { if (!document.hidden && !state.generating) loadOperations().catch(error); }, 30_000);
+setInterval(() => { if (!document.hidden && !state.generating && !state.resetting) loadOperations().catch(error); }, 30_000);

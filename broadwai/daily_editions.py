@@ -36,7 +36,12 @@ class DailyEditions:
         # Reading memory is refreshed from the database at generation time.
         request = request.model_copy(
             update={
-                "profile": request.profile.model_copy(update={"reading_memory": {}}),
+                "profile": request.profile.model_copy(
+                    update={
+                        "reading_memory": {},
+                        "edition_feedback": [],
+                    }
+                ),
             }
         )
         await asyncio.to_thread(self.store.save_daily_profile, request, next_edition_at(now), now)

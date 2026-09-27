@@ -6,7 +6,46 @@ Le projet s’appelle **Kiosque**. L’interface [`frontend/`](frontend/README.m
 affiche les vraies couvertures de l’API : profil local sans compte, génération de
 15 à 20 articles, historique, rubriques, liens éditeurs, favoris et retours de lecture.
 Les éditions sont préparées automatiquement chaque jour à 4 h, heure de Paris,
-pour les profils enregistrés côté serveur. Le lecteur ne propose plus de bouton de génération.
+pour les profils enregistrés côté serveur. Le bouton **Refaire ma une** permet de demander
+une nouvelle sélection lorsque l’édition actuelle ne convient pas. Un commentaire facultatif
+permet d’expliquer le motif avant de lancer la préparation ; s’il est renseigné, il guide cette sélection et celles des
+**sept jours suivants**, sans modifier les notes saisies dans les préférences.
+
+La régénération est limitée à **une tentative par utilisateur et par jour civil, heure de Paris**,
+avec remise à disposition à minuit. La réservation et le motif sont enregistrés ensemble dans
+PostgreSQL (`edition_regenerations`) avant les appels aux modèles. La contrainte unique empêche
+les doubles clics et demandes simultanées sur plusieurs processus ; recharger la page ou
+redémarrer le serveur ne réinitialise pas le quota. Une tentative échouée reste consommée,
+mais le motif est conservé pour les éditions suivantes. Les erreurs de validation, l’absence
+de modèle ou une préparation déjà en cours ne consomment pas la tentative.
+
+La nouvelle sélection écarte les articles de l’édition remplacée, conservée dans les archives.
+Les motifs récents et les titres de l’édition concernée sont fournis au rédacteur comme contexte ;
+l’interprétation des besoins utilise le motif comme une demande explicite, avec priorité aux
+motifs récents lorsqu’ils se contredisent. Les titres ne deviennent pas des préférences implicites.
+Le résultat reste soumis à la qualité et à la disponibilité du catalogue : il peut être partiel.
+Les motifs expirent du contexte de génération après sept jours. L’API dédiée expose
+`GET /v1/readers/{user_id}/regeneration` (disponibilité) et
+`POST /v1/readers/{user_id}/regeneration` (`cover_id`, `reason` facultatif, 2 à 1 000 caractères
+si renseigné). Un commentaire absent ou vide ne crée pas de préférence de lecture ; la limite
+quotidienne s’applique aussi aux régénérations sans commentaire.
+Les générations automatiques à 4 h et les outils de génération administrateur restent distincts.
+
+Dans **Administration → Éditions & planification**, choisir un lecteur puis cliquer sur
+**Réinitialiser « Refaire ma une »** redonne une tentative pour le jour courant, sans appel
+aux modèles. L’action est bloquée pendant une régénération active ; une tentative abandonnée
+depuis plus de dix minutes peut être débloquée. L’historique des tentatives, les commentaires
+et les éditions sont conservés. La réinitialisation marque la tentative comme libérée et
+l’index unique maintient une seule tentative non réinitialisée par lecteur et par jour.
+API : `POST /v1/admin/readers/{user_id}/regeneration/reset`.
+
+Pendant la régénération, le lecteur affiche une **barre de progression estimée** et un temps
+restant approximatif, dans la fenêtre et dans le journal. L’estimation utilise la médiane des
+20 dernières régénérations réussies de ce lecteur (entre 30 secondes et 5 minutes), ou 2 minutes
+sans historique exploitable. Elle est enregistrée au départ avec l’heure de lancement et
+se retrouve après rechargement. Le statut est actualisé toutes les 2,5 secondes pendant la
+préparation. La barre reste plafonnée à 95 % tant que le serveur n’a pas confirmé la fin ;
+si l’estimation est dépassée, le message indique que la préparation se poursuit.
 
 La une affiche les visuels des articles, y compris les brèves : métadonnées Open Graph/Twitter
 en priorité, puis images structurées JSON-LD ou images du texte. La récupération prend aussi
@@ -725,9 +764,14 @@ Les chaînes activées sont actualisées lors de la génération, au plus une fo
 avec quatre requêtes simultanées, au plus huit flux par génération. Une chaîne indisponible n’empêche pas de composer la une.
 
 Aucune clé YouTube ou Supadata n’est nécessaire. Les flux fournissent le titre original,
-la description, la chaîne, la date et la miniature. Ils ne fournissent pas de transcription
-ni de durée : l’IA décrit seulement le sujet annoncé et la fiche signale cette limite.
-Une durée est affichée seulement si `media.duration_seconds` est renseigné.
+la description, la chaîne, la date et la miniature. La collecte récupère la durée dans
+les métadonnées publiques de la page YouTube, avec quatre requêtes simultanées au maximum,
+un délai de trois secondes par vidéo et réutilisation des durées déjà connues.
+Seules les vidéos dont `media.duration_seconds` est strictement supérieur à 300 secondes
+sont proposées dans les nouvelles éditions, quel que soit leur fournisseur. Une durée
+absente ou invalide exclut la vidéo ; exactement cinq minutes est également exclu.
+Les pages YouTube ne servent jamais de transcription : l’IA décrit seulement le sujet
+annoncé et la fiche signale cette limite.
 Les miniatures viennent de l’identifiant de la vidéo, passent par le proxy d’images borné
 et ne déclenchent pas la vérification photographique payante. Le titre et la miniature
 ouvrent directement YouTube. Likes, bibliothèques et mémoire de lecture acceptent ce format.

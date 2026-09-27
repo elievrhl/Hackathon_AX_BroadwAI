@@ -31,6 +31,7 @@ from broadwai.models import (
 from broadwai.network import RetrievalError, validate_destination
 from broadwai.preferences import PreferencePolicy, direct_match, semantic
 from broadwai.ranking import Ranked, diversify, eligible, rank, similarity, tokens
+from broadwai.videos import duration_allowed
 from broadwai.web_search import open_web_query
 
 
@@ -122,11 +123,17 @@ class CoverPipeline:
             for n, i in enumerate(profile.interests[:8])
         ]
         constraints = []
-        if profile.notes or profile.reading_memory.get("liked_articles_count"):
+        if (
+            profile.notes
+            or profile.edition_feedback
+            or profile.reading_memory.get("liked_articles_count")
+        ):
             try:
-                provided_profile = profile.model_dump(exclude={"user_id", "seen_article_ids"})
+                provided_profile = profile.model_dump(
+                    mode="json", exclude={"user_id", "seen_article_ids"}
+                )
                 explicit_profile = profile.model_dump(
-                    exclude={"user_id", "seen_article_ids", "reading_memory"}
+                    mode="json", exclude={"user_id", "seen_article_ids", "reading_memory"}
                 )
                 interpreted = await self.model.interpret(
                     {"profile": provided_profile},
@@ -174,7 +181,15 @@ class CoverPipeline:
                 # Explicit notes take precedence over broad UI categories, regardless
                 # of a model accidentally copying their numeric interest weights.
                 note_needs = {
-                    n["topic"] for n in needs if grounded(n["evidence"], profile.notes, minimum=2)
+                    n["topic"]
+                    for n in needs
+                    if grounded(
+                        n["evidence"],
+                        profile.notes
+                        + "\n"
+                        + "\n".join(f.reason for f in profile.edition_feedback),
+                        minimum=2,
+                    )
                 }
                 if note_needs:
                     for need in needs:
@@ -425,6 +440,8 @@ class CoverPipeline:
 
     async def _prepare(self, ranked: Ranked, request: CoverRequest, seen: set[str]) -> bool:
         article = ranked.article
+        if not duration_allowed(article):
+            return False
         if article.format == "video" and not request.max_videos:
             return False
         if article.format == "podcast" and not request.max_podcasts:
@@ -843,6 +860,10 @@ class CoverPipeline:
         if unknown:
             errors.append("Identifiants non disponibles : " + ", ".join(sorted(unknown)))
         articles = [self.articles[id_] for id_ in ids if id_ in self.articles]
+        if any(not duration_allowed(a) for a in articles):
+            errors.append(
+                "Les vidéos doivent avoir une durée connue strictement supérieure à 5 minutes"
+            )
         if sum(a.format == "video" for a in articles) > request.max_videos:
             errors.append(f"Maximum {request.max_videos} vidéos par édition")
         if sum(a.format == "podcast" for a in articles) > request.max_podcasts:
@@ -940,6 +961,8 @@ class CoverPipeline:
                 reason = "Identifiant inconnu"
             elif s.article_id in ids:
                 reason = "Doublon"
+            elif not duration_allowed(article):
+                reason = "Durée vidéo inconnue ou inférieure ou égale à 5 minutes"
             elif article.format == "video" and video_count >= request.max_videos:
                 reason = "Quota de vidéos"
             elif article.format == "podcast" and podcast_count >= request.max_podcasts:
@@ -1201,7 +1224,9 @@ class CoverPipeline:
         try:
             self.plan = await self.model.plan(
                 {
-                    "profile": request.profile.model_dump(exclude={"seen_article_ids"}),
+                    "profile": request.profile.model_dump(
+                        mode="json", exclude={"seen_article_ids"}
+                    ),
                     "size": request.size,
                     "max_per_source": request.max_per_source,
                     "max_videos": request.max_videos,
@@ -1254,7 +1279,7 @@ class CoverPipeline:
             )
             await self._complete_with_exploration(request, seen)
             state = {
-                "profile": request.profile.model_dump(exclude={"seen_article_ids"}),
+                "profile": request.profile.model_dump(mode="json", exclude={"seen_article_ids"}),
                 "size": request.size,
                 "discover_web": request.discover_web,
                 "discover_sources": request.discover_sources,
@@ -1586,7 +1611,9 @@ class CoverPipeline:
                 strategy = "independent" if self.budget.counts["search_web"] > 1 else "open_web"
                 result_limit = min(12, max(5, (request.size - len(self.candidates)) * 2 + 2))
                 search_context = {
-                    "profile": request.profile.model_dump(exclude={"user_id", "seen_article_ids"}),
+                    "profile": request.profile.model_dump(
+                        mode="json", exclude={"user_id", "seen_article_ids"}
+                    ),
                     "strategy": strategy,
                     "avoid_domains": avoid,
                     "max_article_age_days": self.settings.max_article_age_days,
@@ -1702,7 +1729,9 @@ class CoverPipeline:
                 try:
                     screened = await self.model.screen(
                         {
-                            "profile": request.profile.model_dump(exclude={"seen_article_ids"}),
+                            "profile": request.profile.model_dump(
+                                mode="json", exclude={"seen_article_ids"}
+                            ),
                             "size": request.size,
                             "max_per_source": request.max_per_source,
                             "selection_limit": 12,

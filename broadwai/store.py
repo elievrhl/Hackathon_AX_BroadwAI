@@ -9,9 +9,10 @@ from psycopg_pool import ConnectionPool
 from broadwai.daily_store import DailyEditionStore
 from broadwai.models import Article, Brief, Cover, Feedback
 from broadwai.preference_store import PreferenceStore
+from broadwai.regeneration_store import RegenerationStore
 
 
-class Store(PreferenceStore, DailyEditionStore):
+class Store(PreferenceStore, DailyEditionStore, RegenerationStore):
     """PostgreSQL repository with a bounded connection pool."""
 
     def __init__(self, database_url: str):

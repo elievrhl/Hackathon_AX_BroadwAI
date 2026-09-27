@@ -21,6 +21,9 @@ def test_generation_and_readback_with_persisted_multimedia_fields(pg_store, cont
     from tests.fakes import FakeCollector, FakeSearch
 
     payload = persisted_article(content_format)
+    if content_format == "video":
+        # The persistence scenario uses a video eligible for recommendation (>5 minutes).
+        payload["media"]["duration_seconds"] = 622.5
     with pg_store.pool.connection() as db:
         db.execute(
             "INSERT INTO articles (id, url, collected_at, payload) VALUES (%s, %s, %s, %s)",

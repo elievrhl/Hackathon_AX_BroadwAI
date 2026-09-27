@@ -19,6 +19,29 @@ CREATE TABLE IF NOT EXISTS covers (
     payload JSONB NOT NULL
 );
 CREATE INDEX IF NOT EXISTS covers_user_id ON covers(user_id);
+CREATE TABLE IF NOT EXISTS edition_regenerations (
+    user_id TEXT NOT NULL,
+    regeneration_date DATE NOT NULL,
+    previous_cover_id TEXT NOT NULL REFERENCES covers(id),
+    reason TEXT NOT NULL,
+    started_at TIMESTAMPTZ NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('running','completed','failed')),
+    cover_id TEXT REFERENCES covers(id),
+    PRIMARY KEY(user_id, regeneration_date)
+);
+-- Existing installations originally required a regeneration comment.
+ALTER TABLE edition_regenerations DROP CONSTRAINT IF EXISTS edition_regenerations_reason_check;
+ALTER TABLE edition_regenerations ADD CONSTRAINT edition_regenerations_reason_check
+    CHECK(reason = '' OR char_length(reason) BETWEEN 2 AND 1000);
+-- Keep past attempts and their feedback when an administrator restores the allowance.
+ALTER TABLE edition_regenerations ADD COLUMN IF NOT EXISTS id BIGSERIAL;
+ALTER TABLE edition_regenerations ADD COLUMN IF NOT EXISTS reset_at TIMESTAMPTZ;
+ALTER TABLE edition_regenerations ADD COLUMN IF NOT EXISTS finished_at TIMESTAMPTZ;
+ALTER TABLE edition_regenerations ADD COLUMN IF NOT EXISTS estimated_seconds INTEGER NOT NULL DEFAULT 120;
+ALTER TABLE edition_regenerations DROP CONSTRAINT IF EXISTS edition_regenerations_pkey;
+ALTER TABLE edition_regenerations ADD CONSTRAINT edition_regenerations_pkey PRIMARY KEY(id);
+CREATE UNIQUE INDEX IF NOT EXISTS edition_regenerations_daily_allowance
+    ON edition_regenerations(user_id, regeneration_date) WHERE reset_at IS NULL;
 -- Profiles and paid-run receipts survive browser closure and server restarts.
 CREATE TABLE IF NOT EXISTS daily_edition_profiles (
     user_id TEXT PRIMARY KEY,

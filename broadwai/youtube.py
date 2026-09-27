@@ -1,12 +1,44 @@
-"""Public YouTube feed identities; no watch-page scraping or inferred transcripts."""
+"""Public YouTube identities and duration metadata; never infer spoken content."""
 
 import re
+from html.parser import HTMLParser
 from urllib.parse import parse_qs, urlsplit
 
 from broadwai.models import ArticleImage
 
 VIDEO_ID = re.compile(r"[A-Za-z0-9_-]{11}\Z")
 CHANNEL_ID = re.compile(r"UC[A-Za-z0-9_-]{22}\Z")
+
+
+class _DurationMetadata(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.canonical = None
+        self.duration = None
+
+    def handle_starttag(self, tag, attrs):
+        values = dict(attrs)
+        if tag == "link" and "canonical" in (values.get("rel") or "").split():
+            self.canonical = values.get("href")
+        if tag == "meta" and values.get("itemprop") == "duration":
+            self.duration = values.get("content")
+
+
+def metadata_duration(body: bytes, expected_id: str) -> float | None:
+    """Read only the primary video's published duration, never recommendation durations."""
+    metadata = _DurationMetadata()
+    metadata.feed(body.decode("utf-8", errors="replace"))
+    if not metadata.canonical or video_id(metadata.canonical) != expected_id:
+        return None
+    match = re.fullmatch(
+        r"PT(?:(\d{1,6})H)?(?:(\d{1,6})M)?(?:(\d{1,6}(?:\.\d{1,3})?)S)?",
+        metadata.duration or "",
+    )
+    if not match:
+        return None
+    hours, minutes, seconds = (float(value or 0) for value in match.groups())
+    duration = hours * 3600 + minutes * 60 + seconds
+    return duration if duration > 0 else None
 
 
 def video_id(url: str) -> str | None:

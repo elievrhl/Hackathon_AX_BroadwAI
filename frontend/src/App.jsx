@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Check, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Check, MessageCircle, RefreshCw } from 'lucide-react';
 import { Onboarding, Preferences, ArticleDetail, Modal } from './components.jsx';
 import ReaderChat from './ReaderChat.jsx';
+import RegenerateEdition from './RegenerateEdition.jsx';
+import RegenerationProgress from './RegenerationProgress.jsx';
+import { regenerationMessage } from './regeneration.js';
 import Newspaper from './Newspaper.jsx';
 import { getArchives, getSavedArticles, saveArticle, unsaveArticle, getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
 import { readLocal, accountKey, currentAccount, leaveAccount } from './accounts.js';
 import SavedArticles, { Archives, AccountScreen, AccountNav, SaveArticleDialog, CollectionForm } from './Library.jsx';
 import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover } from './reader.js';
-import { listCovers, getCover, registerDailyEdition, getDailyEdition, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
+import { listCovers, getCover, registerDailyEdition, getDailyEdition, getRegeneration, regenerateEdition, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
 
 import { dailyEditionMessage, initialEditionId } from './daily-edition.js';
 
@@ -57,28 +60,36 @@ function ReaderApp({ account, onLogout }) {
   const [busy, setBusy] = useState('loading');
   const [daily, setDaily] = useState(null);
   const [dailyError, setDailyError] = useState('');
+  const [regeneration, setRegeneration] = useState(null);
+  const [regeneratingCover, setRegeneratingCover] = useState(null);
+  const [regenerationError, setRegenerationError] = useState('');
   const pinnedEdition = useRef(Boolean(linkedCoverId));
   const displayedEdition = useRef(null);
   const currentEdition = useRef(null);
   const inFlight = useRef(false);
   const pendingFeedback = useRef(new Set());
 
+  function acceptRegeneration(status) {
+    setRegeneration({ ...status, receivedAt: Date.now() });
+  }
+
   function persist(key, value) {
     try { localStorage.setItem(accountKey(userId, key), JSON.stringify(value)); }
     catch { setNotice('Le stockage du navigateur est indisponible. Vos réglages restent disponibles pour cette visite.'); }
   }
   function displayCover(raw, pin = false) {
-    pinnedEdition.current = pin;
+    const isArchive = pin && raw.id !== currentEdition.current?.id;
+    pinnedEdition.current = isArchive;
     displayedEdition.current = raw.id;
     const next = adaptCover(raw);
     setCover(next);
     setArticle(null);
-    if (!pin) {
+    if (!isArchive) {
       currentEdition.current = raw;
       persist('kiosque.lastCover', next.id);
     }
     const url = new URL(window.location.href);
-    if (pin) url.searchParams.set('cover', next.id);
+    if (isArchive) url.searchParams.set('cover', next.id);
     else url.searchParams.delete('cover');
     window.history.replaceState(null, '', url);
     // Direct links also work for editions older than the visible history page.
@@ -114,6 +125,39 @@ function ReaderApp({ account, onLogout }) {
     initialize();
     return () => { active = false; };
   }, []);
+  useEffect(() => {
+    let active = true;
+    getRegeneration(userId).then(value => { if (active) acceptRegeneration(value); })
+      .catch(() => { if (active) setRegenerationError('Impossible de vérifier la régénération. Réessayez dans un instant.'); });
+    return () => { active = false; };
+  }, [userId]);
+  useEffect(() => {
+    if (!profile) return;
+    let active = true, refreshing = false;
+    async function refreshRegeneration() {
+      if (document.hidden || refreshing) return;
+      refreshing = true;
+      try {
+        const status = await getRegeneration(userId);
+        if (!active) return;
+        if (regeneration?.status === 'running' && status.status === 'completed' && !pinnedEdition.current && !inFlight.current) {
+          // Another edition may have been prepared since this attempt completed.
+          const rows = await listCovers(userId);
+          if (active) setHistory(rows);
+          if (rows[0]?.id && rows[0].id !== displayedEdition.current) {
+            const raw = await getCover(rows[0].id, userId);
+            if (active && !inFlight.current && !pinnedEdition.current) displayCover(raw);
+          }
+        }
+        // A request can still be reserving its allowance when the first poll arrives.
+        if (active && !(busy === 'regenerating' && status.available)) acceptRegeneration(status);
+      } catch { /* Keep the last known progress; the next read will reconcile it. */ }
+      finally { refreshing = false; }
+    }
+    const timer = window.setInterval(refreshRegeneration, busy === 'regenerating' || regeneration?.status === 'running' ? 2500 : 10000);
+    document.addEventListener('visibilitychange', refreshRegeneration);
+    return () => { active = false; clearInterval(timer); document.removeEventListener('visibilitychange', refreshRegeneration); };
+  }, [userId, !!profile, busy, regeneration?.status]);
   useEffect(() => {
     if (!cover || cover.userId !== userId) return;
     let active = true;
@@ -157,9 +201,10 @@ function ReaderApp({ account, onLogout }) {
       if (document.hidden || refreshing || inFlight.current) return;
       refreshing = true;
       try {
-        const [rows, status] = await Promise.all([listCovers(userId), getDailyEdition(userId)]);
+        const [rows, status, regenerationStatus] = await Promise.all([listCovers(userId), getDailyEdition(userId), getRegeneration(userId)]);
         if (!active) return;
         setHistory(rows); setDaily(status);
+        acceptRegeneration(regenerationStatus);
         const latest = rows[0]?.id;
         if (latest && latest !== displayedEdition.current && !pinnedEdition.current) {
           const raw = await getCover(latest, userId);
@@ -179,6 +224,31 @@ function ReaderApp({ account, onLogout }) {
     setProfile(next);
     persist(STORAGE_KEY, next);
     setPreferences(false);
+  }
+  async function regenerate(reason) {
+    if (inFlight.current || busy || !regeneration?.available || !regeneratingCover) return;
+    inFlight.current = true;
+    setBusy('regenerating'); setRegenerationError(''); setError('');
+    acceptRegeneration({ ...regeneration, status: 'running', available: false, elapsed_seconds: 0 });
+    try {
+      const raw = await regenerateEdition(userId, regeneratingCover, reason);
+      displayCover(raw);
+      setHistory(rows => [{ id: raw.id, title: raw.title, created_at: raw.created_at, status: raw.status, item_count: raw.items.length }, ...rows.filter(row => row.id !== raw.id)]);
+      setRegeneratingCover(null);
+      setNotice(reason.trim() ? 'Votre nouvelle une est prête. Votre retour guidera aussi les sept prochains jours.' : 'Votre nouvelle une est prête.');
+    } catch (failure) {
+      setRegenerationError(failure.message);
+      setError(failure.message);
+    } finally {
+      try {
+        const status = await getRegeneration(userId);
+        acceptRegeneration(status);
+        // The persisted outcome is clearer than a generic connection/retry error.
+        if (!status.available) { setRegenerationError(''); setError(''); }
+      }
+      catch { setRegeneration(null); }
+      inFlight.current = false; setBusy('');
+    }
   }
   async function openCover(id) {
     if (!id || inFlight.current || busy) return;
@@ -375,13 +445,17 @@ function ReaderApp({ account, onLogout }) {
         <div className="reader-actions">
         {pinnedEdition.current && <button className="text-button" onClick={returnToCurrentEdition} disabled={!!busy || !!libraryPending} title="Revenir à mon édition actuelle" aria-label="Retour à mon édition actuelle"><ArrowLeft size={16} aria-hidden="true" /> Retour</button>}
         <button className="text-button" onClick={openMemory}><MessageCircle size={16} aria-hidden="true" /> Écrire à Kiosque</button>
+        {cover?.userId === userId && !pinnedEdition.current && <button className="text-button" disabled={!!busy || !regeneration?.available || !daily?.registered} onClick={() => { setRegenerationError(''); setRegeneratingCover(cover.id); }}><RefreshCw size={16} aria-hidden="true" /> Refaire ma une</button>}
         </div>
+        {(busy === 'regenerating' || regeneration?.status === 'running') && <RegenerationProgress status={regeneration} />}
+        {cover && !pinnedEdition.current && !regeneration?.available && busy !== 'regenerating' && regeneration?.status !== 'running' && <p className="regeneration-status" role="status">{!regeneration && regenerationError ? regenerationError : regenerationMessage(regeneration)}</p>}
         {(!cover || daily?.status === 'running' || daily?.status === 'failed' || dailyError) && <p className="daily-edition-status" role="status">{dailyError || dailyEditionMessage(daily)}</p>}
         {error && <p className="reader-error" role="alert">{error}</p>}
-        {busy && <div className="generation-status" role="status"><span className="working-dot" /><span>Chargement des éditions…</span></div>}
+        {busy && busy !== 'regenerating' && <div className="generation-status" role="status"><span className="working-dot" /><span>Chargement des éditions…</span></div>}
       </section>
     </Newspaper> : <Onboarding initialName={account.name} onComplete={saveProfile} onExplore={() => { saveProfile({ ...DEFAULT_PROFILE, name: account.name }); if (history.length) openCover(history[0].id); }} />}
     {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} onMemory={openMemory} />}
+    {regeneratingCover && <RegenerateEdition busy={busy === 'regenerating'} status={regeneration} error={regenerationError} onSubmit={regenerate} onClose={() => setRegeneratingCover(null)} />}
     {savingArticle && <SaveArticleDialog article={savingArticle} collections={collections} loading={libraryLoading} busy={!!libraryPending} error={libraryError} onToggle={toggleCollectionArticle} onCreate={saveCollection} onRetry={refreshLibrary} onClose={() => setSavingArticle(null)} />}
     {collectionForm && <Modal className="collection-dialog" labelId="collection-form-title" onClose={() => { if (!libraryPending) setCollectionForm(null); }}><p className="eyebrow">VOS ARTICLES, VOS ENVIES</p><h2 id="collection-form-title">{collectionForm.id ? 'Modifier la collection' : 'Nouvelle collection'}</h2><CollectionForm key={collectionForm.id || 'new'} collection={collectionForm.id ? collectionForm : null} busy={!!libraryPending} error={libraryError} onSubmit={saveCollection} onCancel={() => setCollectionForm(null)} /></Modal>}
     {profile && <Modal className="reader-chat-dialog" labelId="memory-title" open={memory} onClose={() => setMemory(false)}><ReaderChat userId={userId} profile={profile} generating={daily?.status === 'running'} open={memory} /></Modal>}

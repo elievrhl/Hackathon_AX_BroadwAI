@@ -22,4 +22,5 @@
 .profile-schedule { overflow-wrap: anywhere; }
 #model-health { margin-block: 8px; }
 #generation-notice { margin-top: 16px; font-weight: 600; }
+#reset-notice { margin-top: 12px; color: var(--accent); font-weight: 600; }
 @media (max-width: 640px) { .topbar { height: auto; min-height: 64px; flex-wrap: wrap; padding-block: 12px; } .topbar a { font-size: 12px; } .edition-operations { padding: 16px; } .generation-controls > * { width: 100%; } }

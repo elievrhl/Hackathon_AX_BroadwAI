@@ -148,8 +148,15 @@ class Interest(Model):
     weight: float = Field(1.0, gt=0, le=5)
 
 
+class EditionFeedback(Model):
+    reason: str = Field(min_length=2, max_length=1000)
+    created_at: datetime
+    previous_titles: list[str] = Field(default_factory=list, max_length=20)
+
+
 class Profile(Model):
     reading_memory: dict = Field(default_factory=dict)
+    edition_feedback: list[EditionFeedback] = Field(default_factory=list, max_length=7)
     user_id: str = Field(min_length=1, max_length=100)
     interests: list[Interest] = Field(min_length=1, max_length=20)
     excluded_topics: list[str] = Field(default_factory=list, max_length=30)
