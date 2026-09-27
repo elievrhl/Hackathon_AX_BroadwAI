@@ -106,13 +106,13 @@ export function Archives({ editions, loading, error, busy, onRetry, onOpen, onVi
   </main>;
 }
 
-function SavedArticle({ item, collections, selected, busy, onSave, onOrganize, onRead, onRemove }) {
+function SavedArticle({ item, collections, selected, busy, onSave, onOrganize, onFeedback, onRead, onRemove }) {
   const [failed, setFailed] = useState(false);
   return <article className="collection-reading">
     {item.imageUrl && !failed && <a className={`collection-reading-image${item.format === 'video' ? ' video-visual' : item.format === 'podcast' ? ' podcast-visual' : ''}`} href={item.url || undefined} target="_blank" rel="noopener noreferrer" tabIndex={-1} aria-hidden="true" onClick={() => onRead(item)}><img src={item.imageUrl} alt="" loading="lazy" onError={() => setFailed(true)} />{item.format === 'video' && <span className="video-play"><Play size={20} fill="currentColor" /></span>}</a>}
     <div className="collection-reading-body"><p className="eyebrow">{item.channelTitle || item.source}{item.format === 'video' ? ' · YouTube' : ''}</p><MediaBadge format={item.format} duration={item.duration} /><h2>{item.url ? <a href={item.url} target="_blank" rel="noopener noreferrer" onClick={() => onRead(item)}>{item.title}</a> : item.title}</h2><p className="collection-reading-meta">{[item.publishedAt && formatDate(item.publishedAt), item.readingTimeMinutes && `${item.readingTimeMinutes} min de lecture`].filter(Boolean).join(' · ')}</p>
       {!!collections.length && <p className="article-collection-names"><Folder size={13} aria-hidden="true" />{collections.map(c => c.name).join(' · ')}</p>}
-      <div className="collection-reading-actions"><ArticleSaveActions article={item} saved busy={busy} onSave={onSave} onOrganize={onOrganize} labelled />
+      <div className="collection-reading-actions"><ArticleSaveActions article={item} saved busy={busy} onSave={onSave} onOrganize={onOrganize} onFeedback={item.coverId ? onFeedback : undefined} labelled />
         {selected && <button className="text-button" disabled={busy} onClick={() => onRemove(selected.id, item.id)}><X size={15} aria-hidden="true" />Retirer de cette collection</button>}
         {item.url && <a className="text-button" href={item.url} target="_blank" rel="noopener noreferrer" onClick={() => onRead(item)}>{contentAction(item.format)}<ArrowUpRight size={16} /></a>}
       </div>
@@ -120,7 +120,7 @@ function SavedArticle({ item, collections, selected, busy, onSave, onOrganize, o
   </article>;
 }
 
-export default function SavedArticles({ savedArticles, collections, selected, loading, error, pending, onRetry, onOpen, onBack, onEdit, onDelete, onRemoveArticle, onSaveArticle, onOrganize, onRead, onCreate, onView }) {
+export default function SavedArticles({ savedArticles, collections, selected, loading, error, pending, onRetry, onOpen, onBack, onEdit, onDelete, onRemoveArticle, onSaveArticle, onOrganize, onFeedback, onRead, onCreate, onView }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   useEffect(() => { setConfirmDelete(false); }, [selected?.id]);
   const all = adaptCover({ id: 'saved-articles', items: savedArticles.items }).items;
@@ -138,7 +138,7 @@ export default function SavedArticles({ savedArticles, collections, selected, lo
       {loading && <p role="status">Chargement de vos lectures…</p>}
       {error && <div className="reader-error" role="alert">{error} <button className="text-button" onClick={onRetry}>Réessayer</button></div>}
       {!loading && !error && !articles.length && <div className="library-empty"><Bookmark size={34} strokeWidth={1} /><h2>{selected ? 'Une collection à remplir.' : 'Gardez vos prochaines découvertes.'}</h2><p>{selected ? 'Sur un article, ouvrez « … », puis « Ajouter à une collection ».' : 'Cliquez sur le marque-page d’un article : il vous attendra ici.'}</p><button className="secondary-button" onClick={() => onView('journal')}>Explorer le journal<ArrowRight size={17} /></button></div>}
-      <div className="collection-readings">{articles.map(item => <SavedArticle key={item.id} item={item} selected={selected} collections={collections.filter(c => c.article_ids.includes(item.id))} busy={!!pending || loading} onRead={onRead} onSave={onSaveArticle} onOrganize={onOrganize} onRemove={onRemoveArticle} />)}</div>
+      <div className="collection-readings">{articles.map(item => <SavedArticle key={item.id} item={item} selected={selected} collections={collections.filter(c => c.article_ids.includes(item.id))} busy={!!pending || loading} onRead={onRead} onSave={onSaveArticle} onOrganize={onOrganize} onFeedback={onFeedback} onRemove={onRemoveArticle} />)}</div>
     </section></div>
   </main>;
 }

@@ -3,7 +3,7 @@ export const TARGETS = { topic: 'Un sujet', treatment: 'Un style ou un angle', s
 export const FORMATS = { news: 'Actualités', analysis: 'Analyses', tutorial: 'Tutoriels', opinion: 'Tribunes et opinions', research: 'Recherche', other: 'Autres formats' };
 export const LEVELS = { beginner: 'Initiation', intermediate: 'Intermédiaire', expert: 'Expert' };
 export const EMPTY_PREFERENCE = { action: 'diversify', target_kind: 'topic', target: '', explanation: '', scope: 'persistent' };
-export const REASONS = { too_basic: 'Trop introductif', too_technical: 'Trop technique', topic: 'Le sujet', source: 'La source', style: 'Le style ou l’angle', other: 'Autre raison' };
+export const REASONS = { source: 'Je n’aime pas la source', topic: 'Le sujet ne m’intéresse pas', too_technical: 'Trop technique', too_basic: 'Trop simple', style: 'Je n’aime pas le style', other: 'Autre…' };
 export function preferenceValue(value) {
   return Object.fromEntries(Object.keys(EMPTY_PREFERENCE).map(key => [key, value[key]]));
 }

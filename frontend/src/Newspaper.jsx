@@ -3,14 +3,14 @@ import { SlidersHorizontal } from 'lucide-react';
 import { ArticleCard, Wordmark } from './components.jsx';
 import { formatDate, contentCount } from './reader.js';
 
-export default function Newspaper({ cover, saved, onSave, onOrganize, saving, onOpen, onRead, onPreferences, busy, children, liked = [], liking = [], canLike, onLike }) {
+export default function Newspaper({ cover, saved, onSave, onOrganize, saving, onFeedback, onRead, onPreferences, busy, children, liked = [], liking = [], canLike, onLike }) {
   const [filter, setFilter] = useState('all');
   useEffect(() => { setFilter('all'); }, [cover?.id]);
   const sections = cover?.sections || [];
   const items = cover?.items || [];
   const filtered = items.filter(article => article.section === sections.find(section => section.id === filter)?.label);
   function card(article, variant = '') {
-    return <ArticleCard liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={canLike} onLike={onLike} key={article.id} article={article} variant={variant} saved={saved.includes(article.id)} onSave={onSave} onOrganize={onOrganize} saving={saving} onOpen={onOpen} onRead={onRead} />;
+    return <ArticleCard liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={canLike} onLike={onLike} key={article.id} article={article} variant={variant} saved={saved.includes(article.id)} onSave={onSave} onOrganize={onOrganize} saving={saving} onFeedback={onFeedback} onRead={onRead} />;
   }
   return <div className={`newspaper${cover ? ' has-edition' : ''}`}>
     <header className="paper-header">

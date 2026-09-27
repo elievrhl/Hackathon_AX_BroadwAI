@@ -58,8 +58,12 @@ Les comptes sont partagés entre appareils qui se connectent au même serveur.
    confirmée par le serveur permet d’atteindre 100 %. L’administrateur peut redonner une
    tentative avec **Réinitialiser « Refaire ma une »** dans **Éditions & planification**.
 4. Cliquer sur un titre ou une image pour lire directement l’article chez son éditeur,
-   dans un nouvel onglet. Le bouton **Fiche & avis** donne accès au résumé, à la raison
-   de sélection et aux retours, sans quitter le journal.
+   dans un nouvel onglet. Le menu **…** sous l’article propose **Je n’aime pas cet article**,
+   puis une petite liste de raisons (source, sujet, trop technique, trop simple, style).
+   Un clic sur une raison enregistre l’avis. **Autre…** propose une précision facultative
+   directement dans le menu. Le même parcours est disponible dans les articles sauvegardés
+   rattachés à une édition, sans fenêtre de retour ni réglage de préférence supplémentaire.
+   La fiche de lecture n’est plus présentée dans le lecteur.
 5. **Archives** (icône de boîte dans la barre du haut) retrouve toutes les éditions du compte, conservées
    automatiquement avec leurs couvertures et leur vue en tranches. Une couverture
    ouvre l’édition existante, sans nouvelle génération. Le bouton **Retour** ramène à
