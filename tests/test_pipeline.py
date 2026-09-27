@@ -87,7 +87,7 @@ async def test_repeated_action_is_not_executed_twice_and_fallback_is_explicit():
     action = decision("search_web", query="Python avancé")
     model = ScriptedModel([action, action])
     search = FakeSearch()
-    cover = await pipeline(store, model, search, max_agent_steps=2).run(request())
+    cover = await pipeline(store, model, search, max_agent_steps=2).run(request(size=2))
     assert search.queries == ["Python avancé"]
     assert cover.status == "fallback"
     assert len(cover.items) == 1

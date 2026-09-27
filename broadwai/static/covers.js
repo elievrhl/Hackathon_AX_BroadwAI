@@ -12,9 +12,15 @@ const date = value => value ? new Date(value).toLocaleString("fr-FR") : "Date in
 const duration = value => value == null ? "Non enregistrée" : value < 60000 ? `${fmt(value / 1000)} s` : `${Math.floor(value / 60000)} min ${Math.round(value % 60000 / 1000)} s`;
 const statusNames = {complete: "Objectif atteint", partial: "Édition partielle", fallback: "Sélection de secours"};
 const actionNames = {search_catalog: "Chercher dans le catalogue", search_web: "Chercher sur le web", read_article: "Approfondir un article", propose_source: "Proposer une source", finalize: "Composer et valider la une", model_error: "Interruption du rédacteur"};
+actionNames.search_sources = "Découvrir des blogs et sources spécialisées";
 const roleNames = {lead: "Sujet principal", secondary: "Sujet secondaire", brief: "Brève", reading: "Lecture"};
 const callNames = {intent: "Compréhension du profil", plan: "Plan éditorial", summary: "Fiche d’article", screen: "Filtre de recherche", editor: "Décision du rédacteur", web_model: "Recherche web", preferences: "Préférences du lecteur"};
 const labels = {
+  access_checked: "Disponibilité du texte avant le choix éditorial",
+  prefetch_completed: "Vérification préalable des textes terminée",
+  source_discovery: "Recherche de nouvelles sources",
+  source_validated: "Source vérifiée et articles repérés",
+  source_proposed: "Source proposée pour les collectes futures",
   catalog_ranked: "Classement du catalogue", editorial_preview: "Titres et extraits envoyés au rédacteur",
   editorial_plan: "Plan éditorial reçu", editorial_plan_failed: "Plan éditorial indisponible",
   shortlist: "File d’articles à préparer", candidate_prepare: "Préparation commencée",
@@ -93,6 +99,7 @@ function articleDetails(row) {
   const d = n("details", undefined, "article-journey");
   d.append(n("summary", row.selection?.headline || row.title || row.article_id));
   if (row.url) d.append(link("Lire chez l’éditeur ↗", row.url));
+  if (row.access) d.append(n("p", `Avant le choix éditorial : ${{full_text: "texte intégral disponible", excerpt_only: "extrait seulement", unavailable: "contenu inexploitable"}[row.access.status] || row.access.status}${row.access.checked ? "" : " · téléchargement non effectué"}${row.access.error ? ` · ${row.access.error}` : ""}`, "small"));
   if (row.pick) {
     d.append(n("p", `Avis éditorial : ${fmt(row.pick.score)}/100 · ${row.pick.section || "Rubrique inconnue"}`, "small"), n("p", row.pick.reason));
     if (row.pick.evidence) d.append(n("blockquote", row.pick.evidence));
@@ -165,7 +172,7 @@ function renderOverview(parent, cover, data) {
   const flow = n("nav", undefined, "pipeline-flow"); flow.setAttribute("aria-label", "Étapes de création de la couverture");
   const steps = [
     ["profile", "Profil et catalogue", data.catalog?.eligible_count, "articles après filtrage"],
-    ["plan", "Titres et extraits", counts.examined, "articles examinés"],
+    ["plan", data.events.some(e => e.kind === "prefetch_completed") ? "Disponibilité et présélection" : "Titres et extraits", counts.examined, "articles examinés"],
     ["preparation", "Préparer les fiches", counts.started, "préparations commencées"],
     ["decisions", "Chercher et arbitrer", counts.ready, "candidats disponibles à la fin"],
     ["edition", "Enregistrer la une", counts.selected, "articles retenus"],
@@ -204,7 +211,19 @@ function picksTable(parent, picks, data) {
 }
 function renderPlan(parent, data) {
   const {audit, preview} = data, plan = audit.editorial_plan;
-  const panel = section(parent, "2. Choisir les articles prometteurs sur titre et extrait", "Le rédacteur propose des pistes avant la lecture détaillée. Elles ne sont pas encore retenues dans la une.", {id: "stage-plan"});
+  const preflight = data.events.find(e => e.kind === "prefetch_completed");
+  const panel = section(parent, preflight ? "2. Vérifier la disponibilité, puis présélectionner" : "2. Choisir les articles prometteurs sur titre et extrait", "Le rédacteur propose des pistes à partir des titres et extraits. Elles ne sont pas encore retenues dans la une.", {id: "stage-plan"});
+  if (preflight) {
+    const checks = data.events.filter(e => e.kind === "access_checked" && e.sequence < preflight.sequence);
+    panel.append(n("p", "Avant cet examen, le serveur récupère les textes manquants sur un lot limité. Le rédacteur sait s’il dispose du texte intégral ou d’un extrait ; les contenus inexploitables sont retirés. Le texte récupéré est réutilisé lors de la préparation des fiches."));
+    table(panel, ["Contrôle préalable", "Articles"], [
+      ["Texte intégral disponible", checks.filter(e => e.status === "full_text").length],
+      ["Extrait seulement", checks.filter(e => e.status === "excerpt_only").length],
+      ["Contenu inexploitable", checks.filter(e => e.status === "unavailable").length],
+      ["Dont téléchargement non effectué (temps ou quota épuisé)", checks.filter(e => !e.checked).length],
+      ["Admis après contrôle de disponibilité et exclusions", preflight.available_count],
+    ]);
+  }
   panel.append(n("p", `Le premier examen porte sur ${preview ? preview.candidates.length : "un nombre non enregistré de"} titres et extraits. Le classement lexical rapproche les mots du profil et des articles ; la diversification élargit les sources.`));
   if (!plan) { panel.append(n("p", "Plan éditorial non enregistré ou indisponible.", "muted")); return; }
   panel.append(n("p", `Rubriques envisagées : ${(plan.sections || []).join(" · ")}`));
@@ -217,11 +236,11 @@ function renderPlan(parent, data) {
 }
 function renderPreparation(parent, data) {
   const {counts, audit, events} = data;
-  const panel = section(parent, "3. Extraire le texte, préparer la fiche et vérifier le contenu", "Une fiche peut être créée puis rejetée après vérification de sa validité, de sa langue ou des préférences du lecteur.", {id: "stage-preparation"});
+  const panel = section(parent, "3. Préparer la fiche et vérifier le contenu", "Une fiche peut être créée puis rejetée après vérification de sa validité, de sa langue ou des préférences du lecteur.", {id: "stage-preparation"});
   panel.append(n("p", "Les « articles présélectionnés » de l’ancienne interface correspondent aux files d’articles à préparer. Entrer dans une file ne prouve ni que la préparation a commencé, ni qu’une fiche a été validée."));
   table(panel, ["Mesure", "Articles distincts", "Ce que cela signifie"], [
     ["Dans les files de préparation", fmt(counts.scheduled), "Candidats envoyés à la préparation, tous passages confondus. Les réserves Exploration peuvent être préparées séparément."],
-    ["Préparation commencée", fmt(counts.started), "Extraction éventuelle du texte et recherche d’une fiche réutilisable."],
+    ["Préparation commencée", fmt(counts.started), data.events.some(e => e.kind === "prefetch_completed") ? "Réutilisation du texte contrôlé en amont et recherche d’une fiche en cache." : "Extraction éventuelle du texte et recherche d’une fiche réutilisable."],
     ["Nouvelle fiche reçue", fmt(counts.generated), "Résumé structuré généré. Les contrôles de fond viennent ensuite."],
     ["Fiche existante réutilisée", fmt(counts.reused), "Fiche retrouvée en cache, sans nouveau résumé pour cet événement."],
     ["Candidats disponibles à la fin", fmt(counts.ready), "Fiches restées disponibles pour la composition finale ; certaines ne seront pas retenues."],
@@ -253,6 +272,13 @@ function renderDecisions(parent, cover, data) {
     const request = data.events.find(e => e.kind === "tool_requested" && e.step === event.step), query = out.query || request?.query;
     if (query) d.append(n("blockquote", query));
     if (out.returned_count != null) d.append(n("p", `${out.returned_count} liens trouvés ; ${(out.added_ids || []).length} candidats ajoutés après import et préparation.`));
+    if (out.sources?.length) {
+      table(d, ["Source vérifiée", "Type", "Articles repérés"], out.sources.map(s => [link(s.name, s.url), s.kind === "rss" ? "Flux RSS/Atom" : "Site web", s.article_ids?.length ?? "Non enregistré"]));
+      d.append(n("p", "Quelques articles de ces sites ont été examinés pour cette édition. Leur ajout aux collectes futures reste soumis à validation dans l’admin.", "small"));
+    }
+    if (out.source_proposals?.length) for (const proposal of out.source_proposals) {
+      const p = n("p"); p.append(link("Voir les propositions de sources dans l’admin ↗", "/admin"), n("span", ` · ${proposal.url} · ${proposal.status}`)); d.append(p);
+    }
     paragraphs(d, issues.map(issue => humanMessage(issue, data)), "notice");
     if (out.added_ids?.length) paragraphs(d, out.added_ids.map(id => `Candidat ajouté : ${articleName(data, id)}`));
     if (out.removed_by_constraints?.length) table(d, ["Article retiré de cette tentative", "Contrainte appliquée"], out.removed_by_constraints.map(r => [articleName(data, r.article_id), r.reason]));

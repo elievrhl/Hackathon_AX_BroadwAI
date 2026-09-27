@@ -47,6 +47,7 @@ const CoverAudit = (() => {
         if (event.kind === "summary_cache_hit") row.reused = true;
         if (event.kind === "candidate_skipped") row.rejection = event.reason;
         if (event.kind === "summary_failed") row.failure = event.error;
+        if (event.kind === "access_checked") row.access = event;
       }
     }
     for (const rejection of audit.rejected || []) {

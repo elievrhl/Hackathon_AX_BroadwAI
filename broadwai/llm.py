@@ -136,6 +136,9 @@ Les sources indépendantes, blogs et praticiens sont aussi légitimes que les gr
 
 PLAN_PROMPT = (
     """Prépare une une à partir de titres et extraits, sans prétendre avoir lu le texte.
+Le serveur a tenté de récupérer le texte avant cet examen. access indique full_text,
+excerpt_only ou unavailable, avec checked=false si le budget n'a pas permis le téléchargement.
+Préfère les textes récupérés ; n'attribue pas la richesse d'un texte intégral à un simple extrait.
 Définis 3 à 5 rubriques précises pour une grande édition, sinon 1 à 3, adaptées aux besoins.
 Choisis jusqu'à selection_limit candidats divers, en gardant des alternatives et max_per_source.
 Pour une grande édition (size >= 15), prépare au moins size + 12 candidats lorsqu'ils sont
@@ -181,7 +184,16 @@ les textes contaminés et les faux liens. Les contraintes s'appliquent aussi à 
 search_web / search_catalog : query courte sur UN besoin manquant. Lis search_history et rejected.
 Après zéro ajout, change de besoin ou de stratégie, ne permute pas les mêmes mots. Traite d'abord
 les priorités manquantes avant l'exploration connexe. Pas de site:, pas de recherche de RSS.
-Si discover_web est vrai, tente une recherche avant finalisation si les budgets le permettent.
+discover_web autorise la découverte si utile, ne l'impose JAMAIS. Si les candidats suffisent
+en nombre, diversité, profondeur et couverture des besoins, finalise sans rechercher le web.
+research décrit les manques après quotas et les sources disponibles par besoin.
+search_sources : lorsqu'un besoin manque de sources, cherche des blogs d'auteurs, de chercheurs,
+des sites spécialisés ou des revues indépendantes au niveau du lecteur. query décrit UN sujet
+et le type de lectures souhaité, sans nom de site imposé. Cet outil valide les sites/flux,
+importe quelques articles et les soumet aux mêmes contrôles. Les sources dont un article est
+validé sont proposées dans l'admin pour les collectes futures, pas activées automatiquement.
+Préfère cette stratégie quand le catalogue couvre mal un sujet ou après une recherche
+d'articles infructueuse. Ce n'est pas une étape obligatoire ; elle partage le budget web.
 read_article : seulement pour une incertitude qui change la décision, article_id connu.
 propose_source : source_url observée, uniquement si la une est déjà suffisamment fournie.
 Les focused sont prioritaires ; les exploration complètent les places manquantes sous Exploration.
@@ -490,8 +502,19 @@ le texte intégral ou vérifier des faits. Une ligne par paire, identifiants inc
         searches = []
         if state.get("remaining_catalog_searches", 0) > 0:
             searches.append("search_catalog")
-        if state.get("web_search_enabled") and state.get("remaining_web_searches", 0) > 0:
+        if (
+            state.get("web_search_enabled")
+            and state.get("remaining_web_searches", 0) > 0
+            and state.get("research", {}).get("needed", True)
+        ):
             searches.append("search_web")
+            if (
+                state.get("source_search_enabled")
+                and state.get("discover_sources")
+                and state.get("remaining_source_proposals", 0) > 0
+                and state.get("remaining_article_imports", 0) > 0
+            ):
+                searches.append("search_sources")
         if state.get("remaining_steps", 1) > 1 and not state.get("force_finalize"):
             actions += searches
             if ids:
@@ -507,7 +530,7 @@ le texte intégral ou vérifier des faits. Une ligne par paire, identifiants inc
             if capacity < state.get("size", 0) and searches and state.get("remaining_summaries", 0):
                 actions = searches
         overrides["action"] = (Literal[tuple(actions)], ...)
-        if actions and set(actions) <= {"search_catalog", "search_web"}:
+        if actions and set(actions) <= {"search_catalog", "search_web", "search_sources"}:
             overrides["query"] = (str, Field(min_length=2, max_length=300))
         schema = create_model("AvailableDecision", __base__=Decision, **overrides)
         result = await self._parse(

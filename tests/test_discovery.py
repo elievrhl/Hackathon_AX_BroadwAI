@@ -12,7 +12,7 @@ from tests.test_pipeline import pipeline, request
 from tests.test_retrieval import FEED
 
 
-async def test_explicit_discovery_prevents_silent_catalog_only_finalization():
+async def test_discovery_option_does_not_force_search_when_catalog_suffices():
     from tests.fakes import finalize_first
 
     store = MemoryStore([article()])
@@ -27,8 +27,10 @@ async def test_explicit_discovery_prevents_silent_catalog_only_finalization():
     req = request().model_copy(update={"discover_web": True})
     cover = await runner.run(req)
     assert cover.status == "complete"
-    assert "search_web" in cover.trace[0].outcome["errors"][0]
-    assert cover.trace[1].action == "search_web"
+    assert [event.action for event in cover.trace] == ["finalize"]
+    assert runner.search.queries == []
+    assert model.states[0]["research"]["needed"] is False
+    assert not cover.usage["calls"].get("search_web")
 
 
 async def test_hosted_search_imports_only_safe_citations_and_accounts_usage():

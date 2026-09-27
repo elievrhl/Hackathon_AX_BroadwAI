@@ -74,7 +74,7 @@ def preview_pool(ranked, limit, interest_topics=()):
     return list(selected.values())
 
 
-def preview(row):
+def preview(row, access=None):
     a = row.article
     return {
         "article_id": a.id,
@@ -84,6 +84,8 @@ def preview(row):
         "language": a.language,
         "lexical_score": round(row.score, 3),
         "excerpt": (a.excerpt or a.text)[:320],
+        "extraction_status": a.extraction_status,
+        "access": access,
     }
 
 

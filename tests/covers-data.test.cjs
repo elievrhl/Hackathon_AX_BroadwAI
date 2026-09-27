@@ -5,6 +5,19 @@ const {build} = require('../broadwai/static/covers-data.js');
 const article = id => ({article_id: id, title: `Article ${id}`, source: 'example.com'});
 const event = (kind, id, extra = {}) => ({kind, article_id: id, ...extra});
 
+test('early availability checks are distinct from editorial examination and preparation', () => {
+  const result = build({items: [], diagnostics: {events: [
+    event('access_checked', 'ok', {status: 'full_text', checked: true}),
+    event('access_checked', 'blocked', {status: 'unavailable', checked: true}),
+    event('candidate_skipped', 'blocked', {reason: 'Aucun contenu exploitable'}),
+    {kind: 'editorial_preview', candidates: [article('ok')]},
+  ]}});
+  assert.equal(result.counts.examined, 1);
+  assert.equal(result.counts.started, 0);
+  assert.equal(result.articles.get('blocked').status, 'rejected');
+  assert.equal(result.articles.get('ok').access.status, 'full_text');
+});
+
 test('counts distinct articles across repeated searches and preparation attempts', () => {
   const result = build({items: [article('a')], diagnostics: {
     candidates: [article('a')],

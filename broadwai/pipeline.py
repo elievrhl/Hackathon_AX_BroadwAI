@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 
 from broadwai.balance import interest_balance, interleave
 from broadwai.config import Settings
-from broadwai.discovery import is_feed_directory, validate_source
+from broadwai.discovery import is_feed_directory, source_article_candidates, validate_source
 from broadwai.editorial import (
     compact_candidate,
     coverage,
@@ -74,6 +74,10 @@ class CoverPipeline:
         self.exploration_active = False
         self.failed_domains: Counter = Counter()
         self.prepared_ids: set[str] = set()
+        self.fetch_checks: dict[str, dict] = {}
+        self.source_attempts: set[str] = set()
+        self.discovered_sources: dict[str, dict] = {}
+        self.replacement_needed = False
         self.rejected: dict[str, dict] = {}
         self.catalog_index: dict[str, Article] = {}
         self.intent = {"needs": [], "constraints": []}
@@ -295,6 +299,101 @@ class CoverPipeline:
                     self.candidates.pop(c.article_id, None)
                     self.articles.pop(c.article_id, None)
 
+    async def _check_access(self, article, timeout):
+        """Download once before editorial selection; reuse positive and negative results."""
+        if article.id in self.fetch_checks:
+            return self.catalog_index.get(article.id, article)
+        self.catalog_index[article.id] = article
+        error = None
+        checked = article.extraction_status == "extracted" and bool(article.text.strip())
+        if not checked:
+            try:
+                if timeout <= 0:
+                    raise BudgetExceeded("Temps de vérification préalable épuisé")
+                if self.failed_domains[article.source] >= 2:
+                    raise RetrievalError("Domaine déjà inaccessible pendant cette génération")
+                self.budget.take("fetch")
+                self.log(
+                    "extract_requested",
+                    article_id=article.id,
+                    url=article.url,
+                    phase="before_editorial",
+                )
+                checked = True
+                async with asyncio.timeout(timeout):
+                    article = await self.collector.extract(article)
+                self.log(
+                    "extract_completed",
+                    article_id=article.id,
+                    characters=len(article.text),
+                    phase="before_editorial",
+                )
+            except (RetrievalError, BudgetExceeded, TimeoutError) as exc:
+                error = str(exc) or "Délai de récupération du texte dépassé"
+                if isinstance(exc, (RetrievalError, TimeoutError)):
+                    self.failed_domains[article.source] += 1
+                self.log(
+                    "extract_failed", article_id=article.id, error=error, phase="before_editorial"
+                )
+                self.warnings.append(f"{article.id}: {error}")
+        status = (
+            "full_text"
+            if article.extraction_status == "extracted" and article.text.strip()
+            else "excerpt_only"
+            if len(article.excerpt.strip()) >= 80
+            else "unavailable"
+        )
+        self.catalog_index[article.id] = article
+        self.fetch_checks[article.id] = {"status": status, "checked": checked, "error": error}
+        self.log(
+            "access_checked",
+            article_id=article.id,
+            title=article.title,
+            url=article.url,
+            **self.fetch_checks[article.id],
+        )
+        return article
+
+    async def _prefetch(self, pool, request, seen):
+        """Bound network latency and concurrency; never spend summary tokens here."""
+        deadline = perf_counter() + self.settings.prefetch_timeout
+        ready = []
+        for start in range(0, len(pool), 3):
+            batch = pool[start : start + 3]
+            articles = await asyncio.gather(
+                *(
+                    self._check_access(row.article, max(0, deadline - perf_counter()))
+                    for row in batch
+                )
+            )
+            for row, article in zip(batch, articles, strict=True):
+                if self.fetch_checks[article.id]["status"] == "unavailable":
+                    self.log(
+                        "candidate_skipped",
+                        article_id=article.id,
+                        reason="Aucun texte ou extrait exploitable avant le choix éditorial",
+                    )
+                elif not eligible(article, request.profile, seen):
+                    self.log(
+                        "candidate_skipped",
+                        article_id=article.id,
+                        reason="Langue ou exclusion détectée après récupération du texte",
+                    )
+                else:
+                    ready.append(
+                        Ranked(article, row.score, row.matched_interests, row.score_details)
+                    )
+        self.log(
+            "prefetch_completed",
+            checked_count=len(pool),
+            available_count=len(ready),
+            article_ids=[r.article.id for r in pool],
+        )
+        return ready
+
+    def _preview(self, row):
+        return preview(row, self.fetch_checks.get(row.article.id))
+
     def _pick_error(self, pick, row, sections, strict=False):
         if pick.score < self.settings.min_editorial_score:
             return "Score éditorial insuffisant"
@@ -366,20 +465,7 @@ class CoverPipeline:
             )
         else:
             if article.extraction_status != "extracted":
-                try:
-                    if self.failed_domains[article.source] >= 2:
-                        raise RetrievalError("Domaine déjà inaccessible pendant cette génération")
-                    self.budget.take("fetch")
-                    self.log("extract_requested", article_id=article.id, url=article.url)
-                    article = await self.collector.extract(article)
-                    self.log(
-                        "extract_completed", article_id=article.id, characters=len(article.text)
-                    )
-                except (RetrievalError, BudgetExceeded) as exc:
-                    if isinstance(exc, RetrievalError):
-                        self.failed_domains[article.source] += 1
-                    self.log("extract_failed", article_id=article.id, error=str(exc))
-                    self.warnings.append(f"{article.id}: {exc}")
+                article = await self._check_access(article, self.settings.prefetch_timeout)
             if len(article.text or article.excerpt) < 80:
                 self.log("candidate_skipped", article_id=article.id, reason="Contenu insuffisant")
                 self.warnings.append(f"{article.id}: contenu insuffisant pour une fiche fiable")
@@ -520,6 +606,57 @@ class CoverPipeline:
         selected, _ = self._allocate(self._available_selections(focused_only=True), request)
         return len(selected)
 
+    def _research_state(self, request):
+        available, _ = self._allocate(self._available_selections(), request)
+        by_need = {}
+        for candidate in self.candidates.values():
+            pick = self.picks.get(candidate.article_id)
+            if pick and pick.matched_need:
+                by_need.setdefault(pick.matched_need, set()).add(candidate.source)
+        # Old plans have no need attribution: do not manufacture missing topics for them.
+        missing_needs = [
+            need
+            for need in self.intent["needs"]
+            if self.plan
+            and self.plan.contract_version >= 2
+            and need["priority"] == "primary"
+            and not by_need.get(need["id"])
+        ]
+        interest_counts = Counter(self._interest(s.article_id) for s in available)
+        missing_interests = [
+            interest["topic"]
+            for interest in (self.balance or {}).get("interests", [])
+            if len(self.balance["interests"]) > 1
+            and interest_counts[interest["id"]] < self.balance["minimum_per_interest"]
+        ]
+        diversification = [
+            rule.target
+            for rule in self.preference_policy.rules
+            if rule.action == "diversify"
+            and not any(
+                self.preference_policy.match(
+                    rule, self.articles[s.article_id], self.candidates[s.article_id].brief
+                )
+                == "yes"
+                for s in available
+            )
+        ]
+        return {
+            "needed": bool(
+                len(available) < request.size
+                or missing_needs
+                or missing_interests
+                or diversification
+                or self.replacement_needed
+            ),
+            "missing_slots": max(0, request.size - len(available)),
+            "missing_needs": missing_needs,
+            "missing_interests": missing_interests,
+            "uncovered_diversification": diversification,
+            "sources_by_need": {id_: sorted(sources) for id_, sources in by_need.items()},
+            "replacement_requested_after_validation": self.replacement_needed,
+        }
+
     async def _complete_with_exploration(self, request, seen):
         if self.force_finalize or not self.budget.can_explore:
             return
@@ -598,13 +735,6 @@ class CoverPipeline:
 
     def _validate(self, selections: list[Selection], request: CoverRequest) -> list[str]:
         errors = []
-        if (
-            request.discover_web
-            and self.search.enabled
-            and not self.budget.counts["search_web"]
-            and not self.force_finalize
-        ):
-            errors.append("Effectue search_web : une découverte web a été demandée")
         if not selections:
             return ["La sélection ne doit pas être vide"]
         if len(selections) > request.size:
@@ -935,8 +1065,6 @@ class CoverPipeline:
                 if s.article_id in self.picks
             }
         ]
-        if request.discover_sources and not self.budget.counts["source_proposal"]:
-            self.warnings.append("Proposition de source différée : priorité à la couverture")
         if len(items) < request.size:
             self.warnings.append(
                 f"Seulement {len(items)} articles retenus sur {request.size} demandés"
@@ -985,6 +1113,7 @@ class CoverPipeline:
                 "max_agent_steps",
                 "max_summary_calls",
                 "max_fetches",
+                "prefetch_timeout",
                 "max_web_searches",
                 "max_discovered_articles",
                 "max_source_proposals",
@@ -1018,11 +1147,12 @@ class CoverPipeline:
         pool = preview_pool(
             ranked, self.settings.editorial_pool_size, [i.topic for i in request.profile.interests]
         )
+        pool = await self._prefetch(pool, request, seen)
         # Keep enough vetted alternatives to replace articles rejected after full-text
         # extraction.  A target-sized shortlist made the 18-item reader routinely
         # exhaust its preparation budget after normal quality rejections.
         selection_limit = min(40, max(request.size * 2, self.settings.shortlist_size))
-        previews = [preview(r) for r in pool]
+        previews = [self._preview(r) for r in pool]
         self.log("editorial_preview", candidates=previews, selection_limit=selection_limit)
         try:
             self.plan = await self.model.plan(
@@ -1121,6 +1251,11 @@ class CoverPipeline:
                 - self.budget.counts["source_proposal"],
                 "remaining_article_imports": self.settings.max_discovered_articles
                 - self.budget.counts["discovered_article"],
+                "research": self._research_state(request),
+                "source_search_enabled": bool(
+                    request.discover_sources and hasattr(self.search, "search_sources")
+                ),
+                "discovered_sources": list(self.discovered_sources.values()),
             }
             try:
                 self.log(
@@ -1162,6 +1297,7 @@ class CoverPipeline:
                         kept_ids=[s.article_id for s in decision.selections],
                     )
                 errors = self._validate(decision.selections, request)
+                self.replacement_needed = bool(errors)
                 if not decision.title or len(decision.title) > 200:
                     errors.append("Titre requis, 200 caractères maximum")
                 outcome = {"errors": errors} if errors else {"selected": len(decision.selections)}
@@ -1212,7 +1348,7 @@ class CoverPipeline:
                         outcome=audit,
                     )
                 )
-                if decision.action in {"search_web", "search_catalog"}:
+                if decision.action in {"search_web", "search_catalog", "search_sources"}:
                     self.search_history.append(
                         {
                             "action": decision.action,
@@ -1266,6 +1402,79 @@ class CoverPipeline:
                 selection.role = "lead" if index == 0 else "secondary" if index < 3 else "reading"
         return self._finish(selections, request, "Votre sélection", fallback=True)
 
+    async def _find_source_articles(self, query, context, request, seen):
+        if not request.discover_sources or not hasattr(self.search, "search_sources"):
+            raise ValueError("Découverte de sources non activée")
+        remaining = self.settings.max_source_proposals - self.budget.counts["source_proposal"]
+        if remaining <= 0:
+            raise BudgetExceeded("Limite de sources atteinte")
+        if self.budget.counts["discovered_article"] >= self.settings.max_discovered_articles:
+            raise BudgetExceeded("Limite d'import d'articles atteinte")
+        references = await self.search.search_sources(
+            query,
+            self.budget,
+            limit=min(3, remaining),
+            context={**context, "attempted_sources": sorted(self.source_attempts)},
+        )
+        articles, sources, errors = [], [], []
+        for ref in references[:remaining]:
+            if ref.url in self.source_attempts:
+                continue
+            self.source_attempts.add(ref.url)
+            source = Article.create(validate_destination(ref.url), ref.title)
+            if not eligible(source, request.profile, seen):
+                continue
+            if self.failed_domains[source.source] >= 2:
+                continue
+            try:
+                self.budget.take("source_proposal")
+                remaining_imports = (
+                    self.settings.max_discovered_articles
+                    - self.budget.counts["discovered_article"]
+                    - len(articles)
+                )
+                if remaining_imports <= 0:
+                    raise BudgetExceeded("Limite d'import d'articles atteinte")
+                async with asyncio.timeout(self.settings.prefetch_timeout):
+                    kind, url, candidates = await source_article_candidates(
+                        self.collector.fetcher,
+                        ref.url,
+                        self.budget,
+                        limit=min(3, remaining_imports),
+                    )
+                record = {
+                    "url": url,
+                    "kind": kind,
+                    "name": ref.title,
+                    "discovered_from": ref.url,
+                    "article_ids": [a.id for a in candidates],
+                }
+                self.discovered_sources[url] = record
+                sources.append(record)
+                for candidate in candidates:
+                    articles.append(
+                        candidate.model_copy(
+                            update={
+                                "discovery": {
+                                    **candidate.discovery,
+                                    "source_url": url,
+                                    "kind": "source_sample",
+                                },
+                            }
+                        )
+                    )
+                self.log("source_validated", source=record)
+            except (RetrievalError, BudgetExceeded, ValueError, TimeoutError) as exc:
+                errors.append({"url": ref.url, "error": str(exc) or "Délai dépassé"})
+        self.log(
+            "source_discovery",
+            query=query,
+            references=[{"url": r.url, "title": r.title} for r in references],
+            validated_sources=sources,
+            errors=errors,
+        )
+        return articles, sources, errors
+
     async def _act(self, decision: Decision, request: CoverRequest, seen: set[str]) -> dict:
         if self.force_finalize:
             raise ValueError("Budget réservé à la composition : finalise maintenant")
@@ -1295,7 +1504,9 @@ class CoverPipeline:
                 if k in proposal
             }
 
-        if decision.action in {"search_catalog", "search_web"}:
+        if decision.action in {"search_catalog", "search_web", "search_sources"}:
+            if decision.action != "search_catalog" and not self._research_state(request)["needed"]:
+                raise ValueError("Les candidats couvrent la demande : finalise sans recherche web")
             if not decision.query or not 2 <= len(decision.query) <= 300:
                 raise ValueError("La requête doit contenir entre 2 et 300 caractères")
             words = set(tokens(decision.query))
@@ -1308,7 +1519,8 @@ class CoverPipeline:
                 ):
                     raise ValueError("Recherche déjà infructueuse : cible un autre besoin ou angle")
             rejected_before = set(self.rejected)
-            if decision.action == "search_web":
+            source_records = []
+            if decision.action in {"search_web", "search_sources"}:
                 if not self.search.enabled:
                     raise RetrievalError("Recherche web non configurée")
                 self.budget.take("search_web")
@@ -1329,13 +1541,24 @@ class CoverPipeline:
                     "search_history": self.search_history,
                     "rejected": list(self.rejected.values())[-30:],
                     "exploration_allowed": self.exploration_active,
+                    "research": self._research_state(request),
                 }
-                found = await self.search.search(
-                    query,
-                    self.budget,
-                    limit=result_limit,
-                    context=search_context,
-                )
+                if decision.action == "search_sources":
+                    strategy = "source_discovery"
+                    found, source_records, import_errors = await self._find_source_articles(
+                        query,
+                        search_context,
+                        request,
+                        seen,
+                    )
+                else:
+                    found = await self.search.search(
+                        query,
+                        self.budget,
+                        limit=result_limit,
+                        context=search_context,
+                    )
+                    import_errors = []
                 self.log(
                     "web_discovery",
                     requested_query=requested_query,
@@ -1346,7 +1569,6 @@ class CoverPipeline:
                 self.discovered.update({a.id: a for a in found})
                 self.catalog_index.update({a.id: a for a in found})
                 articles = []
-                import_errors = []
                 for candidate in found:
                     if candidate.id in self.rejected or candidate.id in self.prepared_ids:
                         continue
@@ -1389,7 +1611,9 @@ class CoverPipeline:
                                 }
                             }
                         )
-                        articles.append(await self.collector.extract(candidate))
+                        articles.append(
+                            self.store.put_article(await self.collector.extract(candidate))
+                        )
                     except (RetrievalError, BudgetExceeded) as exc:
                         if isinstance(exc, RetrievalError):
                             self.failed_domains[candidate.source] += 1
@@ -1413,11 +1637,13 @@ class CoverPipeline:
                 needs=self.intent["needs"],
             )
             pool = diversify(ranked, 20, 4)
+            pool = await self._prefetch(pool, request, seen)
+            ranked = pool
             if pool:
                 self.log(
                     "search_screen_requested",
                     query=decision.query,
-                    candidates=[preview(r) for r in pool],
+                    candidates=[self._preview(r) for r in pool],
                 )
                 try:
                     screened = await self.model.screen(
@@ -1426,7 +1652,7 @@ class CoverPipeline:
                             "size": request.size,
                             "max_per_source": request.max_per_source,
                             "selection_limit": 12,
-                            "candidates": [preview(r) for r in pool],
+                            "candidates": [self._preview(r) for r in pool],
                             "sections": self.plan.sections if self.plan else [],
                             "today": utcnow().date().isoformat(),
                             "max_article_age_days": self.settings.max_article_age_days,
@@ -1472,8 +1698,31 @@ class CoverPipeline:
                 min(12, max(5, request.size - len(self.candidates))),
                 editorial_order=True,
             )
+            proposals = []
+            for source in source_records:
+                relevant_ids = set(source["article_ids"]) & set(self.candidates)
+                if relevant_ids:
+                    proposal = self.store.propose_source(
+                        source["url"],
+                        source["name"][:150],
+                        decision.justification,
+                        source["discovered_from"],
+                        kind=source["kind"],
+                    )
+                    proposals.append(
+                        {
+                            key: proposal[key]
+                            for key in ("id", "url", "kind", "status", "source_id")
+                            if key in proposal
+                        }
+                    )
+                    self.log(
+                        "source_proposed",
+                        proposal=proposals[-1],
+                        relevant_article_ids=sorted(relevant_ids),
+                    )
             return {
-                "query": query if decision.action == "search_web" else decision.query,
+                "query": query if decision.action != "search_catalog" else decision.query,
                 "added_ids": ids,
                 "rejections": [r for id_, r in self.rejected.items() if id_ not in rejected_before],
                 **(
@@ -1483,8 +1732,10 @@ class CoverPipeline:
                         "strategy": strategy,
                         "returned_count": len(found),
                         "discovered_links": [{"url": a.url, "title": a.title} for a in found],
+                        "sources": source_records,
+                        "source_proposals": proposals,
                     }
-                    if decision.action == "search_web"
+                    if decision.action != "search_catalog"
                     else {}
                 ),
             }

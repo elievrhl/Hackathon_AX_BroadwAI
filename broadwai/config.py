@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     max_summary_calls: int = Field(48, ge=1, le=60)
     max_web_searches: int = Field(4, ge=0, le=5)
     max_fetches: int = Field(40, ge=0, le=40)
+    prefetch_timeout: float = Field(30, gt=0, le=90)
     editorial_pool_size: int = Field(96, ge=20, le=150)
     min_editorial_score: int = Field(70, ge=0, le=100)
     max_article_age_days: int = Field(7, ge=1, le=365)

@@ -146,12 +146,17 @@ La préparation se déroule ainsi :
 1. Interprétation des notes en besoins prioritaires, puis classement lexical tenant compte de
    ces besoins et des notes. Pool diversifié de 96 titres/extraits maximum, avec une place pour
    les articles récents que les mots-clés bilingues peuvent manquer.
-2. Un appel au rédacteur définit les rubriques et choisit les articles prometteurs. Son score
+2. Avant cet appel, récupération des textes manquants sur ce pool : trois téléchargements
+   simultanés, quota `MAX_FETCHES`, délai par lot `PREFETCH_TIMEOUT` (30 secondes par défaut).
+   Les textes déjà extraits sont réutilisés. Les pages inexploitables sans extrait suffisant
+   sont retirées ; les extraits restants sont explicitement signalés au modèle. Un échec de
+   téléchargement n'est pas retenté automatiquement lors du résumé dans la même génération.
+   Un appel au rédacteur définit les rubriques et choisit les articles prometteurs. Son score
    éditorial est une appréciation du modèle, pas une probabilité. Sous 70/100, pas de résumé.
-3. Extraction et fiches structurées du modèle économique, réutilisables entre utilisateurs ;
+3. Fiches structurées du modèle économique à partir des textes récupérés, réutilisables entre utilisateurs ;
    jusqu'à trois préparations simultanées. Le rédacteur reçoit le résumé et les réserves,
    sans répéter les points clés ni transmettre tous les textes complets.
-4. L'agent évalue les fiches et les manques, puis choisit une recherche catalogue ou web,
+4. L'agent évalue les fiches et les manques, puis choisit une recherche catalogue, web ou de sources,
    une lecture approfondie, une proposition de source, ou la finalisation. Une recherche vide
    appelle un changement de requête ; un domaine en échec répété est évité pendant ce run.
 5. Application des quotas aux choix du modèle, en conservant leur ordre éditorial et en traçant
@@ -162,12 +167,12 @@ La préparation se déroule ainsi :
    Une sélection courte est refusée s'il reste des moyens de chercher. Après épuisement,
    le résultat reste explicitement partiel plutôt que de promettre un remplissage pertinent.
 
-Les défauts conservent 24 nouveaux résumés, 6 décisions, 2 passes de recherche web et ajoutent
+Les défauts permettent 48 nouveaux résumés, 10 décisions, 4 passes de recherche web et ajoutent
 une interprétation des notes si présentes, une planification et au plus 4 filtres de recherche.
 Les besoins interprétés doivent citer le profil, puis alimentent le classement avant le plan.
 Le filtre a un prompt autonome et un seuil cohérent avec `MIN_EDITORIAL_SCORE`. Le rédacteur utilise
 le raisonnement `low` sur GPT-5 ; le modèle de résumé conserve son réglage économique.
-Les téléchargements de présélection sont limités à 24, les imports web à 20 tentatives.
+Les téléchargements préalables sont limités à 40, les imports web à 20 tentatives.
 Les actualités privilégient les dernières 24–72 heures ; celles de plus de 7 jours
 (`MAX_ARTICLE_AGE_DAYS`) ou sans date sont écartées, quelle que soit leur provenance. Les essais,
 analyses et autres lectures de fond n'ont **aucune limite d'âge**, y compris plusieurs décennies,
@@ -193,7 +198,8 @@ vérifiés le 26 septembre 2026 ; hors taxes, éventuels suppléments et appels 
 Le budget réconcilie chaque réservation avec l'usage déclaré, même pour les appels simultanés.
 Sans usage retourné, il garde l'estimation par prudence. `FINAL_TOKEN_RESERVE` protège la rédaction
 finale : l'exploration s'arrête avant d'entamer cette enveloppe et une édition partielle peut être
-composée. Les propositions de sources sont différées si la couverture est encore incomplète.
+composée. La proposition isolée de sources reste secondaire ; une recherche de sources peut
+en revanche fournir des articles pour combler une couverture incomplète.
 `usage.reserved_token_estimate` conserve le cumul historique ; `unsettled_token_reservations`
 désigne les réservations non réconciliées et `remaining_tokens` le budget réellement disponible.
 
@@ -384,7 +390,8 @@ Les éditions déjà générées se consultent depuis son historique et leurs tr
 4. Le petit modèle génère une fiche structurée, indépendante du lecteur. PostgreSQL la met en cache
    par article, hash du contenu et version de prompt/modèle. Une modification invalide son utilisation.
 5. Le rédacteur reçoit les fiches, pas les articles complets. À chaque tour, le LLM choisit une action
-   JSON validée : `search_catalog`, `search_web`, `read_article`, `propose_source` ou `finalize`.
+   JSON validée : `search_catalog`, `search_web`, `search_sources`, `read_article`,
+   `propose_source` ou `finalize`.
    Le backend exécute l'action, fournit son résultat au modèle, puis demande la décision suivante.
 6. La finalisation vérifie les identifiants, doublons proches, quotas de sources et taille maximale.
    Un résultat invalide revient au modèle pour correction. La couverture garde les liens originaux,
@@ -414,8 +421,19 @@ La justification, la page d'origine et la décision admin sont stockées dans `s
 Routes : `GET /v1/source-proposals`, `POST /v1/source-proposals/{id}/review` avec `{"approve":true}`
 ou `{"approve":false}`. Les approbations sont transactionnelles et idempotentes.
 
-Par couverture, les limites par défaut sont deux recherches, vingt tentatives d'import d'articles
-et deux propositions de sources. Les téléchargements de découverte ont leur propre quota : un
+`search_sources` permet aussi de chercher directement des blogs d'auteurs ou de chercheurs,
+des revues et des sites spécialisés sur un besoin mal couvert, sans auteur ou domaine prédéfini.
+Contrairement à la recherche d'articles, elle accepte les pages d'accueil, de rubrique et les flux,
+uniquement à partir des références retournées par le fournisseur. Le backend valide chaque source,
+repère jusqu'à trois articles réels et les soumet à l'extraction puis au filtre éditorial et aux
+mêmes contrôles que les autres candidats. Ils peuvent alimenter la couverture en cours.
+Si au moins un article reste candidat après les contrôles, le site/flux est proposé dans l'admin
+pour les collectes futures ; aucune activation automatique. Les pages récupérées lors de la
+validation sont réutilisées, et les domaines exclus sont filtrés avant téléchargement.
+
+Par couverture, les limites par défaut sont quatre recherches partagées entre articles et sources,
+vingt tentatives d'import d'articles et deux tentatives de validation/proposition de sources.
+Les téléchargements de découverte ont leur propre quota : un
 par tentative d'import et au plus cinq par proposition de source (page, jusqu'à trois liens de flux,
 puis un à trois liens d'articles dans le quota restant).
 Les échecs consomment aussi ces quotas. Les tokens de recherche sont inclus dans `usage` et les
@@ -426,11 +444,13 @@ Le bouton **Générer ma une** du frontend lance un test réel, facturable, avec
 Le rédacteur reste libre de ne pas proposer de source si aucune
 n'est exploitable. La recherche est exécutée chez OpenAI ; collecte RSS, extraction et stockage
 restent sur le serveur Python.
-Le champ de requête `discover_web: true` demande au moins une tentative de recherche avant
-finalisation quand l'outil est activé ; sa valeur par défaut est `false`. Un échec de recherche
-reste explicite dans la trace et n'empêche pas une couverture fondée sur le catalogue disponible.
-`discover_sources: true` demande aussi l'examen d'une source observée lorsque les articles sont
-suffisants et que les tours le permettent. Cette tâche est secondaire et peut être différée.
+Le champ de requête `discover_web: true` ne force plus de recherche. Si les candidats suffisent
+après quotas et couvrent les besoins et rubriques, le rédacteur peut finaliser directement ;
+les actions web inutiles sont bloquées avant facturation. La recherche reste disponible pour
+combler un manque ou remplacer une sélection refusée. Un échec reste explicite dans la trace.
+`discover_sources: true` ouvre également la recherche de sources lorsque le catalogue est trop
+pauvre pour un besoin. Le rédacteur voit les manques et les domaines déjà disponibles par besoin,
+et choisit entre recherche d'articles et recherche de sources. Aucune des deux n'est obligatoire.
 Le frontend active `discover_web` et `discover_sources` pour enrichir les propositions de sources
 lors des générations. Une requête directe à l'API peut désactiver ces options.
 Les pages reconnues comme répertoires RSS sont

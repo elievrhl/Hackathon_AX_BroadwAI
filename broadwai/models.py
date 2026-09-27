@@ -300,7 +300,14 @@ class SearchScreen(Model):
 class Decision(Model):
     """One observable action, not a request to expose chain-of-thought."""
 
-    action: Literal["search_catalog", "search_web", "read_article", "propose_source", "finalize"]
+    action: Literal[
+        "search_catalog",
+        "search_web",
+        "search_sources",
+        "read_article",
+        "propose_source",
+        "finalize",
+    ]
     justification: str = Field(min_length=1, max_length=500)
     query: str | None
     article_id: str | None
