@@ -25,7 +25,7 @@ export default function Newspaper({ profile, cover, saved, onSave, onOpen, onRea
       {children}
       {cover && cover.status !== 'complete' && <div className="edition-warning" role="status"><strong>{cover.status === 'fallback' ? 'Édition de secours' : 'Édition partielle'}</strong><p>{cover.status === 'fallback' ? 'La sélection n’a pas été validée par le rédacteur. Ces articles ont été retenus automatiquement.' : 'Le rédacteur n’a pas pu compléter entièrement cette édition avec les articles disponibles.'}</p></div>}
       {cover && !items.length && <div className="empty-state"><h2>Aucun article retenu.</h2><p>Ajustez vos sujets ou enrichissez le catalogue depuis l’administration.</p></div>}
-      {items.length > 0 && (filter === 'all' ? <>
+      {items.length > 0 && (filter === 'all' ? <div className="edition-flow" style={{ '--content-columns': Math.min(items.length, 3) }}>
         {cover.lead && <>
         <section className={`front-grid${cover.secondary.length ? ' has-secondary' : ''}${cover.briefs.length ? ' has-briefs' : ''}`} aria-label="Les grands titres">
           {cover.lead && card(cover.lead, 'lead')}
@@ -34,7 +34,7 @@ export default function Newspaper({ profile, cover, saved, onSave, onOpen, onRea
         </section></>}
         <div className="sections-grid">{cover.remainingSections.map(section => <section className="topic-section" key={section.id} aria-labelledby={section.id}><div className="section-heading"><h2 id={section.id}>{section.label}</h2></div><div className="section-articles">{section.articles.map(article => card(article, 'section-article'))}</div></section>)}</div>
         {!!cover.exploration.length && <section className="exploration-section" aria-labelledby="exploration-heading"><div className="section-heading"><h2 id="exploration-heading">Exploration</h2></div><div className="exploration-grid">{cover.exploration.map(article => card(article, 'section-article'))}</div></section>}
-      </> : <section className="filtered-articles" aria-label="Articles de la rubrique">{filtered.length ? filtered.map(article => card(article, 'filtered-article')) : <div className="empty-state"><Bookmark size={30} strokeWidth={1} /><h2>Un article vous fait de l’œil ?</h2><p>Choisissez une bibliothèque avec le marque-page pour le retrouver ici.</p></div>}</section>)}
+      </div> : <section className="filtered-articles" style={{ '--content-columns': Math.max(1, Math.min(filtered.length, 3)) }} aria-label="Articles de la rubrique">{filtered.length ? filtered.map(article => card(article, 'filtered-article')) : <div className="empty-state"><Bookmark size={30} strokeWidth={1} /><h2>Un article vous fait de l’œil ?</h2><p>Choisissez une bibliothèque avec le marque-page pour le retrouver ici.</p></div>}</section>)}
       {filter === 'all' && <Events profile={profile} compact onExplore={() => { setFilter('events'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onPreferences={onPreferences} />}
       </>}
     </main>
