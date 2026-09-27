@@ -28,7 +28,7 @@
     <div class="workspace">
       <section class="panel sources-panel" aria-labelledby="sources-heading">
         <div class="panel-heading"><h2 id="sources-heading">Sources</h2><button id="add-source">+ Ajouter</button></div>
-        <p class="hint">Sites web, RSS / Atom ou Hacker News. La collecte n’utilise pas de crédits LLM.</p>
+        <p class="hint">Sites web, RSS / Atom, podcasts ou Hacker News. La collecte n’utilise pas de crédits LLM.</p>
         <div id="source-list"><p class="empty">Chargement des sources…</p></div>
       </section>
       <section class="panel articles-panel" aria-labelledby="articles-heading">
@@ -53,7 +53,7 @@
       <div class="panel-heading"><h2 id="source-dialog-title">Ajouter une source</h2>
         <button type="button" data-close="source-dialog" aria-label="Fermer">✕</button></div>
       <label>Nom<input name="name" required maxlength="150" placeholder="Ex. Blog Python"></label>
-      <label>Type<select name="kind"><option value="website">Site web (blog ou journal)</option><option value="rss">Flux RSS / Atom</option><option value="hacker_news">Hacker News</option></select></label>
+      <label>Type<select name="kind"><option value="website">Site web (blog ou journal)</option><option value="rss">Flux RSS / Atom</option><option value="podcast">Podcast (flux RSS)</option><option value="hacker_news">Hacker News</option></select></label>
       <label id="url-label"><span id="url-caption">URL du site ou de la rubrique</span><input name="url" type="url" required maxlength="2000" placeholder="https://exemple.com/blog"></label>
       <p id="website-hint" class="hint">Collez la page qui liste les articles à suivre. Les pages nécessitant JavaScript ne sont pas prises en charge ; les accès réservés aux abonnés restent limités.</p>
       <label>Articles maximum par collecte<input name="limit_per_source" type="number" min="1" max="50" value="20" required></label>

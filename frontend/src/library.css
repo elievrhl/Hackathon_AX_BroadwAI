@@ -1,6 +1,6 @@
 .account-page,.library-page {
-  color:#262720;
-  background:#f7f5ef;
+  color:var(--ink, #262720);
+  background:var(--paper, #f7f5ef);
   min-height:100vh
 }
 .account-header {
@@ -8,9 +8,9 @@
   align-items:center;
   justify-content:space-between;
   padding:28px 6%;
-  border-bottom:1px solid #d4d1c6
+  border-bottom:1px solid var(--line, #d4d1c6)
 }
-.account-header>span:last-child,.account-footer {
+.account-tagline,.account-footer {
   font-size:10px;
   letter-spacing:1.7px
 }
@@ -24,32 +24,32 @@
   align-items:center
 }
 .account-editorial h1 {
-  font-family:'Libre Caslon Display',Georgia,serif;
+  font-family:var(--serif);
   font-size:clamp(54px,5vw,78px);
   font-weight:400;
   line-height:1.02;
   margin:22px 0
 }
 .account-editorial h1 em {
-  color:#a43b2b
+  color:var(--red, #a43b2b)
 }
 .account-editorial>p:not(.eyebrow) {
   font-size:15px;
-  color:#6d6c61;
+  color:var(--text-secondary, #6d6c61);
   line-height:1.9
 }
 .account-panel {
   padding:35px 0
 }
 .account-panel h2 {
-  font-family:'Libre Caslon Display',Georgia,serif;
+  font-family:var(--serif);
   font-size:38px;
   font-weight:400;
   margin:12px 0 28px
 }
 .account-tabs {
   display:flex;
-  border-bottom:1px solid #d4d1c6;
+  border-bottom:1px solid var(--line, #d4d1c6);
   margin-bottom:28px
 }
 .account-tabs button {
@@ -58,22 +58,22 @@
   border:0;
   border-bottom:2px solid transparent;
   padding:14px 0;
-  color:#777569
+  color:var(--text-secondary, #777569)
 }
 .account-tabs button[aria-pressed=true] {
-  border-color:#a43b2b;
-  color:#a43b2b
+  border-color:var(--red, #a43b2b);
+  color:var(--red, #a43b2b)
 }
 .account-demo {
   font-size:12px;
   line-height:1.7;
-  color:#767369;
+  color:var(--text-secondary, #767369);
   margin:20px 0
 }
 .account-footer {
-  border-top:1px solid #d4d1c6;
+  border-top:1px solid var(--line, #d4d1c6);
   padding:25px 6%;
-  color:#777569
+  color:var(--text-secondary, #777569)
 }
 .account-book-art {
   display:flex;
@@ -85,14 +85,14 @@
   display:flex;
   flex-direction:column;
   gap:20px;
-  background:#a43b2b;
-  color:#fbf5e7;
+  background:var(--red, #a43b2b);
+  color:var(--on-accent, #fbf5e7);
   padding:20px 24px;
-  border-left:8px solid #813124;
-  box-shadow:9px 8px 0 #e3ddd0;
+  border-left:8px solid var(--accent-hover, #813124);
+  box-shadow:9px 8px 0 var(--subtle-shadow, #e3ddd0);
   transform:rotate(-5deg);
   width:205px;
-  font:30px 'Libre Caslon Display',Georgia,serif
+  font:30px var(--serif)
 }
 .account-book-art span {
   font-size:31px;
@@ -106,8 +106,8 @@
 }
 .account-book-art i {
   max-width:130px;
-  font:italic 22px 'Libre Caslon Display',Georgia,serif;
-  color:#787365;
+  font:italic 22px var(--serif);
+  color:var(--text-secondary, #787365);
   margin-bottom:20px
 }
 .account-nav {
@@ -115,7 +115,7 @@
   justify-content:space-between;
   align-items:center;
   padding:12px max(24px,calc((100vw - 1360px)/2));
-  border-bottom:1px solid #d4d1c6;
+  border-bottom:1px solid var(--line, #d4d1c6);
   background:transparent;
   font-size:12px;
   gap:15px
@@ -131,12 +131,12 @@
   border:0;
   background:transparent;
   padding:10px 12px;
-  color:#625f55;
+  color:var(--text-secondary, #625f55);
   border-radius:3px
 }
 .account-nav button.active {
-  background:#faf8f2;
-  color:#a43b2b
+  background:var(--surface-raised, #faf8f2);
+  color:var(--red, #a43b2b)
 }
 .account-nav button:disabled {
   opacity:.5
@@ -162,23 +162,23 @@
   margin-top:30px
 }
 .library-heading h1 {
-  font:400 clamp(46px,5vw,68px) 'Libre Caslon Display',Georgia,serif;
+  font:400 clamp(46px,5vw,68px) var(--serif);
   margin:12px 0
 }
 .library-heading h1 span {
-  color:#a43b2b
+  color:var(--red, #a43b2b)
 }
 .library-heading>p:last-child {
   font-size:14px;
-  color:#777366;
+  color:var(--text-secondary, #777366);
   line-height:1.7
 }
 .library-toolbar {
   display:flex;
   justify-content:space-between;
   align-items:center;
-  border-top:1px solid #262720;
-  border-bottom:1px solid #d4d1c6;
+  border-top:1px solid var(--ink, #262720);
+  border-bottom:1px solid var(--line, #d4d1c6);
   padding:13px 0;
   font-size:12px;
   gap:15px;
@@ -186,7 +186,7 @@
 }
 .library-switch {
   display:flex;
-  border:1px solid #d4d1c6;
+  border:1px solid var(--line, #d4d1c6);
   padding:3px
 }
 .library-switch button {
@@ -194,20 +194,20 @@
   background:none;
   padding:8px 14px;
   font-size:12px;
-  color:#706b60
+  color:var(--text-secondary, #706b60)
 }
 .library-switch button[aria-pressed=true] {
-  background:#262720;
-  color:#f7f5ef
+  background:var(--ink, #262720);
+  color:var(--paper, #f7f5ef)
 }
 .library-empty {
   text-align:center;
   padding:55px 0 75px;
-  color:#777366
+  color:var(--text-secondary, #777366)
 }
 .library-empty h2 {
-  font:34px 'Libre Caslon Display',Georgia,serif;
-  color:#262720
+  font:34px var(--serif);
+  color:var(--ink, #262720)
 }
 .library-empty p {
   line-height:1.9;
@@ -235,6 +235,7 @@
   perspective:1000px
 }
 .edition-art {
+  color: #262720;
   --book:#a43b2b;
   --paper:#f1e7d5;
   display:flex;
@@ -275,7 +276,7 @@
   gap:12px
 }
 .edition-spine>span {
-  font:18px 'Libre Caslon Display',Georgia,serif
+  font:18px var(--serif)
 }
 .edition-spine strong {
   writing-mode:vertical-rl;
@@ -307,7 +308,7 @@
   color:var(--book)
 }
 .edition-masthead {
-  font:43px 'Libre Caslon Display',Georgia,serif;
+  font:43px var(--serif);
   letter-spacing:-2px;
   border-bottom:1px solid var(--book);
   padding:4px 0 9px;
@@ -348,13 +349,13 @@
   grid-row:1/3;
   align-self:center;
   text-align:center;
-  font:105px 'Libre Caslon Display',Georgia,serif;
+  font:105px var(--serif);
   color:var(--paper);
   opacity:.7;
   transform:rotate(-12deg)
 }
 .edition-cover-title {
-  font:24px/1.03 'Libre Caslon Display',Georgia,serif;
+  font:24px/1.03 var(--serif);
   margin-top:12px;
   display:-webkit-box;
   -webkit-line-clamp:3;
@@ -383,10 +384,10 @@
   font-size:10px;
   text-transform:uppercase;
   letter-spacing:1px;
-  color:#777366
+  color:var(--text-secondary, #777366)
 }
 .library-volume-caption h2 {
-  font:22px/1.2 'Libre Caslon Display',Georgia,serif;
+  font:22px/1.2 var(--serif);
   margin:8px 0 12px
 }
 .library-volume-caption>div {
@@ -402,10 +403,10 @@
   border:0;
   background:none;
   padding:8px;
-  color:#777366
+  color:var(--text-secondary, #777366)
 }
 .remove-edition:hover {
-  color:#a43b2b
+  color:var(--red, #a43b2b)
 }
 /* Horizontal bindings: readable titles and the quiet relief of stacked journals. */
 .library-shelf.show-spines {
@@ -440,7 +441,7 @@
   padding: 0;
   gap: 0;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--book) 35%, #d4d1c6);
+  border: 1px solid color-mix(in srgb, var(--book) 35%, var(--line, #d4d1c6));
   border-radius: 3px 5px 5px 3px;
   color: #302f29;
   background: linear-gradient(to bottom, #ffffff65, transparent 12%, #00000003 85%, #0000000d), var(--paper);
@@ -451,7 +452,7 @@
   place-items: center;
   color: #fbf5e7;
   background: linear-gradient(90deg, #00000018, transparent 15%, #ffffff0b 80%, #0000001a), var(--book);
-  font: 34px 'Libre Caslon Display', Georgia, serif;
+  font: 34px var(--serif);
   border-right: 1px solid #00000020;
   box-shadow: inset 4px 0 #ffffff12;
 }
@@ -468,7 +469,7 @@
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
-  font: 25px/1.08 'Libre Caslon Display', Georgia, serif;
+  font: 25px/1.08 var(--serif);
   overflow: hidden;
 }
 .spine-only .edition-spine .spine-date {
@@ -490,7 +491,7 @@
 .show-spines .library-volume-caption > span,
 .show-spines .library-volume-caption h2 { display: none; }
 .show-spines .library-volume-caption > div { justify-content: flex-end; gap: 15px; }
-.show-spines .library-volume-caption .text-button { color: #787264; font-size: 11px; }
+.show-spines .library-volume-caption .text-button { color: var(--text-secondary, #787264); font-size: 11px; }
 .show-spines .remove-edition { padding: 5px; }
 .show-spines .edition-open:hover .edition-art,
 .show-spines .edition-open:focus-visible .edition-art { transform: translateY(-3px); }
@@ -506,7 +507,7 @@
   .spine-only .edition-spine .spine-date { font-size: 8px; padding: 0 5px; }
 }
 .account-page button:focus-visible,.library-page button:focus-visible,.account-nav button:focus-visible {
-  outline:2px solid #a43b2b;
+  outline:2px solid var(--red, #a43b2b);
   outline-offset:4px
 }
 @media(min-width:1150px) {
@@ -545,7 +546,7 @@
   .account-book-art {
     display:none
   }
-  .account-header>span:last-child {
+  .account-tagline {
     display:none
   }
   .account-panel {
@@ -622,40 +623,40 @@
 .article-title { text-decoration: none; }
 .library-toolbar-actions,.collection-form-actions,.collection-heading-actions,.collection-reading-actions { display:flex; align-items:center; flex-wrap:wrap; gap:14px; }
 .library-toolbar-actions .primary-button { padding:12px 16px; font-size:12px; }
-.collection-dialog { width:min(520px,calc(100vw - 32px)); max-height:85dvh; padding:36px; border:1px solid #d4d1c6; background:#f7f5ef; color:#262720; overflow:auto; }
-.collection-dialog h2 { font:38px/1.1 'Libre Caslon Display',Georgia,serif; margin:16px 0 20px; }
+.collection-dialog { width:min(520px,calc(100vw - 32px)); max-height:85dvh; padding:36px; border:1px solid var(--line, #d4d1c6); background:var(--paper, #f7f5ef); color:var(--ink, #262720); overflow:auto; }
+.collection-dialog h2 { font:38px/1.1 var(--serif); margin:16px 0 20px; }
 .collection-dialog .close-button { position:absolute; top:12px; right:12px; }
 .collection-dialog::backdrop { background:#26272065; }
-.collection-article-name { font:20px/1.3 'Libre Caslon Display',Georgia,serif; margin-bottom:12px; }
-.collection-choices { margin:22px 0; max-height:32vh; overflow:auto; border-top:1px solid #d4d1c6; }
-.collection-choices label { display:flex; align-items:center; gap:14px; padding:16px 2px; border-bottom:1px solid #d4d1c6; cursor:pointer; }
-.collection-choices input { width:18px; height:18px; accent-color:#a43b2b; flex-shrink:0; }
+.collection-article-name { font:20px/1.3 var(--serif); margin-bottom:12px; }
+.collection-choices { margin:22px 0; max-height:32vh; overflow:auto; border-top:1px solid var(--line, #d4d1c6); }
+.collection-choices label { display:flex; align-items:center; gap:14px; padding:16px 2px; border-bottom:1px solid var(--line, #d4d1c6); cursor:pointer; }
+.collection-choices input { width:18px; height:18px; accent-color:var(--red, #a43b2b); flex-shrink:0; }
 .collection-choices label span { display:flex; flex:1; flex-direction:column; gap:4px; min-width:0; overflow-wrap:anywhere; }
 .collection-choices strong { font-size:14px; font-weight:500; }
-.collection-choices small,.collection-dialog-footer>span { font-size:11px; color:#777366; }
-.collection-dialog-footer { display:flex; align-items:center; gap:20px; justify-content:space-between; border-top:1px solid #d4d1c6; padding-top:20px; margin-top:25px; }
+.collection-choices small,.collection-dialog-footer>span { font-size:11px; color:var(--text-secondary, #777366); }
+.collection-dialog-footer { display:flex; align-items:center; gap:20px; justify-content:space-between; border-top:1px solid var(--line, #d4d1c6); padding-top:20px; margin-top:25px; }
 .collection-form { margin-top:22px; }
-.create-collection-link { margin:12px 0; color:#a43b2b; }
+.create-collection-link { margin:12px 0; color:var(--red, #a43b2b); }
 .collection-back { margin-bottom:32px; }
-.collection-heading { display:grid; grid-template-columns:200px minmax(0,1fr); gap:42px; align-items:center; padding-bottom:38px; border-bottom:1px solid #262720; }
+.collection-heading { display:grid; grid-template-columns:200px minmax(0,1fr); gap:42px; align-items:center; padding-bottom:38px; border-bottom:1px solid var(--ink, #262720); }
 .collection-cover .edition-art { height:280px; }
 .collection-cover .edition-collage { height:90px; }
 .collection-cover .edition-cover-title { font-size:21px; }
 .collection-cover .edition-masthead { font-size:32px; }
-.collection-heading h1 { font:clamp(36px,5vw,64px)/1.05 'Libre Caslon Display',Georgia,serif; margin:18px 0; overflow-wrap:anywhere; }
-.collection-description { max-width:650px; font-size:15px; line-height:1.7; color:#777366; white-space:pre-wrap; overflow-wrap:anywhere; }
+.collection-heading h1 { font:clamp(36px,5vw,64px)/1.05 var(--serif); margin:18px 0; overflow-wrap:anywhere; }
+.collection-description { max-width:650px; font-size:15px; line-height:1.7; color:var(--text-secondary, #777366); white-space:pre-wrap; overflow-wrap:anywhere; }
 .collection-heading-actions { margin-top:24px; }
-.collection-delete-confirm { border:1px solid #a43b2b; padding:20px; margin-top:24px; background:#f4e9df; }
+.collection-delete-confirm { border:1px solid var(--red, #a43b2b); padding:20px; margin-top:24px; background:var(--accent-soft, #f4e9df); }
 .collection-delete-confirm p { font-size:14px; line-height:1.7; margin-bottom:15px; }
 .collection-delete-confirm button+button { margin-left:18px; }
-.collection-reading { display:flex; gap:25px; padding:28px 0; border-bottom:1px solid #d4d1c6; }
+.collection-reading { display:flex; gap:25px; padding:28px 0; border-bottom:1px solid var(--line, #d4d1c6); }
 .collection-reading-image { width:170px; flex-shrink:0; align-self:flex-start; }
 .collection-reading-image img { display:block; width:100%; aspect-ratio:3/2; object-fit:cover; }
 .collection-reading-body { flex:1; min-width:0; }
-.collection-reading h2 { font:28px/1.15 'Libre Caslon Display',Georgia,serif; margin:10px 0; overflow-wrap:anywhere; }
+.collection-reading h2 { font:28px/1.15 var(--serif); margin:10px 0; overflow-wrap:anywhere; }
 .collection-reading h2 a { text-decoration:none; }
-.collection-reading h2 a:hover { color:#a43b2b; }
-.collection-reading-meta { font-size:12px; color:#777366; }
+.collection-reading h2 a:hover { color:var(--red, #a43b2b); }
+.collection-reading-meta { font-size:12px; color:var(--text-secondary, #777366); }
 .collection-reading-actions { margin-top:17px; gap:20px; }
 .collection-reading-actions .text-button { font-size:11px; }
 @media(max-width:750px) { .library-toolbar { align-items:flex-start; flex-direction:column; } .library-toolbar-actions { width:100%; justify-content:space-between; gap:10px; } .collection-heading { grid-template-columns:120px minmax(0,1fr); gap:22px; } .collection-cover .edition-art { height:210px; } .collection-cover .edition-collage { height:65px; } .collection-cover .edition-face { padding:9px 7px; } .collection-cover .edition-masthead { font-size:23px; } .collection-cover .edition-cover-title { font-size:17px; } .collection-cover .edition-spine { width:16px; } .collection-cover .edition-art-meta,.collection-cover .edition-cover-sections { display:none; } .collection-reading-image { width:110px; } .collection-reading h2 { font-size:24px; } .collection-reading { gap:16px; } }

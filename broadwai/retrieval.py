@@ -3,7 +3,8 @@ import calendar
 import html
 import json
 import re
-from datetime import UTC, datetime
+from collections import Counter
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urljoin
 
 import feedparser
@@ -12,7 +13,9 @@ from broadwai.extraction import extract_content
 from broadwai.images import article_image
 from broadwai.models import Article, IngestRequest, utcnow
 from broadwai.network import PublicFetcher, RetrievalError, validate_destination
+from broadwai.podcasts import episode_metadata, public_url
 from broadwai.website import article_links, website_article
+from broadwai.youtube import channel_feed, thumbnail, video_id
 
 
 def plain(text: str) -> str:
@@ -24,20 +27,49 @@ def parse_feed(body: bytes, base_url: str, limit: int) -> list[Article]:
     articles = []
     if feed.bozo and not feed.entries:
         raise RetrievalError("Flux RSS/Atom illisible")
-    for entry in feed.entries[:limit]:
+    links = Counter(public_url(entry.get("link"), base_url) for entry in feed.entries)
+    repeated_links = {link for link, count in links.items() if count > 1}
+    for entry in feed.entries[: max(limit * 5, 50)]:
+        if len(articles) >= limit:
+            break
         try:
             published = entry.get("published_parsed") or entry.get("updated_parsed")
-            articles.append(
-                Article.create(
-                    url=validate_destination(urljoin(base_url, entry.link)),
-                    title=plain(entry.get("title", "Sans titre"))[:1000],
-                    excerpt=plain(entry.get("summary", ""))[:12000],
-                    published_at=datetime.fromtimestamp(calendar.timegm(published), UTC)
-                    if published
-                    else None,
-                    language=feed.feed.get("language", "").split("-")[0] or None,
-                )
+            podcast = episode_metadata(entry, feed.feed, base_url, repeated_links)
+            url = podcast["url"] if podcast else validate_destination(urljoin(base_url, entry.link))
+            youtube_id = video_id(url)
+            if youtube_id:
+                url = f"https://www.youtube.com/watch?v={youtube_id}"
+            article = Article.create(
+                url=url,
+                title=plain(entry.get("title", "Sans titre"))[:1000],
+                excerpt=plain(entry.get("summary", ""))[:12000],
+                published_at=datetime.fromtimestamp(calendar.timegm(published), UTC)
+                if published
+                else None,
+                language=feed.feed.get("language", "").split("-")[0] or None,
             )
+            if podcast:
+                if podcast["media"]["episode_type"] == "trailer" or (
+                    article.published_at and article.published_at > utcnow()
+                ):
+                    continue
+                article.format = "podcast"
+                article.media = podcast["media"]
+                article.source = podcast["source"]
+                article.image = podcast["image"]
+                article.image_checked_at = utcnow()
+                article.discovery = {"kind": "podcast_episode", "feed_url": base_url}
+            elif youtube_id:
+                article.format = "video"
+                article.media = {
+                    "provider": "youtube",
+                    "video_id": youtube_id,
+                    "channel_id": entry.get("yt_channelid"),
+                    "channel_title": plain(entry.get("author", feed.feed.get("title", "YouTube"))),
+                }
+                article.image = thumbnail(article)
+                article.image_checked_at = utcnow()
+            articles.append(article)
         except (AttributeError, ValueError, RetrievalError, OverflowError):
             continue
     return articles
@@ -142,6 +174,15 @@ class Collector:
             errors.append({"source": url, "error": str(exc)})
 
     async def extract(self, article: Article) -> Article:
+        if article.format == "podcast":
+            # An episode webpage/MP3 is not a transcript. Keep the feed description
+            # as an excerpt, preserving any transcript explicitly supplied elsewhere.
+            return article
+        if video_id(article.url):
+            # The HTML of a watch page is not the spoken content. Feed descriptions
+            # stay excerpts; only an explicitly supplied transcript may be extracted.
+            article = article.model_copy(update={"format": "video"})
+            return self.store.put_article(article)
         if article.extraction_status == "extracted":
             return article
         download = await self.fetcher.get(article.url)
@@ -199,3 +240,45 @@ class Collector:
             }
         )
         return self.store.put_article(updated)
+
+
+async def refresh_media_sources(store, collector, *, videos=True, podcasts=False) -> list[dict]:
+    """Refresh enabled channels/shows hourly, with bounded per-source failures."""
+    sources = await asyncio.to_thread(store.list_sources)
+    due = [
+        s
+        for s in sources
+        if s["enabled"]
+        and (
+            (videos and s["kind"] == "rss" and channel_feed(s["url"]))
+            or (podcasts and s["kind"] == "podcast")
+        )
+        and (
+            not s.get("last_collected_at") or s["last_collected_at"] < utcnow() - timedelta(hours=1)
+        )
+    ]
+    semaphore = asyncio.Semaphore(4)
+
+    async def refresh(source):
+        async with semaphore:
+            try:
+                async with asyncio.timeout(18):
+                    report = await collector.ingest(
+                        IngestRequest(
+                            feed_urls=[source["url"]],
+                            limit_per_source=min(15, source["limit_per_source"]),
+                        )
+                    )
+            except (RetrievalError, TimeoutError):
+                report = {
+                    "article_ids": [],
+                    "collected": 0,
+                    "errors": [{"error": "Flux multimédia temporairement indisponible"}],
+                }
+            await asyncio.to_thread(store.record_collection, source["id"], report)
+            return {"source_id": source["id"], **report}
+
+    # Oldest channels first: avoid repeatedly refreshing only the first page.
+    due.sort(key=lambda s: s.get("last_collected_at") or datetime.min.replace(tzinfo=UTC))
+    # Bound to two batches even when an admin has configured a large catalogue.
+    return await asyncio.gather(*(refresh(source) for source in due[:8]))

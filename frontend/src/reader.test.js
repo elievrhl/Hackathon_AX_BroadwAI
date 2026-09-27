@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { adaptCover, normalizeProfile, toCoverRequest, safeArticleUrl, articleImageUrl, DEFAULT_PROFILE } from './reader.js';
+import { adaptCover, normalizeProfile, toCoverRequest, safeArticleUrl, articleImageUrl, DEFAULT_PROFILE, contentCount, mediaDuration, contentAction } from './reader.js';
 import { createCover, getCover, listCovers, sendFeedback, getHealth } from './api.js';
 
 function fixture(size) {
@@ -25,8 +25,48 @@ test('request uses a stable local identity, real notes, selected languages and d
   assert.equal(payload.size, 20);
   assert.equal(payload.discover_web, true);
   assert.equal(payload.discover_sources, true);
+  assert.equal(payload.discover_videos, true);
+  assert.equal(payload.max_videos, 3);
+  assert.equal(payload.discover_podcasts, true);
+  assert.equal(payload.max_podcasts, 2);
   assert.ok(!('name' in payload.profile));
   assert.throws(() => toCoverRequest(DEFAULT_PROFILE, ''), /Identifiant/);
+});
+
+test('mixed editions keep original video titles, channel, duration and every card', () => {
+  const raw = fixture(8);
+  Object.assign(raw.items[7], { format: 'video', media: { channel_title: 'ARTE', duration_seconds: 3662 }, reading_time_minutes: 9 });
+  const cover = adaptCover(raw);
+  const item = cover.items[7];
+  assert.equal(item.title, raw.items[7].title);
+  assert.equal(item.format, 'video');
+  assert.equal(item.channelTitle, 'ARTE');
+  assert.equal(item.duration, '1:01:02');
+  assert.equal(item.readingTimeMinutes, null);
+  assert.equal(contentCount(cover.items), '7 articles · 1 vidéo');
+  assert.equal(cover.remainingSections.flatMap(section => section.articles).filter(row => row.id === item.id).length, 1);
+  assert.equal(mediaDuration(undefined), '');
+  assert.equal(mediaDuration(-1), '');
+  assert.equal(mediaDuration('45'), '');
+  assert.equal(mediaDuration(622), '10:22');
+});
+
+test('podcasts preserve their show, duration, original title and direct episode link', () => {
+  const raw = fixture(8);
+  Object.assign(raw.items[6], { format: 'podcast', media: { show_title: 'Sciences à écouter', duration_seconds: 1980 }, reading_time_minutes: 8 });
+  Object.assign(raw.items[7], { format: 'video' });
+  const cover = adaptCover(raw);
+  const podcast = cover.items[6];
+  assert.equal(podcast.channelTitle, 'Sciences à écouter');
+  assert.equal(podcast.duration, '33:00');
+  assert.equal(podcast.title, raw.items[6].title);
+  assert.equal(podcast.url, raw.items[6].url);
+  assert.equal(podcast.readingTimeMinutes, null);
+  assert.equal(contentAction(podcast.format), 'Écouter l’épisode');
+  assert.equal(contentAction('video'), 'Voir sur YouTube');
+  assert.equal(contentAction('article'), 'Lire l’article');
+  assert.equal(contentCount(cover.items), '6 articles · 1 vidéo · 1 podcast');
+  assert.ok(cover.remainingSections.some(section => section.articles.includes(podcast)));
 });
 
 test('stored profiles migrate without accepting malformed preferences', () => {
@@ -69,13 +109,13 @@ test('publisher links reject executable and relative URLs', () => {
 });
 
 test('article images use the backend for legacy editions and skip known missing artwork', () => {
-  assert.equal(articleImageUrl({ article_id: 'old-edition-article' }), '/v1/articles/old-edition-article/image?v=review-1');
+  assert.equal(articleImageUrl({ article_id: 'old-edition-article' }), '/v1/articles/old-edition-article/image?v=media-3');
   assert.equal(articleImageUrl({ article_id: 'checked', image_checked: true }), null);
   for (const article_id of ['../private', '', 'bad/id']) assert.equal(articleImageUrl({ article_id }), null);
   const raw = fixture(1);
   raw.items[0].image = { url: 'https://publisher.example/photo.jpg', alt: 'La photo de l’article' };
   raw.items[0].image_checked = true;
-  assert.equal(adaptCover(raw).lead.imageUrl, '/v1/articles/article-0/image?v=review-1');
+  assert.equal(adaptCover(raw).lead.imageUrl, '/v1/articles/article-0/image?v=media-3');
   assert.equal(adaptCover(raw).lead.imageAlt, 'La photo de l’article');
 });
 

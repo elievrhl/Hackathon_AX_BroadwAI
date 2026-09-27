@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope } from 'lucide-react';
-import { TOPICS, DEFAULT_PROFILE, formatDate } from './reader.js';
+import { TOPICS, DEFAULT_PROFILE, formatDate, contentAction } from './reader.js';
+import { Play, Video, Headphones } from 'lucide-react';
 import { ArticleFeedback } from './FeedbackForms.jsx';
 const ICONS = {
   tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen,
@@ -106,7 +107,9 @@ function ArticleMeta({
   article
 }) {
   return <div className="article-meta">
-    <span>{article.source}</span>
+    <span>{article.channelTitle || article.source}</span>
+    {article.format === 'video' && <span className="video-label"><Play size={11} fill="currentColor" aria-hidden="true" /> YouTube{article.duration && ` · ${article.duration}`}</span>}
+    {article.format === 'podcast' && article.duration && <span className="video-label"><Headphones size={12} aria-hidden="true" />{article.duration}</span>}
     {article.publishedAt && <><span className="meta-dot" aria-hidden="true">·</span><time dateTime={article.publishedAt}>{formatDate(article.publishedAt)}</time></>}
     {!!article.readingTimeMinutes && <><span className="meta-dot" aria-hidden="true">·</span><span className="reading-time" title="Temps de lecture estimé à 200 mots par minute.">≈ {article.readingTimeMinutes} min</span></>}
   </div>;
@@ -130,10 +133,17 @@ function ArticleVisual({ article, onRead, priority = false }) {
       if (event.currentTarget.naturalWidth < 120 || event.currentTarget.naturalHeight < 90) setFailed(true);
       else setLoaded(true);
     }} onError={() => setFailed(true)} />;
-  return <figure className={`article-visual${loaded ? ' is-loaded' : ''}`}>
-    {article.url ? <PublisherLink className="article-image-button" article={article} onRead={onRead} aria-label={`Lire : ${article.title}`}>{picture}</PublisherLink> : picture}
+  const content = <>{picture}{article.format === 'video' && <span className="video-play" aria-hidden="true"><Play size={21} fill="currentColor" /></span>}</>;
+  return <figure className={`article-visual${loaded ? ' is-loaded' : ''}${article.format === 'video' ? ' video-visual' : ''}${article.format === 'podcast' ? ' podcast-visual' : ''}`}>
+    {article.url ? <PublisherLink className="article-image-button" article={article} onRead={onRead} aria-label={`${contentAction(article.format)} : ${article.title}`}>{content}</PublisherLink> : content}
   </figure>;
 }
+export function MediaBadge({ format }) {
+  if (!['video', 'podcast'].includes(format)) return null;
+  const Icon = format === 'podcast' ? Headphones : Video;
+  return <span className="media-format-badge"><Icon size={15} strokeWidth={1.8} aria-hidden="true" /><span>{format === 'podcast' ? 'Podcast' : 'Vidéo'}</span></span>;
+}
+
 export function ArticleCard({
   article,
   variant = '',
@@ -145,7 +155,8 @@ export function ArticleCard({
 }) {
   return <article className={`article-card ${variant}`} data-article-id={article.id}>
     <div className="article-inner">
-      {variant !== 'brief' && <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority={variant === 'lead'} />}
+      {(variant !== 'brief' || ['video', 'podcast'].includes(article.format)) && <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority={variant === 'lead'} />}
+      <MediaBadge format={article.format} />
       <h3><PublisherLink className="article-title" article={article} onRead={onRead}>{article.title}</PublisherLink></h3>
       <ArticleMeta article={article} />
       <div className="article-actions"><button className="article-details-button" onClick={() => onOpen(article)} aria-label={`Fiche et avis : ${article.title}`}>Fiche & avis</button><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`Enregistrer dans une bibliothèque : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Organiser dans mes bibliothèques' : 'Enregistrer dans une bibliothèque'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
@@ -198,20 +209,21 @@ export function ArticleDetail({
     <Wordmark small />
     <div className="detail-kicker eyebrow">{article.section} <span>/</span> {article.kind}</div>
     <LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} />
+    <MediaBadge format={article.format} />
     <h2 id="article-title">{article.title}</h2>
     <ArticleMeta article={article} />
     <ArticleVisual key={article.imageUrl} article={article} onRead={onRead} priority />
     {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
-    <div className="publisher-action">{article.url && <a className="primary-button" href={article.url} target="_blank" rel="noopener noreferrer" onClick={() => onRead(article)}>Lire chez {article.source} <ArrowRight size={17} /></a>}</div>
+    <div className="publisher-action">{article.url && <a className="primary-button" href={article.url} target="_blank" rel="noopener noreferrer" onClick={() => onRead(article)}>{contentAction(article.format)} <ArrowRight size={17} /></a>}</div>
     <details className="article-brief"><summary>Voir la fiche de lecture</summary><p className="detail-summary">{article.summary}</p>
       {!!article.keyPoints.length && <div className="detail-keypoints"><h3>L’essentiel</h3><ol>{article.keyPoints.map((point, index) => <li key={index}>{point}</li>)}</ol></div>}
-      {article.excerptOnly && <p className="prototype-note">Fiche préparée à partir d’un extrait : le texte intégral n’a pas pu être récupéré.</p>}
+      {article.excerptOnly && <p className="prototype-note">{article.format === 'podcast' ? 'Sujet présenté à partir de la description de l’épisode. L’audio n’a pas été transcrit.' : article.format === 'video' ? 'Sujet présenté à partir de la description de la chaîne. La vidéo n’a pas été transcrite.' : 'Fiche préparée à partir d’un extrait : le texte intégral n’a pas pu être récupéré.'}</p>}
       {!!article.caveats.length && <ul className="article-caveats">{article.caveats.map((note, index) => <li key={index}>{note}</li>)}</ul>}
     </details>
-    {article.reason && <div className="relevance"><Sparkles size={18} strokeWidth={1.5} /><div><h3>Pourquoi cet article ?</h3><p>{article.reason}</p></div></div>}
+    {article.reason && <div className="relevance"><Sparkles size={18} strokeWidth={1.5} /><div><h3>{article.format === 'podcast' ? 'Pourquoi cet épisode ?' : article.format === 'video' ? 'Pourquoi cette vidéo ?' : 'Pourquoi cet article ?'}</h3><p>{article.reason}</p></div></div>}
     {canFeedback ? <ArticleFeedback article={article} feedback={feedback} onFeedback={onFeedback} onMemory={onMemory} size={size} /> : <p className="prototype-note">Cette édition a été créée avec un autre profil local. Les retours seront disponibles sur vos propres éditions.</p>}
     <div className="detail-actions"><button className="secondary-button" onClick={() => onSave(article.id)}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} />{saved ? 'Organiser dans mes bibliothèques' : 'Enregistrer dans une bibliothèque'}</button><button className="text-button" onClick={onClose}>Retour au journal <ArrowRight size={16} /></button></div>
-    <p className="prototype-note detail-disclaimer">La lecture complète se fait sur le site de l’éditeur, qui peut demander un abonnement.</p>
+    <p className="prototype-note detail-disclaimer">{article.format === 'podcast' ? 'L’épisode s’ouvre chez son éditeur, ou via son lien audio public.' : article.format === 'video' ? 'La vidéo s’ouvre directement sur YouTube.' : 'La lecture complète se fait sur le site de l’éditeur, qui peut demander un abonnement.'}</p>
     {notice && <p className="feedback-notice" role="status">{notice}</p>}
   </Modal>;
 }
@@ -247,7 +259,7 @@ export function Preferences({
       <fieldset className="edition-size"><legend>La taille de votre édition</legend><div className="size-options">{[15, 18, 20].map(size => <label key={size} className={draft.size === size ? 'active' : ''}><input type="radio" name="size" value={size} checked={draft.size === size} onChange={() => setDraft({
               ...draft,
               size
-            })} /><span>{size} articles</span></label>)}</div></fieldset>
+            })} /><span>{size} contenus</span></label>)}</div></fieldset>
       <label className="field">Votre contexte <span className="optional">Facultatif</span><textarea rows={2} maxLength={500} value={draft.notes} onChange={event => setDraft({
           ...draft,
           notes: event.target.value

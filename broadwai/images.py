@@ -13,6 +13,8 @@ from lxml.etree import ParserError
 
 from broadwai.models import ArticleImage, canonical_url, utcnow
 from broadwai.network import RetrievalError, validate_destination
+from broadwai.podcasts import podcast_artwork
+from broadwai.youtube import thumbnail
 
 
 def is_site_artwork(url):
@@ -163,15 +165,24 @@ class ArticleImages:
                 article = await asyncio.to_thread(self.store.get_article, article_id)
                 if article is None:
                     return None
-                if self.require_review and (
-                    self.reviewer is None
-                    or not await asyncio.to_thread(self.store.article_has_cover, article_id)
+                media_image = thumbnail(article) or podcast_artwork(article)
+                if (
+                    not media_image
+                    and self.require_review
+                    and (
+                        self.reviewer is None
+                        or not await asyncio.to_thread(self.store.article_has_cover, article_id)
+                    )
                 ):
                     return None
-                image = article.image
-                obsolete_artwork = image is not None and is_site_artwork(image.url)
+                image = media_image or article.image
+                obsolete_artwork = (
+                    not media_image and image is not None and is_site_artwork(image.url)
+                )
                 if obsolete_artwork:
                     image = None
+                if article.format == "podcast" and image is None:
+                    return None
                 if image is None and (
                     obsolete_artwork
                     or article.image_checked_at is None
@@ -191,8 +202,10 @@ class ArticleImages:
                         media_type,
                         "application/octet-stream",
                     }:
-                        if self.reviewer is not None and not await self.reviewer.check(
-                            article, download.body
+                        if (
+                            not media_image
+                            and self.reviewer is not None
+                            and not await self.reviewer.check(article, download.body)
                         ):
                             return None
                         result = (download.body, media_type)

@@ -1,6 +1,6 @@
 "use strict";
 const $ = (id) => document.getElementById(id);
-const sourceKindLabel = (kind) => ({ rss: "RSS / Atom", website: "Site web", hacker_news: "Hacker News" })[kind] || kind;
+const sourceKindLabel = (kind) => ({ rss: "RSS / Atom", podcast: "Podcast", website: "Site web", hacker_news: "Hacker News" })[kind] || kind;
 const state = { sources: [], offset: 0, total: 0, limit: 25, editing: null, busy: false, sequence: 0 };
 const date = (value) => value ? new Date(value).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" }) : "—";
 const node = (tag, text, cls) => {

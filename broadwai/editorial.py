@@ -6,6 +6,7 @@ from collections import Counter
 
 from broadwai.models import utcnow
 from broadwai.ranking import diversify
+from broadwai.youtube import evidence_kind
 
 
 def grounded(quote, text, *, minimum=8):
@@ -71,7 +72,13 @@ def preview_pool(ranked, limit, interest_topics=()):
         if row.article.id not in selected and counts[row.article.source] < 5:
             selected[row.article.id] = row
             counts[row.article.source] += 1
-    return list(selected.values())
+    # A small, relevant video reserve prevents a large text catalogue hiding the
+    # format before the editor gets a chance to judge it. No extra final-edition slots.
+    videos = [r for r in ranked if r.article.format == "video" and r.matched_interests][:5]
+    podcasts = [r for r in ranked if r.article.format == "podcast" and r.matched_interests][:3]
+    return list({r.article.id: r for r in [*videos, *podcasts, *selected.values()]}.values())[
+        :limit
+    ]
 
 
 def preview(row):
@@ -80,6 +87,9 @@ def preview(row):
         "article_id": a.id,
         "title": a.title,
         "source": a.source,
+        "format": a.format,
+        "media": a.media,
+        "evidence_kind": evidence_kind(a),
         "date": a.published_at.isoformat() if a.published_at else None,
         "language": a.language,
         "lexical_score": round(row.score, 3),
@@ -94,6 +104,9 @@ def compact_candidate(c, pick=None):
         "article_id": c.article_id,
         "title": c.title,
         "source": c.source,
+        "format": c.format,
+        "media": c.media,
+        "evidence_kind": evidence_kind(c),
         "date": c.published_at.isoformat() if c.published_at else None,
         "summary": c.brief.summary,
         "caveats": c.brief.caveats[:2],

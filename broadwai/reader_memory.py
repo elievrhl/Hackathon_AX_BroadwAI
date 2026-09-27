@@ -18,9 +18,11 @@ def reading_memory(items: list[dict]) -> dict:
     topics = Counter()
     formats = Counter()
     levels = Counter()
+    media_formats = Counter()
     examples = []
     for item in items[:100]:
         brief = item.get("brief") or {}
+        media_formats[item.get("format") or "article"] += 1
         labels = {str(topic).strip().casefold()[:100] for topic in brief.get("topics", [])}
         topics.update(sorted(label for label in labels if label))
         if brief.get("content_type"):
@@ -31,6 +33,7 @@ def reading_memory(items: list[dict]) -> dict:
             examples.append(
                 {
                     "article_id": item["article_id"],
+                    "format": item.get("format") or "article",
                     "title": (item.get("title") or item.get("headline", ""))[:180],
                     "summary": brief.get("summary", "")[:400],
                 }
@@ -39,6 +42,7 @@ def reading_memory(items: list[dict]) -> dict:
         "liked_articles_count": len(items[:100]),
         "topics": [{"topic": topic, "likes": count} for topic, count in topics.most_common(20)],
         "formats": dict(formats),
+        "media_formats": dict(media_formats),
         "reading_levels": dict(levels),
         "examples": examples,
     }
