@@ -354,6 +354,10 @@ Le schéma PostgreSQL est créé ou mis à jour au démarrage. Le volume `postgr
 conserve les données entre les redémarrages. Arrêter chaque serveur avec `Ctrl+C` ;
 `docker compose stop postgres` arrête la base en conservant ses données.
 
+Au premier démarrage, le serveur importe automatiquement les sources vérifiées embarquées
+et lance leur première collecte en arrière-plan, sans clé API ni connexion administrateur.
+Le site reste accessible pendant cette synchronisation ; les contenus arrivent progressivement.
+
 ## Administration simple
 
 Après création de votre compte, lui attribuer le rôle administrateur depuis la racine
@@ -386,17 +390,29 @@ La limite par défaut est **50 contenus par source et par collecte**, également
 chaînes vidéo ; les contenus déjà stockés sont conservés. Un flux peut fournir moins de
 contenus que cette limite (notamment les flux YouTube), sans pagination des archives.
 
-Les sources actives sont collectées automatiquement **chaque jour à 3 h, heure de Paris**,
+**Premier démarrage :** `SOURCE_BOOTSTRAP_ENABLED=true` importe une seule fois par base le
+catalogue embarqué `broadwai/source_catalog.json` et lance immédiatement la première collecte.
+Les sources déjà enregistrées conservent leur nom, leur limite et leur mise en pause ; les
+redémarrages ultérieurs ne réimportent pas une source supprimée. Une réservation PostgreSQL
+partagée empêche deux serveurs de lancer la même collecte. Un arrêt reprend les sources
+restantes au redémarrage ; après un arrêt brutal, la réservation expire après cinq minutes.
+Les erreurs d'un flux sont conservées sans empêcher la fin de la première passe ; la collecte
+quotidienne les réessaiera. `SOURCE_BOOTSTRAP_ENABLED=false` désactive cette initialisation.
+
+Les sources actives sont ensuite collectées automatiquement **chaque jour à 3 h, heure de Paris**,
 avant les éditions de 4 h. Le serveur et PostgreSQL doivent rester démarrés ; aucun navigateur
 ni Codex n'est nécessaire. `DAILY_SOURCE_COLLECTION_ENABLED=false` désactive cette tâche.
-La première activation attend le prochain créneau. Après une interruption, le serveur
-rattrape le dernier créneau dû et ignore les sources déjà collectées depuis ce créneau.
+Cette option est indépendante de l'import et de la collecte du premier démarrage.
+Lorsque l'initialisation est désactivée, la collecte quotidienne attend le prochain créneau.
+Après une interruption, le serveur rattrape le dernier créneau dû et ignore les sources
+déjà collectées depuis ce créneau.
 Cinq sources sont traitées simultanément, avec 120 secondes maximum par source ; les erreurs
 individuelles sont enregistrées et les autres sources continuent. Les dates et changements
 d'heure sont gérés en `Europe/Paris`. L'horaire ne garantit pas une fin avant 4 h si les
 sources sont lentes. Aucun appel LLM n'est effectué par la collecte.
 
-`GET /v1/sources/collection-schedule` expose la prochaine échéance et le dernier bilan.
+`GET /v1/sources/collection-schedule` expose la prochaine échéance, le dernier bilan et l'état
+`bootstrap` (`imported_at`, `completed_at`, `pending`) de la synchronisation initiale.
 La réservation nocturne et sa reprise sont persistées dans `source_collection_schedule`
 et `source_collection_runs`. Le verrou des collectes manuelles reste local au processus :
 conserver un seul worker pour cette administration.
@@ -510,7 +526,16 @@ et résultats datés des vérifications, y compris les candidats écartés. Le g
 exporter un seul sujet ou revérifier les flux. Les anciens fichiers `sources.json` et
 `sources-economy.json` restent utilisables.
 
-Pour ajouter les sources vérifiées et collecter leurs premiers contenus via l'API :
+L'import initial est automatique. Pour actualiser le catalogue embarqué à partir des
+vérifications conservées (sans requête réseau), exécuter puis livrer le fichier produit :
+
+```sh
+uv run python -m scripts.validate_source_catalog --export-only --export broadwai/source_catalog.json
+```
+
+Cela ne réimporte pas le catalogue dans les bases déjà initialisées. Les scripts historiques
+ci-dessous permettent un import explicite via l'API, mais leur client HTTP doit disposer
+d'une session administrateur et d'un jeton CSRF ; leur CLI actuelle ne gère pas la connexion :
 
 ```powershell
 uv run python -m scripts.import_source_catalog --base-url http://127.0.0.1:8010 --collect
@@ -531,9 +556,11 @@ accès au texte complet. Les paywalls ne sont pas contournés.
 
 ## Premier parcours
 
-Dans l’administration, ajouter un flux RSS ou un site, puis cliquer sur **Collecter**.
-Les adresses de `examples/sources.json` peuvent servir de point de départ.
-Cette collecte récupère des métadonnées et des extraits sans appel LLM.
+Les sources embarquées et leurs premiers contenus sont synchronisés automatiquement au
+premier démarrage. Dans l’administration, suivre l'arrivée des articles et les éventuelles
+erreurs de collecte. Pour ajouter une autre source, enregistrer un flux RSS ou un site,
+puis cliquer sur **Collecter**. Cette collecte récupère des métadonnées et des extraits
+sans appel LLM.
 Les appels directs à `/v1/ingest` nécessitent eux aussi une session administrateur
 et un jeton CSRF ; l’interface gère ces deux éléments.
 
@@ -1057,3 +1084,10 @@ l’émission à défaut, passe par le proxy d’images public et borné, sans c
 payant. Les URL audio et les pochettes restent des métadonnées non fiables, jamais des
 instructions données au modèle. Une panne de flux n’empêche pas la génération à partir
 du catalogue disponible.
+
+## Contributeurs
+
+- Laurian Fournier
+- Jad El Ezzi
+- Elie Verhille
+- Amayelle Dieng

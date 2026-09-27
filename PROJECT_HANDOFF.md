@@ -3,8 +3,8 @@
 Le menu d’avis, son chevron et la suppression de la fiche de lecture sont fusionnés
 avec `e9f2432` : les supports marketing et le retrait par Jad de deux boutons des
 préférences sont conservés. Le Courrier du lecteur reste accessible depuis le journal.
-Sur cette copie Windows, le checkout inclut tout sauf `/:memory:.ses`, dont le nom
-est incompatible avec Windows. Ce fichier reste suivi dans le dépôt partagé.
+Le fichier temporaire `/:memory:.ses` empêchait un checkout complet sous Windows.
+Il a depuis été supprimé du dépôt et ajouté à `.gitignore`.
 
 ## 27 septembre 2026 — Avis rapide depuis le menu des articles
 

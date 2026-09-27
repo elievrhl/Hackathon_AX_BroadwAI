@@ -1,3 +1,5 @@
+.DS_Store
+/:memory:.ses
 .venv/
 .env
 .env.*
@@ -12,5 +14,5 @@ data/
 *.egg-info/
 frontend/node_modules/
 frontend/dist/
-frontend/.pnpm-store/
+.pnpm-store/
 frontend/test-results/

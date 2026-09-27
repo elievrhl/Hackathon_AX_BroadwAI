@@ -100,19 +100,19 @@ def create_app(
             app.state.collector,
             app.state.source_lock,
             enabled=settings.daily_source_collection_enabled and store is None,
+            bootstrap_enabled=settings.source_bootstrap_enabled and store is None,
         )
-        await app.state.daily_sources.initialize()
-        daily_task = asyncio.create_task(app.state.daily_editions.serve())
-        source_task = asyncio.create_task(app.state.daily_sources.serve())
+        tasks = []
         try:
+            await app.state.daily_sources.initialize()
+            tasks.append(asyncio.create_task(app.state.daily_editions.serve()))
+            tasks.append(asyncio.create_task(app.state.daily_sources.serve()))
             yield
         finally:
-            source_task.cancel()
-            with suppress(asyncio.CancelledError):
-                await source_task
-            daily_task.cancel()
-            with suppress(asyncio.CancelledError):
-                await daily_task
+            for task in reversed(tasks):
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
             await app.state.images.close()
             if model is None and llm is not None:
                 await llm.close()
@@ -168,6 +168,7 @@ def create_app(
             "catalog": app.state.store.stats(),
             "daily_editions_enabled": app.state.daily_editions.enabled,
             "daily_source_collection_enabled": app.state.daily_sources.enabled,
+            "source_bootstrap_enabled": app.state.daily_sources.bootstrap_enabled,
         }
 
     @app.get("/v1/likes")

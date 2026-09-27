@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     max_catalog_articles: int = Field(3000, ge=10, le=50_000)
     daily_editions_enabled: bool = True
     daily_source_collection_enabled: bool = True
+    source_bootstrap_enabled: bool = True
     auth_public_url: str = "http://127.0.0.1:5173/"
     auth_session_days: int = Field(30, ge=1, le=90)
 

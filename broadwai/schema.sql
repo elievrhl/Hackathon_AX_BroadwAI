@@ -144,6 +144,8 @@ CREATE TABLE IF NOT EXISTS source_collection_schedule (
     id BOOLEAN PRIMARY KEY DEFAULT TRUE CHECK (id),
     first_run_at TIMESTAMPTZ NOT NULL
 );
+ALTER TABLE source_collection_schedule ADD COLUMN IF NOT EXISTS catalog_imported_at TIMESTAMPTZ;
+ALTER TABLE source_collection_schedule ADD COLUMN IF NOT EXISTS bootstrap_completed_at TIMESTAMPTZ;
 CREATE TABLE IF NOT EXISTS source_collection_runs (
     slot_at TIMESTAMPTZ PRIMARY KEY,
     status TEXT NOT NULL CHECK (status IN ('running','interrupted','completed')),

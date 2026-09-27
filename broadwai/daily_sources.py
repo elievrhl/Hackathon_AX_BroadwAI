@@ -6,6 +6,7 @@ from datetime import UTC, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
 from broadwai.models import utcnow
+from broadwai.source_catalog import bundled_sources
 from broadwai.sources import collect_source_batch
 
 PARIS = ZoneInfo("Europe/Paris")
@@ -25,39 +26,69 @@ def next_collection_at(now):
 
 
 class DailySourceCollection:
-    def __init__(self, store, collector, lock, *, enabled=True, clock=utcnow):
+    def __init__(
+        self, store, collector, lock, *, enabled=True, bootstrap_enabled=False, clock=utcnow
+    ):
         self.store = store
         self.collector = collector
         self.lock = lock
         self.enabled = enabled
+        self.bootstrap_enabled = bootstrap_enabled
         self.clock = clock
 
     async def initialize(self):
+        if self.bootstrap_enabled:
+            now = self.clock()
+            definitions = await asyncio.to_thread(bundled_sources)
+            added = await asyncio.to_thread(
+                self.store.initialize_source_catalog, definitions, now, next_collection_at(now)
+            )
+            if added is not None:
+                logger.info("Initial source catalogue imported: %s new sources", added)
         if self.enabled:
             await asyncio.to_thread(
                 self.store.initialize_source_collection, next_collection_at(self.clock())
             )
 
     async def status(self):
-        saved = await asyncio.to_thread(self.store.source_collection_status) if self.enabled else {}
+        saved = (
+            await asyncio.to_thread(self.store.source_collection_status)
+            if self.enabled or self.bootstrap_enabled
+            else {}
+        )
         first = saved.get("first_run_at")
         return {
             "enabled": self.enabled,
             "timezone": "Europe/Paris",
             "hour": 3,
-            "next_run_at": max(first, next_collection_at(self.clock())) if first else None,
+            "next_run_at": (
+                max(first, next_collection_at(self.clock())) if self.enabled and first else None
+            ),
             "last_run": saved.get("last_run"),
+            "bootstrap": {
+                "enabled": self.bootstrap_enabled,
+                "imported_at": saved.get("catalog_imported_at"),
+                "completed_at": saved.get("bootstrap_completed_at"),
+                "pending": bool(saved.get("catalog_imported_at"))
+                and not saved.get("bootstrap_completed_at"),
+            },
         }
 
     async def run_due(self):
-        if not self.enabled or self.lock.locked():
+        if not (self.enabled or self.bootstrap_enabled) or self.lock.locked():
             return
         # One lock for manual and scheduled collections in this process; the DB
         # claim prevents a second scheduler from starting the same night's work.
         async with self.lock:
             now = self.clock()
             slot = collection_slot(now)
-            token = await asyncio.to_thread(self.store.claim_source_collection, slot, now)
+            token = await asyncio.to_thread(
+                self.store.claim_source_collection,
+                slot,
+                now,
+                scheduled=self.enabled,
+                bootstrap=self.bootstrap_enabled,
+            )
             if token is None:
                 return
             try:
