@@ -1,5 +1,4 @@
 import asyncio
-import json
 from collections import Counter
 from copy import deepcopy
 from time import perf_counter
@@ -11,7 +10,6 @@ from broadwai.discovery import is_feed_directory, source_article_candidates, val
 from broadwai.editorial import (
     compact_candidate,
     coverage,
-    grounded,
     preview,
     preview_pool,
     reading_kind,
@@ -118,7 +116,7 @@ class CoverPipeline:
                 "query": i.topic,
                 "priority": "primary" if n == 0 else "secondary",
                 "level": profile.level,
-                "evidence": i.topic,
+                "origin": "profile",
             }
             for n, i in enumerate(profile.interests[:8])
         ]
@@ -132,64 +130,22 @@ class CoverPipeline:
                 provided_profile = profile.model_dump(
                     mode="json", exclude={"user_id", "seen_article_ids"}
                 )
-                explicit_profile = profile.model_dump(
-                    mode="json", exclude={"user_id", "seen_article_ids", "reading_memory"}
-                )
                 interpreted = await self.model.interpret(
                     {"profile": provided_profile},
                     self.budget,
                 )
-                evidence_source = (
-                    profile.notes
-                    + "\n"
-                    + "\n".join(i.topic for i in profile.interests)
-                    + "\n"
-                    + json.dumps(provided_profile, ensure_ascii=False)
-                )
-                valid_needs = [
-                    n for n in interpreted.needs if grounded(n.evidence, evidence_source, minimum=2)
-                ]
-                valid_constraints = [
-                    c
-                    for c in interpreted.constraints
-                    if grounded(
-                        c.evidence, json.dumps(explicit_profile, ensure_ascii=False), minimum=2
-                    )
-                ]
-                rejected_intent = [
-                    n.model_dump()
-                    for n in [*interpreted.needs, *interpreted.constraints]
-                    if not grounded(n.evidence, evidence_source, minimum=2)
-                ]
-                if rejected_intent:
-                    self.log("intent_items_rejected", items=rejected_intent)
-                if not valid_needs:
-                    raise ModelError("Aucun besoin avec citation du profil")
-                if rejected_intent:
-                    self.warnings.append(
-                        "Interprétation partielle : éléments sans citation du profil écartés"
-                    )
-                needs = [n.model_dump() for n in valid_needs]
+                needs = [n.model_dump() for n in interpreted.needs]
                 for need in needs:
-                    if not grounded(
-                        need["evidence"],
-                        json.dumps(explicit_profile, ensure_ascii=False),
-                        minimum=2,
-                    ):
+                    if need["origin"] == "reading_memory":
                         need["priority"] = "secondary"
-                constraints = [c.model_dump() for c in valid_constraints]
-                # Explicit notes take precedence over broad UI categories, regardless
+                constraints = [c.model_dump() for c in interpreted.constraints]
+                # Explicit notes and feedback take precedence over broad UI categories, regardless
                 # of a model accidentally copying their numeric interest weights.
                 note_needs = {
                     n["topic"]
                     for n in needs
-                    if grounded(
-                        n["evidence"],
-                        profile.notes
-                        + "\n"
-                        + "\n".join(f.reason for f in profile.edition_feedback),
-                        minimum=2,
-                    )
+                    if (profile.notes and n["origin"] == "notes")
+                    or (profile.edition_feedback and n["origin"] == "edition_feedback")
                 }
                 if note_needs:
                     for need in needs:
@@ -204,7 +160,7 @@ class CoverPipeline:
                             "query": profile.notes[:200],
                             "priority": "primary",
                             "level": profile.level,
-                            "evidence": profile.notes[:300],
+                            "origin": "notes",
                         },
                     )
         # Interpreting notes or likes must never erase another explicit rubric.
@@ -216,7 +172,7 @@ class CoverPipeline:
                         "query": interest.topic,
                         "priority": "secondary",
                         "level": profile.level,
-                        "evidence": interest.topic,
+                        "origin": "profile",
                     }
                 )
         self.intent = {
@@ -238,7 +194,7 @@ class CoverPipeline:
                             "query": rule.target,
                             "priority": "secondary",
                             "level": profile.level,
-                            "evidence": rule.target,
+                            "origin": "profile",
                         }
                     )
         self.audit["editorial_intent"] = self.intent
@@ -282,14 +238,7 @@ class CoverPipeline:
                         c = by_id.get(assessment.article_id)
                         if not c or assessment.preference_id not in allowed:
                             continue
-                        text = "\n".join(
-                            [c.title, c.brief.summary, *c.brief.key_points, *c.brief.topics]
-                        )
                         if pairs[c.article_id, assessment.preference_id] != 1:
-                            continue
-                        if assessment.match != "uncertain" and not grounded(
-                            assessment.evidence, text
-                        ):
                             continue
                         policy.matches[c.article_id][assessment.preference_id] = assessment.match
                     self.log(
@@ -431,9 +380,6 @@ class CoverPipeline:
                 return "Rubrique générale du profil non identifiée (interest_id)"
             if pick.matched_need not in {n["id"] for n in self.intent["needs"]}:
                 return "Besoin éditorial non identifié"
-            a = row.article
-            if not grounded(pick.evidence, a.title + "\n" + (a.excerpt or a.text)[:320]):
-                return "Lien au besoin sans preuve dans le titre ou l'extrait"
             if not pick.temporal_kind:
                 return "Temporalité non évaluée"
         return None
@@ -455,7 +401,7 @@ class CoverPipeline:
             kind=pick.temporal_kind if pick else None,
         ):
             # A title/excerpt classification is provisional. When full text is already
-            # available, let the grounded brief settle the temporal kind. Final date
+            # available, let the brief settle the temporal kind. Final date
             # and validity checks below still reject stale news and uncertain content.
             if article.extraction_status == "extracted" and article.text.strip():
                 self.log("temporal_review_requested", article_id=article.id)
@@ -570,10 +516,6 @@ class CoverPipeline:
         if validity and (
             validity.status in {"outdated", "uncertain"}
             or (validity.kind == "evergreen" and validity.status != "durable")
-            or not grounded(
-                validity.evidence,
-                (article.text or article.excerpt)[: self.settings.max_article_chars],
-            )
         ):
             self.log(
                 "candidate_skipped",
@@ -833,17 +775,6 @@ class CoverPipeline:
                     continue
                 if s.matched_need not in needs:
                     errors.append(f"{s.article_id}: besoin non justifié après lecture")
-                if not grounded(
-                    s.evidence,
-                    c.title
-                    + "\n"
-                    + c.brief.summary
-                    + "\n"
-                    + "\n".join(c.brief.key_points)
-                    + "\n"
-                    + (c.brief.validity.evidence if c.brief.validity else ""),
-                ):
-                    errors.append(f"{s.article_id}: preuve absente de la fiche")
                 if not s.headline or not s.role or not s.story_key:
                     errors.append(f"{s.article_id}: titre, rôle et sujet requis")
                 if s.story_key:

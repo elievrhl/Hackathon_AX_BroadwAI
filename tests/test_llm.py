@@ -29,7 +29,6 @@ async def test_openai_adapter_structured_output_limits_and_usage():
             "kind": "evergreen",
             "status": "durable",
             "reason": "Méthode durable",
-            "evidence": "Python systèmes distribués",
         },
         key_points=["Un point"],
         topics=["Python"],
@@ -80,7 +79,7 @@ async def test_refused_or_incomplete_model_output_is_explicit_error():
         await model.close()
 
 
-async def test_summary_sources_are_grounded_deduplicated_and_urls_observed():
+async def test_summary_sources_without_quotes_are_deduplicated_and_urls_observed():
     model = OpenAILanguageModel("test-key", "summary-test", "editor-test", 1000)
     evidence = "Selon le rapport du Laboratoire, Python améliore les systèmes distribués."
     item = article().model_copy(
@@ -166,6 +165,7 @@ async def test_summary_sources_are_grounded_deduplicated_and_urls_observed():
         result = await model.summarize(item, RunBudget(limits={"summary": 1}, max_tokens=50000))
         assert [source.name for source in result.cited_sources] == [
             "Laboratoire",
+            "Source inventée",
             "Laboratoire sans lien",
             "URL dans le texte",
             "Racine déduite",
@@ -175,17 +175,54 @@ async def test_summary_sources_are_grounded_deduplicated_and_urls_observed():
         assert [source.url for source in result.cited_sources] == [
             "https://lab.example/study",
             None,
+            None,
             "https://science.example/report",
             None,
-            None,
+            "https://later.example/",
             None,
         ]
         data = json.loads(model.client.responses.parse.call_args.kwargs["input"])
         assert data["article_url"] == item.url
-        assert data["content_links"] == [item.content_links[0].model_dump()]
+        assert data["content_links"] == [link.model_dump() for link in item.content_links]
         assert model.summary_version.startswith("brief-v6:")
-        # Stored v3 briefs remain readable, but are not reused for v4 calls.
+        # Source lists were absent in older briefs.
         old = brief.model_dump(exclude={"cited_sources"})
         assert Brief.model_validate(old).cited_sources == []
     finally:
         await model.close()
+
+
+def test_saved_briefs_ignore_legacy_quotes_and_keep_their_content():
+    brief = Brief(
+        summary="Résumé conservé",
+        key_points=["Un point"],
+        topics=[],
+        content_type="analysis",
+        level="intermediate",
+        language="fr",
+        caveats=[],
+        validity={
+            "kind": "evergreen",
+            "status": "durable",
+            "reason": "Méthode durable",
+            "evidence": "Ancienne citation absente du texte actuel",
+        },
+        cited_sources=[
+            {
+                "name": "Laboratoire",
+                "url": "https://lab.example/study",
+                "relevance": "Étude utile",
+                "evidence": "Ancienne attribution",
+            }
+        ],
+    )
+    assert "evidence" not in json.dumps(brief.model_dump())
+    assert brief.summary == "Résumé conservé"
+    assert brief.cited_sources[0].url == "https://lab.example/study"
+
+
+def test_editorial_output_schemas_no_longer_request_quotes():
+    from broadwai.models import Decision, EditorialIntent, EditorialPlan, PreferenceAssessments
+
+    for schema in (Brief, Decision, EditorialIntent, EditorialPlan, PreferenceAssessments):
+        assert '"evidence"' not in json.dumps(schema.model_json_schema())

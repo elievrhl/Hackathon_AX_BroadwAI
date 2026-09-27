@@ -221,9 +221,7 @@ def create_app(
                                 app.state.store,
                                 app.state.collector,
                                 videos=bool(request.discover_videos and request.max_videos),
-                                podcasts=bool(
-                                    request.discover_podcasts and request.max_podcasts
-                                ),
+                                podcasts=bool(request.discover_podcasts and request.max_podcasts),
                             )
                         pipeline.log("media_refreshed", sources=reports)
                         if any(report["errors"] for report in reports):
@@ -260,9 +258,7 @@ def create_app(
         return await app.state.regenerations.regenerate(user_id, request)
 
     @app.get("/v1/admin/editions")
-    async def admin_editions(
-        limit: int = Query(100, ge=1, le=200), offset: int = Query(0, ge=0)
-    ):
+    async def admin_editions(limit: int = Query(100, ge=1, le=200), offset: int = Query(0, ge=0)):
         rows = await asyncio.to_thread(app.state.store.list_daily_profiles, limit, offset)
         for row in rows:
             row["schedule"] = await app.state.daily_editions.status(row["user_id"])

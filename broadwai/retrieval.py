@@ -101,10 +101,10 @@ class Collector:
                         page = await self.fetcher.get(
                             f"https://www.youtube.com/watch?v={youtube_id}"
                         )
-                        if (
-                            video_id(page.url) == youtube_id
-                            and page.content_type in {"text/html", "application/xhtml+xml"}
-                        ):
+                        if video_id(page.url) == youtube_id and page.content_type in {
+                            "text/html",
+                            "application/xhtml+xml",
+                        }:
                             duration = await asyncio.to_thread(
                                 metadata_duration, page.body, youtube_id
                             )

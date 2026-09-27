@@ -149,8 +149,7 @@ def test_generation_api_collects_registered_channel_before_editor_selection():
     <author><name>ARTE</name></author></entry></feed>"""
     watch_url = f"https://www.youtube.com/watch?v={ID}"
     metadata = (
-        f'<link rel="canonical" href="{watch_url}">'
-        '<meta itemprop="duration" content="PT10M22S">'
+        f'<link rel="canonical" href="{watch_url}"><meta itemprop="duration" content="PT10M22S">'
     )
     fetcher = SimpleNamespace(
         get=AsyncMock(

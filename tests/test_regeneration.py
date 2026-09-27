@@ -247,7 +247,7 @@ async def test_reason_can_drive_primary_needs_and_is_serializable_in_pipeline():
                         "query": "astronomie sciences",
                         "priority": "secondary",
                         "level": "intermediate",
-                        "evidence": "Davantage de sciences",
+                        "origin": "edition_feedback",
                     }
                 ]
             }

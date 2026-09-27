@@ -6,7 +6,7 @@ from typing import Literal
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 def utcnow() -> datetime:
@@ -172,36 +172,36 @@ class Profile(Model):
         return list(dict.fromkeys(normalize_language(value) for value in values))
 
 
-class ReadingValidity(Model):
+class EditorialRecord(Model):
+    @model_validator(mode="before")
+    @classmethod
+    def read_legacy_record(cls, value):
+        # Old cached briefs and saved editions remain readable without requesting
+        # or returning the retired quotation field in new structured outputs.
+        if isinstance(value, dict) and "evidence" in value:
+            return {key: item for key, item in value.items() if key != "evidence"}
+        return value
+
+
+class ReadingValidity(EditorialRecord):
     kind: Literal["news", "research", "evergreen", "event"]
     status: Literal["durable", "time_sensitive", "outdated", "uncertain"]
     reason: str = Field(min_length=1, max_length=350)
-    evidence: str = Field(
-        min_length=8,
-        max_length=180,
-        description="Un passage contigu du texte original, sans traduction ni commentaire",
-    )
 
 
-class ReaderNeed(Model):
+class ReaderNeed(EditorialRecord):
     topic: str = Field(min_length=1, max_length=150)
     query: str = Field(min_length=1, max_length=200)
     priority: Literal["primary", "secondary"]
     level: Literal["beginner", "intermediate", "expert"]
-    evidence: str = Field(
-        min_length=1,
-        max_length=150,
-        description="Un seul passage contigu copié du profil, sans reformulation ni concaténation",
+    origin: Literal["profile", "notes", "edition_feedback", "reading_memory"] = Field(
+        "profile",
+        description="Origine : profil, notes, motif de régénération ou historique de likes",
     )
 
 
-class ReaderConstraint(Model):
+class ReaderConstraint(EditorialRecord):
     requirement: str = Field(min_length=1, max_length=250)
-    evidence: str = Field(
-        min_length=1,
-        max_length=150,
-        description="Un seul passage contigu copié du profil, sans reformulation ni concaténation",
-    )
 
 
 class EditorialIntent(Model):
@@ -209,18 +209,13 @@ class EditorialIntent(Model):
     constraints: list[ReaderConstraint] = Field(default_factory=list, max_length=8)
 
 
-class CitedSource(Model):
+class CitedSource(EditorialRecord):
     name: str = Field(min_length=1, max_length=200)
     url: str | None = Field(None, max_length=2000)
     relevance: str = Field(
         min_length=1,
         max_length=300,
         description="Apport concret au sujet et intérêt de cette source pour de futures lectures",
-    )
-    evidence: str = Field(
-        min_length=8,
-        max_length=300,
-        description="Passage contigu du texte fourni qui attribue une information à cette source",
     )
 
 
@@ -256,19 +251,18 @@ class Candidate(Model):
     brief: Brief
 
 
-class Selection(Model):
+class Selection(EditorialRecord):
     article_id: str
     section: str = Field(min_length=1, max_length=100)
     reason: str = Field(min_length=1, max_length=500)
     headline: str | None = Field(None, max_length=180)
     role: Literal["lead", "secondary", "brief", "reading"] | None = None
     matched_need: str | None = None
-    evidence: str | None = Field(None, max_length=350)
     story_key: str | None = Field(None, max_length=120)
     distinct_angle: str | None = Field(None, max_length=200)
 
 
-class EditorialPick(Model):
+class EditorialPick(EditorialRecord):
     article_id: str
     interest_id: str | None = Field(
         None,
@@ -285,9 +279,6 @@ class EditorialPick(Model):
     )
     matched_need: str | None = Field(
         None, description="Identifiant du besoin fourni par le serveur"
-    )
-    evidence: str | None = Field(
-        None, max_length=350, description="Citation exacte du titre/extrait"
     )
     temporal_kind: Literal["news", "research", "evergreen", "event"] | None = None
     exploration: bool = Field(
@@ -443,11 +434,10 @@ class ReaderPreference(PreferenceCreate):
     applied_cover_id: str | None = None
 
 
-class PreferenceAssessment(Model):
+class PreferenceAssessment(EditorialRecord):
     article_id: str
     preference_id: str
     match: Literal["yes", "no", "uncertain"]
-    evidence: str = Field(max_length=250)
 
 
 class PreferenceAssessments(Model):

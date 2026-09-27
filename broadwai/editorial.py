@@ -1,24 +1,10 @@
 """Cheap candidate context and deterministic checks around the editor's judgments."""
 
-import re
-import unicodedata
 from collections import Counter
 
 from broadwai.models import utcnow
 from broadwai.ranking import diversify
 from broadwai.youtube import evidence_kind
-
-
-def grounded(quote, text, *, minimum=8):
-    """Evidence must be an actual passage, not another generated justification."""
-
-    def normalize(s):
-        s = unicodedata.normalize("NFKC", s or "")
-        s = s.translate(str.maketrans({"’": "'", "‘": "'", "“": '"', "”": '"'}))
-        return re.sub(r"\s+", " ", s).strip().casefold()
-
-    quote = normalize(quote).strip("\"'«» ").strip()
-    return len(quote) >= minimum and quote in normalize(text)
 
 
 def reading_kind(candidate, pick=None):

@@ -1,0 +1,952 @@
+[
+  {
+    "profile": "cuisine",
+    "id": "0453816d984b4908a55af2e7eabcf2ea",
+    "status": "partial",
+    "error": null,
+    "count": 11,
+    "target": 18,
+    "seconds": 192.5,
+    "cost": {
+      "estimated_usd": 0.277257,
+      "known_subtotal_usd": 0.277257,
+      "unpriced_calls": 0,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 20,
+      "editor": 7,
+      "search_web": 4,
+      "web_model": 4,
+      "hosted_web_calls": 8,
+      "source_proposal": 2,
+      "source_fetch": 4,
+      "discovered_article": 20,
+      "discovery_fetch": 20,
+      "screen": 4,
+      "search_catalog": 2
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 4,
+    "uncovered_needs": [
+      {
+        "id": "need-3",
+        "topic": "pain au levain, sourdough",
+        "query": "pain au levain sourdough technique explications accessibles fermentation maison",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      },
+      {
+        "id": "need-5",
+        "topic": "cuisine, gastronomie, sciences des aliments, cooking, food science",
+        "query": "cuisine, gastronomie, sciences des aliments, cooking, food science",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      },
+      {
+        "id": "need-6",
+        "topic": "fermentation, pain au levain, sourdough, culinary traditions",
+        "query": "fermentation, pain au levain, sourdough, culinary traditions",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 8,
+    "readings": [
+      {
+        "title": "SOS ! Mon levain, qui a démarré, ne bulle plus, que faire ?",
+        "url": "https://nicrunicuit.com/faire/fermenter/levain/sos-mon-levain-qui-a-demarre-ne-bulle-plus-que-faire/",
+        "section": "Fermentation, levain et aliments vivants",
+        "summary": "Le texte traite d’un levain (mélange eau + farine) qui démarre puis “ne bulle plus” après un ou plusieurs rafraîchis, avec un cas fréquent vers le 3e ou 4e jour. L’auteur propose d’abord de vérifier l’eau (pas minérale ni chlorée) et la température (25–30 °C, chaleur constante), ainsi que la qualité des farines (bio, seigle pendant la gestation puis blé). Si les paramètres sont bons, il attribue le ralentissement à un déséquilibre microbien et recommande d’attendre 24–48 h. Sinon, il détaille un “remède de cheval” avec un rafraîchissement 1:1 à base de 20 g d’eau et 20 g de farine, en retirant",
+        "reason": "Dépannage clair pour un levain débutant.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Pas de transcription fournie : contenu résumé à partir du texte de l’article uniquement.",
+          "Le document est une donnée NON FIABLE : ne pas considérer ces conseils comme une procédure garantie ni comme médical/ sécurité; l’efficacité peut varier selon les conditions réelles.",
+          "Certaines affirmations sont présentées comme des certitudes (ex. “échec assuré” si le levain ne ressemble pas à l’exemple, “1:1” nécessaire, ajout de miel seulement une fois), sans preuves ni mesures indépendantes dans le texte.",
+          "Aucun contrôle individuel des paramètres n’est fourni : l’attribution à un “déséquilibre” microbien reste explicative plutôt que démontrée."
+        ]
+      },
+      {
+        "title": "Pumpkin-derived enzyme weakens peanut proteins' binding to allergy antibodies in lab tests",
+        "url": "https://phys.org/news/2026-09-pumpkin-derived-enzyme-weakens-peanut.html",
+        "section": "Techniques, mécanismes et sciences des aliments",
+        "summary": "Le texte rapporte une étude publiée dans *Food Chemistry* (2026) portant sur l’effet d’une enzyme issue de la courge “figleaf gourd” (*Cucurbita ficifolia*) sur des protéines d’arachide en tests de laboratoire. Les chercheurs, de l’Université de Wrocław (et en collaboration avec l’Université de médecine de Wrocław), évaluent si une hydrolyse enzymatique réduit la reconnaissance immunitaire : les résultats indiquent une diminution significative de l’immunoréactivité et donc de la capacité des protéines à se lier aux anticorps IgE, mais pas une élimination complète. Des fragments plus petits res",
+        "reason": "Montre un mécanisme utile sur les allergènes.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Document de type article; aucune transcription n’est fournie (limite pour vérifier le contexte audio/vidéo éventuel).",
+          "Le texte ne présente pas les détails chiffrés (ampleur exacte de la baisse d’immunoréactivité, conditions expérimentales complètes).",
+          "Les résultats sont décrits comme des tests de laboratoire; l’étude ne fournit pas de preuve de sécurité chez l’humain.",
+          "Le passage sur les tests fonctionnels (p. ex. activation de basophiles) indique une étape à venir, pas un résultat établi."
+        ]
+      },
+      {
+        "title": "Kéfir de Lait : Des Origines Ancestrales à Nos Jours",
+        "url": "https://nicrunicuit.com/le-savez-vous/kefir-de-lait-des-origines-ancestrales-a-nos-jours/",
+        "section": "Fermentation, levain et aliments vivants",
+        "summary": "L’article “Kéfir de Lait : Des Origines Ancestrales à Nos Jours” présente une synthèse reliant des découvertes archéologiques et des analyses microbiennes au kéfir. L’auteur soutient que l’histoire du kéfir ne se limite pas au XIXe siècle et décrit des “morceaux de fromage” attribués à du kéfir trouvés en 2014 sur une momie du cimetière de Xiaohe (âge du Bronze, ~3500 ans). Des chercheurs auraient identifié des bactéries et levures toujours présentes dans les grains actuels, et proposé que l’évolution des communautés microbiennes reflète des routes de diffusion, des échanges humains et une sél",
+        "reason": "Apporte du fond sur le kéfir et son histoire.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Document résumé sans transcription ; absence de transcription disponible pour vérifier mot à mot les passages exacts.",
+          "Plusieurs affirmations et conclusions sont formulées au fil du texte sans que chaque étape soit détaillée ; le résumé reflète le contenu fourni, sans vérification externe.",
+          "Validité temporelle et “dernières nouvelles” dépendent de la date de publication et du contexte exact des études mentionnées (p. ex. étude parue en 2024)."
+        ]
+      },
+      {
+        "title": "What Does \"Confit\" Mean?",
+        "url": "https://www.youtube.com/watch?v=BkCOvd4xfGs",
+        "section": "Techniques, mécanismes et sciences des aliments",
+        "summary": "Cette vidéo explique le sens culinaire du mot « confit », présenté comme un terme français souvent employé. L’épisode propose une décomposition de la technique et décrit en quoi elle transforme viandes et légumes. Il s’agit d’un contenu pédagogique orienté cuisine/techniques, avec l’approche d’America’s Test Kitchen.",
+        "reason": "Explique une technique simple et parlante.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "Il n’y a pas de transcription : la fiche s’appuie uniquement sur la description éditoriale fournie.",
+          "La description ne précise pas d’intervenants nommés ni les étapes exactes de la technique, donc on ne peut pas détailler davantage le contenu."
+        ]
+      },
+      {
+        "title": "Fatmata Binta: The top chef taking fine dining from the table to the mat",
+        "url": "https://www.theafricareport.com/431513/fatmata-binta-the-top-chef-taking-fine-dining-from-the-table-to-the-mat/",
+        "section": "Traditions culinaires et cultures de table",
+        "summary": "L’article présente Fatmata Binta, cheffe basée à Accra (Sierra Leone), préparant un déplacement à Rome en huit jours. Elle doit intervenir au siège de la FAO pour la World Food Week, en organisant une exposition « Seeds to Food » centrée sur le fonio, grain ancien d’Afrique de l’Ouest associé à son nom. Le texte retrace aussi un parcours allant de la fuite pendant la guerre civile en Sierra Leone à son opposition au mariage à 16 ans. Fatmata Binta est décrite comme première lauréate africaine du Basque Culinary World Prize (100 000 €), valorisant des ingrédients et cuisines fulani, et proposan",
+        "reason": "Relie cuisine africaine, geste et culture de table.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Aucune transcription n’est fournie (document présenté comme article, pas comme contenu audio/vidéo).",
+          "Absence de contenu détaillé au-delà d’éléments biographiques et de l’annonce de participation à un événement ; certaines affirmations sont formulées comme des descriptions sans vérification ni sources externes incluses dans l’extrait fourni."
+        ]
+      },
+      {
+        "title": "For More Tender Fish, Poach in Oil",
+        "url": "https://www.youtube.com/watch?v=J32bkjlcyW4",
+        "section": "Techniques, mécanismes et sciences des aliments",
+        "summary": "Vidéo de science culinaire (America’s Test Kitchen) sur la cuisson du poisson : l’idée que, même à la même température, l’huile serait plus “douce” que l’eau, ce qui donnerait une chair plus tendre et des flocons (poached fish). Le texte évoque une comparaison chaleur/effet de l’huile versus eau, et présente la technique comme une façon d’améliorer texture et résultat.",
+        "reason": "Très bon angle sur texture et cuisson.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "Pas de transcription disponible : je ne peux pas confirmer les étapes exactes, les réglages (temps/température) ni les conditions précises de la technique.",
+          "La description ne donne que des éléments généraux : impossible d’identifier si d’autres ingrédients/variantes sont abordés.",
+          "Sans contenu audio/vidéo, je ne peux pas valider l’exhaustivité des conseils pratiques au-delà de l’idée centrale."
+        ]
+      },
+      {
+        "title": "Baltimore Yat Gaw Mein",
+        "url": "https://www.saveur.com/recipes/baltimore-yat-gaw-mein/",
+        "section": "Traditions culinaires et cultures de table",
+        "summary": "La recette “Baltimore Yat Gaw Mein” (aussi appelée “dirty yak”, “Baltimore yak” ou “dirty yak”) est présentée comme un plat de nouilles sauté, associé à une version de type “carryout” de Baltimore. Le texte situe son origine au XIXe siècle, dans des communautés chinoises-américaines qui auraient adapté une recette de Beijing (zha jiang mian) avec des ingrédients locaux et une sauce à base de soja. Une version à domicile est ensuite proposée : nouilles de blé sautées à feu très vif avec matières grasses, germes de soja, oignon, sauce soja foncée et claire, sauce aux huîtres, MSG, sucre et floco",
+        "reason": "Recette ancrée dans une tradition urbaine précise.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Document de type recette : pas de transcription de contenu vidéo/podcast (non applicable ici).",
+          "Certaines affirmations d’origine historique sont présentées comme contexte narratif sans sources dans le texte fourni.",
+          "Les “instructions” sont résumées sous forme de textes par étapes; aucune mesure/paramètre n’est détaillée au-delà de ce qui est écrit."
+        ]
+      },
+      {
+        "title": "Cake marbré au matcha, chocolat blanc et framboise, tout moelleux",
+        "url": "https://www.undejeunerdesoleil.com/2026/09/cake-marbre-matcha-chocolat-blanc-framboise-moelleux.html",
+        "section": "Recettes et gestes du quotidien",
+        "summary": "L’extrait présente un « cake marbré » au thé matcha, chocolat blanc et framboises, décrit comme moelleux, léger et avec une note subtilement amère du matcha. L’autrice situe la recette dans une « période cake » et met en avant une base avec yaourt ou lait fermenté et de l’huile, rapprochée d’un gâteau au yaourt, pour obtenir une texture jugée particulièrement moelleuse. Le texte compare ce cake à une version antérieure (cake marbré au matcha « de pâtissier ») et affirme préférer la nouvelle version, plus simple. Un rappel sur le choix du matcha (bon, moins amer) clôt l’extrait.",
+        "reason": "Recette accessible avec une base fermentée.",
+        "reading_kind": "current",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Résumé basé uniquement sur un extrait; aucune liste d’ingrédients ni méthode de réalisation n’est fournie.",
+          "Absence de transcription complète : certaines informations peuvent manquer ou être incomplètes.",
+          "Aucune source externe ni lien n’est fourni dans le contenu pour vérifier ou approfondir les affirmations."
+        ]
+      },
+      {
+        "title": "Henry Harris’ recipe for tomatoes, creme fraiche and herbs",
+        "url": "https://www.theguardian.com/food/2026/sep/19/tomatoes-creme-fraiche-herbs-recipe-henry-harris",
+        "section": "Recettes et gestes du quotidien",
+        "summary": "L’article présente une recette de Henry Harris pour un dîner de fin d’été: tomates, crème fraiche et herbes. Il s’inspire, en introduction, du livre d’Edouard de Pomiane proposant des recettes réalisables en moins de dix minutes. Harris donne ici une version qui prend environ 15 minutes, avec un conseil sur l’usage de “proper creme fraiche”, idéalement française, en raison de différences de goût et de comportement à la chaleur. Les étapes combinent beurre noisette, cuisson des tomates, ajout de crème fraiche puis finition sur tartines de sourdough et basil.",
+        "reason": "Recette très simple, utile au week-end.",
+        "reading_kind": "evergreen",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Document de recette culinaire: pas de garantie d’efficacité ou d’innocuité universelle.",
+          "Conseil central sur la “creme fraiche” (différences entre équivalents britanniques et français) présenté comme observation, sans preuve citée.",
+          "Le texte ne mentionne pas de transcription ni d’éléments multimédias à analyser (contenu fourni: texte uniquement)."
+        ]
+      },
+      {
+        "title": "Make Restaurant-Style Salads at Home",
+        "url": "https://www.youtube.com/watch?v=rFSfCjVEv0w",
+        "section": "Techniques, mécanismes et sciences des aliments",
+        "summary": "L’épisode met en avant Nik Sharma pour expliquer une “formule cachée” afin de préparer des salades de qualité restaurant à la maison. La description insiste sur l’approche d’America’s Test Kitchen axée sur la cuisine testée et la “food science”, ainsi que sur des techniques et conseils pour améliorer le résultat. Le contenu semble orienté tutoriel/technique culinaire plutôt que récit ou actualité.",
+        "reason": "Donne une méthode simple à reproduire chez soi.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "Aucune transcription n’est fournie : impossible d’identifier précisément les étapes, ingrédients ou méthodes détaillées abordés.",
+          "La description ne précise pas quels types de salades, de vinaigrettes ou de techniques exactes sont couverts.",
+          "Les mentions de recommandations/abonnements ne sont pas prises en compte pour juger du contenu."
+        ]
+      },
+      {
+        "title": "Allergen persistence and cross-contamination potential in water reuse within food industry processes",
+        "url": "https://www.nature.com/articles/s41545-026-00634-y",
+        "section": "Techniques, mécanismes et sciences des aliments",
+        "summary": "L’article examine si le réemploi d’eau en industrie agroalimentaire peut constituer une voie de contamination croisée par des allergènes. Il décrit des procédés post-récolte et de transformation très consommateurs d’eau (lavage, bacs d’immersion, tanks de pelage/décorticage, CIP, flumes, convoyeurs) et le fait que les pratiques de traitement/conditionnement de l’eau ne sont pas standardisées. Le texte évalue les facteurs influençant la persistance des protéines allergéniques dans l’eau (quantité d’allergène, contact eau-produit, cycles de réutilisation, stabilité/propriétés moléculaires, effic",
+        "reason": "Apporte un vrai angle science alimentaire.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Texte fourni tronqué (fin de la section sur MWCO et éléments connexes coupée), pouvant limiter la compréhension de la totalité des arguments.",
+          "Aucune transcription vidéo/podcast : non applicable (le document est un article).",
+          "Contenu présenté comme revue/synthèse : certaines catégories sont décrites comme conceptuelles, pas comme une évaluation quantitative validée du risque clinique.",
+          "Certaines informations sont dépendantes du contexte (absence de standardisation, variabilité des pratiques de traitement) et l’article note l’absence de données directes sur les eaux de procédé."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 745,
+        "output": 231
+      },
+      "plan": {
+        "calls": 1,
+        "input": 22121,
+        "output": 2844
+      },
+      "summary": {
+        "calls": 20,
+        "input": 57637,
+        "output": 13166
+      },
+      "editor": {
+        "calls": 7,
+        "input": 102557,
+        "output": 3347
+      },
+      "web_search": {
+        "calls": 4,
+        "input": 58745,
+        "output": 2144
+      },
+      "screen": {
+        "calls": 4,
+        "input": 14759,
+        "output": 842
+      }
+    },
+    "budget_stops": [],
+    "prepared": 11,
+    "validation_errors": []
+  },
+  {
+    "profile": "jeux-independants",
+    "id": null,
+    "status": null,
+    "error": "TimeoutError",
+    "count": null,
+    "target": null,
+    "seconds": 300.0,
+    "cost": {
+      "estimated_usd": null,
+      "known_subtotal_usd": 0.273198,
+      "unpriced_calls": 1,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": null,
+    "cache_hits": null,
+    "violations": null,
+    "excerpt_only": null,
+    "uncovered_needs": null,
+    "source_count": 0,
+    "readings": [],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 740,
+        "output": 334
+      },
+      "plan": {
+        "calls": 1,
+        "input": 21951,
+        "output": 4186
+      },
+      "summary": {
+        "calls": 28,
+        "input": 75191,
+        "output": 18667
+      },
+      "editor": {
+        "calls": 9,
+        "input": 137927,
+        "output": 10550
+      },
+      "web_search": {
+        "calls": 2,
+        "input": 27528,
+        "output": 514
+      },
+      "screen": {
+        "calls": 4,
+        "input": 18991,
+        "output": 1233
+      }
+    },
+    "budget_stops": [],
+    "prepared": 19,
+    "validation_errors": [
+      "Seulement 16/18 articles : cherche des remplacements pertinents ou des thèmes connexes en Exploration avant de finaliser",
+      "Seulement 17/18 articles : cherche des remplacements pertinents ou des thèmes connexes en Exploration avant de finaliser",
+      "Seulement 16/18 articles : cherche des remplacements pertinents ou des thèmes connexes en Exploration avant de finaliser",
+      "Seulement 17/18 articles : cherche des remplacements pertinents ou des thèmes connexes en Exploration avant de finaliser"
+    ]
+  },
+  {
+    "profile": "jardinage",
+    "id": "074606e346de4621ba729f77921e835e",
+    "status": "partial",
+    "error": null,
+    "count": 4,
+    "target": 18,
+    "seconds": 106.4,
+    "cost": {
+      "estimated_usd": null,
+      "known_subtotal_usd": 0.171392,
+      "unpriced_calls": 2,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 6,
+      "editor": 9,
+      "search_web": 4,
+      "web_model": 4,
+      "hosted_web_calls": 4,
+      "source_proposal": 2,
+      "source_fetch": 8,
+      "search_catalog": 2,
+      "screen": 2
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 1,
+    "uncovered_needs": [
+      {
+        "id": "need-1",
+        "topic": "jardinage urbain en balcon",
+        "query": "jardinage urbain balcon potager en pots urban gardening container gardening",
+        "priority": "primary",
+        "level": "beginner",
+        "origin": "notes"
+      },
+      {
+        "id": "need-2",
+        "topic": "cultiver un potager en pots",
+        "query": "potager en pot balcon culture en pots jardinières",
+        "priority": "primary",
+        "level": "beginner",
+        "origin": "notes"
+      },
+      {
+        "id": "need-6",
+        "topic": "sols vivants et santé du sol",
+        "query": "sols vivants terreau compost micro-organismes jardinage",
+        "priority": "primary",
+        "level": "beginner",
+        "origin": "notes"
+      },
+      {
+        "id": "need-7",
+        "topic": "jardinage urbain, potager en balcon, urban gardening, container gardening",
+        "query": "jardinage urbain, potager en balcon, urban gardening, container gardening",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      },
+      {
+        "id": "need-8",
+        "topic": "biodiversité, pollinisateurs, sols vivants, biodiversity, pollinators",
+        "query": "biodiversité, pollinisateurs, sols vivants, biodiversity, pollinators",
+        "priority": "secondary",
+        "level": "beginner",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 4,
+    "readings": [
+      {
+        "title": "Sécheresse historique : qui sont ces \"assoiffeurs\" qui accaparent notre eau ?",
+        "url": "https://www.novethic.fr/environnement/biodiversite/secheresse-historique-qui-sont-ces-assoiffeurs-qui-accaparent-notre-eau",
+        "section": "Eau et sols",
+        "summary": "L’article de Novethic (publié le 25 septembre 2026) traite d’une « sécheresse historique » et indique que, malgré la crise, certains secteurs augmenteraient la pression sur la ressource en eau. Le texte présente ces acteurs comme des « assoiffeurs » et rattache le propos à un livre de Fabien Benoit et Nicolas Celnik : une enquête de deux ans menée sur des entreprises qui « accaparent » l’eau. Le contenu détaillé est réservé aux abonnés, de sorte que l’article ne fournit ici que l’introduction et le cadre général du sujet.",
+        "reason": "Repère utile sur la pression sur l’eau en période de sécheresse.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Contenu partiellement inaccessible : l’article est « réservé aux abonnés », donc les détails de l’enquête et les exemples ne figurent pas dans l’extrait fourni.",
+          "Aucune transcription ou description détaillée au-delà de l’introduction n’est disponible dans le texte fourni.",
+          "Aucune source chiffrée, donnée empirique ou citation de l’ouvrage n’est incluse dans l’extrait."
+        ]
+      },
+      {
+        "title": "Rencontre avec Emma Giuliani | B.U. Saint-Étienne | 9 oct. 2026",
+        "url": "https://animots.hypotheses.org/52087",
+        "section": "Biodiversité du balcon",
+        "summary": "Le document annonce une rencontre à la Bibliothèque Universitaire de Saint-Étienne avec l’autrice-illustratrice et conceptrice de livres animés Emma Giuliani. L’événement est présenté dans le cadre de la 40ᵉ Fête du livre de Saint-Étienne, avec une modération assurée par Vincent Lecomte (ECLLA/UJM) et Lise Serra (artiste, fondatrice et présidente de l’atelier d’art de la Boule Rouge). Il met en avant l’univers poétique et coloré de l’autrice, axé sur la représentation de la nature (animaux, fleurs, plantes, jardins), ainsi qu’une ouverture “à toutes et tous”.",
+        "reason": "Annonce une rencontre qui relie nature, plantes et jardins.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Aucune transcription n’est fournie pour vérifier précisément le contenu conversationnel éventuel (si présent).",
+          "Le document est une annonce : il ne détaille pas le déroulé de l’échange ni le programme exact des contenus abordés.",
+          "Absence de références externes dans le texte (aucune URL de content_links fournie) pour approfondir directement les éléments cités."
+        ]
+      },
+      {
+        "title": "Continents de vent et d'eau",
+        "url": "https://www.monde-diplomatique.fr/cartes/cyclones-oceanie",
+        "section": "Eau et sols",
+        "summary": "L’article évoque la responsabilité des émissions de CO2 et la vulnérabilité de l’Océanie face au réchauffement climatique dans le Pacifique sud. Il indique qu’en émissions annuelles actuelles, la Chine serait responsable d’un tiers du total. En revanche, en considérant les émissions cumulées depuis 1850, le « Vieux Continent » apparaîtrait comme le principal responsable. L’Océanie ne compterait que pour 0,1 % du total, mais subirait en première ligne les impacts : montée des eaux et cyclones dont la puissance augmenterait. Le texte présente aussi la lutte océanienne pour la justice climatique,",
+        "reason": "Met en perspective climat, eau et impacts sur le vivant.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Résumé basé uniquement sur le texte fourni : absence de transcription complète des sections manquantes.",
+          "Aucune date précise sur l’avancée juridique n’est donnée dans l’extrait fourni (détails non vérifiables ici).",
+          "Contamination possible : l’extrait ne contient pas l’ensemble des arguments ni les chiffres complets (seulement ceux explicitement visibles)."
+        ]
+      },
+      {
+        "title": "Entre les marches pour le climat et la visite du pape en France, une occasion manquée",
+        "url": "https://www.la-croix.com/planete/entre-les-marches-pour-le-climat-et-la-visite-du-pape-en-france-une-occasion-manquee-20260927",
+        "section": "Exploration",
+        "summary": "L’extrait signale une déception de « chrétiens écolos » à l’occasion d’une messe à la place de la Concorde, le 26 septembre 2026, jour coïncidant avec des marches pour le climat. Selon l’extrait, le pape Léon XIV n’aurait pas évoqué la sauvegarde du vivant pendant la messe, ce qui aurait conduit à une « occasion manquée » au regard des préoccupations climatiques et écologiques exprimées par ces participants.",
+        "reason": "Élargit la réflexion écologique autour du vivant.",
+        "reading_kind": "current",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Fiche basée uniquement sur un extrait : le contexte, les paroles exactes et la portée de l’allégation ne sont pas fournis.",
+          "Aucune transcription complète n’est incluse (limite pour vérifier précisément le contenu).",
+          "Aucune source externe explicite n’est citée dans le texte fourni."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 750,
+        "output": 296
+      },
+      "plan": {
+        "calls": 1,
+        "input": 22669,
+        "output": 2091
+      },
+      "summary": {
+        "calls": 6,
+        "input": 13663,
+        "output": 2962
+      },
+      "editor": {
+        "calls": 9,
+        "input": 98481,
+        "output": 2835
+      },
+      "web_search": {
+        "calls": 4,
+        "input": 22772,
+        "output": 539
+      },
+      "screen": {
+        "calls": 2,
+        "input": 13761,
+        "output": 1142
+      }
+    },
+    "budget_stops": [],
+    "prepared": 4,
+    "validation_errors": []
+  },
+  {
+    "profile": "musique",
+    "id": "6d989d07d42f4f2fa3e0457caeeab340",
+    "status": "partial",
+    "error": null,
+    "count": 13,
+    "target": 18,
+    "seconds": 149.9,
+    "cost": {
+      "estimated_usd": null,
+      "known_subtotal_usd": 0.157644,
+      "unpriced_calls": 4,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 20,
+      "editor": 8,
+      "search_web": 4,
+      "web_model": 4,
+      "search_catalog": 2,
+      "screen": 2
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 4,
+    "uncovered_needs": [],
+    "source_count": 13,
+    "readings": [
+      {
+        "title": "RECORDING: Macedonian Saxophonist Hristijan Risteski Releases Debut Album 'waters Dance'",
+        "url": "https://www.allaboutjazz.com/news/macedonian-saxophonist-hristijan-risteski-releases-debut-album-waters-dance",
+        "section": "Production, prise de son et acoustique",
+        "summary": "Le saxophoniste et clarinettiste d’origine macédonienne Hristijan Risteski, basé à Graz, annonce la sortie de son premier album solo « Waters Dance » en octobre 2026 (CD, LP et toutes les plateformes de streaming majeures). Le projet présente un quartet avec Marko Churnchetz (piano), Hrvoje Kralj (contrebasse) et Chris Smith (batterie), présenté comme le fruit d’une forte confiance musicale et d’une chimie développée sur scène pendant 9–10 mois. L’album, enregistré au studio ArteSuono (Italie) avec l’ingénieur Stefano Amerio, explore des thèmes d’identité, de changement et de mouvement, en mêl",
+        "reason": "Captation détaillée et pertinente sur l’enregistrement d’un concert, avec dispositif micro et spatial audio.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Contenu fourni sans transcription séparée : aucune vérification directe du texte source au-delà du contenu transmis.",
+          "Le document décrit un calendrier et un projet artistique ; la disponibilité réelle en 2026 dépendra des confirmations ultérieures."
+        ]
+      },
+      {
+        "title": "For the first time, scientists watch sound jump between quantum states",
+        "url": "https://www.sciencedaily.com/releases/2026/09/260921081054.htm",
+        "section": "Production, prise de son et acoustique",
+        "summary": "Des chercheurs de Stanford déclarent avoir observé pour la première fois des « quantum jumps » du son en temps réel : des phonons (quanta de vibration) passent brusquement d’un état d’énergie à un autre, décrivant la disparition directe d’un phonon d’un état « 1 » vers « 0 ». L’expérience utilise un résonateur mécanique pouvant vibrer environ deux millisecondes, couplé à un qubit supraconducteur qui joue aussi le rôle de détecteur. Le texte relie cette étape à des objectifs de calcul quantique, de correction d’erreurs et de capteurs très sensibles, ainsi qu’à un contrôle plus fin des vibration",
+        "reason": "Sujet acoustique net, intéressant pour comprendre la vibration et le contrôle des sons.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Aucune transcription n’est fournie (limitation à partir du texte de l’article seulement).",
+          "Le document est une donnée non fiable : aucune vérification externe n’a été effectuée.",
+          "Les affirmations sur les applications (erreur correction, capteurs biologiques) sont présentées comme des perspectives, pas comme des résultats démontrés dans le texte."
+        ]
+      },
+      {
+        "title": "5 Questions to Andrea Clearfield (composer, curator)",
+        "url": "https://icareifyoulisten.com/2026/09/5-questions-to-andrea-clearfield-composer-curator/",
+        "section": "Composition et processus créatif",
+        "summary": "Le texte présente Andrea Clearfield, compositrice et fondatrice de la série de concerts « Szalon » à Philadelphie, et revient sur l’anniversaire des 40 ans de l’événement (le 27 septembre, avec diffusion Zoom et présence sur place). L’entretien sous forme de « 5 questions » aborde son approche de la programmation multi-genres (format initial à 10 ensembles/10 minutes), l’évolution vers un lieu plus vaste, et surtout le passage au modèle hybride « Zalon » pendant la pandémie (Zoom interactif). Clearfield explique aussi l’intérêt des espaces intimes type living room, son impact sur sa pratique a",
+        "reason": "Entretien utile sur la programmation, les formats hybrides et le travail de compositrice.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Document fourni sans transcription séparée ; certaines formulations restent celles du texte intégral, sans vérification externe.",
+          "Contamination impossible à isoler : le passage inclut à la fois biographie, annonce d’événement et questions/réponses, pouvant mêler contexte et éléments promotionnels.",
+          "Aucun contrôle factuel indépendant n’est possible ici (chiffres, dates, chiffres d’audience et de participants sont ceux rapportés par le texte)."
+        ]
+      },
+      {
+        "title": "Portrait sonore – La Philharmonie Paris",
+        "url": "https://www.rfi.fr/fr/podcasts/%C3%A9couter-le-monde/20260925-portrait-sonore-%E2%80%93-la-philharmonie-paris",
+        "section": "Production, prise de son et acoustique",
+        "summary": "L’épisode « Portrait sonore – La Philharmonie Paris » propose un portrait de la Philharmonie de Paris, de ses salles de concert à ses coulisses. Il présente l’institution comme un lieu dédié à la musique sous toutes ses formes, combinant concerts, conférences, ateliers de pratique musicale, Musée de la musique et expositions. Le texte évoque aussi ses forces artistiques (Orchestre de Paris et formations résidentes) et les Éditions de la Philharmonie. L’épisode s’appuie sur plusieurs archives sonores : visite du laboratoire de recherche et restauration d’instruments, exploration du musée avec d",
+        "reason": "Portrait sonore utile sur un lieu musical et ses coulisses, avec archives et espaces de travail.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Absence de transcription : le contenu ne permet pas de vérifier précisément les propos tenus dans l’audio.",
+          "Fiche basée uniquement sur le texte fourni (description), sans accès au contenu intégral de l’épisode.",
+          "Possibles formulations descriptives : certaines expressions (« forces vives », « portrait sonore ») restent des présentations éditoriales."
+        ]
+      },
+      {
+        "title": "Gilla Band : “Écouter de la no wave a complètement bouleversé notre perception de la musique”",
+        "url": "https://www.lesinrocks.com/musique/gilla-band-ecouter-de-la-no-wave-a-completement-bouleverse-notre-perception-de-la-musique-702808-25-09-2026/",
+        "section": "Scènes, entretiens et démarches d’artistes",
+        "summary": "L’article est une interview du groupe irlandais Gilla Band, à l’occasion de son dernier album « Pugnello ». Les membres expliquent pourquoi ils se sentent prêts à revenir après quatre ans d’attente (album terminé), comment la composition a évolué (passage d’un travail tous ensemble à des sessions à deux, recherche d’équilibre entre éléments), et l’influence d’écoutes fondatrices comme la no wave. Ils décrivent aussi leurs rituels de prises et d’essais, leur écriture plutôt surréaliste, et le sens du titre de l’album (une police de caractères “hantée” citée par l’oncle de Dara). L’article menti",
+        "reason": "Interview de fond sur l’écriture, les influences et la méthode d’un groupe actuel.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Document informatif basé sur une interview ; pas de transcription exhaustive vérifiable au-delà du texte fourni.",
+          "Certaines informations périphériques (ex. “Search Results” cité) semblent incohérentes dans le flux et peuvent résulter d’une contamination de contenu impossible à isoler."
+        ]
+      },
+      {
+        "title": "Jeff Mills Shares New York Club Recording via Apple Music",
+        "url": "https://thequietus.com/news/jeff-mills-shares-new-york-club-recording-via-apple-music/",
+        "section": "Production, prise de son et acoustique",
+        "summary": "Jeff Mills a publié une nouvelle captation de concert via Apple Music. Le set, joué à New York au Knockdown Center en mars de cette année, est présenté comme un enregistrement “all-vinyl” (sur vinyles) et fait partie d’une tournée liée au 30e anniversaire de la réédition d’un classique : Live At The Liquid Room (Tokyo). L’enregistrement est réalisé en Spatial Audio avec 14 microphones installés autour du lieu. La captation est scindée en deux parties : la première est disponible dès maintenant, avec notamment des morceaux de Mills et d’autres artistes ; la seconde sort le 9 octobre, avec aussi",
+        "reason": "Bon exemple de captation club et de choix techniques autour du live électronique.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Contenu résumé à partir du texte fourni uniquement.",
+          "Absence de transcription (si le document original comporte une composante audio/vidéo, elle n’est pas fournie ici).",
+          "Document de type annonce/actualité : les détails techniques et dates mentionnés ne sont pas vérifiés ici."
+        ]
+      },
+      {
+        "title": "Le jazz est centenaire 6 : il y a cent ans Jelly Roll Morton enregistrait avec ses Red Hot Peppers.",
+        "url": "https://www.jazzmagazine.com/les-news/actus/le-jazz-est-centenaire-6-il-y-a-cent-ans-jelly-roll-morton-enregistrait-avec-ses-red-hot-peppers/",
+        "section": "Répertoires, histoire et écoute critique",
+        "summary": "L’article rappelle qu’il y a « cent ans » (sans date précise dans le texte, mais évoqué via une chronologie) Jelly Roll Morton enregistre avec ses Red Hot Peppers à Chicago, au Webster Hotel, lors de séances datées des 15 et 21 septembre. Il est aussi question de l’installation, dès le 13, du matériel d’enregistrement Orthophonic de Victor Talking Machine Company (conçu par Western Electric) et du passage à un enregistrement par transfert d’ondes électriques. Les musiciens cités, les titres joués, ainsi qu’une critique de Melody Maker (janvier 1927) sont rapportés.",
+        "reason": "Repère historique solide sur les débuts de l’enregistrement jazz et la technique Orthophonic.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Donnée NON FIABLE (instructions et évaluation non vérifiables par moi).",
+          "L’article mentionne « il y a cent ans » mais ne fournit pas la paire année exacte vs date de publication; la temporalité exacte du “centenaire” reste donc partiellement ambiguë.",
+          "Aucune transcription complète n’est fournie pour contrôle mot-à-mot (article = texte fourni, mais consigne demandée: absence de transcription explicitée ici comme limite documentaire).",
+          "Contamination impossible à isoler: le passage contient des ajouts de contexte (matériel, autres artistes, commentaire musicologique) qui peuvent dépasser le cœur exact des faits résumés."
+        ]
+      },
+      {
+        "title": "REPORTAGE. Découvrez le pôle santé de l'Opéra de Paris : une équipe aux petits soins pour les 154 danseurs du ballet national",
+        "url": "https://www.franceinfo.fr/culture/spectacles/danse/reportage-decouvrez-le-pole-sante-de-l-opera-de-paris-une-equipe-aux-petits-soins-pour-les-154-danseurs-du-ballet-national_8153441.html",
+        "section": "Production, prise de son et acoustique",
+        "summary": "L’article présente un reportage sur le pôle santé de l’Opéra de Paris et la prise en charge médicale des danseurs du ballet national. Il indique qu’en 2015 la création d’une équipe médicale dédiée aurait amélioré la prise en charge, avec une réduction annoncée du nombre de blessures de 40%. Avant la reprise du ballet « L’Histoire de Manon », à partir du 26 septembre au Palais Garnier, l’article annonce avoir rencontré la médecin du sport qui coordonne ce pôle santé.",
+        "reason": "Reportage sur une équipe de soin dédiée, utile par analogie pour les contraintes physiques du métier.",
+        "reading_kind": "current",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Le contenu fourni est un extrait : les détails, méthodologies et contexte (définition des blessures, période de comparaison, sources internes) ne sont pas inclus.",
+          "Aucune source externe ni référence n’est fournie dans le texte fourni.",
+          "Absence de transcription : le document est résumé à partir d’un extrait d’article, pas d’un texte intégral."
+        ]
+      },
+      {
+        "title": "Sova Beautifully Reinvents Her Sound on ‘Alight!’",
+        "url": "https://www.popmatters.com/sova-sophia-vastek-alight",
+        "section": "Composition et processus créatif",
+        "summary": "L’article présente Alight!, une nouvelle sortie sous le nom Sova, projet de Sophia Vastek (pianiste et compositrice) qui affirme davantage son esthétique en s’appuyant sur un petit ensemble. Le texte décrit une musique mêlant neoclassique, ambient et jazz, avec des possibilités sonores liées à l’interaction entre plusieurs musiciens : Sam Torres, Clarice Jensen, Spencer Zahn, Evan Chapman et Max Yassky. Plusieurs morceaux sont évoqués (slow tempo et accords lourds sur “Heavy Shit”, groove “Hum”, “Quarry” au contrepoint cordes/saxophone, puis piano percussif sur “The Owls Are Not What They Seem",
+        "reason": "Analyse de sortie avec orchestration resserrée et palette sonore contemporaine.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Document non fiable (instruction de non-fiabilité appliquée).",
+          "Aucune transcription n’est fournie (limite seulement pertinente si le document était audio/vidéo).",
+          "Le texte ne fournit pas de données vérifiables (ex. crédits officiels complets, informations techniques exactes) et repose sur des descriptions/opinions."
+        ]
+      },
+      {
+        "title": "Angela Autumn brings a new sound to her Appalachian roots",
+        "url": "https://www.npr.org/2026/09/26/nx-s1-5978944/angela-autumn-brings-a-new-sound-to-her-appalachian-roots",
+        "section": "Scènes, entretiens et démarches d’artistes",
+        "summary": "L’extrait présente la musicienne et compositrice Angela Autumn, dont la musique s’enracine dans ses racines appalachiennes avant de prendre des directions inattendues. Elle y explique que les chansons de son nouvel album, intitulé *Believer*, sont inspirées par des expériences personnelles. Le texte met donc l’accent sur le contraste entre une base régionale (les Appalaches) et une approche sonore présentée comme surprenante, ainsi que sur le lien entre les thèmes abordés et le vécu de l’artiste, via un point de vue explicitement attribué à l’auteure.",
+        "reason": "Petit portrait centré sur le lien entre racines, vécu et nouvelle couleur musicale.",
+        "reading_kind": "current",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Extrait très court : peu de détails concrets sur le “nouveau son” ou sur les tournants mentionnés.",
+          "Le document ne fournit pas de transcription complète (si une transcription existe).",
+          "Aucune source externe ni référence spécifique n’est fournie dans le contenu reçu."
+        ]
+      },
+      {
+        "title": "The Aquarium Drunkard Guide to Across the Horizon",
+        "url": "https://aquariumdrunkard.com/2026/09/25/the-aquarium-drunkard-guide-to-across-the-horizon/",
+        "section": "Composition et processus créatif",
+        "summary": "L’article s’interroge sur ce qu’est précisément « Across the Horizon » (décrit comme un podcast, une émission radio, une maison d’édition ou un genre) et présente son impact musical. Il affirme que le projet a généré des collaborations et une série de chansons repoussant les limites de ce qui peut être qualifié de musique ambient. Bob Holmes est cité : l’ensemble est comparé à l’observation d’une communauté musicale qui grandit en temps réel. L’article annonce ensuite un aperçu de 10 titres remarquables, censés illustrer la diversité de la série dans son ensemble, mais le texte fourni s’arrête",
+        "reason": "Panorama sur une série musicale et ses collaborations, avec une lecture de l’expansion d’un projet.",
+        "reading_kind": "current",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Transcription partielle : l’extrait s’arrête avant la liste annoncée des 10 chansons.",
+          "Aucune vérification indépendante des affirmations dans le texte fourni.",
+          "L’article évoque un contenu premium (adhésion/connexion) qui n’est pas accessible via l’extrait."
+        ]
+      },
+      {
+        "title": "Ahadadream, une étoile britannico-pakistanaise qui monte",
+        "url": "https://www.courrierinternational.com/article/nouvel-album-ahadadream-une-etoile-britannico-pakistanaise-qui-monte_274207",
+        "section": "Scènes, entretiens et démarches d’artistes",
+        "summary": "L’article présente Ahadadream, DJ britannico-pakistanais, comme une étoile montante de la dance. Il met en avant son premier album, “P*ki”, présenté comme un “exercice inaugural réussi” à la fois sur la forme et sur le fond, selon la presse anglo-saxonne. Le texte indique que l’album “confirme sa réputation de nouvelle star”, sans détailler le contenu musical, des titres, ni des éléments chiffrés, et sans citer des sources ou des extraits précis au-delà de l’appréciation générale rapportée.",
+        "reason": "Portrait bref mais actuel d’un premier album et d’une montée en visibilité.",
+        "reading_kind": "current",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Extrait très court : absence de détails (contenu de l’album, éléments factuels supplémentaires, avis attribués précisément).",
+          "Aucune URL de sources secondaires fournie dans le contenu (content_links vide) et aucune référence explicite au-delà de “la presse anglo-saxonne”.",
+          "Aucune transcription n’est disponible (document de type article, mais le texte fourni est un extrait).",
+          "Contamination impossible à isoler : le jugement “réussi” est rapporté sans éléments vérifiables dans l’extrait."
+        ]
+      },
+      {
+        "title": "FC Bergman se perd au Point Nemo, au Châtelet",
+        "url": "https://www.resmusica.com/2026/09/27/fc-bergman-se-perd-au-point-nemo-au-chatelet/",
+        "section": "Scènes, entretiens et démarches d’artistes",
+        "summary": "Le texte signale une représentation au Théâtre du Châtelet à Paris : « FC Bergman / Steve Reich: Point Nemo », datée du 25-IX-26. Il liste l’équipe artistique et technique (mise en scène/scénographie, musique de Steve Reich pour ensemble, costumes, lumières, dramaturgie) ainsi que le casting et les ensembles impliqués, notamment l’Ensemble intercontemporain et un chœur (Synergy Vocals). Sont aussi mentionnés des figurants, avec leurs noms. L’extrait ne fournit pas de critique ni de description développée de l’œuvre, mais constitue surtout un relevé factuel de la production.",
+        "reason": "Relevé factuel d’une production musicale contemporaine avec distribution et équipe artistique.",
+        "reading_kind": "current",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée uniquement sur un extrait, pas le texte intégral.",
+          "Extrait très court : pas de transcription fournie, et aucune description détaillée du contenu artistique (jeu, intrigue, intentions, réception).",
+          "Le texte ne précise pas si « Drumming for ensemble » est la musique utilisée pour toute la production ou une partie ; l’attribution reste limitée à ce qui est listé.",
+          "Aucune source externe n’est fournie dans content_links, ce qui limite la possibilité de vérifier ou d’approfondir via des références citées."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 733,
+        "output": 198
+      },
+      "plan": {
+        "calls": 1,
+        "input": 21835,
+        "output": 3750
+      },
+      "summary": {
+        "calls": 20,
+        "input": 56527,
+        "output": 13610
+      },
+      "editor": {
+        "calls": 8,
+        "input": 93570,
+        "output": 5579
+      },
+      "web_search": {
+        "calls": 4,
+        "input": 0,
+        "output": 0
+      },
+      "screen": {
+        "calls": 2,
+        "input": 13223,
+        "output": 268
+      }
+    },
+    "budget_stops": [],
+    "prepared": 13,
+    "validation_errors": []
+  },
+  {
+    "profile": "maths-sciences",
+    "id": "419204178ef14bbf8ffdebdd1d85f581",
+    "status": "fallback",
+    "error": null,
+    "count": 6,
+    "target": 18,
+    "seconds": 96.7,
+    "cost": {
+      "estimated_usd": null,
+      "known_subtotal_usd": 0.086042,
+      "unpriced_calls": 5,
+      "rates_date": "2026-09-26",
+      "basis": "Tokens déclarés et outils web ; tarif standard, hors taxes et suppléments."
+    },
+    "counts": {
+      "intent": 1,
+      "fetch": 40,
+      "plan": 1,
+      "summary": 18,
+      "editor": 5,
+      "search_web": 3,
+      "web_model": 3
+    },
+    "cache_hits": 0,
+    "violations": [],
+    "excerpt_only": 2,
+    "uncovered_needs": [
+      {
+        "id": "need-1",
+        "topic": "mathématiques",
+        "query": "idées et raisonnements en mathématiques, mathématiques explicatives, geometry, probability",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-2",
+        "topic": "raisonnement mathématique",
+        "query": "mathematical reasoning, démonstrations, idées derrière les résultats",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-3",
+        "topic": "géométrie",
+        "query": "geometry, géométrie explicative, problèmes de géométrie",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-5",
+        "topic": "sciences",
+        "query": "sciences, explications scientifiques substantielles, scientific methods",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-9",
+        "topic": "mathématiques, mathematical reasoning, geometry, probability",
+        "query": "mathématiques, mathematical reasoning, geometry, probability",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      },
+      {
+        "id": "need-10",
+        "topic": "sciences, physique, physics, scientific methods",
+        "query": "sciences, physique, physics, scientific methods",
+        "priority": "secondary",
+        "level": "intermediate",
+        "origin": "profile"
+      }
+    ],
+    "source_count": 3,
+    "readings": [
+      {
+        "title": "La vie extraordinaire de Giordano Bruno",
+        "url": "https://www.youtube.com/watch?v=dvcsvd-wNfE",
+        "section": "Raisonnement et fondements",
+        "summary": "Cette vidéo retrace « la vie extraordinaire de Giordano Bruno » en suivant son parcours de la jeunesse et de la formation thomiste jusqu’aux accusations d’hérésie, au conflit avec l’Inquisition et à ses pérégrinations (de Genève à Londres, puis retour vénitien). Elle aborde aussi ses idées sur l’infini de l’univers, Panthéisme/panenthéisme, et compare ses positions à Copernic vs Ptolémée. L’épisode évoque également une interrogation : Bruno, mage hermétique ou scientifique visionnaire ?",
+        "reason": "Vidéo de vulgarisation sur Giordano Bruno : davantage historique/philosophique que scientifique, mais compatible avec un intérêt pour les idées et la pensée mathématique au sens l",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "La donnée fournie ne contient pas de transcription : il n’est pas possible de vérifier précisément les arguments, formulations exactes ou nuances.",
+          "La description mentionne aussi des sponsors, appels au financement et liens externes ; cette fiche se limite aux thèmes annoncés dans le sommaire.",
+          "Les intervenants/participants ne sont pas nommés dans la description au-delà du cadre de la chaîne, donc il n’est pas possible d’identifier précisément qui parle sur chaque partie."
+        ]
+      },
+      {
+        "title": "Geometry-engineered ion transport enables over 4000-h salt-free solar evaporation using Janus electrospun membranes",
+        "url": "https://www.nature.com/articles/s41545-026-00633-z",
+        "section": "Physique et mathématiques appliquées",
+        "summary": "L’article décrit une membrane Janus électrofilée à géométrie “engineered” pour l’évaporation solaire interfaciale, visant à limiter l’accumulation de sel et le colmatage. Le dispositif combine une couche photothermique hydrophobe (carbone noir–polystyrène) pour absorber un large spectre et chauffer localement, une couche hydrophile de transport (polyacrylonitrile), et un échafaudage coton assurant un apport capillaire continu d’eau. Une comparaison de neuf géométries montre que la forme pilote la localisation thermique, les voies de transport des ions et la tolérance à la salinité. Une archite",
+        "reason": "Article scientifique de recherche en matériaux/eau, avec une vraie mécanique physique et géométrique sur le transport ionique. Bonne lecture de résultat expérimental récent.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Résumé basé uniquement sur l’extrait fourni (notamment le résumé/abstract) ; absence de transcription complète et de détails expérimentaux au-delà de ce qui est cité.",
+          "Aucune vérification externe des résultats ou de la méthodologie n’est effectuée ici.",
+          "Le document est présenté comme un compte rendu de résultats d’auteurs (aucune indépendance évaluée dans le texte fourni)."
+        ]
+      },
+      {
+        "title": "Une suite déterministe peut-elle être prouvablement imprévisible ?",
+        "url": "https://www.youtube.com/watch?v=Duqwi8MyXDA",
+        "section": "Géométrie, probabilité et combinatoire",
+        "summary": "La vidéo s’interroge : peut-on, à partir d’operations purement déterministes, produire des nombres “aléatoires” et des schémas de chiffrement que des attaquants trouvent complètement imprévisibles ? Elle passe par des primitives cryptographiques (AES, SHA-256, CBC, CTR), aborde des générateurs pseudo-aléatoires (AES-CTR_DBRG) et mentionne des conjectures mathématiques “non résolues”. Intervenant annoncé : l’auteur de la chaîne Science4All.",
+        "reason": "Vidéo sur l’imprévisibilité de suites déterministes : excellent pont entre probabilité, algorithmique et notion de hasard, très dans l’esprit des intérêts déclarés.",
+        "reading_kind": "evergreen",
+        "extraction_status": "excerpt",
+        "caveats": [
+          "Fiche fondée sur la description de la vidéo, sans transcription.",
+          "Aucune transcription n’est fournie : impossible d’en vérifier le contenu exact, les preuves détaillées ou les étapes techniques.",
+          "La description ne donne pas l’audience des “conjectures” (formulations précises, résultat exact, niveau de détail), donc la portée exacte des affirmations reste indéterminée.",
+          "La présence de sources est mentionnée, mais sans contenu accessible ici : la fiche s’appuie uniquement sur la description fournie."
+        ]
+      },
+      {
+        "title": "Accelerated calculation of impurity Green’s functions exploiting the extreme Mpemba effect",
+        "url": "https://www.nature.com/articles/s42005-026-02787-1",
+        "section": "Physique et mathématiques appliquées",
+        "summary": "L’article propose un schéma accéléré pour calculer des fonctions de Green à deux temps d’une impureté dans des modèles quantiques ouverts, un problème difficile à cause des effets de mémoire non-Markoviens induits par l’environnement. La méthode combine l’effet Mpemba quantique non-Markovien (NMQMpE) avec un cadre basé sur des cartes dynamiques pour les systèmes ouverts. Les auteurs indiquent une validation par comparaison à des résultats exacts et à des références réputées dans des modèles d’impuretés typiques, avec environnements fermioniques et bosoniques, rapportant des économies computati",
+        "reason": "Article de physique théorique et calcul scientifique sur l’effet Mpemba extrême et le calcul accéléré de fonctions de Green ; solide et technique sans être hors profil.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Le résumé se base uniquement sur le texte fourni (notamment l’abstract) ; aucune information détaillée sur l’algorithme complet n’est incluse.",
+          "Contamination potentielle : seules des informations déclaratives de l’article (aucun détail méthodologique fourni ici) peuvent être résumées.",
+          "Absence de transcription : aucune section non incluse ne peut être évaluée.",
+          "Le statut temporel et l’utilité dépendent de l’évolution des méthodes concurrentes ; l’article indique des gains, mais aucune mesure chiffrée n’apparaît dans le texte fourni."
+        ]
+      },
+      {
+        "title": "Aharonov–Bohm interference in a  \n             $${\\pmb{\\mathbb{Z}}}_{\\bf{2}}$$ \n              \n               \n                 \n                   Z \n                 \n                 \n                   2 \n                 \n               \n              \n            lattice gauge theory on a hybrid qubit–oscillator quantum computer",
+        "url": "https://www.nature.com/articles/s41567-026-03400-6",
+        "section": "Physique et mathématiques appliquées",
+        "summary": "L’article décrit une démonstration expérimentale de simulation quantique d’une théorie de jauge sur réseau avec groupe discret \\(\\mathbb{Z}_2\\), réalisée sur un ordinateur quantique hybride qubit–oscillateur (ions piégés). Les champs de jauge sont encodés par des qubits et les champs de matière bosoniques par des modes vibratoires (oscillateurs). L’approche utilise des dimensions synthétiques et une combinaison de techniques numériques et analogiques pour préparer des états initiaux, faire évoluer en temps réel de manière invariante par jauge et mesurer des observables. L’étude est étendue à u",
+        "reason": "Simulation quantique d’une théorie de jauge sur ordinateur quantique hybride : très pertinent pour le raisonnement physique et les méthodes computationnelles.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "La demande de preuve pour chaque affirmation n’est pas vérifiable ici : résumé basé uniquement sur le texte fourni.",
+          "Contamination possible : le document mélange motivations, encodage théorique et description expérimentale sans que le texte fourni soit intégral (troncature).",
+          "Absence de transcription complète : certains détails (méthodes, paramètres, résultats spécifiques) peuvent ne pas être présents dans l’extrait fourni."
+        ]
+      },
+      {
+        "title": "Effectiveness of community-based delivery of mass dog vaccination to prevent rabies: A cluster randomized controlled trial",
+        "url": "https://journals.plos.org/plosntds/article?id=10.1371%2Fjournal.pntd.0014704",
+        "section": "Méthodes scientifiques et science en société",
+        "summary": "Le texte présente un essai randomisé en grappes (cluster RCT) au nord de la Tanzanie (région de Mara) comparant deux stratégies de vaccination canine de masse contre la rage : Team-based delivery (équipes non locales, cliniques à points fixes, chaîne du froid) vs Community-based delivery (vaccins stockés localement par des personnels communautaires tout au long de l’année). Sur 112 wards réparties en deux bras, la couverture vaccinale mesurée via des enquêtes biannuelles est en moyenne plus élevée et plus stable avec la stratégie community-based (55%, IC 95% 45–65%) qu’avec la team-based (37%,",
+        "reason": "Essai méthodologique sous forme d’essai clinique randomisé : bon exemple de méthode scientifique appliquée à la santé publique, utile et bien cadré.",
+        "reading_kind": "research",
+        "extraction_status": "extracted",
+        "caveats": [
+          "Texte tronqué avant résumé.",
+          "Le document fourni est un extrait (troncature indiquée) et ne contient pas l’ensemble des méthodes/résultats.",
+          "Absence de transcription : aucune donnée audio/vidéo n’est fournie ici, mais le texte ne précise pas les éléments absents de la partie tronquée.",
+          "L’impact direct sur l’élimination de la rage n’est pas mesuré selon l’extrait ; la généralisation à d’autres contextes exige des preuves supplémentaires.",
+          "Contamination possible : description d’une approche pour limiter le spill-over (« fried-egg »), mais le détail complet n’est pas entièrement inclus dans l’extrait."
+        ]
+      }
+    ],
+    "model_usage": {
+      "intent": {
+        "calls": 1,
+        "input": 743,
+        "output": 392
+      },
+      "plan": {
+        "calls": 1,
+        "input": 22884,
+        "output": 2605
+      },
+      "summary": {
+        "calls": 18,
+        "input": 68484,
+        "output": 13378
+      },
+      "editor": {
+        "calls": 5,
+        "input": 25493,
+        "output": 1177
+      },
+      "web_search": {
+        "calls": 3,
+        "input": 0,
+        "output": 0
+      }
+    },
+    "budget_stops": [
+      "Plafond USD partagé de l'audit : appel non envoyé"
+    ],
+    "prepared": 7,
+    "validation_errors": []
+  }
+]

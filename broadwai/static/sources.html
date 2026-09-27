@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Nos sources · Kiosque</title>
+  <link rel="stylesheet" href="/admin/assets/source-directory.css">
+  <script src="/admin/assets/source-directory-data.js" defer></script>
+  <script src="/admin/assets/source-directory.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#results">Aller aux sources</a>
+  <header class="top"><a class="brand" href="/reader/">Kiosque<span>.</span></a><nav aria-label="Navigation"><a href="/reader/">Le journal</a><a href="/admin">Administration</a></nav></header>
+  <main>
+    <section class="hero"><div><p class="eyebrow">LA BIBLIOTHÈQUE ÉDITORIALE</p><h1>Remonter<br><em>à la source.</em></h1><p class="intro">Des rédactions, des chercheurs et des voix à découvrir.<br>Voyez ce qui nourrit votre journal, et pourquoi.</p></div><aside><p class="hero-note">La curiosité mérite<br>de bonnes références.</p><p class="muted">Français & anglais · 20 sujets<br><span id="updated"></span></p></aside></section>
+    <section class="stats" aria-label="Le catalogue"><div><strong id="total">—</strong><span>sources importées</span></div><div><strong id="publishers">—</strong><span>domaines éditeurs</span></div><div><strong id="videos">—</strong><span>chaînes YouTube choisies</span></div><div><strong id="podcasts">—</strong><span>émissions de podcasts</span></div></section>
+    <p id="live-status" class="snapshot" role="status"></p>
+    <div class="formats" role="group" aria-label="Formats"><button data-format="all" aria-pressed="true">Toutes les sources</button><button data-format="youtube" aria-pressed="false">Chaînes YouTube <span>↗</span></button><button data-format="podcast" aria-pressed="false">Podcasts <span>◉</span></button><button data-format="article" aria-pressed="false">Presse, recherche & blogs</button></div>
+    <section id="format-note" class="format-note" hidden></section>
+    <form class="filters" id="filters" role="search"><label class="search"><span>Rechercher dans l’annuaire</span><input id="query" type="search" placeholder="Un média, un auteur, un sujet…" autocomplete="off"></label><label>Sujet<select id="topic"><option value="">Tous les sujets</option></select></label><label>Langue<select id="language"><option value="">Français & anglais</option><option value="fr">Français</option><option value="en">Anglais</option></select></label><label>Catalogue<select id="status"><option value="imported">Sources importées</option><option value="selected">Sélection vérifiée</option><option value="all">Tous les candidats</option><option value="excluded">Sources écartées</option></select></label><label>Éditeur<select id="publisher"><option value="">Tous les éditeurs</option></select></label><button type="button" id="reset" class="quiet">Réinitialiser</button></form>
+    <div class="results-heading"><p id="result-count" aria-live="polite"></p><div><label class="view-label">Vue <select id="view"><option value="cards">Cartes</option><option value="table">Tableau</option></select></label><button type="button" id="download">Exporter la vue (CSV) ↓</button></div></div>
+    <section id="results" tabindex="-1" aria-label="Sources du catalogue"></section>
+    <nav class="pagination" aria-label="Pages de résultats"><button id="previous" type="button">← Précédent</button><span id="page-info"></span><button id="next" type="button">Suivant →</button></nav>
+    <details class="method"><summary>Comment ces sources ont-elles été choisies ?</summary><p>La sélection privilégie les institutions compétentes, les rédactions identifiées et l’expertise des auteurs. Les flux sont testés avec le collecteur du site ; les échecs, doublons et sources anciennes sont écartés de l’import. Une vérification technique ne certifie pas chaque publication.</p><p>Une « source » est un flux, une rubrique, une émission ou une chaîne. Un éditeur peut en proposer plusieurs : le compteur de domaines permet de distinguer volume et diversité. La recherche évaluée, les prépublications, les opinions et les publications d’entreprises sont identifiées dans les fiches.</p><p>La provenance et les raisons de sélection sont consultables pour chaque source. Les contenus restent chez leurs éditeurs ; certains articles nécessitent un abonnement.</p></details>
+  </main>
+  <footer><a class="brand" href="/reader/">Kiosque<span>.</span></a><p>Les idées ont une origine. Prenez le temps de la connaître.</p></footer>
+  <dialog id="detail" aria-labelledby="detail-title"><button class="close" aria-label="Fermer la fiche">×</button><div id="detail-content"></div></dialog>
+</body>
+</html>

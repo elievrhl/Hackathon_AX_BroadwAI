@@ -393,20 +393,35 @@ Routes associées : `GET/POST /v1/sources`, `PUT/DELETE /v1/sources/{id}`,
 `POST /v1/sources/collect`, `POST /v1/sources/{id}/collect`,
 `GET /v1/admin/articles` (pagination/filtres) et `GET /v1/admin/articles/{id}`.
 
-Le fichier `examples/sources.json` propose 35 flux sélectionnés : IA, développement, infrastructure,
-cybersécurité, sciences, économie et actualité générale, en français et en anglais.
-Pour ajouter ces sources et collecter jusqu'à 20 articles par nouvelle source via l'API :
+Le catalogue complet `examples/sources-all-topics.json` propose **1 019 sources vérifiées** pour les
+**20 sujets de l'inscription**, sur 508 domaines éditeurs (285 francophones et 734 anglophones).
+Chaque sujet dispose de 26 à 147 sources. La sélection associe institutions, recherche, rédactions,
+praticiens, **huit chaînes YouTube** et **six émissions Radio France**, avec leur provenance officielle.
+Une source est un flux ou une rubrique : ce chiffre ne représente pas 1 019 médias indépendants.
+
+L'[annuaire lisible](http://127.0.0.1:8010/admin/assets/sources.html), accessible depuis **Nos sources**
+dans le journal, offre recherche, filtres, cartes, tableau, fiches de provenance et export CSV.
+La copie autonome [`examples/sources.html`](examples/sources.html) fonctionne aussi hors ligne.
+
+`examples/source-catalog.json` conserve les thèmes, langues, raisons de sélection, limites d'accès
+et résultats datés des vérifications, y compris les candidats écartés. Le guide
+[`examples/SOURCES.md`](examples/SOURCES.md) donne la couverture détaillée et les commandes pour
+exporter un seul sujet ou revérifier les flux. Les anciens fichiers `sources.json` et
+`sources-economy.json` restent utilisables.
+
+Pour ajouter les sources vérifiées et collecter leurs premiers contenus via l'API :
 
 ```powershell
-uv run python -m scripts.seed_sources --collect
-# Si le serveur tourne sur un autre port :
-uv run python -m scripts.seed_sources --base-url http://127.0.0.1:8010 --collect
+uv run python -m scripts.import_source_catalog --base-url http://127.0.0.1:8010 --collect
+uv run python -m scripts.build_source_directory --base-url http://127.0.0.1:8010
 ```
 
-Le script valide les nouveaux flux avant de les enregistrer, réutilise les sources déjà présentes
-sans modifier leurs paramètres et respecte leur mise en pause. `--only-new` permet de ne traiter
-que les nouvelles sources ; `--limit 10` change la limite des nouveaux ajouts. Certains flux publient
-moins d'articles que la limite demandée. Le rapport est écrit dans `data/sources-import-report.json`.
+Le script importe uniquement les entrées actives au statut `ok`, conserve les sources déjà remplies
+et respecte leur mise en pause. Il reprend les sources enregistrées mais restées sans contenu après
+une interruption. Les ajouts de cette extension collectent jusqu'à cinq contenus par source.
+Le rapport progressif est écrit dans `data/catalog-import.jsonl`. Pour ajouter des candidats,
+exécuter d'abord `scripts.validate_source_catalog --pending-only`, puis revoir les résultats.
+L'ancien `scripts.seed_sources` reste compatible avec les listes JSON simples.
 
 `uv run python -m scripts.audit_catalog --extract-sample 6` vérifie un échantillon de textes provenant
 de domaines distincts et les conserve dans PostgreSQL. Aucun modèle n'est appelé.
