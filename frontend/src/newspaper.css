@@ -1,88 +1,105 @@
-/* Flow articles in reading order, without rows sized by the tallest neighbour. */
-.newspaper .article-flow {
-  display: block;
-  columns: 280px var(--article-columns, 3);
-  column-gap: 28px;
-  column-rule: 1px solid var(--line);
-}
-.newspaper .article-flow > .article-card {
-  display: flow-root;
-  break-inside: avoid;
-  page-break-inside: avoid;
-  padding: 18px 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-}
 .article-copy { min-width: 0; }
-
 /* A pending or rejected visual must not reserve an empty image-sized rectangle. */
-.article-visual:not(.is-loaded) {
+.newspaper .article-visual:not(.is-loaded) {
   height: 0;
   margin: 0;
   overflow: hidden;
 }
-.front-stories > .lead {
-  padding: 0 0 24px;
+
+/* Continuous columns let short sections share space with longer ones.
+   Cards stay intact; DOM, keyboard and mobile reading order stay unchanged. */
+:root .newspaper { max-width: 1640px; }
+:root .newspaper :is(.paper-header, .paper-main, .paper-footer) { margin-inline: clamp(16px, 2.5vw, 36px); }
+:root .newspaper .masthead { padding-block: 12px; }
+:root .newspaper .masthead .wordmark { font-size: clamp(2.8rem, 5vw, 3.3rem); }
+.newspaper .paper-navigation { min-height: 44px; }
+.newspaper .paper-navigation button { padding-block: 10px; }
+.newspaper .nav-topics { gap: 22px; }
+:root .newspaper .edition-intro { padding-block: 16px 12px; gap: 12px; }
+:root .newspaper .edition-intro h1 { font-size: clamp(1.5rem, 2.4vw, 2rem); line-height: 1.15; max-width: none; }
+.newspaper .edition-intro p { margin-top: 6px; }
+:root .newspaper .reader-controls { display: grid; grid-template-columns: auto 1fr; align-items: start; gap: 6px 24px; padding-bottom: 12px; margin-bottom: 16px; }
+.newspaper .reader-actions { margin: 0; }
+.newspaper .edition-management > summary { padding-block: 12px; width: fit-content; }
+.newspaper .edition-management[open] { grid-column: 1 / -1; }
+.newspaper .reader-controls > :is(.preference-impact, .reader-error, .generation-status) { grid-column: 1 / -1; }
+.newspaper .preference-impact { margin-bottom: 4px; }
+.newspaper .edition-warning { padding: 10px 12px; margin-block: 0 16px; }
+
+.newspaper :is(.edition-flow, .filtered-articles) {
+  display: block;
+  column-count: var(--content-columns, 3);
+  column-width: 290px;
+  column-gap: 28px;
+  column-rule: 1px solid var(--line);
+  padding-top: 0;
 }
-.front-stories > .lead h3 {
-  font-size: clamp(2.3rem, 4vw, 3.9rem);
-  line-height: 1.04;
-}
-.front-stories .lead .article-visual { margin: 0; }
-.front-stories .lead .article-visual img {
-  aspect-ratio: 16 / 9;
-  max-height: 360px;
-}
-.supporting-stories, .briefs-band {
-  border-top: 1px solid var(--line);
-}
-.supporting-stories .secondary h3 {
-  font-size: clamp(1.6rem, 2.4vw, 2rem);
-  line-height: 1.12;
-}
-.supporting-stories .secondary .article-visual { margin: 0; }
-.briefs-band { padding-top: 16px; }
-.briefs-band .briefs-heading {
+.newspaper .edition-flow :is(.front-grid, .secondary-column, .briefs-column, .sections-grid, .section-articles, .exploration-grid) {
+  display: block;
   padding: 0;
   margin: 0;
   border: 0;
 }
-.briefs-band .brief h3 { font-size: 1.5rem; }
-.briefs-band .brief .article-meta { font-size: .6875rem; }
-.topic-sections {
-  display: grid;
-  gap: 24px;
-  margin-top: 24px;
+.newspaper .edition-flow :is(.topic-section, .exploration-section) { margin: 0; padding: 0; border: 0; }
+.newspaper .edition-flow :is(.section-heading, .briefs-heading) {
+  break-after: avoid;
+  padding: 14px 0 4px;
+  margin: 0;
+  border: 0;
 }
-.newspaper .exploration-section {
-  padding-top: 0;
-  margin-top: 24px;
+.newspaper .edition-flow :is(.section-heading, .briefs-heading) h2 { font-size: 1.3rem; line-height: 1.15; }
+.newspaper :is(.edition-flow, .filtered-articles) .article-card {
+  break-inside: avoid;
+  display: block;
+  width: 100%;
+  max-width: none;
+  padding: 12px 0;
+  margin: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
 }
-.newspaper .filtered-articles {
-  min-height: 0;
-  padding: 8px 0 24px;
-}
+.newspaper .edition-flow .front-grid > .lead { padding: 0 0 12px; max-width: none; }
+.newspaper :is(.edition-flow, .filtered-articles) .article-card h3 { font-size: 1.5rem; line-height: 1.14; }
+.newspaper .edition-flow .lead h3 { font-size: clamp(1.9rem, 2.5vw, 2.4rem); line-height: 1.04; }
+.newspaper .edition-flow .brief h3 { font-size: 1.35rem; }
+.newspaper :is(.edition-flow, .filtered-articles) .article-meta { margin-top: 8px; gap: 4px 6px; font-size: .6875rem; line-height: 1.5; }
+.newspaper :is(.edition-flow, .filtered-articles) .article-meta > span { width: auto; }
+.newspaper :is(.edition-flow, .filtered-articles) .article-actions { margin-top: 6px; }
+.newspaper :is(.edition-flow, .filtered-articles) .article-visual { margin-bottom: 10px; }
+.newspaper :is(.edition-flow, .filtered-articles) .article-visual img { aspect-ratio: 16 / 9; max-height: 180px; }
+.newspaper .edition-flow .lead .article-visual img { max-height: 220px; }
+.newspaper :is(.edition-flow, .filtered-articles) .media-format-badge { margin-bottom: 6px; }
+.newspaper .article-card:has(.podcast-visual) .article-inner { display: flow-root; }
+.newspaper .article-card .podcast-visual { float: left; width: 88px; margin: 0 12px 6px 0; }
+.newspaper .article-card .podcast-visual img { aspect-ratio: 1; object-fit: contain; }
+.newspaper .article-card:has(.podcast-visual) .article-meta { clear: both; padding-top: 4px; }
+.newspaper .filtered-articles .empty-state { column-span: all; }
+.newspaper .filtered-articles { min-height: 0; padding-bottom: 0; }
 
-@media (min-width: 601px) {
-  .front-stories .lead .article-inner:has(> .is-loaded),
-  .article-flow > :only-child .article-inner:has(> .is-loaded) {
-    display: grid;
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 28px;
-  }
-  .article-flow > :only-child .article-visual { margin: 0; }
-  .article-flow > :only-child .article-visual img { max-height: 320px; }
-  .supporting-stories .secondary:not(:only-child) .article-inner:has(> .is-loaded) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-    align-items: start;
-    gap: 18px;
-  }
-}
-@media (max-width: 600px) {
-  .newspaper .article-flow { columns: 1; }
-  .front-stories .lead .article-visual.is-loaded,
-  .supporting-stories .secondary .article-visual.is-loaded { margin-bottom: 16px; }
-  .newspaper .article-flow > .article-card { padding: 20px 0; }
+.newspaper .events-preview { margin-top: 24px; padding-top: 16px; }
+.newspaper .events-section { margin-bottom: 24px; }
+.newspaper .events-heading .eyebrow { margin-bottom: 6px; }
+.newspaper .events-heading h2 { font-size: clamp(1.5rem, 2.5vw, 2rem); }
+.newspaper .events-context { margin-block: 10px; }
+.newspaper .events-grid { gap: 14px; align-items: start; }
+.newspaper .event-card { padding: 16px; }
+.newspaper .event-date { margin-block: 12px 8px; }
+.newspaper .event-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
+.newspaper .event-description { margin-bottom: 10px; }
+.newspaper .event-reason { margin-bottom: 12px; }
+.newspaper .event-practical { padding-top: 10px; }
+.newspaper .events-provenance { margin-top: 12px; }
+.newspaper .paper-footer { margin-top: 24px; padding-block: 16px; }
+
+@media (max-width: 640px) {
+  .newspaper :is(.edition-flow, .filtered-articles) { column-count: 1; }
+  :root .newspaper .reader-controls { gap: 0 16px; margin-bottom: 12px; padding-bottom: 8px; }
+  .newspaper .reader-actions .text-button { min-height: 44px; }
+  .newspaper .edition-management > summary { min-height: 44px; padding-block: 10px; }
+  .newspaper .edition-intro p { max-width: none; }
+  .newspaper :is(.edition-flow, .filtered-articles) .article-card h3 { font-size: 1.5rem; }
+  .newspaper .edition-flow .lead h3 { font-size: 2rem; }
+  .newspaper .article-card .podcast-visual { width: 76px; }
 }

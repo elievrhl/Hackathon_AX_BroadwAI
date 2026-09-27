@@ -3,10 +3,6 @@ import { SlidersHorizontal } from 'lucide-react';
 import { ArticleCard, Wordmark } from './components.jsx';
 import { formatDate, contentCount } from './reader.js';
 import Events from './Events.jsx';
-import './newspaper.css';
-
-// Let short selections use the available width; CSS further reduces columns on small screens.
-const articleColumns = count => ({ '--article-columns': Math.min(3, Math.max(1, count)) });
 
 export default function Newspaper({ profile, cover, saved, onSave, onOrganize, saving, onOpen, onRead, onPreferences, busy, children, liked = [], liking = [], canLike, onLike }) {
   const [filter, setFilter] = useState('all');
@@ -28,15 +24,16 @@ export default function Newspaper({ profile, cover, saved, onSave, onOrganize, s
       {children}
       {cover && cover.status !== 'complete' && <div className="edition-warning" role="status"><strong>{cover.status === 'fallback' ? 'Édition de secours' : 'Édition partielle'}</strong><p>{cover.status === 'fallback' ? 'La sélection n’a pas été validée par le rédacteur. Ces articles ont été retenus automatiquement.' : 'Le rédacteur n’a pas pu compléter entièrement cette édition avec les articles disponibles.'}</p></div>}
       {cover && !items.length && <div className="empty-state"><h2>Aucun article retenu.</h2><p>Ajustez vos sujets ou enrichissez le catalogue depuis l’administration.</p></div>}
-      {items.length > 0 && (filter === 'all' ? <>
-        {cover.lead && <section className="front-stories" aria-label="Les grands titres">
-          {card(cover.lead, 'lead')}
-          {!!cover.secondary.length && <div className="supporting-stories article-flow" style={articleColumns(cover.secondary.length)}>{cover.secondary.map(article => card(article, 'secondary'))}</div>}
-          {!!cover.briefs.length && <aside className="briefs-band"><div className="briefs-heading"><h2>En bref</h2></div><div className="article-flow" style={articleColumns(cover.briefs.length)}>{cover.briefs.map(article => card(article, 'brief'))}</div></aside>}
-        </section>}
-        {!!cover.remainingSections.length && <div className="topic-sections">{cover.remainingSections.map(section => <section className="topic-section" key={section.id} aria-labelledby={section.id}><div className="section-heading"><h2 id={section.id}>{section.label}</h2></div><div className="section-articles article-flow" style={articleColumns(section.articles.length)}>{section.articles.map(article => card(article, 'section-article'))}</div></section>)}</div>}
-        {!!cover.exploration.length && <section className="exploration-section" aria-labelledby="exploration-heading"><div className="section-heading"><h2 id="exploration-heading">Exploration</h2></div><div className="exploration-articles article-flow" style={articleColumns(cover.exploration.length)}>{cover.exploration.map(article => card(article, 'section-article'))}</div></section>}
-      </> : <section className="filtered-articles article-flow" style={articleColumns(filtered.length)} aria-label="Articles de la rubrique">{filtered.length ? filtered.map(article => card(article, 'filtered-article')) : <div className="empty-state"><h2>Aucun article dans cette rubrique.</h2><p>Retrouvez les autres lectures à la une.</p></div>}</section>)}
+      {items.length > 0 && (filter === 'all' ? <div className="edition-flow" style={{ '--content-columns': Math.min(items.length, 3) }}>
+        {cover.lead && <>
+        <section className={`front-grid${cover.secondary.length ? ' has-secondary' : ''}${cover.briefs.length ? ' has-briefs' : ''}`} aria-label="Les grands titres">
+          {cover.lead && card(cover.lead, 'lead')}
+          {!!cover.secondary.length && <div className="secondary-column">{cover.secondary.map(article => card(article, 'secondary'))}</div>}
+          {!!cover.briefs.length && <aside className="briefs-column"><div className="briefs-heading"><h2>En bref</h2></div>{cover.briefs.map(article => card(article, 'brief'))}</aside>}
+        </section></>}
+        <div className="sections-grid">{cover.remainingSections.map(section => <section className="topic-section" key={section.id} aria-labelledby={section.id}><div className="section-heading"><h2 id={section.id}>{section.label}</h2></div><div className="section-articles">{section.articles.map(article => card(article, 'section-article'))}</div></section>)}</div>
+        {!!cover.exploration.length && <section className="exploration-section" aria-labelledby="exploration-heading"><div className="section-heading"><h2 id="exploration-heading">Exploration</h2></div><div className="exploration-grid">{cover.exploration.map(article => card(article, 'section-article'))}</div></section>}
+      </div> : <section className="filtered-articles" style={{ '--content-columns': Math.max(1, Math.min(filtered.length, 3)) }} aria-label="Articles de la rubrique">{filtered.length ? filtered.map(article => card(article, 'filtered-article')) : <div className="empty-state"><h2>Aucun article dans cette rubrique.</h2><p>Retrouvez les autres lectures à la une.</p></div>}</section>)}
       {filter === 'all' && <Events profile={profile} compact onExplore={() => { setFilter('events'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} onPreferences={onPreferences} />}
       </>}
     </main>
