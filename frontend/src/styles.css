@@ -1135,10 +1135,6 @@ dialog::backdrop {
   accent-color: var(--red);
   margin: 0;
 }
-.reset-button {
-  color: var(--muted);
-  margin-top: 15px;
-}
 .toast {
   position: fixed;
   bottom: 25px;

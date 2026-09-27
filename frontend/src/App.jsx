@@ -364,7 +364,6 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
     } catch (reason) { setNotice(`Like non enregistré : ${reason.message}`); }
     finally { pendingLikes.current.delete(selected.id); setLiking([...pendingLikes.current]); }
   }
-  function reset() { return saveProfile(null); }
   function openMemory() { setArticle(null); setPreferences(false); setMemory(true); }
 
   async function loadCollections() {
@@ -483,7 +482,7 @@ function ReaderApp({ account, onAccountChange, onLogout }) {
         {busy && busy !== 'regenerating' && <div className="generation-status" role="status"><span className="working-dot" /><span>Chargement des éditions…</span></div>}
       </section>
     </Newspaper> : <Onboarding initialName={account.name} saving={profileSaving} error={profileError} onComplete={saveProfile} onExplore={async () => { if (await saveProfile({ ...DEFAULT_PROFILE, name: account.name }) && history.length) openCover(history[0].id); }} />}
-    {preferences && <Preferences profile={profile} saving={profileSaving} error={profileError} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} onMemory={openMemory} />}
+    {preferences && <Preferences profile={profile} saving={profileSaving} error={profileError} onSave={saveProfile} onClose={() => setPreferences(false)} />}
     {regeneratingCover && <RegenerateEdition busy={busy === 'regenerating'} status={regeneration} error={regenerationError} onSubmit={regenerate} onClose={() => setRegeneratingCover(null)} />}
     {savingArticle && <SaveArticleDialog article={savingArticle} collections={collections} loading={libraryLoading} busy={!!libraryPending} error={libraryError} onToggle={toggleCollectionArticle} onCreate={saveCollection} onRetry={refreshLibrary} onClose={() => setSavingArticle(null)} />}
     {collectionForm && <Modal className="collection-dialog" labelId="collection-form-title" onClose={() => { if (!libraryPending) setCollectionForm(null); }}><p className="eyebrow">VOS ARTICLES, VOS ENVIES</p><h2 id="collection-form-title">{collectionForm.id ? 'Modifier la collection' : 'Nouvelle collection'}</h2><CollectionForm key={collectionForm.id || 'new'} collection={collectionForm.id ? collectionForm : null} busy={!!libraryPending} error={libraryError} onSubmit={saveCollection} onCancel={() => setCollectionForm(null)} /></Modal>}
