@@ -49,7 +49,7 @@ test('editor order, headings and every article survive layout, including small f
     assert.deepEqual(new Set(rendered.map(article => article.id)), new Set(raw.items.map(item => item.article_id)));
     assert.deepEqual(cover.items.map(item => item.id), raw.items.map(item => item.article_id));
     if (size) {
-      assert.equal(cover.lead.title, 'Titre français 0');
+      assert.equal(cover.lead.title, 'Original 0');
       assert.equal(cover.lead.reason, 'Explication éditoriale');
       assert.equal(cover.lead.excerptOnly, true);
       assert.equal(cover.lead.readingTimeMinutes, 5);

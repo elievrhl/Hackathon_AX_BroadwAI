@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Sparkles, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope, Clock3 } from 'lucide-react';
+import { Heart, ArrowRight, ArrowUpRight, ArrowLeft, Bookmark, Check, X, Globe2, Cpu, TrendingUp, FlaskConical, Leaf, BookOpen, LogOut, Landmark, Lightbulb, Library, Clapperboard, Music2, Palette, HeartPulse, Trophy, CookingPot, Compass, BriefcaseBusiness, GraduationCap, Gamepad2, Telescope, Clock3 } from 'lucide-react';
 import { TOPICS, DEFAULT_PROFILE, formatDate } from './reader.js';
 const ICONS = {
   tech: Cpu, economy: TrendingUp, world: Globe2, science: FlaskConical, climate: Leaf, culture: BookOpen,
@@ -117,6 +117,14 @@ function ArticleMeta({
   </div>;
 }
 
+function PublisherLink({ article, onOpen, children, ...props }) {
+  if (!article.url) return <span {...props}>{children}</span>;
+  return <a {...props} href={article.url} target="_blank" rel="noopener noreferrer"
+    onClick={() => onOpen?.(article)} onAuxClick={event => { if (event.button === 1) onOpen?.(article); }}>
+    {children}
+  </a>;
+}
+
 function ArticleVisual({ article, onOpen, priority = false }) {
   const [failed, setFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -128,7 +136,7 @@ function ArticleVisual({ article, onOpen, priority = false }) {
       else setLoaded(true);
     }} onError={() => setFailed(true)} />;
   return <figure className={`article-visual${loaded ? ' is-loaded' : ''}`}>
-    {onOpen ? <button className="article-image-button" onClick={() => onOpen(article)} aria-label={`Découvrir : ${article.title}`}>{picture}</button> : picture}
+    {onOpen ? <PublisherLink className="article-image-button" article={article} onOpen={onOpen} aria-label={`Lire : ${article.title}`}>{picture}</PublisherLink> : picture}
     {loaded && <figcaption>Visuel de l’article · {article.url ? <a href={article.url} target="_blank" rel="noopener noreferrer">{article.source}</a> : article.source}</figcaption>}
   </figure>;
 }
@@ -144,12 +152,12 @@ export function ArticleCard({
   return <article className={`article-card ${variant}`} data-article-id={article.id}>
     {variant === 'brief' && <span className="brief-index">{String(index + 1).padStart(2, '0')}</span>}
     <div className="article-inner">
-      <div className="article-topline"><span className={`eyebrow article-category ${article.exploration ? 'exploration-label' : ''}`}>{article.exploration ? `Exploration / ${article.kind}` : variant === 'lead' ? `${article.section} / ${article.kind}` : article.kind}</span><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`${saved ? 'Retirer des' : 'Ajouter aux'} favoris : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Retirer des favoris' : 'Garder pour plus tard'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
+      <div className="article-topline"><span className={`eyebrow article-category ${article.exploration ? 'exploration-label' : ''}`}>{article.exploration ? `Exploration / ${article.kind}` : variant === 'lead' ? `${article.section} / ${article.kind}` : article.kind}</span><LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} /><button className={`save-button ${saved ? 'is-saved' : ''}`} aria-label={`Enregistrer dans une bibliothèque : ${article.title}`} aria-pressed={saved} onClick={() => onSave(article.id)} title={saved ? 'Organiser dans mes bibliothèques' : 'Enregistrer dans une bibliothèque'}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} strokeWidth={1.5} /></button></div>
       {variant !== 'brief' && <ArticleVisual key={article.imageUrl} article={article} onOpen={onOpen} priority={variant === 'lead'} />}
-      <h3><button className="article-title" onClick={() => onOpen(article)}>{article.title}</button></h3>
+      <h3><PublisherLink className="article-title" article={article} onOpen={onOpen}>{article.title}</PublisherLink></h3>
       <ArticleMeta article={article} />
       {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
-      {variant === 'lead' && <div className="lead-bottom"><span className="eyebrow">DÉCOUVRIR L’ARTICLE</span><button className="round-button" onClick={() => onOpen(article)} aria-label={`Découvrir : ${article.title}`}><ArrowUpRight size={24} strokeWidth={1.4} /></button></div>}
+      {variant === 'lead' && <div className="lead-bottom"><span className="eyebrow">DÉCOUVRIR L’ARTICLE</span><PublisherLink className="round-button" article={article} onOpen={onOpen} aria-label={`Lire : ${article.title}`}><ArrowUpRight size={24} strokeWidth={1.4} /></PublisherLink></div>}
     </div>
   </article>;
 }
@@ -178,39 +186,6 @@ export function Modal({
   }}>
     <button className="close-button" onClick={onClose} aria-label="Fermer"><X size={22} /></button>{children}
   </dialog>;
-}
-export function ArticleDetail({
-  liked, liking, canLike, onLike,
-  article,
-  saved,
-  onSave,
-  canFeedback,
-  feedback,
-  notice,
-  onFeedback,
-  onRead,
-  onClose
-}) {
-  return <Modal className="article-dialog" labelId="article-title" onClose={onClose}>
-    <Wordmark small />
-    <div className="detail-kicker eyebrow">{article.section} <span>/</span> {article.kind}</div>
-    <LikeButton article={article} liked={liked} busy={liking} enabled={canLike} onLike={onLike} />
-    <h2 id="article-title">{article.title}</h2>
-    <ArticleMeta article={article} />
-    <ArticleVisual key={article.imageUrl} article={article} priority />
-    {article.exploration && article.explorationReason && <p className="exploration-reason">{article.explorationReason}</p>}
-    <div className="publisher-action">{article.url && <a className="primary-button" href={article.url} target="_blank" rel="noopener noreferrer" onClick={onRead}>Lire chez {article.source} <ArrowUpRight size={17} /></a>}</div>
-    <details className="article-brief"><summary>Voir la fiche de lecture</summary><p className="detail-summary">{article.summary}</p>
-      {!!article.keyPoints.length && <div className="detail-keypoints"><h3>L’essentiel</h3><ol>{article.keyPoints.map((point, index) => <li key={index}>{point}</li>)}</ol></div>}
-      {article.excerptOnly && <p className="prototype-note">Fiche préparée à partir d’un extrait : le texte intégral n’a pas pu être récupéré.</p>}
-      {!!article.caveats.length && <ul className="article-caveats">{article.caveats.map((note, index) => <li key={index}>{note}</li>)}</ul>}
-    </details>
-    {article.reason && <div className="relevance"><Sparkles size={18} strokeWidth={1.5} /><div><h3>Pourquoi cet article ?</h3><p>{article.reason}</p></div></div>}
-    {canFeedback ? <div className="feedback-options" aria-label="Votre avis sur cet article">{[['useful', 'Pertinent'], ['already_known', 'Déjà vu'], ['not_interested', 'Pas pour moi']].map(([kind, label]) => <button key={kind} className="secondary-button" aria-pressed={feedback === kind} onClick={() => onFeedback(kind)}>{label}</button>)}</div> : <p className="prototype-note">Cette édition a été créée avec un autre profil local. Les retours seront disponibles sur vos propres éditions.</p>}
-    <div className="detail-actions"><button className="secondary-button" onClick={() => onSave(article.id)}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} />{saved ? 'Enregistré pour plus tard' : 'Garder pour plus tard'}</button><button className="text-button" onClick={onClose}>Retour au journal <ArrowRight size={16} /></button></div>
-    <p className="prototype-note detail-disclaimer">La lecture complète se fait sur le site de l’éditeur, qui peut demander un abonnement.</p>
-    {notice && <p className="feedback-notice" role="status">{notice}</p>}
-  </Modal>;
 }
 export function Preferences({
   profile,

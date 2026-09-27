@@ -1,5 +1,6 @@
 import asyncio
 import socket
+import ssl
 from contextlib import asynccontextmanager
 from types import SimpleNamespace
 
@@ -18,6 +19,16 @@ FEED = b"""<?xml version="1.0"?><rss version="2.0"><channel>
 <pubDate>Sat, 26 Sep 2026 10:00:00 GMT</pubDate></item>
 <item><title>Internal</title><link>http://127.0.0.1/private</link></item>
 </channel></rss>"""
+
+
+def test_fetcher_trusts_public_certificates_without_system_ca_bundle(monkeypatch):
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    assert context.cert_store_stats()["x509_ca"] == 0
+    monkeypatch.setattr(ssl, "create_default_context", lambda: context)
+    fetcher = PublicFetcher()
+    assert fetcher.ssl_context.cert_store_stats()["x509_ca"] > 0
+    assert fetcher.ssl_context.verify_mode == ssl.CERT_REQUIRED
+    assert fetcher.ssl_context.check_hostname
 
 
 def test_rss_dates_canonical_urls_and_local_links():

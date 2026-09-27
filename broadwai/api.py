@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 
+from broadwai.collections import router as collections_router
 from broadwai.config import Settings
 from broadwai.image_review import ImageReviewer
 from broadwai.images import ArticleImages
@@ -77,6 +78,7 @@ def create_app(
     static = Path(__file__).with_name("static")
     app.mount("/admin/assets", StaticFiles(directory=static), name="admin-assets")
     app.include_router(admin_router)
+    app.include_router(collections_router)
 
     # Optional production build. API/admin still work when the frontend is not built.
     reader_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
@@ -124,7 +126,10 @@ def create_app(
 
     @app.get("/v1/articles")
     def articles(limit: int = Query(50, ge=1, le=200)):
-        return [a.model_dump(exclude={"text", "excerpt"}) for a in app.state.store.articles(limit)]
+        return [
+            a.model_dump(exclude={"text", "excerpt", "transcript"})
+            for a in app.state.store.articles(limit)
+        ]
 
     @app.get("/v1/articles/{article_id}/image", include_in_schema=False)
     async def get_article_image(article_id: str):

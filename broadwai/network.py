@@ -1,10 +1,12 @@
 import asyncio
 import ipaddress
 import socket
+import ssl
 from dataclasses import dataclass
 from urllib.parse import urljoin, urlsplit
 
 import aiohttp
+import certifi
 from aiohttp.abc import AbstractResolver
 
 from broadwai.models import canonical_url
@@ -77,11 +79,17 @@ class PublicFetcher:
     def __init__(self, timeout: float = 15, max_bytes: int = 2_000_000):
         self.timeout = timeout
         self.max_bytes = max_bytes
+        # Add public roots when Python has no system CA bundle (common on macOS),
+        # keeping both hostname verification and any system trust configuration.
+        self.ssl_context = ssl.create_default_context()
+        self.ssl_context.load_verify_locations(cafile=certifi.where())
 
     async def get(self, url: str) -> Download:
         try:
             async with asyncio.timeout(self.timeout):
-                connector = aiohttp.TCPConnector(resolver=PublicResolver(), use_dns_cache=False)
+                connector = aiohttp.TCPConnector(
+                    resolver=PublicResolver(), use_dns_cache=False, ssl=self.ssl_context
+                )
                 async with aiohttp.ClientSession(
                     connector=connector,
                     trust_env=False,

@@ -1,34 +1,49 @@
-import os
 from importlib.resources import files
 from uuid import uuid4
 
-import psycopg
 import pytest
-from psycopg import sql
-from psycopg.conninfo import make_conninfo
 
 from broadwai.models import ArticleImage, Feedback, utcnow
-from broadwai.store import Store
 from tests.fakes import ScriptedModel, article, finalize_first
+from tests.test_catalog_compatibility import persisted_article
 from tests.test_pipeline import pipeline, request
 
 
-@pytest.fixture
-def pg_store():
-    url = os.getenv("TEST_DATABASE_URL")
-    if not url:
-        pytest.skip("TEST_DATABASE_URL requis pour les tests PostgreSQL réels")
-    schema = "test_" + uuid4().hex
-    with psycopg.connect(url, autocommit=True, connect_timeout=5) as db:
-        db.execute(sql.SQL("CREATE SCHEMA {}").format(sql.Identifier(schema)))
-    store = Store(make_conninfo(url, options=f"-c search_path={schema}"))
-    try:
-        store.open()
-        yield store
-    finally:
-        store.close()
-        with psycopg.connect(url, autocommit=True, connect_timeout=5) as db:
-            db.execute(sql.SQL("DROP SCHEMA {} CASCADE").format(sql.Identifier(schema)))
+@pytest.mark.parametrize("content_format", ["article", "animation", "video", "podcast"])
+def test_generation_and_readback_with_persisted_multimedia_fields(pg_store, content_format):
+    from fastapi.testclient import TestClient
+    from psycopg.types.json import Jsonb
+
+    from broadwai.api import create_app
+    from broadwai.config import Settings
+    from tests.fakes import FakeCollector, FakeSearch
+
+    payload = persisted_article(content_format)
+    with pg_store.pool.connection() as db:
+        db.execute(
+            "INSERT INTO articles (id, url, collected_at, payload) VALUES (%s, %s, %s, %s)",
+            (payload["id"], payload["url"], payload["collected_at"], Jsonb(payload)),
+        )
+    app = create_app(
+        Settings(_env_file=None), store=pg_store, model=ScriptedModel([finalize_first]),
+        collector=FakeCollector(pg_store), search=FakeSearch(),
+    )
+    with TestClient(app) as client:
+        response = client.post("/v1/covers", json=request().model_dump(mode="json"))
+        assert response.status_code == 200
+        cover = response.json()
+        assert cover["status"] == "complete"
+        assert cover["items"][0]["article_id"] == payload["id"]
+        response = client.get(f"/v1/covers/{cover['id']}", params={"user_id": "alice"})
+        assert response.status_code == 200
+        listed = client.get("/v1/articles").json()[0]
+        assert listed["format"] == content_format
+        assert "transcript" not in listed
+    loaded = pg_store.get_article(payload["id"])
+    pg_store.put_article(loaded.model_copy(update={"title": "Corrected title"}))
+    saved = pg_store.get_article(payload["id"]).model_dump(mode="json")
+    for key in ("format", "media", "transcript"):
+        assert saved[key] == payload[key]
 
 
 def test_library_api_persistence_isolation_and_removal(pg_store):

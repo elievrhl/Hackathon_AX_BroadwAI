@@ -75,7 +75,7 @@ export function articleImageUrl(item) {
 export function adaptCover(raw) {
   if (!raw?.id || !Array.isArray(raw.items)) throw new Error('Réponse de couverture invalide.');
   const items = raw.items.map(item => ({
-    id: item.article_id, title: item.headline || item.title, originalTitle: item.title,
+    id: item.article_id, title: item.title, originalTitle: item.title, coverId: item.cover_id || null,
     url: safeArticleUrl(item.url), source: item.source, publishedAt: item.published_at,
     imageUrl: articleImageUrl(item), imageAlt: item.image?.alt || '',
     section: item.selection_kind === 'exploration' ? 'Exploration' : item.section || 'À découvrir',

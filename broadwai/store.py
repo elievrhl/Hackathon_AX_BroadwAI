@@ -399,7 +399,7 @@ class Store:
         with self.pool.connection() as db:
             total = db.execute("SELECT COUNT(*) FROM articles a" + where, params).fetchone()[0]
             rows = db.execute(
-                "SELECT a.payload - 'text' - 'excerpt', "
+                "SELECT a.payload - 'text' - 'excerpt' - 'transcript', "
                 "(SELECT COUNT(*) FROM briefs b WHERE b.article_id=a.id) "
                 "FROM articles a"
                 + where

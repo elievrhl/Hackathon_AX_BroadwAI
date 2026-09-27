@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, RefreshCw } from 'lucide-react';
-import { Onboarding, Preferences, ArticleDetail } from './components.jsx';
+import { Onboarding, Preferences, Modal } from './components.jsx';
 import Newspaper from './Newspaper.jsx';
-import { getLibrary, saveEdition, removeEdition } from './api.js';
+import { getCollections, getCollection, createCollection, editCollection, deleteCollection, addToCollection, removeFromCollection, importBookmarks } from './api.js';
 import { readLocal, accountKey, currentAccount, leaveAccount } from './accounts.js';
-import Library, { AccountScreen, AccountNav, SaveEdition } from './Library.jsx';
+import Library, { AccountScreen, AccountNav, SaveArticleDialog, CollectionForm } from './Library.jsx';
 import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover, formatDate } from './reader.js';
 import { getHealth, listCovers, getCover, createCover, sendFeedback, getLikes, setLike } from './api.js';
 
@@ -26,7 +26,10 @@ function ReaderApp({ account, onLogout }) {
   const userId = account.id;
   const read = (key, fallback = null) => readLocal(accountKey(userId, key), fallback);
   const [view, setView] = useState('journal');
-  const [editions, setEditions] = useState([]);
+  const [collections, setCollections] = useState([]);
+  const [selectedCollection, setSelectedCollection] = useState(null);
+  const [savingArticle, setSavingArticle] = useState(null);
+  const [collectionForm, setCollectionForm] = useState(null);
   const [libraryLoading, setLibraryLoading] = useState(true);
   const [libraryError, setLibraryError] = useState('');
   const [libraryPending, setLibraryPending] = useState('');
@@ -37,12 +40,7 @@ function ReaderApp({ account, onLogout }) {
   const [history, setHistory] = useState([]);
   const [health, setHealth] = useState(null);
   const [preferences, setPreferences] = useState(false);
-  const [article, setArticle] = useState(null);
-  const [saved, setSaved] = useState(() => {
-    const value = read('kiosque.saved', []);
-    return Array.isArray(value) ? value.filter(id => typeof id === 'string') : [];
-  });
-  const [feedback, setFeedback] = useState({});
+  const saved = [...new Set(collections.flatMap(collection => collection.article_ids))];
   const [liked, setLiked] = useState([]);
   const [likesReady, setLikesReady] = useState(false);
   const [liking, setLiking] = useState([]);
@@ -61,7 +59,6 @@ function ReaderApp({ account, onLogout }) {
   function displayCover(raw) {
     const next = adaptCover(raw);
     setCover(next);
-    setArticle(null);
     persist('kiosque.lastCover', next.id);
     const url = new URL(window.location.href);
     url.searchParams.set('cover', next.id);
@@ -74,9 +71,9 @@ function ReaderApp({ account, onLogout }) {
   useEffect(() => {
     let active = true;
     async function initialize() {
-      const [healthResult, historyResult, likesResult, libraryResult] = await Promise.allSettled([getHealth(), listCovers(userId), getLikes(userId), getLibrary(userId)]);
+      const [healthResult, historyResult, likesResult, libraryResult] = await Promise.allSettled([getHealth(), listCovers(userId), getLikes(userId), loadCollections()]);
       if (!active) return;
-      if (libraryResult.status === 'fulfilled') setEditions(libraryResult.value);
+      if (libraryResult.status === 'fulfilled') setCollections(libraryResult.value);
       else setLibraryError(libraryResult.reason.message);
       setLibraryLoading(false);
       if (likesResult.status === 'fulfilled') { setLiked(likesResult.value.article_ids); setLikesReady(true); }
@@ -119,7 +116,6 @@ function ReaderApp({ account, onLogout }) {
     setProfile(next);
     persist(STORAGE_KEY, next);
     setPreferences(false);
-    setArticle(null);
   }
   async function openCover(id) {
     if (!id || inFlight.current || busy) return;
@@ -145,7 +141,7 @@ function ReaderApp({ account, onLogout }) {
   async function generate() {
     if (inFlight.current || busy) return;
     inFlight.current = true;
-    setBusy('generating'); setError(''); setArticle(null);
+    setBusy('generating'); setError('');
     persist('kiosque.pending', Date.now());
     try {
       const raw = await createCover(toCoverRequest(profile, userId));
@@ -153,24 +149,28 @@ function ReaderApp({ account, onLogout }) {
       // Preserve the result even if the next history refresh fails.
       setHistory(rows => [{ id: raw.id, title: raw.title, created_at: raw.created_at, status: raw.status, item_count: raw.items.length }, ...rows.filter(row => row.id !== raw.id)]);
       persist('kiosque.pending', null);
-      setNotice(`${raw.items.length} articles reçus. Vous pouvez sauvegarder cette revue dans votre bibliothèque.`);
+      setNotice(`${raw.items.length} articles reçus. Classez les articles à garder dans vos bibliothèques.`);
     } catch (reason) { setError(reason.message); }
     finally { inFlight.current = false; setBusy(''); }
   }
-  function toggleSaved(id) {
-    const next = saved.includes(id) ? saved.filter(item => item !== id) : [...saved, id];
-    setSaved(next); persist('kiosque.saved', next);
-    setNotice(next.includes(id) ? 'Article gardé dans ce navigateur.' : 'Article retiré de vos favoris.');
+  function articleOrigin(selected) {
+    return selected.coverId || (cover?.userId === userId && cover.items.some(item => item.id === selected.id) ? cover.id : null);
   }
-  async function recordFeedback(kind, selected = article) {
-    if (!selected || cover?.userId !== userId) return;
-    const key = `${cover.id}:${selected.id}`;
+  function chooseSave(selected) {
+    if (!selected) return;
+    setLibraryError('');
+    setSavingArticle({ ...selected, coverId: articleOrigin(selected) });
+    refreshLibrary();
+  }
+  function saveFromJournal(id) { chooseSave(cover?.items.find(item => item.id === id)); }
+  async function recordOpen(selected) {
+    const coverId = articleOrigin(selected);
+    if (!coverId) return;
+    const key = `${coverId}:${selected.id}`;
     if (pendingFeedback.current.has(key)) return;
     pendingFeedback.current.add(key);
-    try {
-      await sendFeedback({ user_id: userId, cover_id: cover.id, article_id: selected.id, kind });
-      if (kind !== 'open') { setFeedback(previous => ({ ...previous, [key]: kind })); setNotice('Votre retour a été enregistré.'); }
-    } catch (reason) { setNotice(`Retour non enregistré : ${reason.message}`); }
+    try { await sendFeedback({ user_id: userId, cover_id: coverId, article_id: selected.id, kind: 'open' }); }
+    catch (reason) { setNotice(`Lecture non enregistrée : ${reason.message}`); }
     finally { pendingFeedback.current.delete(key); }
   }
   async function toggleLike(selected) {
@@ -184,38 +184,95 @@ function ReaderApp({ account, onLogout }) {
     finally { pendingLikes.current.delete(selected.id); setLiking([...pendingLikes.current]); }
   }
   function reset() {
-    persist(STORAGE_KEY, null); setPreferences(false); setProfile(null); setArticle(null);
+    persist(STORAGE_KEY, null); setPreferences(false); setProfile(null);
     // Keep the device identity, bookmarks and server editions; no account is deleted.
   }
 
-  async function refreshLibrary() {
+  async function loadCollections() {
+    const old = read('kiosque.saved', []);
+    if (!read('kiosque.collectionsMigrated') && Array.isArray(old) && old.length) {
+      await importBookmarks(userId, old.filter(id => typeof id === 'string'));
+      persist('kiosque.collectionsMigrated', true);
+    }
+    return getCollections(userId);
+  }
+  async function refreshLibrary(includeSelected = true) {
     setLibraryLoading(true); setLibraryError('');
-    try { setEditions(await getLibrary(userId)); }
+    try {
+      setCollections(await loadCollections());
+      if (includeSelected && selectedCollection) setSelectedCollection(await getCollection(userId, selectedCollection.id));
+    } catch (reason) { setLibraryError(reason.message); }
+    finally { setLibraryLoading(false); }
+  }
+  function acceptCollection(collection) {
+    setCollections(rows => [collection, ...rows.filter(row => row.id !== collection.id)]);
+    setSelectedCollection(previous => previous?.id === collection.id ? collection : previous);
+  }
+  async function mutateCollection(action, message) {
+    if (libraryLock.current) return null;
+    libraryLock.current = true; setLibraryPending('saving'); setLibraryError('');
+    try {
+      const result = await action();
+      if (message) setNotice(message);
+      return result;
+    } catch (reason) { setLibraryError(reason.message); return null; }
+    finally { libraryLock.current = false; setLibraryPending(''); }
+  }
+  async function openCollection(id) {
+    setLibraryLoading(true); setLibraryError('');
+    try { setSelectedCollection(await getCollection(userId, id)); }
     catch (reason) { setLibraryError(reason.message); }
     finally { setLibraryLoading(false); }
   }
-  async function changeLibrary(id, remove = false) {
-    if (libraryLock.current) return;
-    libraryLock.current = true; setLibraryPending(id);
-    try {
-      await (remove ? removeEdition(userId, id) : saveEdition(userId, id));
-      if (remove) setEditions(rows => rows.filter(row => row.id !== id));
-      await refreshLibrary();
-      setNotice(remove ? 'Revue retirée de la bibliothèque. Elle reste dans votre historique.' : 'Revue sauvegardée dans Ma bibliothèque.');
-    } catch (reason) { setNotice(`Sauvegarde non modifiée : ${reason.message}`); }
-    finally { libraryLock.current = false; setLibraryPending(''); }
+  async function saveCollection(data) {
+    const result = await mutateCollection(async () => {
+      let collection = collectionForm?.id
+        ? await editCollection(userId, collectionForm.id, data)
+        : await createCollection(userId, data);
+      acceptCollection(collection);
+      if (savingArticle) {
+        collection = await addToCollection(userId, collection.id, savingArticle.id, savingArticle.coverId);
+        acceptCollection(collection);
+      }
+      return collection;
+    }, collectionForm?.id ? 'Bibliothèque mise à jour.' : 'Bibliothèque créée.');
+    if (result) setCollectionForm(null);
+    return !!result;
+  }
+  async function toggleCollectionArticle(id, add) {
+    if (!savingArticle) return;
+    await mutateCollection(async () => {
+      const result = add
+        ? await addToCollection(userId, id, savingArticle.id, savingArticle.coverId)
+        : await removeFromCollection(userId, id, savingArticle.id);
+      acceptCollection(result);
+      return result;
+    });
+  }
+  async function removeCollectionArticle(id, articleId) {
+    await mutateCollection(async () => {
+      const result = await removeFromCollection(userId, id, articleId);
+      acceptCollection(result); return result;
+    }, 'Article retiré de cette bibliothèque.');
+  }
+  async function removeCollection(id) {
+    await mutateCollection(async () => {
+      await deleteCollection(userId, id);
+      setCollections(rows => rows.filter(row => row.id !== id));
+      setSelectedCollection(null);
+      return true;
+    }, 'Bibliothèque supprimée.');
   }
   function navigate(next) {
-    setView(next); setArticle(null); setError('');
-    if (next === 'library') refreshLibrary();
+    setView(next); setError(''); setLibraryError('');
+    if (next === 'library') { setSelectedCollection(null); refreshLibrary(false); }
   }
 
   return <>
     <a className="skip-link" href="#main">Aller au contenu</a>
     <AccountNav account={account} view={view} onView={navigate} onLogout={onLogout} disabled={!!busy || !!libraryPending} />
-    {view === 'library' ? <Library editions={editions} loading={libraryLoading} error={libraryError || error} pending={libraryPending || busy} onRetry={refreshLibrary} onOpen={openCover} onRemove={id => changeLibrary(id, true)} onJournal={() => navigate('journal')} /> : profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} profile={profile} cover={cover} saved={saved} onSave={toggleSaved} onOpen={setArticle} onPreferences={() => setPreferences(true)} busy={!!busy}>
+    {view === 'library' ? <Library collections={collections} selected={selectedCollection} loading={libraryLoading} error={libraryError} pending={libraryPending} onRetry={refreshLibrary} onOpen={openCollection} onBack={() => { setSelectedCollection(null); setLibraryError(''); }} onCreate={() => { setLibraryError(''); setCollectionForm({}); }} onEdit={collection => { setLibraryError(''); setCollectionForm(collection); }} onDelete={removeCollection} onRemoveArticle={removeCollectionArticle} onSaveArticle={chooseSave} onRead={recordOpen} onJournal={() => navigate('journal')} /> : profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} profile={profile} cover={cover} saved={saved} onSave={saveFromJournal} onOpen={recordOpen} onPreferences={() => setPreferences(true)} busy={!!busy}>
       <section className="reader-controls" aria-label="Gestion de votre édition">
-        {cover && <SaveEdition saved={editions.some(row => row.id === cover.id)} busy={!!busy || !!libraryPending || libraryLoading} onSave={() => changeLibrary(cover.id)} />}
         <details className="edition-management" open={cover ? undefined : true}>
         <summary>Préparer ou retrouver une édition</summary>
         <div className="generation-row"><div><strong>{cover ? 'La prochaine édition vous attend.' : 'Composez votre première une.'}</strong><p>{profile.size} articles souhaités · recherche web et découverte de sources activées</p><p className="field-help">La génération consomme des crédits. À leur premier affichage, les nouvelles images font aussi l’objet d’une vérification facturée ; son résultat est ensuite réutilisé.</p></div><button className="primary-button" disabled={!!busy || health?.llm_configured === false} onClick={generate}>{busy === 'generating' ? 'Préparation en cours…' : 'Générer ma une'}<ArrowRight size={18} /></button></div>
@@ -229,7 +286,8 @@ function ReaderApp({ account, onLogout }) {
       </section>
     </Newspaper> : <Onboarding initialName={account.name} onComplete={saveProfile} onExplore={() => { saveProfile({ ...DEFAULT_PROFILE, name: account.name }); if (history.length) openCover(history[0].id); }} />}
     {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} />}
-    {article && <ArticleDetail liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} article={article} saved={saved.includes(article.id)} onSave={toggleSaved} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} />}
+    {savingArticle && <SaveArticleDialog article={savingArticle} collections={collections} loading={libraryLoading} busy={!!libraryPending} error={libraryError} onToggle={toggleCollectionArticle} onCreate={saveCollection} onRetry={refreshLibrary} onClose={() => setSavingArticle(null)} />}
+    {collectionForm && <Modal className="collection-dialog" labelId="collection-form-title" onClose={() => { if (!libraryPending) setCollectionForm(null); }}><p className="eyebrow">VOS ARTICLES, VOS ENVIES</p><h2 id="collection-form-title">{collectionForm.id ? 'Modifier la bibliothèque' : 'Nouvelle bibliothèque'}</h2><CollectionForm key={collectionForm.id || 'new'} collection={collectionForm.id ? collectionForm : null} busy={!!libraryPending} error={libraryError} onSubmit={saveCollection} onCancel={() => setCollectionForm(null)} /></Modal>}
     <div className={`toast ${notice ? 'visible' : ''}`} role="status" aria-live="polite">{notice && <><Check size={17} /><span>{notice}</span></>}</div>
   </>;
 }

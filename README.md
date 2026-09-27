@@ -55,9 +55,10 @@ Pour reprendre le travail avec un autre agent : [contexte et passation du projet
 
 `POST /v1/covers` demande désormais **18 articles par défaut** (champ `size`, maximum 20).
 Le quota par source vaut trois par défaut (au moins six domaines pour 18 articles).
-Le profil se règle dans le frontend. Celui-ci présente la une par rubriques, avec des titres
-français cliquables et les sources. Les résumés restent repliés dans les fiches de lecture et
-consultables dans `/admin/covers`. L’inspecteur ouvre la couverture sélectionnée dans le
+Le profil se règle dans le frontend. Celui-ci présente la une par rubriques, avec les titres
+originaux des éditeurs, sans traduction, même pour les éditions déjà enregistrées. Les titres et
+images ouvrent directement l'article dans un nouvel onglet. Les résumés restent consultables
+dans `/admin/covers`. L’inspecteur ouvre la couverture sélectionnée dans le
 frontend via `/reader/?cover={id}`.
 
 La préparation se déroule ainsi :
@@ -118,11 +119,12 @@ désigne les réservations non réconciliées et `remaining_tokens` le budget r�
 
 Les recherches ciblent un besoin à la fois et conservent l'historique et les motifs de rejet.
 Un article écarté ne repasse pas dans les filtres à chaque reformulation. Les finalisations sont
-contrôlées aussi en mode partiel : rubriques connues, besoin cité, preuve dans la fiche, titre français,
+contrôlées aussi en mode partiel : rubriques connues, besoin cité, preuve dans la fiche, titre,
 rôle éditorial et absence de reprise du même événement sans angle distinct. Le lecteur respecte les
 rôles (sujet principal, secondaire, brève, lecture), avec compatibilité pour les éditions anciennes.
-Les fiches `brief-v6` comprennent validité et titre français ; les anciennes fiches ne sont pas
-réutilisées pour les nouvelles générations. Les anciennes éditions restent consultables.
+Les fiches `brief-v6` comprennent validité et titre. Le titre affiché et celui des nouvelles
+sélections reprennent toujours l'original, même si une fiche en cache contient une ancienne
+traduction. Les anciennes éditions restent consultables.
 
 `examples/sources-economy.json` propose dix flux économiques supplémentaires ; huit ont été
 validés et collectés lors de l'essai local (les flux en erreur sont ignorés par le script).
@@ -499,16 +501,26 @@ de compte dans l’API sont déclaratifs, et l’administration reste sans contr
 Un autre navigateur ou appareil ne retrouve donc pas automatiquement le même compte.
 
 Le premier compte créé reprend l’identité et les préférences de l’ancien lecteur anonyme.
-Les comptes suivants ont chacun leurs préférences, likes, historique et favoris séparés.
-« Sauvegarder la revue » ajoute explicitement une édition à « Ma bibliothèque » dans
-PostgreSQL (`library_editions`). La déconnexion et le redémarrage du serveur ne suppriment
-pas cette collection. Retirer une revue de la bibliothèque conserve son édition d’origine.
+Les comptes suivants ont chacun leurs préférences, likes, historique et bibliothèques séparés.
+« Ma bibliothèque » organise les articles en collections nommées, comme des playlists.
+Le marque-page d’un article ouvre un sélecteur : cochez une ou plusieurs bibliothèques,
+ou créez-en une sur le moment. Chaque bibliothèque peut être renommée, décrite ou supprimée.
+Retirer un article d’une bibliothèque conserve ses autres classements et l’article d’origine.
+Les titres ouvrent directement la page de l’éditeur, dans leur langue d’origine.
 
-`GET /v1/library?user_id=…` liste la collection ; `PUT` et `DELETE`
-`/v1/library/{cover_id}?user_id=…` ajoutent ou retirent une revue. Les éditions doivent
-appartenir au compte déclaré. L’historique du lecteur transmet également `user_id`.
+Les collections et leurs articles sont persistés dans PostgreSQL (`article_collections`,
+`collection_articles`), avec une copie des métadonnées pour conserver les sauvegardes même
+si le catalogue évolue. Les anciennes revues sauvegardées sont converties en bibliothèques
+une seule fois au démarrage ; les anciens favoris locaux sont importés dans « À lire ».
+La déconnexion et le redémarrage du serveur ne suppriment pas ces collections.
+
+`GET` et `POST /v1/collections?user_id=…` listent ou créent les bibliothèques.
+`GET`, `PATCH` et `DELETE /v1/collections/{id}?user_id=…` les consultent ou les modifient.
+`PUT` et `DELETE /v1/collections/{id}/articles/{article_id}?user_id=…` gèrent leur contenu.
+Un éventuel `cover_id` dans l’ajout doit appartenir au compte déclaré et contenir l’article.
+Les anciennes routes `/v1/library` restent disponibles pour compatibilité.
 Le montage de couverture réutilise jusqu’à trois images des articles via le proxy existant,
-avec titre, date, rubriques et palette stable. La tranche reprend titre et date. Aucune image
+avec titre, date, rubriques et palette stable. La tranche reprend titre et nombre d’articles. Aucune image
 n’est générée par IA ; si les images sont absentes ou indisponibles, une composition
 typographique les remplace. Les visuels restent dépendants des images accessibles des sources.
 

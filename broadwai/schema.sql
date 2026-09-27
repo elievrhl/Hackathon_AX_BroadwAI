@@ -93,3 +93,46 @@ CREATE TABLE IF NOT EXISTS source_proposals (
 );
 ALTER TABLE source_proposals ADD COLUMN IF NOT EXISTS kind TEXT NOT NULL DEFAULT 'rss'
     CHECK (kind IN ('rss', 'website'));
+
+-- Article playlists: adding/removing a membership never deletes the catalog article.
+CREATE TABLE IF NOT EXISTS article_collections (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    name TEXT NOT NULL CHECK (length(trim(name)) BETWEEN 1 AND 160),
+    description TEXT NOT NULL DEFAULT '',
+    import_key TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(user_id, import_key)
+);
+CREATE INDEX IF NOT EXISTS article_collections_user ON article_collections(user_id, updated_at DESC);
+CREATE TABLE IF NOT EXISTS collection_articles (
+    collection_id TEXT NOT NULL REFERENCES article_collections(id) ON DELETE CASCADE,
+    article_id TEXT NOT NULL,
+    payload JSONB NOT NULL,
+    added_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY(collection_id, article_id)
+);
+-- Retain a migration receipt even when a reader later deletes a migrated collection.
+CREATE TABLE IF NOT EXISTS library_collection_migrations (
+    user_id TEXT NOT NULL,
+    cover_id TEXT NOT NULL,
+    PRIMARY KEY(user_id, cover_id)
+);
+INSERT INTO article_collections (id,user_id,name,created_at,updated_at)
+SELECT 'legacy-' || md5(l.user_id || ':' || l.cover_id), l.user_id,
+       left(c.payload->>'title',160), l.saved_at, l.saved_at
+FROM library_editions l JOIN covers c ON c.id=l.cover_id AND c.user_id=l.user_id
+WHERE NOT EXISTS (SELECT 1 FROM library_collection_migrations m
+                  WHERE m.user_id=l.user_id AND m.cover_id=l.cover_id)
+ON CONFLICT DO NOTHING;
+INSERT INTO collection_articles (collection_id,article_id,payload,added_at)
+SELECT 'legacy-' || md5(l.user_id || ':' || l.cover_id), item->>'article_id',
+       item || jsonb_build_object('cover_id',l.cover_id), l.saved_at
+FROM library_editions l JOIN covers c ON c.id=l.cover_id AND c.user_id=l.user_id,
+     LATERAL jsonb_array_elements(c.payload->'items') item
+WHERE NOT EXISTS (SELECT 1 FROM library_collection_migrations m
+                  WHERE m.user_id=l.user_id AND m.cover_id=l.cover_id)
+ON CONFLICT DO NOTHING;
+INSERT INTO library_collection_migrations (user_id,cover_id)
+SELECT user_id,cover_id FROM library_editions ON CONFLICT DO NOTHING;

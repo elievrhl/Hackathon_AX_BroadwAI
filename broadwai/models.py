@@ -85,6 +85,11 @@ class Article(Model):
     content_links: list[ArticleLink] = Field(default_factory=list, max_length=40)
     image: ArticleImage | None = None
     image_checked_at: datetime | None = None
+    # Persisted catalog entries may already include multimedia metadata. Keep it
+    # on reads and subsequent writes, including the empty fields on text articles.
+    format: Literal["article", "video", "podcast", "animation"] = "article"
+    media: dict | None = None
+    transcript: list[dict] = Field(default_factory=list)
 
     @field_validator("language")
     @classmethod
@@ -110,7 +115,11 @@ class Article(Model):
     @property
     def reading_time_minutes(self) -> int | None:
         """Estimate from the extracted article at 200 words/minute, never from a brief."""
-        if self.extraction_status != "extracted" or not self.text.strip():
+        if (
+            self.format != "article"
+            or self.extraction_status != "extracted"
+            or not self.text.strip()
+        ):
             return None
         return max(1, (len(self.text.split()) + 199) // 200)
 

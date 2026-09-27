@@ -37,3 +37,14 @@ export const sendFeedback = payload => post('/v1/feedback', payload);
 export const getLibrary = userId => request(`/v1/library?user_id=${encodeURIComponent(userId)}`);
 export const saveEdition = (userId, id) => request(`/v1/library/${encodeURIComponent(id)}?user_id=${encodeURIComponent(userId)}`, { method: 'PUT' });
 export const removeEdition = (userId, id) => request(`/v1/library/${encodeURIComponent(id)}?user_id=${encodeURIComponent(userId)}`, { method: 'DELETE' });
+
+const collectionPath = (userId, id = '') => `/v1/collections${id ? `/${encodeURIComponent(id)}` : ''}?user_id=${encodeURIComponent(userId)}`;
+const jsonRequest = (path, method, body) => request(path, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+export const getCollections = userId => request(collectionPath(userId));
+export const getCollection = (userId, id) => request(collectionPath(userId, id));
+export const createCollection = (userId, data) => jsonRequest(collectionPath(userId), 'POST', data);
+export const editCollection = (userId, id, data) => jsonRequest(collectionPath(userId, id), 'PATCH', data);
+export const deleteCollection = (userId, id) => request(collectionPath(userId, id), { method: 'DELETE' });
+export const addToCollection = (userId, id, articleId, coverId) => jsonRequest(`/v1/collections/${encodeURIComponent(id)}/articles/${encodeURIComponent(articleId)}?user_id=${encodeURIComponent(userId)}`, 'PUT', { cover_id: coverId || null });
+export const removeFromCollection = (userId, id, articleId) => request(`/v1/collections/${encodeURIComponent(id)}/articles/${encodeURIComponent(articleId)}?user_id=${encodeURIComponent(userId)}`, { method: 'DELETE' });
+export const importBookmarks = (userId, articleIds) => jsonRequest(`/v1/collections/import-bookmarks?user_id=${encodeURIComponent(userId)}`, 'POST', { article_ids: articleIds });

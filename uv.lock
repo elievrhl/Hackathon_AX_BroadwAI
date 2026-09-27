@@ -179,6 +179,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "aiohttp" },
+    { name = "certifi" },
     { name = "fastapi" },
     { name = "feedparser" },
     { name = "httpx" },
@@ -200,6 +201,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.11,<4" },
+    { name = "certifi", specifier = ">=2025" },
     { name = "fastapi", specifier = ">=0.115,<1" },
     { name = "feedparser", specifier = ">=6.0,<7" },
     { name = "httpx", specifier = ">=0.28,<1" },

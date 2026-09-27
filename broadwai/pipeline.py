@@ -578,7 +578,7 @@ class CoverPipeline:
                 ):
                     errors.append(f"{s.article_id}: preuve absente de la fiche")
                 if not s.headline or not s.role or not s.story_key:
-                    errors.append(f"{s.article_id}: titre français, rôle et sujet requis")
+                    errors.append(f"{s.article_id}: titre, rôle et sujet requis")
                 if s.story_key:
                     key = " ".join(tokens(s.story_key))
                     if key in stories and (
@@ -700,7 +700,7 @@ class CoverPipeline:
                     **candidate.model_dump(exclude={"score", "matched_interests"}),
                     section=selection.section,
                     reason=selection.reason,
-                    headline=selection.headline,
+                    headline=candidate.title,
                     role=selection.role,
                     reading_time_minutes=self.articles[selection.article_id].reading_time_minutes,
                     image=self.articles[selection.article_id].image,

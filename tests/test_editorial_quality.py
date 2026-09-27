@@ -484,7 +484,7 @@ async def test_adapter_disallows_source_proposal_with_incomplete_cover_and_honor
         await model.close()
 
 
-async def test_fallback_keeps_cached_french_titles_and_editorial_order():
+async def test_fallback_keeps_original_titles_despite_cached_translation_and_editorial_order():
     first, second = article(1), article(2)
     plan = plan_for([first, second], [71, 95])
 
@@ -498,4 +498,4 @@ async def test_fallback_keeps_cached_french_titles_and_editorial_order():
     assert cover.status == "fallback"
     assert cover.items[0].article_id == second.id
     assert cover.items[0].role == "lead"
-    assert all(i.headline == "Titre français conservé" for i in cover.items)
+    assert all(i.headline == i.title for i in cover.items)

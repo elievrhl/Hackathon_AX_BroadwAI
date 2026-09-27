@@ -31,7 +31,7 @@ def reading_memory(items: list[dict]) -> dict:
             examples.append(
                 {
                     "article_id": item["article_id"],
-                    "title": (item.get("headline") or item.get("title", ""))[:180],
+                    "title": (item.get("title") or item.get("headline", ""))[:180],
                     "summary": brief.get("summary", "")[:400],
                 }
             )
