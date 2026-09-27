@@ -57,6 +57,27 @@ CREATE TABLE IF NOT EXISTS feedback (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     UNIQUE(user_id, cover_id, article_id, kind)
 );
+ALTER TABLE feedback ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE feedback ADD COLUMN IF NOT EXISTS comment TEXT NOT NULL DEFAULT '';
+ALTER TABLE feedback ADD COLUMN IF NOT EXISTS preference_id TEXT;
+
+CREATE TABLE IF NOT EXISTS reader_preferences (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    target_key TEXT NOT NULL,
+    payload JSONB NOT NULL
+);
+CREATE INDEX IF NOT EXISTS reader_preferences_user ON reader_preferences(user_id);
+CREATE TABLE IF NOT EXISTS reader_messages (
+    user_id TEXT NOT NULL,
+    id TEXT NOT NULL,
+    payload JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    PRIMARY KEY(user_id, id)
+);
+CREATE INDEX IF NOT EXISTS reader_messages_recent ON reader_messages(user_id, created_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS reader_preferences_active_target
+    ON reader_preferences(user_id, target_key) WHERE payload->>'status' = 'active';
 
 -- Additive admin schema: existing articles/covers remain unchanged.
 CREATE TABLE IF NOT EXISTS sources (

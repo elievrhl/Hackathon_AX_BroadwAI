@@ -29,6 +29,7 @@ from broadwai.models import (
     utcnow,
 )
 from broadwai.network import RetrievalError, validate_destination
+from broadwai.preferences import PreferencePolicy, direct_match, semantic
 from broadwai.ranking import Ranked, diversify, eligible, rank, similarity, tokens
 from broadwai.web_search import open_web_query
 
@@ -47,6 +48,7 @@ class CoverPipeline:
                 "summary": settings.max_summary_calls,
                 "plan": 1,
                 "intent": 1,
+                "preferences": 10,
                 "screen": 4,
                 "editor": settings.max_agent_steps,
                 "search_catalog": 2,
@@ -80,6 +82,7 @@ class CoverPipeline:
         self.force_finalize = False
         self.started = perf_counter()
         self.audit: dict = {"version": 1, "events": []}
+        self.preference_policy = PreferencePolicy()
 
     def log(self, kind, **data):
         if kind == "candidate_skipped" and data.get("article_id"):
@@ -202,7 +205,95 @@ class CoverPipeline:
             "constraints": constraints,
             "interest_balance": self.balance,
         }
+        if self.preference_policy.rules:
+            self.intent["reader_preferences"] = self.preference_policy.context()
+            for rule in self.preference_policy.rules:
+                if rule.action in {"diversify", "more"} and rule.target_kind in {
+                    "topic",
+                    "treatment",
+                }:
+                    self.intent["needs"].append(
+                        {
+                            "id": "preference-" + rule.id,
+                            "topic": rule.target,
+                            "query": rule.target,
+                            "priority": "secondary",
+                            "level": profile.level,
+                            "evidence": rule.target,
+                        }
+                    )
         self.audit["editorial_intent"] = self.intent
+
+    async def _assess_preferences(self):
+        policy = self.preference_policy
+        if not policy.rules:
+            return
+        pending = [c for c in self.candidates.values() if c.article_id not in policy.matches]
+        rules = [r for r in policy.rules if semantic(r)]
+        batch_size = min(8, max(1, 24 // max(1, len(rules))))
+        for start in range(0, len(pending), batch_size):
+            batch = pending[start : start + batch_size]
+            for c in batch:
+                policy.matches[c.article_id] = {}
+            if rules:
+                try:
+                    result = await self.model.assess_preferences(
+                        {
+                            "preferences": [r.model_dump(mode="json") for r in rules],
+                            "candidates": [
+                                {
+                                    "article_id": c.article_id,
+                                    "title": c.title,
+                                    "summary": c.brief.summary,
+                                    "key_points": c.brief.key_points,
+                                    "topics": c.brief.topics,
+                                    "level": c.brief.level,
+                                    "content_type": c.brief.content_type,
+                                    "source": c.source,
+                                }
+                                for c in batch
+                            ],
+                        },
+                        self.budget,
+                    )
+                    by_id = {c.article_id: c for c in batch}
+                    allowed = {r.id for r in rules}
+                    pairs = Counter((a.article_id, a.preference_id) for a in result.assessments)
+                    for assessment in result.assessments:
+                        c = by_id.get(assessment.article_id)
+                        if not c or assessment.preference_id not in allowed:
+                            continue
+                        text = "\n".join(
+                            [c.title, c.brief.summary, *c.brief.key_points, *c.brief.topics]
+                        )
+                        if pairs[c.article_id, assessment.preference_id] != 1:
+                            continue
+                        if assessment.match != "uncertain" and not grounded(
+                            assessment.evidence, text
+                        ):
+                            continue
+                        policy.matches[c.article_id][assessment.preference_id] = assessment.match
+                    self.log(
+                        "reader_preferences_assessed",
+                        assessments=result.model_dump()["assessments"],
+                    )
+                except (ModelError, BudgetExceeded) as exc:
+                    self.log("reader_preferences_failed", error=str(exc))
+                    self.warnings.append(
+                        "Certaines préférences n'ont pas pu être évaluées ; "
+                        "les exclusions non vérifiables restent bloquantes."
+                    )
+            for c in batch:
+                blocked = policy.blocked(self.articles[c.article_id], c.brief)
+                if blocked:
+                    self.log(
+                        "candidate_skipped",
+                        article_id=c.article_id,
+                        reason="Exclusion explicite ou compatibilité incertaine",
+                        preferences=blocked,
+                    )
+                    self.candidates.pop(c.article_id, None)
+                    self.articles.pop(c.article_id, None)
 
     def _pick_error(self, pick, row, sections, strict=False):
         if pick.score < self.settings.min_editorial_score:
@@ -342,6 +433,14 @@ class CoverPipeline:
         checked_article = article.model_copy(
             update={"language": article.language or brief.language}
         )
+        if any(
+            r.action == "exclude" and direct_match(r, article, brief) is True
+            for r in self.preference_policy.rules
+        ):
+            self.log(
+                "candidate_skipped", article_id=article.id, reason="Exclusion explicite du lecteur"
+            )
+            return False
         if not eligible(checked_article, request.profile, seen):
             self.log(
                 "candidate_skipped", article_id=article.id, reason="Exclu après lecture/langue"
@@ -446,6 +545,7 @@ class CoverPipeline:
                 break
             if id_ not in self.prepared_ids:
                 await self._prepare(row, request, seen)
+                await self._assess_preferences()
 
     async def _add_candidates(
         self,
@@ -493,7 +593,8 @@ class CoverPipeline:
             added.extend(
                 r.article.id for r, accepted in zip(batch, results, strict=True) if accepted
             )
-        return added
+        await self._assess_preferences()
+        return [id_ for id_ in added if id_ in self.candidates]
 
     def _validate(self, selections: list[Selection], request: CoverRequest) -> list[str]:
         errors = []
@@ -601,6 +702,34 @@ class CoverPipeline:
             )
         if any(similarity(a, b) >= 0.8 for i, a in enumerate(articles) for b in articles[i + 1 :]):
             errors.append("Articles quasi identiques dans la sélection")
+        if can_research:
+            covered_requests = {
+                rule.id
+                for rule in self.preference_policy.rules
+                if rule.action == "diversify"
+                and any(
+                    self.preference_policy.match(
+                        rule, self.articles[s.article_id], self.candidates[s.article_id].brief
+                    )
+                    == "yes"
+                    for s in selections
+                    if s.article_id in self.candidates
+                )
+            }
+            for rule in self.preference_policy.rules:
+                if len(covered_requests) >= self.preference_policy.discovery_limit:
+                    break
+                if rule.action != "diversify":
+                    continue
+                matching = {
+                    id_
+                    for id_, c in self.candidates.items()
+                    if self.preference_policy.match(rule, self.articles[id_], c.brief) == "yes"
+                }
+                if not (matching & set(ids)):
+                    errors.append(
+                        f"Demande de diversification à couvrir si possible : {rule.target}"
+                    )
         return errors
 
     def _interest(self, article_id):
@@ -617,9 +746,12 @@ class CoverPipeline:
         counts = Counter()
         ids = set()
         exploration_count = 0
+        discovery_count = 0
+        reduced_counts = Counter()
         interest_counts = Counter()
         balanced = self.balance and len(self.balance["interests"]) > 1
-        ordered = sorted(selections, key=lambda s: self._is_exploration(s.article_id))
+        ordered = self.preference_policy.order(selections, self.articles, self.candidates)
+        ordered = sorted(ordered, key=lambda s: self._is_exploration(s.article_id))
         if balanced:
             ordered = interleave(
                 [s for s in ordered if not self._is_exploration(s.article_id)],
@@ -627,12 +759,38 @@ class CoverPipeline:
             ) + [s for s in ordered if self._is_exploration(s.article_id)]
         for s in ordered:
             article = self.articles.get(s.article_id)
+            candidate = self.candidates.get(s.article_id)
+            discoveries = (
+                self.preference_policy.discoveries(article, candidate.brief)
+                if article and candidate
+                else []
+            )
+            # Even an unavailable semantic check cannot let a whole edition pivot to
+            # a newly requested need: also count the editor's attributed need.
+            pick = self.picks.get(s.article_id)
+            if pick:
+                discoveries.extend(
+                    r.id
+                    for r in self.preference_policy.rules
+                    if r.action == "diversify" and pick.matched_need == "preference-" + r.id
+                )
+            reduced = (
+                self.preference_policy.reduced(article, candidate.brief)
+                if article and candidate
+                else []
+            )
             exploration = self._is_exploration(s.article_id)
             reason = None
             if article is None:
                 reason = "Identifiant inconnu"
             elif s.article_id in ids:
                 reason = "Doublon"
+            elif candidate and self.preference_policy.blocked(article, candidate.brief):
+                reason = "Exclusion explicite du lecteur"
+            elif discoveries and discovery_count >= self.preference_policy.discovery_limit:
+                reason = "Quota de diversification demandé par le lecteur"
+            elif any(reduced_counts[id_] >= self.preference_policy.less_limit for id_ in reduced):
+                reason = "Présence réduite à la demande du lecteur"
             elif exploration and exploration_count >= exploration_limit:
                 reason = "Exploration réservée aux places manquantes"
             elif counts[article.source] >= request.max_per_source:
@@ -654,6 +812,8 @@ class CoverPipeline:
                 removed.append({"article_id": s.article_id, "reason": reason})
                 continue
             ids.add(s.article_id)
+            discovery_count += bool(discoveries)
+            reduced_counts.update(reduced)
             counts[article.source] += 1
             interest_counts[self._interest(s.article_id)] += 1
             if exploration:
@@ -692,6 +852,33 @@ class CoverPipeline:
     def _finish(
         self, selections: list[Selection], request: CoverRequest, title: str, fallback: bool = False
     ) -> Cover:
+        if self.preference_policy.rules:
+            self.audit["reader_preferences"] = self.preference_policy.context()
+            self.audit["preference_matches"] = self.preference_policy.matches
+            impact = []
+            for rule in self.preference_policy.rules:
+                matching = [
+                    s.article_id
+                    for s in selections
+                    if self.preference_policy.match(
+                        rule, self.articles[s.article_id], self.candidates[s.article_id].brief
+                    )
+                    == "yes"
+                ]
+                impact.append(
+                    {
+                        "id": rule.id,
+                        "target": rule.target,
+                        "target_kind": rule.target_kind,
+                        "explanation": rule.explanation,
+                        "action": rule.action,
+                        "selected_count": len(matching),
+                        "article_ids": matching,
+                    }
+                )
+                if rule.action in {"diversify", "more"} and not matching:
+                    self.warnings.append(f"Demande non couverte dans cette édition : {rule.target}")
+            self.audit["preference_impact"] = impact
         items = []
         for selection in selections:
             candidate = self.candidates[selection.article_id]
@@ -764,10 +951,32 @@ class CoverPipeline:
             usage=self.budget.report(),
             diagnostics=self.audit,
         )
-        self.store.put_cover(cover)
+        self.store.put_cover(cover, preferences=self.preference_policy.rules)
         return cover
 
     async def run(self, request: CoverRequest) -> Cover:
+        rules = self.store.list_preferences(request.profile.user_id, active_only=True)
+        self.preference_policy = PreferencePolicy(rules, request.size)
+        # Load a snapshot once. A change made while generating applies to the next run.
+        source_exclusions = [
+            r.target
+            for r in rules
+            if r.action == "exclude" and r.target_kind == "source" and not r.explanation
+        ]
+        if source_exclusions:
+            request = request.model_copy(
+                update={
+                    "profile": request.profile.model_copy(
+                        update={
+                            "excluded_sources": list(
+                                dict.fromkeys(
+                                    [*request.profile.excluded_sources, *source_exclusions]
+                                )
+                            ),
+                        }
+                    )
+                }
+            )
         self.audit["request"] = request.model_dump(mode="json")
         self.audit["settings"] = {
             key: getattr(self.settings, key)
@@ -809,7 +1018,10 @@ class CoverPipeline:
         pool = preview_pool(
             ranked, self.settings.editorial_pool_size, [i.topic for i in request.profile.interests]
         )
-        selection_limit = min(28, max(request.size + 4, self.settings.shortlist_size))
+        # Keep enough vetted alternatives to replace articles rejected after full-text
+        # extraction.  A target-sized shortlist made the 18-item reader routinely
+        # exhaust its preparation budget after normal quality rejections.
+        selection_limit = min(40, max(request.size * 2, self.settings.shortlist_size))
         previews = [preview(r) for r in pool]
         self.log("editorial_preview", candidates=previews, selection_limit=selection_limit)
         try:
@@ -880,6 +1092,7 @@ class CoverPipeline:
                 "budget_remaining_tokens": self.budget.remaining_tokens,
                 "search_history": self.search_history,
                 "rejected": list(self.rejected.values())[-30:],
+                "preference_matches": self.preference_policy.matches,
                 "candidates": [
                     compact_candidate(c, self.picks.get(c.article_id))
                     for c in self.candidates.values()
@@ -1285,11 +1498,14 @@ class CoverPipeline:
                 article = await self.collector.extract(article)
                 old_candidate = self.candidates.pop(article.id)
                 self.articles.pop(article.id)
+                self.preference_policy.matches.pop(article.id, None)
                 accepted = await self._prepare(
                     Ranked(article, old_candidate.score, old_candidate.matched_interests),
                     request,
                     seen,
                 )
+                await self._assess_preferences()
+                accepted = accepted and article.id in self.candidates
                 if not accepted:
                     return {"article_id": article.id, "error": "Article retiré après extraction"}
             return {

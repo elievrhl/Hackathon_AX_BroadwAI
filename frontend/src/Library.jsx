@@ -40,7 +40,7 @@ export function AccountNav({ account, view, onView, onLogout, disabled }) {
 }
 
 export function SaveEdition({ saved, busy, onSave }) {
-  return <div className="save-edition"><div><strong>Une revue à garder ?</strong><span>Retrouvez-la avec sa couverture dans votre bibliothèque.</span></div><button className="secondary-button" disabled={busy || saved} onClick={onSave}>{saved ? <Check size={17} /> : <Bookmark size={17} />}{saved ? 'Dans ma bibliothèque' : 'Sauvegarder la revue'}</button></div>;
+  return <button className="text-button save-edition" disabled={busy || saved} onClick={onSave}>{saved ? <Check size={17} /> : <Bookmark size={17} />}{saved ? 'Dans ma bibliothèque' : 'Sauvegarder la revue'}</button>;
 }
 
 export function EditionArtwork({ edition, spine = false }) {

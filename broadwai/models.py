@@ -277,7 +277,9 @@ class EditorialPick(Model):
 class EditorialPlan(Model):
     contract_version: int = 1
     sections: list[str] = Field(min_length=1, max_length=5)
-    picks: list[EditorialPick] = Field(max_length=28)
+    # A large edition needs replacement candidates because extraction and factual
+    # checks intentionally reject weak articles after this first editorial pass.
+    picks: list[EditorialPick] = Field(max_length=40)
     gaps: list[str] = Field(max_length=5)
     queries: list[str] = Field(max_length=2)
 
@@ -363,3 +365,54 @@ class Feedback(Model):
     cover_id: str
     article_id: str
     kind: Literal["impression", "open", "useful", "already_known", "not_interested"]
+    reason: Literal["too_basic", "too_technical", "topic", "source", "style", "other"] | None = None
+    comment: str = Field("", max_length=1000)
+    preference: "PreferenceCreate | None" = None
+
+
+class PreferenceInput(Model):
+    action: Literal["diversify", "more", "less", "exclude"]
+    target_kind: Literal["topic", "source", "content_type", "level", "treatment"]
+    target: str = Field(min_length=2, max_length=150)
+    explanation: str = Field("", max_length=1000)
+    scope: Literal["persistent", "next"] = "persistent"
+
+    @field_validator("target")
+    @classmethod
+    def meaningful_target(cls, value):
+        if not any(c.isalnum() for c in value):
+            raise ValueError("Précisez le sujet ou la caractéristique visée")
+        return value
+
+
+class PreferenceCreate(PreferenceInput):
+    id: str = Field(default_factory=lambda: uuid4().hex, pattern=r"^[a-zA-Z0-9-]{16,64}$")
+
+
+class PreferenceUpdate(PreferenceInput):
+    revision: int = Field(ge=1)
+
+
+class ReaderPreference(PreferenceCreate):
+    user_id: str
+    revision: int = 1
+    status: Literal["active", "deleted", "applied", "replaced"] = "active"
+    created_at: datetime = Field(default_factory=utcnow)
+    updated_at: datetime = Field(default_factory=utcnow)
+    origin_article_id: str | None = None
+    origin_cover_id: str | None = None
+    applied_cover_id: str | None = None
+
+
+class PreferenceAssessment(Model):
+    article_id: str
+    preference_id: str
+    match: Literal["yes", "no", "uncertain"]
+    evidence: str = Field(max_length=250)
+
+
+class PreferenceAssessments(Model):
+    assessments: list[PreferenceAssessment] = Field(max_length=480)
+
+
+Feedback.model_rebuild()

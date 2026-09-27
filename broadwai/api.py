@@ -9,10 +9,19 @@ from fastapi.staticfiles import StaticFiles
 from broadwai.config import Settings
 from broadwai.image_review import ImageReviewer
 from broadwai.images import ArticleImages
-from broadwai.llm import ModelError, OpenAILanguageModel
-from broadwai.models import Cover, CoverRequest, Feedback, IngestRequest
+from broadwai.llm import BudgetExceeded, ModelError, OpenAILanguageModel, RunBudget
+from broadwai.models import (
+    Cover,
+    CoverRequest,
+    Feedback,
+    IngestRequest,
+    PreferenceCreate,
+    PreferenceUpdate,
+)
 from broadwai.network import PublicFetcher
 from broadwai.pipeline import CoverPipeline
+from broadwai.preferences import PreferenceConflict
+from broadwai.reader_chat import ReaderMessage, check_replay, preference_snapshot
 from broadwai.reader_memory import ArticleLike
 from broadwai.retrieval import Collector
 from broadwai.sources import router as admin_router
@@ -47,6 +56,7 @@ def create_app(
         app.state.search = search or OpenAIWebSearch(llm, settings.web_search_enabled)
         app.state.cover_lock = asyncio.Lock()
         app.state.source_lock = asyncio.Lock()
+        app.state.reader_chat_lock = asyncio.Lock()
         app.state.images = ArticleImages(
             repository,
             PublicFetcher(settings.request_timeout, settings.max_download_bytes),
@@ -224,10 +234,112 @@ def create_app(
     @app.post("/v1/feedback", status_code=201)
     def feedback(event: Feedback):
         try:
-            app.state.store.add_feedback(event)
+            preference = app.state.store.add_feedback(event)
+        except PreferenceConflict as exc:
+            raise HTTPException(409, str(exc)) from exc
         except ValueError as exc:
             raise HTTPException(422, str(exc)) from exc
-        return {"saved": True}
+        return {"saved": True, "preference": preference}
+
+    @app.get("/v1/readers/{user_id}/feedback/{cover_id}")
+    def reader_feedback(user_id: str, cover_id: str):
+        try:
+            return app.state.store.feedback_for_cover(user_id, cover_id)
+        except KeyError as exc:
+            raise HTTPException(404, str(exc)) from exc
+
+    @app.get("/v1/readers/{user_id}/preferences")
+    def reader_preferences(user_id: str):
+        return app.state.store.list_preferences(user_id)
+
+    @app.get("/v1/readers/{user_id}/messages")
+    def reader_messages(user_id: str):
+        return app.state.store.list_reader_messages(user_id)
+
+    @app.post("/v1/readers/{user_id}/messages", status_code=201)
+    async def reader_message(user_id: str, request: ReaderMessage):
+        if request.profile.user_id != user_id:
+            raise HTTPException(422, "Le message et la fiche doivent concerner le même lecteur")
+        if app.state.reader_chat_lock.locked():
+            raise HTTPException(429, "Kiosque lit déjà un message. Réessayez dans un instant.")
+        async with app.state.reader_chat_lock:
+            repository = app.state.store
+            try:
+                previous = await asyncio.to_thread(
+                    repository.get_reader_message, user_id, request.id
+                )
+                if previous:
+                    return check_replay(previous, request)
+                if app.state.model is None:
+                    raise HTTPException(
+                        503, "Kiosque ne peut pas lire vos messages pour le moment."
+                    )
+                rows = await asyncio.to_thread(
+                    repository.list_preferences, user_id, active_only=True
+                )
+                history = await asyncio.to_thread(repository.list_reader_messages, user_id)
+                state = {
+                    "profile": request.profile.model_dump(mode="json"),
+                    "preferences": [p.model_dump(mode="json") for p in rows],
+                    "conversation": [
+                        {"message": t["message"], "reply": t["reply"]} for t in history[-6:]
+                    ],
+                    "message": request.message,
+                }
+                budget = RunBudget(limits={"reader_chat": 1}, max_tokens=40000)
+                async with asyncio.timeout(55):
+                    reply = await app.state.model.reader_message(state, budget)
+                return await asyncio.to_thread(
+                    repository.save_reader_message,
+                    user_id,
+                    request,
+                    reply,
+                    preference_snapshot(rows),
+                    budget.report(),
+                )
+            except PreferenceConflict as exc:
+                raise HTTPException(409, str(exc)) from exc
+            except TimeoutError as exc:
+                raise HTTPException(
+                    504, "Kiosque n’a pas répondu à temps. Votre fiche est inchangée."
+                ) from exc
+            except (ModelError, BudgetExceeded, ValueError) as exc:
+                raise HTTPException(
+                    502,
+                    "Kiosque n’a pas pu mettre à jour votre fiche. "
+                    "Réessayez ou précisez votre message.",
+                ) from exc
+
+    @app.post("/v1/readers/{user_id}/preferences", status_code=201)
+    def create_preference(user_id: str, value: PreferenceCreate):
+        if not 1 <= len(user_id) <= 100:
+            raise HTTPException(422, "Identifiant lecteur invalide")
+        try:
+            return app.state.store.create_preference(user_id, value)
+        except PreferenceConflict as exc:
+            raise HTTPException(409, str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+
+    @app.put("/v1/readers/{user_id}/preferences/{preference_id}")
+    def update_preference(user_id: str, preference_id: str, value: PreferenceUpdate):
+        try:
+            return app.state.store.update_preference(user_id, preference_id, value)
+        except KeyError as exc:
+            raise HTTPException(404, str(exc)) from exc
+        except PreferenceConflict as exc:
+            raise HTTPException(409, str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from exc
+
+    @app.delete("/v1/readers/{user_id}/preferences/{preference_id}")
+    def delete_preference(user_id: str, preference_id: str, revision: int = Query(ge=1)):
+        try:
+            return app.state.store.update_preference(user_id, preference_id, revision=revision)
+        except KeyError as exc:
+            raise HTTPException(404, str(exc)) from exc
+        except PreferenceConflict as exc:
+            raise HTTPException(409, str(exc)) from exc
 
     return app
 

@@ -106,6 +106,8 @@ export function adaptCover(raw) {
   return {
     id: raw.id, userId: raw.user_id, title: raw.title, createdAt: raw.created_at,
     status: raw.status, warnings: raw.warnings || [], items, sections,
+    preferenceImpact: raw.diagnostics?.preference_impact || [],
+    preferenceWarnings: (raw.warnings || []).filter(text => text.startsWith('Certaines préférences')),
     lead, secondary, briefs, exploration,
     remainingSections: sections.map(section => ({
       ...section, articles: section.articles.filter(item => !item.exploration && !featured.has(item)),

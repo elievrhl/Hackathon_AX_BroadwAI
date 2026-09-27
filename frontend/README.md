@@ -41,17 +41,22 @@ utiliser la même adresse pour retrouver son profil local.
    à `POST /v1/covers`. Ce clic utilise les crédits OpenAI du serveur.
 3. Pendant la préparation, un temps écoulé est affiché, sans inventer des étapes de
    progression. Les doubles clics sont bloqués ; l’ancienne édition reste lisible.
-4. Lire les titres et rubriques du rédacteur ; ouvrir un article pour accéder au site
-   éditeur, à la fiche de lecture repliée et à la raison de sélection.
+4. Cliquer sur un titre ou une image pour lire directement l’article chez son éditeur,
+   dans l’onglet courant. Le bouton **Fiche & avis** donne accès au résumé, à la raison
+   de sélection et aux retours, sans quitter le journal.
 5. Retrouver les éditions enregistrées dans l’historique, sans nouvelle génération.
    L’inspecteur fournit la sélection, les scores, résumés, outils et coût après génération.
 
 Un lien `/reader/?cover=<identifiant>` ouvre directement une édition, notamment depuis
 l’inspecteur. Le paramètre de l’URL est prioritaire sur la dernière édition du navigateur.
 
+La une privilégie les titres, les visuels et les sources : les bandeaux décoratifs,
+slogans, numéros de rubrique et appels à l’action redondants ont été retirés. La sauvegarde
+et le Courrier du lecteur restent disponibles dans une barre d’actions compacte.
+
 Les cartes et fiches affichent le temps de lecture estimé à 200 mots par minute,
 arrondi à la minute supérieure, à partir du texte extrait de l’article. Si seul un
-extrait est disponible, la durée est indiquée comme indisponible. Les éditions
+extrait est disponible, aucune durée n’est affichée. Les éditions
 enregistrées avant cet ajout sont enrichies depuis le catalogue lors de leur ouverture.
 
 Les visuels sont servis par le backend après un contrôle Nano de leur pertinence.
@@ -61,10 +66,10 @@ non vérifiables disparaissent au profit d'une carte textuelle. Le paramètre
 `?v=review-1` renouvelle le cache du navigateur pour les anciennes images non contrôlées.
 
 Les nouvelles éditions privilégient les actualités des dernières 24–72 heures (7 jours maximum)
-et acceptent les lectures de fond durables jusqu'à un an. Ces deux catégories sont visibles sur
-les cartes. Si les articles directement liés aux sujets ne suffisent pas, une rubrique
+et acceptent les lectures de fond durables jusqu'à un an. Ces catégories sont consultables dans
+les fiches. Si les articles directement liés aux sujets ne suffisent pas, une rubrique
 **Exploration** complète l'édition avec des thèmes connexes mais différents. Chaque découverte
-explique son lien avec les intérêts du lecteur ; elle reste accessible par les filtres et favoris.
+explique son lien avec les intérêts du lecteur dans sa fiche ; elle reste accessible par les filtres et favoris.
 Les éditions déjà enregistrées conservent leur sélection.
 
 Les préférences permettent de choisir 15, 18 ou 20 articles et les langues français
@@ -90,7 +95,36 @@ Les couvertures, résumés et événements sont enregistrés par le backend dans
 Le clic vers l’éditeur envoie `open` ; les boutons d’avis envoient `useful`,
 `already_known` ou `not_interested` à `/v1/feedback`. Les articles concernés sont
 écartés des prochaines sélections de cet identifiant par le backend existant.
-Il n’y a pas encore de mise à jour automatique des notes de profil à partir des avis.
+Les notes du profil ne sont pas réécrites automatiquement. **Expliquer ou préciser pour
+la suite** ajoute un motif et un commentaire à l'avis ; la case **Ajuster aussi mes prochaines
+lectures** permet de définir une préférence avec une cible, un effet et une durée explicites.
+
+**Écrire à Kiosque**, qui remplace « Orienter mes lectures », ouvre le Courrier du lecteur.
+Un message libre suffit : Kiosque le lit, répond et met à jour la fiche accessible via
+**Ma fiche**. Des suggestions remplissent le brouillon sans l'envoyer. Entrée envoie,
+Maj + Entrée ajoute une ligne. Le message apparaît pendant la lecture, puis la réponse
+confirme l'enregistrement ; le détail des ajustements se déplie à la demande. La fiche
+souligne les préférences modifiées. Elle s'ouvre à côté de la conversation sur grand écran
+et dans une vue dédiée sur petit écran, avec retour au brouillon conservé.
+
+Les échanges persistent sur le serveur ; fermer la fenêtre pendant l'envoi ne perd pas
+le résultat. Une erreur conserve le brouillon, et un renvoi utilise le même identifiant
+pour éviter les doublons. Un message ambigu peut donner lieu à une question sans modifier
+la fiche. Chaque nouveau message utilise un appel au modèle économique, sans relance
+automatique. Aucune génération d'édition n'est déclenchée par le chat.
+
+Pour 18 articles, la diversification occupe au maximum 3 places au total ; chaque règle
+« moins de » limite sa cible à 3 articles. Une exclusion est appliquée aussi aux découvertes.
+Les contraintes peuvent produire une édition plus courte, sans les relâcher silencieusement.
+
+Une règle vaut pour les prochaines générations, ou uniquement pour la prochaine édition
+non vide enregistrée, même partielle. Une édition en cours conserve ses règles initiales.
+Les demandes ponctuelles appliquées restent consultables avec le lien de l'édition.
+Le bilan **Vos demandes dans cette édition** indique les articles correspondants et les
+demandes non satisfaites. La lecture de ce bilan est gratuite ; la conversation utilise
+le modèle économique, comme l'évaluation sémantique lors de la prochaine génération.
+Les avis et explications se rechargent après actualisation. Les conflits de correction
+(409) sont signalés et la liste peut être actualisée. Les anciennes éditions restent lisibles.
 
 L’historique affiche les 100 dernières éditions de **tous les profils du serveur local**,
 notamment les anciens essais. Les retours sont désactivés sur les éditions d’un autre

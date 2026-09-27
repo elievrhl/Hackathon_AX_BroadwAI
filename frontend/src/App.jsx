@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, RefreshCw } from 'lucide-react';
-import { Onboarding, Preferences, ArticleDetail } from './components.jsx';
+import { ArrowRight, Check, MessageCircle, RefreshCw } from 'lucide-react';
+import { Onboarding, Preferences, ArticleDetail, Modal } from './components.jsx';
+import ReaderChat from './ReaderChat.jsx';
+import { preferenceSummary } from './preferences.js';
 import Newspaper from './Newspaper.jsx';
 import { getLibrary, saveEdition, removeEdition } from './api.js';
 import { readLocal, accountKey, currentAccount, leaveAccount } from './accounts.js';
 import Library, { AccountScreen, AccountNav, SaveEdition } from './Library.jsx';
 import { DEFAULT_PROFILE, STORAGE_KEY, normalizeProfile, toCoverRequest, adaptCover, formatDate } from './reader.js';
-import { getHealth, listCovers, getCover, createCover, sendFeedback, getLikes, setLike } from './api.js';
+import { getHealth, listCovers, getCover, createCover, sendFeedback, getLikes, setLike, getReaderFeedback } from './api.js';
 
 const STATUS_LABELS = { complete: 'complète', partial: 'partielle', fallback: 'secours' };
 
@@ -37,6 +39,7 @@ function ReaderApp({ account, onLogout }) {
   const [history, setHistory] = useState([]);
   const [health, setHealth] = useState(null);
   const [preferences, setPreferences] = useState(false);
+  const [memory, setMemory] = useState(false);
   const [article, setArticle] = useState(null);
   const [saved, setSaved] = useState(() => {
     const value = read('kiosque.saved', []);
@@ -100,6 +103,17 @@ function ReaderApp({ account, onLogout }) {
     return () => { active = false; };
   }, []);
   useEffect(() => {
+    if (!cover || cover.userId !== userId) return;
+    let active = true;
+    getReaderFeedback(userId, cover.id).then(rows => {
+      if (!active) return;
+      const values = {};
+      for (const row of rows) if (row.kind !== 'open' && row.kind !== 'impression') values[`${cover.id}:${row.article_id}`] = row;
+      setFeedback(previous => ({ ...values, ...previous }));
+    }).catch(e => { if (active) setNotice(`Les avis précédents n’ont pas pu être chargés : ${e.message}`); });
+    return () => { active = false; };
+  }, [cover?.id, userId]);
+  useEffect(() => {
     if (!notice) return;
     const timer = setTimeout(() => setNotice(''), 7000);
     return () => clearTimeout(timer);
@@ -162,15 +176,20 @@ function ReaderApp({ account, onLogout }) {
     setSaved(next); persist('kiosque.saved', next);
     setNotice(next.includes(id) ? 'Article gardé dans ce navigateur.' : 'Article retiré de vos favoris.');
   }
-  async function recordFeedback(kind, selected = article) {
+  async function recordFeedback(value, selected = article) {
+    const payload = typeof value === 'string' ? { kind: value } : value;
+    const { kind } = payload;
     if (!selected || cover?.userId !== userId) return;
     const key = `${cover.id}:${selected.id}`;
     if (pendingFeedback.current.has(key)) return;
     pendingFeedback.current.add(key);
     try {
-      await sendFeedback({ user_id: userId, cover_id: cover.id, article_id: selected.id, kind });
-      if (kind !== 'open') { setFeedback(previous => ({ ...previous, [key]: kind })); setNotice('Votre retour a été enregistré.'); }
-    } catch (reason) { setNotice(`Retour non enregistré : ${reason.message}`); }
+      const result = await sendFeedback({ ...payload, user_id: userId, cover_id: cover.id, article_id: selected.id });
+      if (kind !== 'open') {
+        setFeedback(previous => ({ ...previous, [key]: { ...previous[key], ...payload, preference_id: result.preference?.id || previous[key]?.preference_id } }));
+        setNotice(result.preference ? 'Votre retour et la préférence associée sont enregistrés pour la prochaine génération.' : 'Votre retour sur cet article a été enregistré.');
+      }
+    } catch (reason) { if (kind === 'open') setNotice(`Retour non enregistré : ${reason.message}`); else throw reason; }
     finally { pendingFeedback.current.delete(key); }
   }
   async function toggleLike(selected) {
@@ -187,6 +206,7 @@ function ReaderApp({ account, onLogout }) {
     persist(STORAGE_KEY, null); setPreferences(false); setProfile(null); setArticle(null);
     // Keep the device identity, bookmarks and server editions; no account is deleted.
   }
+  function openMemory() { setArticle(null); setPreferences(false); setMemory(true); }
 
   async function refreshLibrary() {
     setLibraryLoading(true); setLibraryError('');
@@ -213,9 +233,13 @@ function ReaderApp({ account, onLogout }) {
   return <>
     <a className="skip-link" href="#main">Aller au contenu</a>
     <AccountNav account={account} view={view} onView={navigate} onLogout={onLogout} disabled={!!busy || !!libraryPending} />
-    {view === 'library' ? <Library editions={editions} loading={libraryLoading} error={libraryError || error} pending={libraryPending || busy} onRetry={refreshLibrary} onOpen={openCover} onRemove={id => changeLibrary(id, true)} onJournal={() => navigate('journal')} /> : profile ? <Newspaper liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} profile={profile} cover={cover} saved={saved} onSave={toggleSaved} onOpen={setArticle} onPreferences={() => setPreferences(true)} busy={!!busy}>
+    {view === 'library' ? <Library editions={editions} loading={libraryLoading} error={libraryError || error} pending={libraryPending || busy} onRetry={refreshLibrary} onOpen={openCover} onRemove={id => changeLibrary(id, true)} onJournal={() => navigate('journal')} /> : profile ? <Newspaper profile={profile} liked={liked} liking={liking} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} cover={cover} saved={saved} onSave={toggleSaved} onOpen={setArticle} onRead={selected => recordFeedback('open', selected)} onPreferences={() => setPreferences(true)} busy={!!busy}>
       <section className="reader-controls" aria-label="Gestion de votre édition">
+        <div className="reader-actions">
         {cover && <SaveEdition saved={editions.some(row => row.id === cover.id)} busy={!!busy || !!libraryPending || libraryLoading} onSave={() => changeLibrary(cover.id)} />}
+        <button className="text-button" onClick={openMemory}><MessageCircle size={16} aria-hidden="true" /> Écrire à Kiosque</button>
+        </div>
+        {cover?.userId === userId && !!cover.preferenceImpact?.length && <details className="preference-impact"><summary>Vos demandes dans cette édition</summary><ul>{cover.preferenceImpact.map(row => <li key={row.id}>{preferenceSummary(row)} · {row.selected_count} article{row.selected_count !== 1 ? 's' : ''} retenu{row.selected_count !== 1 ? 's' : ''}{row.action === 'exclude' ? ' correspondant à la cible exclue' : ''}{row.explanation && <p>{row.explanation}</p>}{['more', 'diversify'].includes(row.action) && row.selected_count === 0 && <p>Aucune lecture correspondante n’a pu être retenue dans cette édition.</p>}</li>)}</ul>{cover.preferenceWarnings.map((warning, i) => <p key={i} className="edition-warning">{warning}</p>)}<p className="field-help">Bilan de cette édition au moment de sa création. Les corrections suivantes s’appliqueront aux prochaines générations.</p></details>}
         <details className="edition-management" open={cover ? undefined : true}>
         <summary>Préparer ou retrouver une édition</summary>
         <div className="generation-row"><div><strong>{cover ? 'La prochaine édition vous attend.' : 'Composez votre première une.'}</strong><p>{profile.size} articles souhaités · recherche web et découverte de sources activées</p><p className="field-help">La génération consomme des crédits. À leur premier affichage, les nouvelles images font aussi l’objet d’une vérification facturée ; son résultat est ensuite réutilisé.</p></div><button className="primary-button" disabled={!!busy || health?.llm_configured === false} onClick={generate}>{busy === 'generating' ? 'Préparation en cours…' : 'Générer ma une'}<ArrowRight size={18} /></button></div>
@@ -228,8 +252,9 @@ function ReaderApp({ account, onLogout }) {
         {busy && <div className="generation-status" role="status"><span className="working-dot" /><span>{busy === 'generating' ? `Le rédacteur prépare votre édition… ${elapsed} s écoulées. Cela peut prendre plusieurs minutes. Vous pouvez continuer à lire l’édition affichée.` : 'Chargement des éditions…'}</span></div>}
       </section>
     </Newspaper> : <Onboarding initialName={account.name} onComplete={saveProfile} onExplore={() => { saveProfile({ ...DEFAULT_PROFILE, name: account.name }); if (history.length) openCover(history[0].id); }} />}
-    {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} />}
-    {article && <ArticleDetail liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} article={article} saved={saved.includes(article.id)} onSave={toggleSaved} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} />}
+    {preferences && <Preferences profile={profile} onSave={saveProfile} onClose={() => setPreferences(false)} onReset={reset} onMemory={openMemory} />}
+    {profile && <Modal className="reader-chat-dialog" labelId="memory-title" open={memory} onClose={() => setMemory(false)}><ReaderChat userId={userId} profile={profile} generating={busy === 'generating'} open={memory} /></Modal>}
+    {article && <ArticleDetail key={`${cover.id}:${article.id}`} liked={liked.includes(article.id)} liking={liking.includes(article.id)} canLike={likesReady && cover?.userId === userId} onLike={toggleLike} article={article} saved={saved.includes(article.id)} onSave={toggleSaved} canFeedback={cover.userId === userId} feedback={feedback[`${cover.id}:${article.id}`]} notice={notice} onFeedback={recordFeedback} onRead={() => recordFeedback('open')} onClose={() => setArticle(null)} onMemory={openMemory} size={profile?.size || 18} />}
     <div className={`toast ${notice ? 'visible' : ''}`} role="status" aria-live="polite">{notice && <><Check size={17} /><span>{notice}</span></>}</div>
   </>;
 }

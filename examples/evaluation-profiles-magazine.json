@@ -1,0 +1,42 @@
+[
+  {
+    "name": "musique",
+    "profile": {
+      "user_id": "audit-magazine-20260927-musique",
+      "interests": [{"topic": "musique, artistes, composition, music, musicians, songwriting", "weight": 3}],
+      "languages": ["fr", "en"],
+      "level": "intermediate",
+      "notes": ""
+    }
+  },
+  {
+    "name": "gastronomie",
+    "profile": {
+      "user_id": "audit-magazine-20260927-gastronomie",
+      "interests": [{"topic": "cuisine, gastronomie, cultures alimentaires, cooking, gastronomy, food culture", "weight": 3}],
+      "languages": ["fr", "en"],
+      "level": "intermediate",
+      "notes": ""
+    }
+  },
+  {
+    "name": "jeux-video",
+    "profile": {
+      "user_id": "audit-magazine-20260927-jeux-video",
+      "interests": [{"topic": "jeux vidéo, création de jeux, game design, video games, game development", "weight": 3}],
+      "languages": ["fr", "en"],
+      "level": "intermediate",
+      "notes": ""
+    }
+  },
+  {
+    "name": "climat-biodiversite",
+    "profile": {
+      "user_id": "audit-magazine-20260927-climat-biodiversite",
+      "interests": [{"topic": "climat, biodiversité, climate, environment", "weight": 3}],
+      "languages": ["fr", "en"],
+      "level": "intermediate",
+      "notes": ""
+    }
+  }
+]
