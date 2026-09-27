@@ -110,6 +110,14 @@ class Article(Model):
             value += "\n" + json.dumps(
                 [link.model_dump() for link in self.content_links], sort_keys=True
             )
+        if self.format != "article":
+            # CDN tokens, artwork cache busters and durations do not change what
+            # was said. Avoid paying to summarize the same description again.
+            identity = {
+                key: (self.media or {}).get(key)
+                for key in ("provider", "show_title", "channel_title", "publisher")
+            }
+            value += "\n" + self.format + "\n" + json.dumps(identity, sort_keys=True)
         return hashlib.sha256(value.encode()).hexdigest()
 
     @property
@@ -228,6 +236,8 @@ class Brief(Model):
 
 
 class Candidate(Model):
+    format: Literal["article", "video", "podcast", "animation"] = "article"
+    media: dict | None = None
     article_id: str
     title: str
     url: str
@@ -324,6 +334,8 @@ class TraceEvent(Model):
 
 
 class CoverItem(Model):
+    format: Literal["article", "video", "podcast", "animation"] = "article"
+    media: dict | None = None
     article_id: str
     title: str
     url: str
@@ -360,6 +372,10 @@ class CoverRequest(Model):
     profile: Profile
     discover_web: bool = False
     discover_sources: bool = False
+    discover_videos: bool = False
+    max_videos: int = Field(3, ge=0, le=3)
+    discover_podcasts: bool = False
+    max_podcasts: int = Field(2, ge=0, le=2)
     size: int = Field(18, ge=1, le=20)
     max_per_source: int = Field(3, ge=1, le=10)
 

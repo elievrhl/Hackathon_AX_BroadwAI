@@ -667,3 +667,62 @@ articles par intérêt lorsque la taille de la une le permet. Les recherches pri
 rubriques manquantes. Ces contrôles s'appliquent aussi à la sélection de secours ; une pénurie
 reste signalée dans les avertissements et la trace plutôt que comblée par un seul thème.
 La classification sémantique des articles repose sur le modèle ; les quotas sont appliqués en code.
+
+## Vidéos YouTube dans la une
+
+Le lecteur demande désormais une édition mixte : articles et jusqu’à trois vidéos,
+sélectionnés ensemble selon le profil, les langues, les exclusions et les likes.
+Les vidéos pertinentes rejoignent les rubriques existantes ; le seuil éditorial reste
+inchangé et aucune vidéo n’est imposée lorsque l’offre est insuffisante.
+
+Les trois chaînes YouTube de `examples/sources.json` (ARTE, Le Monde, Veritasium)
+se gèrent comme des sources RSS dans l’administration. L’import habituel des exemples
+les ajoute. On peut aussi ajouter une URL `https://www.youtube.com/channel/UC…` :
+elle est convertie en flux Atom. Les liens `@pseudo` ne sont pas résolus automatiquement ;
+utiliser l’identifiant de chaîne ou son flux `feeds/videos.xml?channel_id=UC…`.
+Les chaînes activées sont actualisées lors de la génération, au plus une fois par heure,
+avec quatre requêtes simultanées, au plus huit flux par génération. Une chaîne indisponible n’empêche pas de composer la une.
+
+Aucune clé YouTube ou Supadata n’est nécessaire. Les flux fournissent le titre original,
+la description, la chaîne, la date et la miniature. Ils ne fournissent pas de transcription
+ni de durée : l’IA décrit seulement le sujet annoncé et la fiche signale cette limite.
+Une durée est affichée seulement si `media.duration_seconds` est renseigné.
+Les miniatures viennent de l’identifiant de la vidéo, passent par le proxy d’images borné
+et ne déclenchent pas la vérification photographique payante. Le titre et la miniature
+ouvrent directement YouTube. Likes, bibliothèques et mémoire de lecture acceptent ce format.
+
+L’API `/v1/covers` accepte `discover_videos: true` pour actualiser les chaînes et
+`max_videos` entre 0 et 3 (3 par défaut ; 0 exclut les vidéos même déjà collectées).
+La taille demandée reste le total articles + vidéos. Les anciennes éditions restent lisibles.
+
+
+## Podcasts dans la une
+
+Les épisodes rejoignent les mêmes rubriques que les articles et les vidéos, avec
+une pochette, la durée lorsqu’elle est fournie, le nom de l’émission et un badge casque
+« Podcast » toujours visible. Le clic ouvre la page précise de l’épisode ; lorsqu’un
+éditeur fournit seulement une page d’émission commune, il ouvre le lien audio public
+propre à cet épisode. Likes et bibliothèques fonctionnent sur chaque épisode.
+
+La découverte part des **émissions enregistrées dans les sources**, via leurs flux RSS
+publics. Cette version ne recherche pas dans tout Spotify/Apple Podcasts et ne requiert
+aucune clé d’annuaire. `examples/sources.json` propose La Science CQFD, Les Pieds sur terre
+et Chaleur humaine. Pour ajouter une émission, choisir **Podcast (flux RSS)** dans
+l’administration, saisir son flux et lancer sa collecte. On peut la mettre en pause.
+Un flux RSS ordinaire contenant des pièces jointes audio est également reconnu à la
+collecte ; le type Podcast active son actualisation lors de la génération des unes.
+
+Les flux activés sont actualisés au plus une fois par heure, avec quatre requêtes
+simultanées et au plus huit flux vidéo/podcast par génération. La sélection compare
+le sujet de chaque épisode aux intérêts, langues, exclusions et likes du lecteur.
+L’API `/v1/covers` accepte `discover_podcasts: true` et `max_podcasts: 0..2` (2 par défaut).
+La taille de l’édition reste le total des trois formats ; les articles restent majoritaires
+avec les réglages du lecteur. Un manque de podcasts pertinents ne force pas leur ajout.
+
+La collecte ne télécharge ni ne transcrit l’audio. Les fiches reposent sur les descriptions
+publiées et signalent l’absence de transcription. Les épisodes annoncés dans le futur
+et les bandes-annonces identifiées sont ignorés. La pochette de l’épisode, ou celle de
+l’émission à défaut, passe par le proxy d’images public et borné, sans contrôle photographique
+payant. Les URL audio et les pochettes restent des métadonnées non fiables, jamais des
+instructions données au modèle. Une panne de flux n’empêche pas la génération à partir
+du catalogue disponible.

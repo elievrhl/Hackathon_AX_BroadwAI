@@ -83,7 +83,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS reader_preferences_active_target
 CREATE TABLE IF NOT EXISTS sources (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    kind TEXT NOT NULL CHECK (kind IN ('rss', 'hacker_news', 'website')),
+    kind TEXT NOT NULL CHECK (kind IN ('rss', 'hacker_news', 'website', 'podcast')),
     url TEXT NOT NULL,
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     limit_per_source INTEGER NOT NULL CHECK (limit_per_source BETWEEN 1 AND 50),
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS sources (
 -- Upgrade existing installations without changing sources or their article history.
 ALTER TABLE sources DROP CONSTRAINT IF EXISTS sources_kind_check;
 ALTER TABLE sources ADD CONSTRAINT sources_kind_check
-    CHECK (kind IN ('rss', 'hacker_news', 'website'));
+    CHECK (kind IN ('rss', 'hacker_news', 'website', 'podcast'));
 CREATE TABLE IF NOT EXISTS source_articles (
     source_id TEXT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
     article_id TEXT NOT NULL REFERENCES articles(id) ON DELETE CASCADE,

@@ -24,7 +24,7 @@ from broadwai.pipeline import CoverPipeline
 from broadwai.preferences import PreferenceConflict
 from broadwai.reader_chat import ReaderMessage, check_replay, preference_snapshot
 from broadwai.reader_memory import ArticleLike
-from broadwai.retrieval import Collector
+from broadwai.retrieval import Collector, refresh_media_sources
 from broadwai.saved_articles import router as saved_articles_router
 from broadwai.sources import router as admin_router
 from broadwai.store import Store
@@ -177,6 +177,25 @@ def create_app(
             )
             try:
                 async with asyncio.timeout(300):
+                    if (request.discover_videos and request.max_videos) or (
+                        request.discover_podcasts and request.max_podcasts
+                    ):
+                        if not app.state.source_lock.locked():
+                            async with app.state.source_lock:
+                                reports = await refresh_media_sources(
+                                    app.state.store,
+                                    app.state.collector,
+                                    videos=bool(request.discover_videos and request.max_videos),
+                                    podcasts=bool(
+                                        request.discover_podcasts and request.max_podcasts
+                                    ),
+                                )
+                            pipeline.log("media_refreshed", sources=reports)
+                            if any(report["errors"] for report in reports):
+                                pipeline.warnings.append(
+                                    "Certains flux vidéo ou podcast sont indisponibles ; "
+                                    "la sélection utilise le catalogue disponible."
+                                )
                     return await pipeline.run(request)
             except TimeoutError as exc:
                 raise HTTPException(
@@ -230,6 +249,8 @@ def create_app(
             if article is not None:
                 item = item.model_copy(
                     update={
+                        "format": article.format,
+                        "media": article.media,
                         "reading_time_minutes": item.reading_time_minutes
                         or article.reading_time_minutes,
                         "image": article.image

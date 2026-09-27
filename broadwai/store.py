@@ -41,6 +41,8 @@ class Store(PreferenceStore):
                 ON CONFLICT(id) DO UPDATE SET payload = CASE
                     WHEN articles.payload->>'extraction_status' = 'extracted'
                      AND excluded.payload->>'extraction_status' = 'excerpt'
+                     AND COALESCE(articles.payload->>'format', 'article')
+                         = excluded.payload->>'format'
                     THEN articles.payload
                     ELSE jsonb_set(excluded.payload, '{collected_at}',
                                    articles.payload->'collected_at') END

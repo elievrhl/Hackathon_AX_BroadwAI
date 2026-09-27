@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { ArticleCard, Wordmark } from './components.jsx';
-import { formatDate } from './reader.js';
+import { formatDate, contentCount } from './reader.js';
 import Events from './Events.jsx';
 import './newspaper.css';
 
@@ -23,7 +23,7 @@ export default function Newspaper({ profile, cover, saved, onSave, onOrganize, s
       <nav className="paper-navigation" aria-label="Rubriques du journal"><div className="nav-topics"><button className={filter === 'all' ? 'active' : ''} aria-current={filter === 'all' ? 'page' : undefined} onClick={() => setFilter('all')}>La une</button><button className={filter === 'events' ? 'active' : ''} aria-current={filter === 'events' ? 'page' : undefined} onClick={() => setFilter('events')}>Événements</button>{sections.map(section => <button key={section.id} className={filter === section.id ? 'active' : ''} aria-current={filter === section.id ? 'page' : undefined} onClick={() => setFilter(section.id)}>{section.label}</button>)}</div></nav>
     </header>
     <main id="main" className="paper-main">
-      <div className="edition-intro"><div><h1>{filter === 'events' ? <>À voir, à écouter,<br /><em>à vivre.</em></> : filter === 'all' ? (cover?.title || <>Le monde, <em>de votre point de vue.</em></>) : sections.find(section => section.id === filter)?.label}</h1><p>{filter === 'events' ? 'Vos centres d’intérêt prennent rendez-vous avec le monde.' : cover ? `${items.length} articles · ${formatDate(cover.createdAt)}` : 'Choisissez vos sujets, puis composez votre première édition.'}</p></div></div>
+      <div className="edition-intro"><div><h1>{filter === 'events' ? <>À voir, à écouter,<br /><em>à vivre.</em></> : filter === 'all' ? (cover?.title || <>Le monde, <em>de votre point de vue.</em></>) : sections.find(section => section.id === filter)?.label}</h1><p>{filter === 'events' ? 'Vos centres d’intérêt prennent rendez-vous avec le monde.' : cover ? `${contentCount(items)} · ${formatDate(cover.createdAt)}` : 'Choisissez vos sujets, puis composez votre première édition.'}</p></div></div>
       {filter === 'events' ? <Events profile={profile} onPreferences={onPreferences} /> : <>
       {children}
       {cover && cover.status !== 'complete' && <div className="edition-warning" role="status"><strong>{cover.status === 'fallback' ? 'Édition de secours' : 'Édition partielle'}</strong><p>{cover.status === 'fallback' ? 'La sélection n’a pas été validée par le rédacteur. Ces articles ont été retenus automatiquement.' : 'Le rédacteur n’a pas pu compléter entièrement cette édition avec les articles disponibles.'}</p></div>}

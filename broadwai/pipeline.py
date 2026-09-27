@@ -16,7 +16,7 @@ from broadwai.editorial import (
     preview_pool,
     reading_kind,
 )
-from broadwai.llm import BudgetExceeded, LanguageModel, ModelError, RunBudget
+from broadwai.llm import BudgetExceeded, LanguageModel, ModelError, RunBudget, summary_cache_version
 from broadwai.models import (
     Article,
     Candidate,
@@ -305,7 +305,10 @@ class CoverPipeline:
             return self.catalog_index.get(article.id, article)
         self.catalog_index[article.id] = article
         error = None
-        checked = article.extraction_status == "extracted" and bool(article.text.strip())
+        # A media landing page is not a transcript: use its supplied description.
+        checked = article.format in {"video", "podcast"} or (
+            article.extraction_status == "extracted" and bool(article.text.strip())
+        )
         if not checked:
             try:
                 if timeout <= 0:
@@ -422,6 +425,10 @@ class CoverPipeline:
 
     async def _prepare(self, ranked: Ranked, request: CoverRequest, seen: set[str]) -> bool:
         article = ranked.article
+        if article.format == "video" and not request.max_videos:
+            return False
+        if article.format == "podcast" and not request.max_podcasts:
+            return False
         self.catalog_index[article.id] = article
         pick = self.picks.get(article.id)
         self.prepared_ids.add(article.id)
@@ -453,13 +460,14 @@ class CoverPipeline:
         if article.id in self.candidates or len(self.candidates) >= 40:
             self.log("candidate_skipped", article_id=article.id, reason="Déjà présent ou limite 40")
             return False
-        brief = self.store.get_brief(article, self.model.summary_version)
+        version = summary_cache_version(article, self.model.summary_version)
+        brief = self.store.get_brief(article, version)
         if brief:
             self.budget.cache_hits += 1
             self.log(
                 "summary_cache_hit",
                 article_id=article.id,
-                version=self.model.summary_version,
+                version=version,
                 content_hash=article.content_hash,
                 brief=brief.model_dump(),
             )
@@ -470,13 +478,14 @@ class CoverPipeline:
                 self.log("candidate_skipped", article_id=article.id, reason="Contenu insuffisant")
                 self.warnings.append(f"{article.id}: contenu insuffisant pour une fiche fiable")
                 return False
-            brief = self.store.get_brief(article, self.model.summary_version)
+            version = summary_cache_version(article, self.model.summary_version)
+            brief = self.store.get_brief(article, version)
             if brief:
                 self.budget.cache_hits += 1
                 self.log(
                     "summary_cache_hit",
                     article_id=article.id,
-                    version=self.model.summary_version,
+                    version=version,
                     content_hash=article.content_hash,
                     brief=brief.model_dump(),
                 )
@@ -486,7 +495,7 @@ class CoverPipeline:
                         "summary_requested",
                         article_id=article.id,
                         title=article.title,
-                        version=self.model.summary_version,
+                        version=version,
                         content_hash=article.content_hash,
                         extraction_status=article.extraction_status,
                         input_chars=min(
@@ -501,13 +510,21 @@ class CoverPipeline:
                     self.warnings.append(f"{article.id}: {exc}")
                     return False
                 caveats = []
-                if article.extraction_status == "excerpt":
+                if article.format == "podcast" and article.extraction_status == "excerpt":
+                    caveats.append(
+                        "Fiche fondée sur la description de l’épisode, sans transcription."
+                    )
+                if article.format == "video" and article.extraction_status == "excerpt":
+                    caveats.append(
+                        "Fiche fondée sur la description de la vidéo, sans transcription."
+                    )
+                elif article.extraction_status == "excerpt" and article.format != "podcast":
                     caveats.append("Fiche fondée uniquement sur un extrait, pas le texte intégral.")
                 if len(article.text or article.excerpt) > self.settings.max_article_chars:
                     caveats.append("Texte tronqué avant résumé.")
                 caveats.extend(brief.caveats)
                 brief = brief.model_copy(update={"caveats": list(dict.fromkeys(caveats))[:5]})
-                self.store.put_brief(article, self.model.summary_version, brief)
+                self.store.put_brief(article, version, brief)
                 self.log("summary_completed", article_id=article.id, brief=brief.model_dump())
         self.log(
             "cited_sources",
@@ -562,6 +579,8 @@ class CoverPipeline:
             return False
         self.articles[article.id] = article
         self.candidates[article.id] = Candidate(
+            format=article.format,
+            media=article.media,
             article_id=article.id,
             title=article.title,
             url=article.url,
@@ -824,6 +843,10 @@ class CoverPipeline:
         if unknown:
             errors.append("Identifiants non disponibles : " + ", ".join(sorted(unknown)))
         articles = [self.articles[id_] for id_ in ids if id_ in self.articles]
+        if sum(a.format == "video" for a in articles) > request.max_videos:
+            errors.append(f"Maximum {request.max_videos} vidéos par édition")
+        if sum(a.format == "podcast" for a in articles) > request.max_podcasts:
+            errors.append(f"Maximum {request.max_podcasts} podcasts par édition")
         counts = Counter(a.source for a in articles)
         if any(count > request.max_per_source for count in counts.values()):
             errors.append(
@@ -876,6 +899,8 @@ class CoverPipeline:
         counts = Counter()
         ids = set()
         exploration_count = 0
+        video_count = 0
+        podcast_count = 0
         discovery_count = 0
         reduced_counts = Counter()
         interest_counts = Counter()
@@ -915,6 +940,10 @@ class CoverPipeline:
                 reason = "Identifiant inconnu"
             elif s.article_id in ids:
                 reason = "Doublon"
+            elif article.format == "video" and video_count >= request.max_videos:
+                reason = "Quota de vidéos"
+            elif article.format == "podcast" and podcast_count >= request.max_podcasts:
+                reason = "Quota de podcasts"
             elif candidate and self.preference_policy.blocked(article, candidate.brief):
                 reason = "Exclusion explicite du lecteur"
             elif discoveries and discovery_count >= self.preference_policy.discovery_limit:
@@ -942,6 +971,8 @@ class CoverPipeline:
                 removed.append({"article_id": s.article_id, "reason": reason})
                 continue
             ids.add(s.article_id)
+            video_count += article.format == "video"
+            podcast_count += article.format == "podcast"
             discovery_count += bool(discoveries)
             reduced_counts.update(reduced)
             counts[article.source] += 1
@@ -1132,7 +1163,13 @@ class CoverPipeline:
         catalog = self.store.articles(self.settings.max_catalog_articles)
         self.catalog_index.update({a.id: a for a in catalog})
         ranked = rank(
-            [a for a in catalog if not self._dated_out(a, allow_evergreen=True)],
+            [
+                a
+                for a in catalog
+                if not self._dated_out(a, allow_evergreen=True)
+                and (request.max_videos or a.format != "video")
+                and (request.max_podcasts or a.format != "podcast")
+            ],
             request.profile,
             seen,
             needs=self.intent["needs"],
@@ -1160,6 +1197,8 @@ class CoverPipeline:
                     "profile": request.profile.model_dump(exclude={"seen_article_ids"}),
                     "size": request.size,
                     "max_per_source": request.max_per_source,
+                    "max_videos": request.max_videos,
+                    "max_podcasts": request.max_podcasts,
                     "selection_limit": selection_limit,
                     "candidates": previews,
                     "today": utcnow().date().isoformat(),
@@ -1212,6 +1251,8 @@ class CoverPipeline:
                 "discover_web": request.discover_web,
                 "discover_sources": request.discover_sources,
                 "max_per_source": request.max_per_source,
+                "max_videos": request.max_videos,
+                "max_podcasts": request.max_podcasts,
                 "exploration_allowed": self.exploration_active,
                 "focused_capacity": self._focused_capacity(request),
                 "max_article_age_days": self.settings.max_article_age_days,

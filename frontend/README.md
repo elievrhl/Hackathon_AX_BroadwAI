@@ -110,6 +110,21 @@ tâche asynchrone ni de reprise automatique d’une requête interrompue.
 
 ## Stockage et retours
 
+Le bouton **Thèmes**, accessible dès l’accueil puis dans la navigation du lecteur,
+ouvre six aperçus : **Éditorial** (apparence d’origine), **Tech** (sombre et menthe),
+**Finance** (saumon, bleu encre, dense), **Atelier** (ivoire et bleu, grands titres),
+**Minimal** (blanc, noir, aéré) et **Playful** (lavande, cartes arrondies).
+Le choix s’applique immédiatement au journal, à la bibliothèque et aux fenêtres du
+lecteur. Il change les couleurs, les typographies et la mise en page, sans modifier
+les sujets ni générer une édition. Les flèches du clavier parcourent les choix et
+Échap ferme le sélecteur.
+
+`kiosque.theme.v1` conserve l’apparence pour ce navigateur, indépendamment du compte.
+Les autres onglets de la même origine se synchronisent. Si le stockage est indisponible,
+le thème s’applique pour la visite en cours ; une valeur inconnue rétablit Éditorial.
+Les palettes et variantes sont dans `src/themes.css`, leur catalogue et le stockage
+dans `src/themes.js`, le sélecteur dans `src/ThemePicker.jsx`.
+
 - `kiosque.accounts.v1`, `kiosque.session.v1` : comptes de démonstration et session locale.
 - Les clés `kiosque.reader.v1`, `kiosque.lastCover` et `kiosque.pending` sont suffixées
   par l’identifiant du compte pour isoler le profil, la dernière édition et une génération en cours.

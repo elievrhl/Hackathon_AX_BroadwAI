@@ -6,11 +6,12 @@ from pydantic import Field, model_validator
 
 from broadwai.models import IngestRequest, Model
 from broadwai.network import RetrievalError, validate_destination
+from broadwai.youtube import channel_feed
 
 
 class SourceInput(Model):
     name: str = Field(min_length=1, max_length=150)
-    kind: Literal["rss", "hacker_news", "website"] = "rss"
+    kind: Literal["rss", "hacker_news", "website", "podcast"] = "rss"
     url: str = Field("", max_length=2000)
     enabled: bool = True
     limit_per_source: int = Field(20, ge=1, le=50)
@@ -22,6 +23,9 @@ class SourceInput(Model):
         else:
             try:
                 self.url = validate_destination(self.url)
+                if feed := channel_feed(self.url):
+                    self.url = feed
+                    self.kind = "rss"
             except RetrievalError as exc:
                 raise ValueError(str(exc)) from exc
         return self
@@ -100,7 +104,7 @@ async def collect_sources(request: Request, source_id: str | None = None):
         results = []
         for source in sources:
             body = IngestRequest(
-                feed_urls=[source["url"]] if source["kind"] == "rss" else [],
+                feed_urls=[source["url"]] if source["kind"] in {"rss", "podcast"} else [],
                 website_urls=[source["url"]] if source["kind"] == "website" else [],
                 hacker_news=source["kind"] == "hacker_news",
                 limit_per_source=source["limit_per_source"],

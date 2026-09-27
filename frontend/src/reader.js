@@ -54,6 +54,8 @@ export function toCoverRequest(profile, userId) {
       languages: valid.languages, level: valid.level, notes: valid.notes,
     },
     size: valid.size, max_per_source: 3, discover_web: true, discover_sources: true,
+    discover_videos: true, max_videos: 3,
+    discover_podcasts: true, max_podcasts: 2,
   };
 }
 
@@ -68,7 +70,25 @@ export function articleImageUrl(item) {
   // Always use the local image service, never a URL supplied by an external page.
   if (!/^[a-zA-Z0-9_-]{1,100}$/.test(item.article_id || '')) return null;
   if (item.image_checked && !item.image) return null;
-  return `/v1/articles/${encodeURIComponent(item.article_id)}/image?v=review-1`;
+  return `/v1/articles/${encodeURIComponent(item.article_id)}/image?v=media-3`;
+}
+
+export function mediaDuration(seconds) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return '';
+  const value = Math.floor(seconds);
+  const minutes = Math.floor(value / 60);
+  return `${minutes >= 60 ? `${Math.floor(minutes / 60)}:` : ''}${minutes >= 60 ? String(minutes % 60).padStart(2, '0') : minutes}:${String(value % 60).padStart(2, '0')}`;
+}
+
+export function contentCount(items) {
+  const videos = items.filter(item => item.format === 'video').length;
+  const podcasts = items.filter(item => item.format === 'podcast').length;
+  const articles = items.length - videos - podcasts;
+  return [articles && `${articles} article${articles > 1 ? 's' : ''}`, videos && `${videos} vidéo${videos > 1 ? 's' : ''}`, podcasts && `${podcasts} podcast${podcasts > 1 ? 's' : ''}`].filter(Boolean).join(' · ') || '0 article';
+}
+
+export function contentAction(format) {
+  return format === 'podcast' ? 'Écouter l’épisode' : format === 'video' ? 'Voir sur YouTube' : 'Lire l’article';
 }
 
 /** Keep the editor's order and section names; every item appears exactly once on the front page. */
@@ -77,6 +97,9 @@ export function adaptCover(raw) {
   const items = raw.items.map(item => ({
     id: item.article_id, title: item.title, originalTitle: item.title, coverId: item.cover_id || null,
     url: safeArticleUrl(item.url), source: item.source, publishedAt: item.published_at,
+    format: item.format || 'article',
+    channelTitle: item.format === 'video' ? item.media?.channel_title || '' : item.format === 'podcast' ? item.media?.show_title || '' : '',
+    duration: ['video', 'podcast'].includes(item.format) ? mediaDuration(item.media?.duration_seconds) : '',
     imageUrl: articleImageUrl(item), imageAlt: item.image?.alt || '',
     section: item.selection_kind === 'exploration' ? 'Exploration' : item.section || 'À découvrir',
     reason: item.reason,
@@ -88,7 +111,7 @@ export function adaptCover(raw) {
       : item.reading_kind === 'research' ? 'Recherche' : 'Actualité',
     role: item.role,
     language: item.brief?.language,
-    readingTimeMinutes: Number.isInteger(item.reading_time_minutes) && item.reading_time_minutes > 0
+    readingTimeMinutes: (!item.format || item.format === 'article') && Number.isInteger(item.reading_time_minutes) && item.reading_time_minutes > 0
       ? item.reading_time_minutes : null,
   }));
   const focused = items.filter(item => !item.exploration);
